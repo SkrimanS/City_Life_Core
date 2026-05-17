@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2 - Unreleased
+
+### Added
+
+- Cross-reference validation for building definitions.
+- Building references for required professions, input resources, and output resources.
+- Data pack support for `required_profession_id`, `input_resource_ids`, and `output_resource_ids`.
+- Smoke tests for valid and invalid cross-references.
+
 ## 0.2.1 - Unreleased
 
 ### Added
