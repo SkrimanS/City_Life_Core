@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 - Unreleased
+
+### Added
+
+- Initial economy market pricing module.
+- `MarketState` for resource demand tracking.
+- `MarketPrice` reports with supply, demand, price, and reason fields.
+- Deterministic integer-only price calculation from base value, supply, and demand.
+- Market price calculation for registered resources present in storage.
+- Dedicated economy test binary and CTest entry.
+
 ## 0.3.3 - Unreleased
 
 ### Added

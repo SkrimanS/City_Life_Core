@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.3.3
+    VERSION 0.4.0
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -23,6 +23,7 @@ add_library(city_life_core
     src/clc/data/DataPackLoader.cpp
     src/clc/sim/Storage.cpp
     src/clc/sim/Settlement.cpp
+    src/clc/economy/Market.cpp
 )
 
 add_library(CityLifeCore::core ALIAS city_life_core)
@@ -42,7 +43,12 @@ target_link_libraries(clc_runner PRIVATE CityLifeCore::core)
 
 if(CLC_BUILD_TESTS)
     enable_testing()
+
     add_executable(clc_smoke_tests tests/smoke_tests.cpp)
     target_link_libraries(clc_smoke_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_smoke_tests COMMAND clc_smoke_tests)
+
+    add_executable(clc_economy_tests tests/economy_tests.cpp)
+    target_link_libraries(clc_economy_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_economy_tests COMMAND clc_economy_tests)
 endif()
