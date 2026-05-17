@@ -8,9 +8,31 @@ namespace {
 
 constexpr std::uint64_t k_people_per_food_unit = 10;
 constexpr std::uint64_t k_output_per_worker_per_day = 1;
+constexpr std::uint64_t k_input_per_worker_per_day = 1;
 
 std::uint64_t food_needed_for_population(std::uint64_t population) {
     return (population + k_people_per_food_unit - 1) / k_people_per_food_unit;
+}
+
+bool has_required_inputs(const ResourceStorage& storage, const data::BuildingDefinition& building_definition, std::uint64_t workers) {
+    for (const auto& input_resource_id : building_definition.input_resource_ids) {
+        const auto required = workers * k_input_per_worker_per_day;
+        if (storage.amount(input_resource_id) < required) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::uint64_t consume_inputs(ResourceStorage& storage, const data::BuildingDefinition& building_definition, std::uint64_t workers) {
+    std::uint64_t consumed{};
+    for (const auto& input_resource_id : building_definition.input_resource_ids) {
+        const auto required = workers * k_input_per_worker_per_day;
+        if (storage.try_remove(input_resource_id, required)) {
+            consumed += required;
+        }
+    }
+    return consumed;
 }
 
 } // namespace
@@ -54,11 +76,27 @@ SettlementTickReport advance_settlement_day(SettlementState& settlement, const d
     for (const auto& building : settlement.buildings) {
         const auto* building_definition = registry.building(building.definition_id);
         if (building_definition == nullptr) {
+            ++report.skipped_buildings;
             report.warnings.push_back("skipped unknown building: " + building.definition_id);
             continue;
         }
 
         const auto workers = std::min(building.assigned_workers, building_definition->worker_slots);
+        if (workers == 0) {
+            ++report.skipped_buildings;
+            report.warnings.push_back("skipped building with no workers: " + building.definition_id);
+            continue;
+        }
+
+        if (!has_required_inputs(settlement.storage, *building_definition, workers)) {
+            ++report.skipped_buildings;
+            report.warnings.push_back("skipped building due to missing inputs: " + building.definition_id);
+            continue;
+        }
+
+        report.consumed_inputs += consume_inputs(settlement.storage, *building_definition, workers);
+        ++report.active_buildings;
+
         for (const auto& output_resource_id : building_definition->output_resource_ids) {
             const auto produced = static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day;
             const auto add_report = settlement.storage.add(output_resource_id, produced);
