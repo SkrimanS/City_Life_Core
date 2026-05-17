@@ -44,9 +44,7 @@ SettlementTickReport advance_settlement_day(SettlementState& settlement, const d
     SettlementTickReport report{.settlement_id = settlement.id};
 
     const auto food_needed = food_needed_for_population(settlement.population);
-    auto& grain = settlement.storage["grain"];
-    const auto consumed = std::min(grain, food_needed);
-    grain -= consumed;
+    const auto consumed = settlement.storage.remove_up_to("grain", food_needed);
     report.consumed_food = consumed;
 
     if (consumed < food_needed) {
@@ -63,7 +61,11 @@ SettlementTickReport advance_settlement_day(SettlementState& settlement, const d
         const auto workers = std::min(building.assigned_workers, building_definition->worker_slots);
         for (const auto& output_resource_id : building_definition->output_resource_ids) {
             const auto produced = static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day;
-            settlement.storage[output_resource_id] += produced;
+            const auto add_report = settlement.storage.add(output_resource_id, produced);
+            if (!add_report.ok()) {
+                report.warnings.push_back("failed to store produced resource: " + output_resource_id);
+                continue;
+            }
             report.produced_resources += produced;
         }
     }
