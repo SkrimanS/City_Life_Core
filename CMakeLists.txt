@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.2.0
+    VERSION 0.2.1
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -20,6 +20,7 @@ add_library(city_life_core
     src/clc/core/EventLog.cpp
     src/clc/data/Validation.cpp
     src/clc/data/DataRegistry.cpp
+    src/clc/data/DataPackLoader.cpp
 )
 
 add_library(CityLifeCore::core ALIAS city_life_core)
