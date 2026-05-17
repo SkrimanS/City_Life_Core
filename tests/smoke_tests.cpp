@@ -24,7 +24,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.3.1"}, "version string should be 0.3.1");
+    require(clc::core_version_string() == std::string_view{"0.3.2"}, "version string should be 0.3.2");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -105,6 +105,12 @@ display_name=Grain
 category=food
 base_value=10
 
+[resource]
+id=wood
+display_name=Wood
+category=construction
+base_value=6
+
 [currency]
 id=coin
 display_name=Coin
@@ -121,6 +127,7 @@ display_name=Farm
 category=production
 worker_slots=8
 required_profession_id=farmer
+input_resource_ids=wood
 output_resource_ids=grain
 
 [settlement]
@@ -130,7 +137,7 @@ starting_population=120
 )CLC", loaded_registry);
 
     require(load_report.ok(), "valid data pack should load");
-    require(loaded_registry.resource_count() == 1, "loader should register one resource");
+    require(loaded_registry.resource_count() == 2, "loader should register two resources");
     require(loaded_registry.currency_count() == 1, "loader should register one currency");
     require(loaded_registry.building_count() == 1, "loader should register one building");
     require(loaded_registry.profession_count() == 1, "loader should register one profession");
@@ -143,6 +150,7 @@ starting_population=120
 
     auto settlement = clc::sim::create_settlement_from_definition(*settlement_definition);
     require(settlement.storage.add("grain", 20).ok(), "settlement storage should accept starting grain");
+    require(settlement.storage.add("wood", 8).ok(), "settlement storage should accept production input wood");
 
     const auto add_building_report = clc::sim::add_building(settlement, loaded_registry, clc::sim::BuildingInstance{
         .definition_id = "farm",
@@ -152,8 +160,24 @@ starting_population=120
 
     const auto day_report = clc::sim::advance_settlement_day(settlement, loaded_registry);
     require(day_report.consumed_food == 12, "population 120 should consume 12 grain per day");
+    require(day_report.consumed_inputs == 8, "farm should consume 8 wood input units per day");
     require(day_report.produced_resources == 8, "farm should produce 8 resource units per day");
+    require(day_report.active_buildings == 1, "farm should be active when inputs exist");
+    require(day_report.skipped_buildings == 0, "farm should not be skipped when inputs exist");
+    require(settlement.storage.amount("wood") == 0, "wood should be consumed by production");
     require(settlement.storage.amount("grain") == 16, "grain should remain non-negative after consume and produce");
+
+    auto input_starved_settlement = clc::sim::create_settlement_from_definition(*settlement_definition);
+    require(input_starved_settlement.storage.add("grain", 20).ok(), "input-starved settlement should accept grain");
+    require(clc::sim::add_building(input_starved_settlement, loaded_registry, clc::sim::BuildingInstance{
+        .definition_id = "farm",
+        .assigned_workers = 8,
+    }).ok(), "input-starved settlement should accept building");
+    const auto starved_report = clc::sim::advance_settlement_day(input_starved_settlement, loaded_registry);
+    require(starved_report.produced_resources == 0, "farm should not produce when input resources are missing");
+    require(starved_report.consumed_inputs == 0, "farm should not partially consume missing inputs");
+    require(starved_report.active_buildings == 0, "farm should not be active without inputs");
+    require(starved_report.skipped_buildings == 1, "farm should be skipped without inputs");
 
     clc::data::DataRegistry invalid_registry;
     const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n", invalid_registry);
