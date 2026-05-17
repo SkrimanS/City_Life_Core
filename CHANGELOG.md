@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.3 - Unreleased
+
+### Added
+
+- `EconomyLedger` for recording successful trade transactions.
+- `LedgerEntry` and `LedgerEntryType` structures.
+- Sequential immutable ledger entries with trade resource, quantity, unit price, total price, and notes.
+- Ledger aggregation helpers for total bought and sold quantities per resource.
+- Economy test coverage for recording successful trades and rejecting failed trades.
+
 ## 0.4.2 - Unreleased
 
 ### Added
