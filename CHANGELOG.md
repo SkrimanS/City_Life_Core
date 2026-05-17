@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.3 - Unreleased
+
+### Added
+
+- Settlement report snapshot API for read-only state inspection.
+- `ResourceAmount`, `BuildingReport`, and `SettlementReport` structures.
+- Deterministic storage and building ordering in settlement reports.
+- Smoke test coverage for settlement report generation.
+
 ## 0.3.2 - Unreleased
 
 ### Added
