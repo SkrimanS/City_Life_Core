@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace clc::data {
 namespace {
@@ -24,6 +25,24 @@ std::string strip_optional_quotes(std::string value) {
         return value.substr(1, value.size() - 2);
     }
     return value;
+}
+
+std::vector<std::string> split_csv(std::string_view text) {
+    std::vector<std::string> values;
+    std::size_t start = 0;
+    while (start <= text.size()) {
+        const auto comma = text.find(',', start);
+        const auto end = comma == std::string_view::npos ? text.size() : comma;
+        auto value = trim(text.substr(start, end - start));
+        if (!value.empty()) {
+            values.push_back(std::move(value));
+        }
+        if (comma == std::string_view::npos) {
+            break;
+        }
+        start = comma + 1;
+    }
+    return values;
 }
 
 bool parse_u64(std::string_view text, std::uint64_t& out) {
@@ -57,6 +76,13 @@ const std::string* find_field(const DefinitionRecord& record, std::string_view k
 std::string field_or_empty(const DefinitionRecord& record, std::string_view key) {
     if (const auto* value = find_field(record, key)) {
         return *value;
+    }
+    return {};
+}
+
+std::vector<std::string> csv_field_or_empty(const DefinitionRecord& record, std::string_view key) {
+    if (const auto* value = find_field(record, key)) {
+        return split_csv(*value);
     }
     return {};
 }
@@ -124,6 +150,7 @@ ValidationReport DataPackLoader::load_string(std::string_view source_name, std::
             register_report.add_warning(message.path, message.message);
         }
     }
+    append_messages(register_report, registry.validate_references());
     return register_report;
 }
 
@@ -186,7 +213,7 @@ ValidationReport DataPackLoader::parse(std::string_view source_name, std::string
 
     if (document.schema_version.empty()) {
         report.add_error(std::string{source_name}, "schema_version is required");
-    } else if (document.schema_version != "0.2.1") {
+    } else if (document.schema_version != "0.2.2") {
         report.add_error(std::string{source_name}, "unsupported schema_version: " + document.schema_version);
     }
 
@@ -237,6 +264,9 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
             .display_name = field_or_empty(record, "display_name"),
             .category = field_or_empty(record, "category"),
             .worker_slots = worker_slots,
+            .required_profession_id = field_or_empty(record, "required_profession_id"),
+            .input_resource_ids = csv_field_or_empty(record, "input_resource_ids"),
+            .output_resource_ids = csv_field_or_empty(record, "output_resource_ids"),
         }));
     }
 
