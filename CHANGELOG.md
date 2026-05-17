@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1 - Unreleased
+
+### Added
+
+- `MarketReport` aggregate snapshot for market state inspection.
+- `make_market_report()` for sorted price rows and market summary totals.
+- Market report fields for total supply, total demand, average price, min price, and max price.
+- Economy test coverage for non-empty and empty market reports.
+
 ## 0.4.0 - Unreleased
 
 ### Added
