@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.2 - Unreleased
+
+### Added
+
+- Basic trade transaction API for buying and selling resources.
+- `Wallet` and `TradeResult` structures.
+- Safe buy/sell operations with checks for empty resource IDs, zero quantities, zero prices, price overflow, insufficient coins, insufficient resources, and wallet overflow.
+- Economy test coverage for successful and failed trade transactions.
+
 ## 0.4.1 - Unreleased
 
 ### Added
