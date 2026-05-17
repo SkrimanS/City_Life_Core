@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1 - Unreleased
+
+### Added
+
+- `ResourceStorage` for controlled resource storage operations.
+- Safe add, try-remove, remove-up-to, amount lookup, and transfer operations.
+- Settlement simulation now uses `ResourceStorage` instead of raw resource maps.
+- Smoke test coverage for storage operations and settlement storage integration.
+
 ## 0.3.0 - Unreleased
 
 ### Added
