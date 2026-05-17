@@ -2,6 +2,7 @@
 
 #include <charconv>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -64,6 +65,37 @@ bool is_section(std::string_view line) {
     return line.size() >= 2 && line.front() == '[' && line.back() == ']';
 }
 
+void append_record(DataPackDocument& document, std::string_view section, DefinitionRecord record) {
+    if (record.empty()) {
+        return;
+    }
+    if (section == "resource") {
+        document.resources.push_back(std::move(record));
+    } else if (section == "currency") {
+        document.currencies.push_back(std::move(record));
+    } else if (section == "building") {
+        document.buildings.push_back(std::move(record));
+    } else if (section == "profession") {
+        document.professions.push_back(std::move(record));
+    } else if (section == "settlement") {
+        document.settlements.push_back(std::move(record));
+    }
+}
+
+bool is_known_record_section(std::string_view section) {
+    return section == "resource" || section == "currency" || section == "building" || section == "profession" || section == "settlement";
+}
+
+void append_messages(ValidationReport& target, const ValidationReport& source) {
+    for (const auto& message : source.messages()) {
+        if (message.severity == ValidationSeverity::error) {
+            target.add_error(message.path, message.message);
+        } else {
+            target.add_warning(message.path, message.message);
+        }
+    }
+}
+
 } // namespace
 
 ValidationReport DataPackLoader::load_file(const std::filesystem::path& path, DataRegistry& registry) const {
@@ -100,6 +132,7 @@ ValidationReport DataPackLoader::parse(std::string_view source_name, std::string
     std::istringstream input{std::string{content}};
     std::string line;
     std::string section;
+    DefinitionRecord current_record;
     std::size_t line_number = 0;
 
     while (std::getline(input, line)) {
@@ -110,7 +143,13 @@ ValidationReport DataPackLoader::parse(std::string_view source_name, std::string
         }
 
         if (is_section(cleaned)) {
+            append_record(document, section, std::move(current_record));
+            current_record = DefinitionRecord{};
             section = cleaned.substr(1, cleaned.size() - 2);
+
+            if (!section.empty() && !is_known_record_section(section)) {
+                report.add_error(std::string{source_name} + ":" + std::to_string(line_number), "unknown section: " + section);
+            }
             continue;
         }
 
@@ -132,23 +171,18 @@ ValidationReport DataPackLoader::parse(std::string_view source_name, std::string
             continue;
         }
 
-        DefinitionRecord record;
-        record.emplace(std::move(key), std::move(value));
-
-        if (section == "resource") {
-            document.resources.push_back(std::move(record));
-        } else if (section == "currency") {
-            document.currencies.push_back(std::move(record));
-        } else if (section == "building") {
-            document.buildings.push_back(std::move(record));
-        } else if (section == "profession") {
-            document.professions.push_back(std::move(record));
-        } else if (section == "settlement") {
-            document.settlements.push_back(std::move(record));
-        } else {
-            report.add_error(std::string{source_name} + ":" + std::to_string(line_number), "unknown section: " + section);
+        if (!is_known_record_section(section)) {
+            continue;
         }
+
+        if (current_record.find(key) != current_record.end()) {
+            report.add_error(std::string{source_name} + ":" + std::to_string(line_number), "duplicate key in section: " + key);
+            continue;
+        }
+        current_record.emplace(std::move(key), std::move(value));
     }
+
+    append_record(document, section, std::move(current_record));
 
     if (document.schema_version.empty()) {
         report.add_error(std::string{source_name}, "schema_version is required");
@@ -169,19 +203,12 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
             continue;
         }
 
-        auto item_report = registry.add(ResourceDefinition{
+        append_messages(report, registry.add(ResourceDefinition{
             .id = field_or_empty(record, "id"),
             .display_name = field_or_empty(record, "display_name"),
             .category = field_or_empty(record, "category"),
             .base_value = base_value,
-        });
-        for (const auto& message : item_report.messages()) {
-            if (message.severity == ValidationSeverity::error) {
-                report.add_error(message.path, message.message);
-            } else {
-                report.add_warning(message.path, message.message);
-            }
-        }
+        }));
     }
 
     for (const auto& record : document.currencies) {
@@ -191,18 +218,11 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
             continue;
         }
 
-        auto item_report = registry.add(CurrencyDefinition{
+        append_messages(report, registry.add(CurrencyDefinition{
             .id = field_or_empty(record, "id"),
             .display_name = field_or_empty(record, "display_name"),
             .fractional_digits = fractional_digits,
-        });
-        for (const auto& message : item_report.messages()) {
-            if (message.severity == ValidationSeverity::error) {
-                report.add_error(message.path, message.message);
-            } else {
-                report.add_warning(message.path, message.message);
-            }
-        }
+        }));
     }
 
     for (const auto& record : document.buildings) {
@@ -212,34 +232,20 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
             continue;
         }
 
-        auto item_report = registry.add(BuildingDefinition{
+        append_messages(report, registry.add(BuildingDefinition{
             .id = field_or_empty(record, "id"),
             .display_name = field_or_empty(record, "display_name"),
             .category = field_or_empty(record, "category"),
             .worker_slots = worker_slots,
-        });
-        for (const auto& message : item_report.messages()) {
-            if (message.severity == ValidationSeverity::error) {
-                report.add_error(message.path, message.message);
-            } else {
-                report.add_warning(message.path, message.message);
-            }
-        }
+        }));
     }
 
     for (const auto& record : document.professions) {
-        auto item_report = registry.add(ProfessionDefinition{
+        append_messages(report, registry.add(ProfessionDefinition{
             .id = field_or_empty(record, "id"),
             .display_name = field_or_empty(record, "display_name"),
             .category = field_or_empty(record, "category"),
-        });
-        for (const auto& message : item_report.messages()) {
-            if (message.severity == ValidationSeverity::error) {
-                report.add_error(message.path, message.message);
-            } else {
-                report.add_warning(message.path, message.message);
-            }
-        }
+        }));
     }
 
     for (const auto& record : document.settlements) {
@@ -249,18 +255,11 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
             continue;
         }
 
-        auto item_report = registry.add(SettlementDefinition{
+        append_messages(report, registry.add(SettlementDefinition{
             .id = field_or_empty(record, "id"),
             .display_name = field_or_empty(record, "display_name"),
             .starting_population = starting_population,
-        });
-        for (const auto& message : item_report.messages()) {
-            if (message.severity == ValidationSeverity::error) {
-                report.add_error(message.path, message.message);
-            } else {
-                report.add_warning(message.path, message.message);
-            }
-        }
+        }));
     }
 
     return report;
