@@ -23,6 +23,7 @@ struct DataPackDocument final {
 
 class DataPackLoader final {
 public:
+    [[nodiscard]] ValidationReport load_directory(const std::filesystem::path& directory, DataRegistry& registry) const;
     [[nodiscard]] ValidationReport load_file(const std::filesystem::path& path, DataRegistry& registry) const;
     [[nodiscard]] ValidationReport load_string(std::string_view source_name, std::string_view content, DataRegistry& registry) const;
 
