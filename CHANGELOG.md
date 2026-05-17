@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 - Unreleased
+
+### Added
+
+- `DataPackLoader` for loading simple schema-versioned data pack files into `DataRegistry`.
+- INI-like `.clcd` data pack format with repeatable `[resource]`, `[currency]`, `[building]`, `[profession]`, and `[settlement]` sections.
+- Demo fantasy core data pack at `data/demo_fantasy/core.clcd`.
+- Smoke tests for valid data pack loading and unsupported schema versions.
+
 ## 0.2.0 - Unreleased
 
 ### Added
