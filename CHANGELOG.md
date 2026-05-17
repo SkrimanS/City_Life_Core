@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 - Unreleased
+
+### Added
+
+- Initial single settlement simulation module.
+- `SettlementState`, `BuildingInstance`, and `SettlementTickReport`.
+- Settlement creation from data definitions.
+- Building instance validation against registered building definitions.
+- One-day settlement tick with basic food consumption and building output production.
+- Smoke test coverage for a settlement consuming and producing resources without negative storage.
+
 ## 0.2.3 - Unreleased
 
 ### Added
