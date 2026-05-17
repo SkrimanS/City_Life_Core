@@ -24,7 +24,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.3.2"}, "version string should be 0.3.2");
+    require(clc::core_version_string() == std::string_view{"0.3.3"}, "version string should be 0.3.3");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -166,6 +166,20 @@ starting_population=120
     require(day_report.skipped_buildings == 0, "farm should not be skipped when inputs exist");
     require(settlement.storage.amount("wood") == 0, "wood should be consumed by production");
     require(settlement.storage.amount("grain") == 16, "grain should remain non-negative after consume and produce");
+
+    const auto report = clc::sim::make_settlement_report(settlement, loaded_registry);
+    require(report.id == "riverwatch", "settlement report should include id");
+    require(report.display_name == "Riverwatch", "settlement report should include display name");
+    require(report.population == 120, "settlement report should include population");
+    require(report.storage.size() == 1, "settlement report should include non-empty storage entries");
+    require(report.storage[0].resource_id == "grain", "settlement report storage should be sorted and include grain");
+    require(report.storage[0].amount == 16, "settlement report should include grain amount");
+    require(report.total_stored_resources == 16, "settlement report should include total stored resources");
+    require(report.buildings.size() == 1, "settlement report should include building entries");
+    require(report.buildings[0].definition_id == "farm", "settlement report should include building id");
+    require(report.buildings[0].display_name == "Farm", "settlement report should resolve building display name");
+    require(report.buildings[0].assigned_workers == 8, "settlement report should include assigned workers");
+    require(report.buildings[0].worker_slots == 8, "settlement report should include worker slots");
 
     auto input_starved_settlement = clc::sim::create_settlement_from_definition(*settlement_definition);
     require(input_starved_settlement.storage.add("grain", 20).ok(), "input-starved settlement should accept grain");

@@ -111,4 +111,39 @@ SettlementTickReport advance_settlement_day(SettlementState& settlement, const d
     return report;
 }
 
+SettlementReport make_settlement_report(const SettlementState& settlement, const data::DataRegistry& registry) {
+    SettlementReport report{
+        .id = settlement.id,
+        .display_name = settlement.display_name,
+        .population = settlement.population,
+    };
+
+    report.storage.reserve(settlement.storage.entries().size());
+    for (const auto& [resource_id, amount] : settlement.storage.entries()) {
+        report.storage.push_back(ResourceAmount{.resource_id = resource_id, .amount = amount});
+        report.total_stored_resources += amount;
+    }
+
+    std::sort(report.storage.begin(), report.storage.end(), [](const ResourceAmount& lhs, const ResourceAmount& rhs) {
+        return lhs.resource_id < rhs.resource_id;
+    });
+
+    report.buildings.reserve(settlement.buildings.size());
+    for (const auto& building : settlement.buildings) {
+        const auto* definition = registry.building(building.definition_id);
+        report.buildings.push_back(BuildingReport{
+            .definition_id = building.definition_id,
+            .display_name = definition == nullptr ? std::string{} : definition->display_name,
+            .assigned_workers = building.assigned_workers,
+            .worker_slots = definition == nullptr ? 0U : definition->worker_slots,
+        });
+    }
+
+    std::sort(report.buildings.begin(), report.buildings.end(), [](const BuildingReport& lhs, const BuildingReport& rhs) {
+        return lhs.definition_id < rhs.definition_id;
+    });
+
+    return report;
+}
+
 } // namespace clc::sim
