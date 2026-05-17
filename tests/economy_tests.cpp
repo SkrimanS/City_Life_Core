@@ -66,5 +66,23 @@ int main() {
     require(prices[0].resource_id == "grain", "market prices should be sorted by resource id");
     require(prices[1].resource_id == "wood", "market prices should include wood");
 
+    const auto report = clc::economy::make_market_report(registry, storage, market);
+    require(report.prices.size() == 2, "market report should include price rows");
+    require(report.total_supply == 40, "market report should aggregate total supply");
+    require(report.total_demand == 38, "market report should aggregate total demand");
+    require(report.min_price >= 1, "market report min price should stay positive");
+    require(report.max_price >= report.min_price, "market report max price should be >= min price");
+    require(report.average_price >= report.min_price, "market report average price should be >= min price");
+    require(report.average_price <= report.max_price, "market report average price should be <= max price");
+
+    clc::sim::ResourceStorage empty_storage;
+    const auto empty_report = clc::economy::make_market_report(registry, empty_storage, market);
+    require(empty_report.prices.empty(), "empty market report should have no price rows");
+    require(empty_report.total_supply == 0, "empty market report should have zero supply");
+    require(empty_report.total_demand == 0, "empty market report should have zero demand");
+    require(empty_report.average_price == 0, "empty market report should have zero average price");
+    require(empty_report.min_price == 0, "empty market report should have zero min price");
+    require(empty_report.max_price == 0, "empty market report should have zero max price");
+
     return 0;
 }
