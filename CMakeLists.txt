@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.2.1
+    VERSION 0.2.2
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -25,11 +25,7 @@ add_library(city_life_core
 
 add_library(CityLifeCore::core ALIAS city_life_core)
 
-target_include_directories(city_life_core
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-)
+target_include_directories(city_life_core PUBLIC include)
 
 target_compile_features(city_life_core PUBLIC cxx_std_20)
 
