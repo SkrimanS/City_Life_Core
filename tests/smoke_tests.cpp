@@ -1,5 +1,6 @@
 #include "clc/core/Version.hpp"
 #include "clc/core/World.hpp"
+#include "clc/data/DataPackLoader.hpp"
 #include "clc/data/DataRegistry.hpp"
 
 #include <cstdlib>
@@ -19,7 +20,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.2.0"}, "version string should be 0.2.0");
+    require(clc::core_version_string() == std::string_view{"0.2.1"}, "version string should be 0.2.1");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -76,6 +77,52 @@ int main() {
     });
     require(settlement_report.ok(), "valid settlement should register");
     require(registry.settlement_count() == 1, "registry should contain one settlement");
+
+    clc::data::DataRegistry loaded_registry;
+    clc::data::DataPackLoader loader;
+    const auto load_report = loader.load_string("inline-test", R"CLC(
+schema_version=0.2.1
+
+[resource]
+id=wood
+display_name=Wood
+category=construction
+base_value=6
+
+[currency]
+id=coin
+display_name=Coin
+fractional_digits=2
+
+[building]
+id=farm
+display_name=Farm
+category=production
+worker_slots=8
+
+[profession]
+id=farmer
+display_name=Farmer
+category=production
+
+[settlement]
+id=riverwatch
+display_name=Riverwatch
+starting_population=120
+)CLC", loaded_registry);
+
+    require(load_report.ok(), "valid data pack should load");
+    require(loaded_registry.resource_count() == 1, "loader should register one resource");
+    require(loaded_registry.currency_count() == 1, "loader should register one currency");
+    require(loaded_registry.building_count() == 1, "loader should register one building");
+    require(loaded_registry.profession_count() == 1, "loader should register one profession");
+    require(loaded_registry.settlement_count() == 1, "loader should register one settlement");
+    require(loaded_registry.resource("wood") != nullptr, "loaded resource should be findable");
+
+    clc::data::DataRegistry invalid_registry;
+    const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n");
+    (void)invalid_registry;
+    require(!invalid_report.ok(), "unsupported schema version should fail");
 
     return 0;
 }
