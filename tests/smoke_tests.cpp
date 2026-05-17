@@ -4,6 +4,8 @@
 #include "clc/data/DataRegistry.hpp"
 
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string_view>
 
@@ -20,7 +22,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.2.2"}, "version string should be 0.2.2");
+    require(clc::core_version_string() == std::string_view{"0.2.3"}, "version string should be 0.2.3");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -139,6 +141,51 @@ required_profession_id=missing_profession
 output_resource_ids=missing_resource
 )CLC", broken_registry);
     require(!broken_report.ok(), "unknown building references should fail validation");
+
+    const auto directory = std::filesystem::temp_directory_path() / "clc_pack_folder_smoke";
+    std::filesystem::remove_all(directory);
+    std::filesystem::create_directories(directory);
+
+    {
+        std::ofstream definitions{directory / "01_definitions.clcd"};
+        definitions << R"CLC(schema_version=0.2.2
+
+[resource]
+id=grain
+display_name=Grain
+category=food
+base_value=10
+
+[profession]
+id=farmer
+display_name=Farmer
+category=production
+)CLC";
+    }
+
+    {
+        std::ofstream buildings{directory / "02_buildings.clcd"};
+        buildings << R"CLC(schema_version=0.2.2
+
+[building]
+id=farm
+display_name=Farm
+category=production
+worker_slots=8
+required_profession_id=farmer
+output_resource_ids=grain
+)CLC";
+    }
+
+    clc::data::DataRegistry directory_registry;
+    const auto directory_report = loader.load_directory(directory, directory_registry);
+    require(directory_report.ok(), "valid data pack directory should load");
+    require(directory_registry.resource_count() == 1, "directory loader should register one resource");
+    require(directory_registry.profession_count() == 1, "directory loader should register one profession");
+    require(directory_registry.building_count() == 1, "directory loader should register one building");
+    require(directory_registry.validate_references().ok(), "directory references should validate");
+
+    std::filesystem::remove_all(directory);
 
     return 0;
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3 - Unreleased
+
+### Added
+
+- `DataPackLoader::load_directory()` for loading all `.clcd` files from a data pack folder.
+- Deterministic lexicographic file ordering for folder loads.
+- Smoke test coverage for multi-file data pack loading.
+
 ## 0.2.2 - Unreleased
 
 ### Added
