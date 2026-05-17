@@ -17,6 +17,8 @@ public:
     ValidationReport add(ProfessionDefinition definition);
     ValidationReport add(SettlementDefinition definition);
 
+    [[nodiscard]] ValidationReport validate_references() const;
+
     [[nodiscard]] const ResourceDefinition* resource(std::string_view id) const;
     [[nodiscard]] const CurrencyDefinition* currency(std::string_view id) const;
     [[nodiscard]] const BuildingDefinition* building(std::string_view id) const;
