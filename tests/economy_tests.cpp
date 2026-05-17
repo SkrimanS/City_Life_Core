@@ -1,5 +1,6 @@
 #include "clc/data/DataRegistry.hpp"
 #include "clc/economy/Market.hpp"
+#include "clc/economy/Trade.hpp"
 #include "clc/sim/Storage.hpp"
 
 #include <cstdlib>
@@ -83,6 +84,30 @@ int main() {
     require(empty_report.average_price == 0, "empty market report should have zero average price");
     require(empty_report.min_price == 0, "empty market report should have zero min price");
     require(empty_report.max_price == 0, "empty market report should have zero max price");
+
+    clc::economy::Wallet wallet{.coins = 100};
+    clc::sim::ResourceStorage trade_storage;
+    const auto buy = clc::economy::buy_resource(wallet, trade_storage, balanced, 3);
+    require(buy.ok, "buy should succeed with enough coins");
+    require(buy.total_price == 30, "buy total should be unit price times quantity");
+    require(wallet.coins == 70, "buy should debit wallet");
+    require(trade_storage.amount("grain") == 3, "buy should add resource to storage");
+
+    const auto failed_buy = clc::economy::buy_resource(wallet, trade_storage, balanced, 100);
+    require(!failed_buy.ok, "buy should fail without enough coins");
+    require(wallet.coins == 70, "failed buy should not debit wallet");
+    require(trade_storage.amount("grain") == 3, "failed buy should not add resources");
+
+    const auto sell = clc::economy::sell_resource(wallet, trade_storage, balanced, 2);
+    require(sell.ok, "sell should succeed with enough resources");
+    require(sell.total_price == 20, "sell total should be unit price times quantity");
+    require(wallet.coins == 90, "sell should credit wallet");
+    require(trade_storage.amount("grain") == 1, "sell should remove resource from storage");
+
+    const auto failed_sell = clc::economy::sell_resource(wallet, trade_storage, balanced, 2);
+    require(!failed_sell.ok, "sell should fail without enough resources");
+    require(wallet.coins == 90, "failed sell should not credit wallet");
+    require(trade_storage.amount("grain") == 1, "failed sell should not remove resources");
 
     return 0;
 }
