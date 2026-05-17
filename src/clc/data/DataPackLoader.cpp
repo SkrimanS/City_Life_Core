@@ -1,5 +1,6 @@
 #include "clc/data/DataPackLoader.hpp"
 
+#include <algorithm>
 #include <charconv>
 #include <fstream>
 #include <limits>
@@ -123,6 +124,32 @@ void append_messages(ValidationReport& target, const ValidationReport& source) {
 }
 
 } // namespace
+
+ValidationReport DataPackLoader::load_directory(const std::filesystem::path& directory, DataRegistry& registry) const {
+    ValidationReport report;
+    if (!std::filesystem::exists(directory)) {
+        report.add_error(directory.string(), "data pack directory does not exist");
+        return report;
+    }
+    if (!std::filesystem::is_directory(directory)) {
+        report.add_error(directory.string(), "data pack path is not a directory");
+        return report;
+    }
+
+    std::vector<std::filesystem::path> files;
+    for (const auto& entry : std::filesystem::directory_iterator{directory}) {
+        if (entry.is_regular_file() && entry.path().extension() == ".clcd") {
+            files.push_back(entry.path());
+        }
+    }
+
+    std::sort(files.begin(), files.end());
+    for (const auto& file : files) {
+        append_messages(report, load_file(file, registry));
+    }
+    append_messages(report, registry.validate_references());
+    return report;
+}
 
 ValidationReport DataPackLoader::load_file(const std::filesystem::path& path, DataRegistry& registry) const {
     std::ifstream input{path};
