@@ -97,4 +97,27 @@ std::vector<MarketPrice> calculate_market_prices(const data::DataRegistry& regis
     return prices;
 }
 
+MarketReport make_market_report(const data::DataRegistry& registry, const sim::ResourceStorage& storage, const MarketState& market) {
+    MarketReport report;
+    report.prices = calculate_market_prices(registry, storage, market);
+
+    if (report.prices.empty()) {
+        return report;
+    }
+
+    std::uint64_t total_price{};
+    report.min_price = std::numeric_limits<std::uint64_t>::max();
+
+    for (const auto& price : report.prices) {
+        report.total_supply = saturating_add(report.total_supply, price.supply);
+        report.total_demand = saturating_add(report.total_demand, price.demand);
+        total_price = saturating_add(total_price, price.price);
+        report.min_price = std::min(report.min_price, price.price);
+        report.max_price = std::max(report.max_price, price.price);
+    }
+
+    report.average_price = total_price / static_cast<std::uint64_t>(report.prices.size());
+    return report;
+}
+
 } // namespace clc::economy
