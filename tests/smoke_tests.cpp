@@ -2,6 +2,7 @@
 #include "clc/core/World.hpp"
 #include "clc/data/DataPackLoader.hpp"
 #include "clc/data/DataRegistry.hpp"
+#include "clc/sim/Settlement.hpp"
 
 #include <cstdlib>
 #include <filesystem>
@@ -22,7 +23,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.2.3"}, "version string should be 0.2.3");
+    require(clc::core_version_string() == std::string_view{"0.3.0"}, "version string should be 0.3.0");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -123,6 +124,23 @@ starting_population=120
     require(loaded_registry.settlement_count() == 1, "loader should register one settlement");
     require(loaded_registry.resource("grain") != nullptr, "loaded resource should be findable");
     require(loaded_registry.validate_references().ok(), "valid data pack references should pass");
+
+    const auto* settlement_definition = loaded_registry.settlement("riverwatch");
+    require(settlement_definition != nullptr, "settlement definition should exist");
+
+    auto settlement = clc::sim::create_settlement_from_definition(*settlement_definition);
+    settlement.storage["grain"] = 20;
+
+    const auto add_building_report = clc::sim::add_building(settlement, loaded_registry, clc::sim::BuildingInstance{
+        .definition_id = "farm",
+        .assigned_workers = 8,
+    });
+    require(add_building_report.ok(), "valid building instance should be added");
+
+    const auto day_report = clc::sim::advance_settlement_day(settlement, loaded_registry);
+    require(day_report.consumed_food == 12, "population 120 should consume 12 grain per day");
+    require(day_report.produced_resources == 8, "farm should produce 8 resource units per day");
+    require(settlement.storage["grain"] == 16, "grain should remain non-negative after consume and produce");
 
     clc::data::DataRegistry invalid_registry;
     const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n", invalid_registry);
