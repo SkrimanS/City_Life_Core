@@ -1,4 +1,5 @@
 #include "clc/data/DataRegistry.hpp"
+#include "clc/economy/Ledger.hpp"
 #include "clc/economy/Market.hpp"
 #include "clc/economy/Trade.hpp"
 #include "clc/sim/Storage.hpp"
@@ -108,6 +109,18 @@ int main() {
     require(!failed_sell.ok, "sell should fail without enough resources");
     require(wallet.coins == 90, "failed sell should not credit wallet");
     require(trade_storage.amount("grain") == 1, "failed sell should not remove resources");
+
+    clc::economy::EconomyLedger ledger;
+    require(ledger.record(clc::economy::LedgerEntryType::buy, buy, "initial purchase"), "ledger should record successful buy");
+    require(ledger.record(clc::economy::LedgerEntryType::sell, sell, "partial sale"), "ledger should record successful sell");
+    require(!ledger.record(clc::economy::LedgerEntryType::buy, failed_buy, "failed purchase"), "ledger should reject failed trade results");
+    require(ledger.entries().size() == 2, "ledger should contain two successful entries");
+    require(ledger.entries()[0].sequence == 1, "first ledger entry should have sequence 1");
+    require(ledger.entries()[1].sequence == 2, "second ledger entry should have sequence 2");
+    require(ledger.next_sequence() == 3, "ledger next sequence should advance");
+    require(ledger.total_bought("grain") == 3, "ledger should aggregate bought quantity");
+    require(ledger.total_sold("grain") == 2, "ledger should aggregate sold quantity");
+    require(ledger.entries()[0].note == "initial purchase", "ledger should preserve notes");
 
     return 0;
 }
