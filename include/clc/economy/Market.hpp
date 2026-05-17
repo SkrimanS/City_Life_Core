@@ -21,6 +21,15 @@ struct MarketPrice final {
     std::string reason{};
 };
 
+struct MarketReport final {
+    std::vector<MarketPrice> prices{};
+    std::uint64_t total_supply{0};
+    std::uint64_t total_demand{0};
+    std::uint64_t average_price{0};
+    std::uint64_t min_price{0};
+    std::uint64_t max_price{0};
+};
+
 class MarketState final {
 public:
     [[nodiscard]] data::ValidationReport set_demand(std::string resource_id, std::uint64_t demand);
@@ -39,6 +48,12 @@ private:
 );
 
 [[nodiscard]] std::vector<MarketPrice> calculate_market_prices(
+    const data::DataRegistry& registry,
+    const sim::ResourceStorage& storage,
+    const MarketState& market
+);
+
+[[nodiscard]] MarketReport make_market_report(
     const data::DataRegistry& registry,
     const sim::ResourceStorage& storage,
     const MarketState& market
