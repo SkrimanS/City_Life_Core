@@ -120,8 +120,7 @@ starting_population=120
     require(loaded_registry.resource("wood") != nullptr, "loaded resource should be findable");
 
     clc::data::DataRegistry invalid_registry;
-    const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n");
-    (void)invalid_registry;
+    const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n", invalid_registry);
     require(!invalid_report.ok(), "unsupported schema version should fail");
 
     return 0;
