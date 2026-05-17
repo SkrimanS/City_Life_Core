@@ -43,7 +43,12 @@ target_link_libraries(clc_runner PRIVATE CityLifeCore::core)
 
 if(CLC_BUILD_TESTS)
     enable_testing()
+
     add_executable(clc_smoke_tests tests/smoke_tests.cpp)
     target_link_libraries(clc_smoke_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_smoke_tests COMMAND clc_smoke_tests)
+
+    add_executable(clc_economy_tests tests/economy_tests.cpp)
+    target_link_libraries(clc_economy_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_economy_tests COMMAND clc_economy_tests)
 endif()
