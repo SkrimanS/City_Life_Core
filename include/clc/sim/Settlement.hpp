@@ -27,7 +27,10 @@ struct SettlementState final {
 struct SettlementTickReport final {
     std::string settlement_id{};
     std::uint64_t consumed_food{0};
+    std::uint64_t consumed_inputs{0};
     std::uint64_t produced_resources{0};
+    std::uint32_t active_buildings{0};
+    std::uint32_t skipped_buildings{0};
     std::vector<std::string> warnings{};
 };
 
