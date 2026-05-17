@@ -34,8 +34,30 @@ struct SettlementTickReport final {
     std::vector<std::string> warnings{};
 };
 
+struct ResourceAmount final {
+    std::string resource_id{};
+    std::uint64_t amount{0};
+};
+
+struct BuildingReport final {
+    std::string definition_id{};
+    std::string display_name{};
+    std::uint32_t assigned_workers{0};
+    std::uint32_t worker_slots{0};
+};
+
+struct SettlementReport final {
+    std::string id{};
+    std::string display_name{};
+    std::uint64_t population{0};
+    std::vector<ResourceAmount> storage{};
+    std::vector<BuildingReport> buildings{};
+    std::uint64_t total_stored_resources{0};
+};
+
 [[nodiscard]] SettlementState create_settlement_from_definition(const data::SettlementDefinition& definition);
 [[nodiscard]] data::ValidationReport add_building(SettlementState& settlement, const data::DataRegistry& registry, BuildingInstance building);
 [[nodiscard]] SettlementTickReport advance_settlement_day(SettlementState& settlement, const data::DataRegistry& registry);
+[[nodiscard]] SettlementReport make_settlement_report(const SettlementState& settlement, const data::DataRegistry& registry);
 
 } // namespace clc::sim
