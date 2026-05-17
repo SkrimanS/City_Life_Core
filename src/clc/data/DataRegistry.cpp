@@ -99,6 +99,31 @@ ValidationReport DataRegistry::add(SettlementDefinition definition) {
     return report;
 }
 
+ValidationReport DataRegistry::validate_references() const {
+    ValidationReport report;
+
+    for (const auto& [building_id, building_definition] : buildings_) {
+        const auto path = "building." + building_id;
+        if (!building_definition.required_profession_id.empty() && profession(building_definition.required_profession_id) == nullptr) {
+            report.add_error(path, "unknown required_profession_id: " + building_definition.required_profession_id);
+        }
+
+        for (const auto& resource_id : building_definition.input_resource_ids) {
+            if (resource(resource_id) == nullptr) {
+                report.add_error(path, "unknown input_resource_id: " + resource_id);
+            }
+        }
+
+        for (const auto& resource_id : building_definition.output_resource_ids) {
+            if (resource(resource_id) == nullptr) {
+                report.add_error(path, "unknown output_resource_id: " + resource_id);
+            }
+        }
+    }
+
+    return report;
+}
+
 const ResourceDefinition* DataRegistry::resource(std::string_view id) const {
     return find_by_id<decltype(resources_), ResourceDefinition>(resources_, id);
 }

@@ -20,7 +20,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.2.1"}, "version string should be 0.2.1");
+    require(clc::core_version_string() == std::string_view{"0.2.2"}, "version string should be 0.2.2");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -81,29 +81,31 @@ int main() {
     clc::data::DataRegistry loaded_registry;
     clc::data::DataPackLoader loader;
     const auto load_report = loader.load_string("inline-test", R"CLC(
-schema_version=0.2.1
+schema_version=0.2.2
 
 [resource]
-id=wood
-display_name=Wood
-category=construction
-base_value=6
+id=grain
+display_name=Grain
+category=food
+base_value=10
 
 [currency]
 id=coin
 display_name=Coin
 fractional_digits=2
 
+[profession]
+id=farmer
+display_name=Farmer
+category=production
+
 [building]
 id=farm
 display_name=Farm
 category=production
 worker_slots=8
-
-[profession]
-id=farmer
-display_name=Farmer
-category=production
+required_profession_id=farmer
+output_resource_ids=grain
 
 [settlement]
 id=riverwatch
@@ -117,11 +119,26 @@ starting_population=120
     require(loaded_registry.building_count() == 1, "loader should register one building");
     require(loaded_registry.profession_count() == 1, "loader should register one profession");
     require(loaded_registry.settlement_count() == 1, "loader should register one settlement");
-    require(loaded_registry.resource("wood") != nullptr, "loaded resource should be findable");
+    require(loaded_registry.resource("grain") != nullptr, "loaded resource should be findable");
+    require(loaded_registry.validate_references().ok(), "valid data pack references should pass");
 
     clc::data::DataRegistry invalid_registry;
     const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n", invalid_registry);
     require(!invalid_report.ok(), "unsupported schema version should fail");
+
+    clc::data::DataRegistry broken_registry;
+    const auto broken_report = loader.load_string("broken-ref-test", R"CLC(
+schema_version=0.2.2
+
+[building]
+id=broken_farm
+display_name=Broken Farm
+category=production
+worker_slots=8
+required_profession_id=missing_profession
+output_resource_ids=missing_resource
+)CLC", broken_registry);
+    require(!broken_report.ok(), "unknown building references should fail validation");
 
     return 0;
 }

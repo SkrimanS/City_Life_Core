@@ -1,4 +1,4 @@
-schema_version=0.2.1
+schema_version=0.2.2
 
 [resource]
 id=grain
@@ -17,16 +17,19 @@ id=coin
 display_name=Coin
 fractional_digits=2
 
+[profession]
+id=farmer
+display_name=Farmer
+category=production
+
 [building]
 id=farm
 display_name=Farm
 category=production
 worker_slots=8
-
-[profession]
-id=farmer
-display_name=Farmer
-category=production
+required_profession_id=farmer
+input_resource_ids=
+output_resource_ids=grain
 
 [settlement]
 id=riverwatch
