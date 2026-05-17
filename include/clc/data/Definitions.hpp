@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace clc::data {
 
@@ -23,6 +24,9 @@ struct BuildingDefinition final {
     std::string display_name{};
     std::string category{};
     std::uint32_t worker_slots{0};
+    std::string required_profession_id{};
+    std::vector<std::string> input_resource_ids{};
+    std::vector<std::string> output_resource_ids{};
 };
 
 struct ProfessionDefinition final {
