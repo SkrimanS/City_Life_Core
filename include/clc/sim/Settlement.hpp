@@ -3,10 +3,10 @@
 #include "clc/data/Definitions.hpp"
 #include "clc/data/DataRegistry.hpp"
 #include "clc/data/Validation.hpp"
+#include "clc/sim/Storage.hpp"
 
 #include <cstdint>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace clc::sim {
@@ -20,7 +20,7 @@ struct SettlementState final {
     std::string id{};
     std::string display_name{};
     std::uint64_t population{0};
-    std::unordered_map<std::string, std::uint64_t> storage{};
+    ResourceStorage storage{};
     std::vector<BuildingInstance> buildings{};
 };
 
