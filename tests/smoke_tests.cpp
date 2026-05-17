@@ -3,6 +3,7 @@
 #include "clc/data/DataPackLoader.hpp"
 #include "clc/data/DataRegistry.hpp"
 #include "clc/sim/Settlement.hpp"
+#include "clc/sim/Storage.hpp"
 
 #include <cstdlib>
 #include <filesystem>
@@ -23,7 +24,7 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.3.0"}, "version string should be 0.3.0");
+    require(clc::core_version_string() == std::string_view{"0.3.1"}, "version string should be 0.3.1");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
@@ -36,6 +37,18 @@ int main() {
     require(advance_result.ok(), "advancing by positive ticks should succeed");
     require(world.time().current_tick() == 5, "world should advance to tick 5");
     require(world.event_log().size() == 2, "world advance should emit one event");
+
+    clc::sim::ResourceStorage source_storage;
+    clc::sim::ResourceStorage target_storage;
+    require(source_storage.add("grain", 10).ok(), "storage should add resources");
+    require(source_storage.amount("grain") == 10, "storage should report added amount");
+    require(!source_storage.try_remove("grain", 11), "storage should reject over-removal");
+    require(source_storage.amount("grain") == 10, "failed removal should not change amount");
+    require(source_storage.remove_up_to("grain", 4) == 4, "storage should remove partial amount");
+    require(source_storage.amount("grain") == 6, "storage should retain remaining amount");
+    require(clc::sim::transfer(source_storage, target_storage, "grain", 6).ok(), "storage transfer should succeed when enough resource exists");
+    require(source_storage.amount("grain") == 0, "transfer should debit source");
+    require(target_storage.amount("grain") == 6, "transfer should credit target");
 
     clc::data::DataRegistry registry;
 
@@ -129,7 +142,7 @@ starting_population=120
     require(settlement_definition != nullptr, "settlement definition should exist");
 
     auto settlement = clc::sim::create_settlement_from_definition(*settlement_definition);
-    settlement.storage["grain"] = 20;
+    require(settlement.storage.add("grain", 20).ok(), "settlement storage should accept starting grain");
 
     const auto add_building_report = clc::sim::add_building(settlement, loaded_registry, clc::sim::BuildingInstance{
         .definition_id = "farm",
@@ -140,7 +153,7 @@ starting_population=120
     const auto day_report = clc::sim::advance_settlement_day(settlement, loaded_registry);
     require(day_report.consumed_food == 12, "population 120 should consume 12 grain per day");
     require(day_report.produced_resources == 8, "farm should produce 8 resource units per day");
-    require(settlement.storage["grain"] == 16, "grain should remain non-negative after consume and produce");
+    require(settlement.storage.amount("grain") == 16, "grain should remain non-negative after consume and produce");
 
     clc::data::DataRegistry invalid_registry;
     const auto invalid_report = loader.load_string("invalid-test", "schema_version=wrong\n", invalid_registry);
