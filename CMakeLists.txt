@@ -55,4 +55,8 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_economy_tests tests/economy_tests.cpp)
     target_link_libraries(clc_economy_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_economy_tests COMMAND clc_economy_tests)
+
+    add_executable(clc_simulation_tests tests/simulation_tests.cpp)
+    target_link_libraries(clc_simulation_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_simulation_tests COMMAND clc_simulation_tests)
 endif()
