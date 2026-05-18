@@ -11,11 +11,19 @@
 
 namespace clc::sim {
 
+struct SimulationEvent final {
+    std::uint64_t day{0};
+    std::string type{};
+    std::string message{};
+};
+
 struct SimulationDayReport final {
     std::uint64_t day{0};
     std::vector<SettlementTickReport> settlement_ticks{};
     std::vector<SettlementReport> settlements{};
     economy::MarketReport market{};
+    std::vector<SimulationEvent> events{};
+    std::vector<std::string> warnings{};
 };
 
 class SimulationEngine final {
