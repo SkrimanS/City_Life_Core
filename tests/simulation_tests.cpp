@@ -75,6 +75,14 @@ starting_population=40
     require(engine.add_settlement(std::move(settlement)).ok(), "engine should accept settlement");
     require(!engine.add_settlement(clc::sim::SettlementState{.id = "riverwatch"}).ok(), "engine should reject duplicate settlement id");
 
+    const auto initial_snapshot = engine.snapshot();
+    require(initial_snapshot.day == 0, "initial snapshot should report day 0");
+    require(engine.current_day() == 0, "snapshot should not advance engine day");
+    require(initial_snapshot.settlements.size() == 1, "initial snapshot should include settlement");
+    require(initial_snapshot.settlements[0].total_stored_resources == 14, "initial snapshot should include starting storage");
+    require(initial_snapshot.market.total_supply == 14, "initial snapshot should aggregate starting supply");
+    require(initial_snapshot.market.total_demand == 20, "initial snapshot should include market demand");
+
     const auto day_report = engine.advance_day();
     require(day_report.day == 1, "first simulation day report should be day 1");
     require(engine.current_day() == 1, "engine day should advance");
@@ -93,6 +101,13 @@ starting_population=40
     require(day_report.market.prices.size() == 1, "market report should include stored grain price");
     require(day_report.market.total_supply == 10, "market report should aggregate settlement storage supply");
     require(day_report.market.total_demand == 20, "market report should include configured demand");
+
+    const auto post_day_snapshot = engine.snapshot();
+    require(post_day_snapshot.day == 1, "post-day snapshot should report current day");
+    require(engine.current_day() == 1, "post-day snapshot should not advance engine day");
+    require(post_day_snapshot.settlements.size() == 1, "post-day snapshot should include settlement");
+    require(post_day_snapshot.settlements[0].total_stored_resources == 10, "post-day snapshot should include current storage");
+    require(post_day_snapshot.market.total_supply == 10, "post-day snapshot should include current aggregate supply");
 
     const auto second_day_report = engine.advance_day();
     require(second_day_report.day == 2, "second simulation day report should be day 2");
