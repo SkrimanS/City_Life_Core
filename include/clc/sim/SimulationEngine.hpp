@@ -43,6 +43,9 @@ public:
     [[nodiscard]] const economy::MarketState& market() const noexcept;
 
     [[nodiscard]] data::ValidationReport add_settlement(SettlementState settlement);
+    [[nodiscard]] data::ValidationReport create_settlement(std::string settlement_definition_id);
+    [[nodiscard]] data::ValidationReport add_building_to_settlement(std::string settlement_id, BuildingInstance building);
+
     [[nodiscard]] const std::vector<SettlementState>& settlements() const noexcept;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
 
