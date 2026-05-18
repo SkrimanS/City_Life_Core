@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.6 - Unreleased
+
+### Added
+
+- `SimulationScenarioResult::warnings_delta` for exposing top-level warnings emitted during scenario execution.
+- `SimulationEngine::run_scenario()` now collects scenario warnings from returned day reports.
+- Simulation test coverage for empty and non-empty warning deltas, settlement ID prefixes, and summary warning relationships.
+
 ## 0.6.5 - Unreleased
 
 ### Added
