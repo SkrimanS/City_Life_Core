@@ -59,6 +59,7 @@ struct SimulationScenarioSummary final {
 };
 
 struct SimulationScenarioResult final {
+    SimulationSnapshot initial_snapshot{};
     std::vector<SimulationDayReport> reports{};
     SimulationScenarioSummary summary{};
     SimulationSnapshot final_snapshot{};
