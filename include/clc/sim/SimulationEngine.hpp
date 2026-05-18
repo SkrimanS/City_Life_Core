@@ -32,6 +32,7 @@ struct SimulationSnapshot final {
     std::uint64_t day{0};
     std::vector<SettlementReport> settlements{};
     economy::MarketReport market{};
+    std::vector<SimulationEvent> events{};
 };
 
 struct SimulationDayReport final {
@@ -80,6 +81,7 @@ public:
     [[nodiscard]] bool has_settlement(std::string_view settlement_id) const;
     [[nodiscard]] const SettlementState* settlement(std::string_view settlement_id) const;
     [[nodiscard]] std::uint64_t settlement_resource_amount(std::string_view settlement_id, std::string_view resource_id) const;
+    [[nodiscard]] const std::vector<SimulationEvent>& events() const noexcept;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
 
     [[nodiscard]] SimulationSnapshot snapshot() const;
@@ -89,6 +91,7 @@ private:
     data::DataRegistry registry_{};
     economy::MarketState market_{};
     std::vector<SettlementState> settlements_{};
+    std::vector<SimulationEvent> events_{};
     std::uint64_t current_day_{0};
 };
 
