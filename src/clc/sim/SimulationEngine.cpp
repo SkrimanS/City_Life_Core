@@ -72,6 +72,14 @@ SimulationCommandResult make_command_result(
     };
 }
 
+std::string command_event_type(const SimulationCommandResult& result) {
+    return result.ok ? "simulation.command.succeeded" : "simulation.command.failed";
+}
+
+std::string command_event_message(const SimulationCommandResult& result) {
+    return result.command + (result.ok ? " succeeded" : " failed");
+}
+
 } // namespace
 
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
@@ -235,28 +243,36 @@ data::ValidationReport SimulationEngine::transfer_resource_between_settlements(
 SimulationCommandResult SimulationEngine::create_settlement_command(std::string settlement_definition_id) {
     auto subject_id = settlement_definition_id;
     auto validation = create_settlement(std::move(settlement_definition_id));
-    return make_command_result("create_settlement", std::move(subject_id), {}, {}, 0, std::move(validation));
+    auto result = make_command_result("create_settlement", std::move(subject_id), {}, {}, 0, std::move(validation));
+    events_.push_back(SimulationEvent{.day = current_day_, .type = command_event_type(result), .message = command_event_message(result)});
+    return result;
 }
 
 SimulationCommandResult SimulationEngine::add_building_to_settlement_command(std::string settlement_id, BuildingInstance building) {
     auto subject_id = settlement_id;
     auto target_id = building.definition_id;
     auto validation = add_building_to_settlement(std::move(settlement_id), std::move(building));
-    return make_command_result("add_building_to_settlement", std::move(subject_id), std::move(target_id), {}, 0, std::move(validation));
+    auto result = make_command_result("add_building_to_settlement", std::move(subject_id), std::move(target_id), {}, 0, std::move(validation));
+    events_.push_back(SimulationEvent{.day = current_day_, .type = command_event_type(result), .message = command_event_message(result)});
+    return result;
 }
 
 SimulationCommandResult SimulationEngine::add_resource_to_settlement_command(std::string settlement_id, std::string resource_id, std::uint64_t amount) {
     auto subject_id = settlement_id;
     auto resource = resource_id;
     auto validation = add_resource_to_settlement(std::move(settlement_id), std::move(resource_id), amount);
-    return make_command_result("add_resource_to_settlement", std::move(subject_id), {}, std::move(resource), amount, std::move(validation));
+    auto result = make_command_result("add_resource_to_settlement", std::move(subject_id), {}, std::move(resource), amount, std::move(validation));
+    events_.push_back(SimulationEvent{.day = current_day_, .type = command_event_type(result), .message = command_event_message(result)});
+    return result;
 }
 
 SimulationCommandResult SimulationEngine::remove_resource_from_settlement_command(std::string settlement_id, std::string resource_id, std::uint64_t amount) {
     auto subject_id = settlement_id;
     auto resource = resource_id;
     auto validation = remove_resource_from_settlement(std::move(settlement_id), std::move(resource_id), amount);
-    return make_command_result("remove_resource_from_settlement", std::move(subject_id), {}, std::move(resource), amount, std::move(validation));
+    auto result = make_command_result("remove_resource_from_settlement", std::move(subject_id), {}, std::move(resource), amount, std::move(validation));
+    events_.push_back(SimulationEvent{.day = current_day_, .type = command_event_type(result), .message = command_event_message(result)});
+    return result;
 }
 
 SimulationCommandResult SimulationEngine::transfer_resource_between_settlements_command(
@@ -274,7 +290,9 @@ SimulationCommandResult SimulationEngine::transfer_resource_between_settlements_
         std::move(resource_id),
         amount
     );
-    return make_command_result("transfer_resource_between_settlements", std::move(subject_id), std::move(target_id), std::move(resource), amount, std::move(validation));
+    auto result = make_command_result("transfer_resource_between_settlements", std::move(subject_id), std::move(target_id), std::move(resource), amount, std::move(validation));
+    events_.push_back(SimulationEvent{.day = current_day_, .type = command_event_type(result), .message = command_event_message(result)});
+    return result;
 }
 
 const std::vector<SettlementState>& SimulationEngine::settlements() const noexcept {
@@ -297,6 +315,10 @@ std::uint64_t SimulationEngine::settlement_resource_amount(std::string_view sett
     return found->storage.amount(std::string{resource_id});
 }
 
+const std::vector<SimulationEvent>& SimulationEngine::events() const noexcept {
+    return events_;
+}
+
 std::uint64_t SimulationEngine::current_day() const noexcept {
     return current_day_;
 }
@@ -307,6 +329,7 @@ SimulationSnapshot SimulationEngine::snapshot() const {
         .day = current_day_,
         .settlements = make_settlement_reports(settlements_, registry_),
         .market = economy::make_market_report(registry_, aggregate, market_),
+        .events = events_,
     };
 }
 
@@ -333,6 +356,9 @@ SimulationDayReport SimulationEngine::advance_day() {
     const auto aggregate = aggregate_storage(settlements_);
     report.market = economy::make_market_report(registry_, aggregate, market_);
     add_event(report, "simulation.day.completed", "simulation day completed");
+    for (const auto& event : report.events) {
+        events_.push_back(event);
+    }
     return report;
 }
 
