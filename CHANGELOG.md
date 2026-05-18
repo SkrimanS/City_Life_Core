@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.9 - Unreleased
+
+### Added
+
+- `scenario_result_digest()` for compact scenario result summaries in CLI, logs, and UI surfaces.
+- Digest output includes duration days, start day, end day, event count, warning count, and status.
+- Dedicated scenario digest test binary covering empty, success, warning, and defensive duration cases.
+
 ## 0.6.8 - Unreleased
 
 ### Added
