@@ -425,9 +425,11 @@ std::vector<SimulationDayReport> SimulationEngine::run_days(std::uint64_t day_co
 SimulationScenarioResult SimulationEngine::run_scenario(std::uint64_t day_count) {
     auto reports = run_days(day_count);
     auto summary = summarize_day_reports(reports);
+    auto final_snapshot = snapshot();
     return SimulationScenarioResult{
         .reports = std::move(reports),
         .summary = std::move(summary),
+        .final_snapshot = std::move(final_snapshot),
     };
 }
 
