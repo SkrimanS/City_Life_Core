@@ -110,6 +110,33 @@ SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayR
     return summary;
 }
 
+std::uint64_t scenario_summary_start_day(const SimulationScenarioSummary& summary) noexcept {
+    return summary.first_day;
+}
+
+std::uint64_t scenario_summary_end_day(const SimulationScenarioSummary& summary) noexcept {
+    return summary.last_day;
+}
+
+std::uint64_t scenario_summary_duration_days(const SimulationScenarioSummary& summary) noexcept {
+    return summary.days_run;
+}
+
+std::uint64_t scenario_result_start_day(const SimulationScenarioResult& result) noexcept {
+    return result.initial_snapshot.day;
+}
+
+std::uint64_t scenario_result_end_day(const SimulationScenarioResult& result) noexcept {
+    return result.final_snapshot.day;
+}
+
+std::uint64_t scenario_result_duration_days(const SimulationScenarioResult& result) noexcept {
+    if (result.final_snapshot.day < result.initial_snapshot.day) {
+        return 0;
+    }
+    return result.final_snapshot.day - result.initial_snapshot.day;
+}
+
 bool scenario_has_events(const SimulationScenarioResult& result) noexcept {
     return !result.events_delta.empty();
 }
