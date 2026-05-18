@@ -58,6 +58,11 @@ struct SimulationScenarioSummary final {
     std::uint64_t warnings{0};
 };
 
+struct SimulationScenarioResult final {
+    std::vector<SimulationDayReport> reports{};
+    SimulationScenarioSummary summary{};
+};
+
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
 
 class SimulationEngine final {
@@ -106,6 +111,7 @@ public:
     [[nodiscard]] SimulationSnapshot snapshot() const;
     [[nodiscard]] SimulationDayReport advance_day();
     [[nodiscard]] std::vector<SimulationDayReport> run_days(std::uint64_t day_count);
+    [[nodiscard]] SimulationScenarioResult run_scenario(std::uint64_t day_count);
 
 private:
     data::DataRegistry registry_{};
