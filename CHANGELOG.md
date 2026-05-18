@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.5 - Unreleased
+
+### Added
+
+- `SimulationScenarioResult::events_delta` for exposing only the events emitted during scenario execution.
+- `SimulationEngine::run_scenario()` now derives scenario event deltas from the cumulative engine event log.
+- Simulation test coverage for empty and non-empty scenario event deltas, event ordering, day ranges, and snapshot bridge behavior.
+
 ## 0.6.4 - Unreleased
 
 ### Added
