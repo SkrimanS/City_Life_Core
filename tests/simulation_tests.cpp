@@ -71,8 +71,10 @@ starting_population=40
     require(!engine.add_building_to_settlement("missing", clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4}).ok(), "engine should reject unknown settlement for building command");
     require(engine.add_building_to_settlement("riverwatch", clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4}).ok(), "engine should add building to settlement by id");
 
-    require(engine.settlements()[0].storage.add("grain", 10).ok(), "settlement should accept starting grain");
-    require(engine.settlements()[0].storage.add("wood", 4).ok(), "settlement should accept starting wood");
+    require(!engine.add_resource_to_settlement("", "grain", 10).ok(), "engine should reject empty settlement id for resource command");
+    require(!engine.add_resource_to_settlement("missing", "grain", 10).ok(), "engine should reject unknown settlement for resource command");
+    require(engine.add_resource_to_settlement("riverwatch", "grain", 10).ok(), "engine should add starting grain");
+    require(engine.add_resource_to_settlement("riverwatch", "wood", 4).ok(), "engine should add starting wood");
 
     const auto initial_snapshot = engine.snapshot();
     require(initial_snapshot.day == 0, "initial snapshot should report day 0");
