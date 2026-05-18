@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.5 - Unreleased
+
+### Added
+
+- Engine-level read-only lookup APIs for settlements and settlement resource amounts.
+- `SimulationEngine::has_settlement()` for fast presence checks.
+- `SimulationEngine::settlement()` for const settlement lookup by ID.
+- `SimulationEngine::settlement_resource_amount()` for resource amount lookup without exposing mutable storage.
+- Dedicated engine lookup test binary and CTest entry.
+
 ## 0.5.4 - Unreleased
 
 ### Added
