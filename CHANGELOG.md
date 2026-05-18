@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.1 - Unreleased
+
+### Added
+
+- `SimulationScenarioSummary` for aggregated multi-day simulation reporting.
+- `summarize_day_reports()` helper for summarizing existing `SimulationDayReport` batches.
+- Summary fields for days, first/last day, settlement ticks, consumed resources, production, active/skipped building ticks, events, and warnings.
+- Simulation test coverage for empty and non-empty scenario summaries.
+
 ## 0.6.0 - Unreleased
 
 ### Added

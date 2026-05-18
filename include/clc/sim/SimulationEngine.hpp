@@ -44,6 +44,22 @@ struct SimulationDayReport final {
     std::vector<std::string> warnings{};
 };
 
+struct SimulationScenarioSummary final {
+    std::uint64_t days_run{0};
+    std::uint64_t first_day{0};
+    std::uint64_t last_day{0};
+    std::uint64_t settlement_ticks{0};
+    std::uint64_t consumed_food{0};
+    std::uint64_t consumed_inputs{0};
+    std::uint64_t produced_resources{0};
+    std::uint64_t active_building_ticks{0};
+    std::uint64_t skipped_building_ticks{0};
+    std::uint64_t events{0};
+    std::uint64_t warnings{0};
+};
+
+[[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
+
 class SimulationEngine final {
 public:
     explicit SimulationEngine(data::DataRegistry registry);
