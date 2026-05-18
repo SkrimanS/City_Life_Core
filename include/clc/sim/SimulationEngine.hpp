@@ -68,6 +68,12 @@ struct SimulationScenarioResult final {
 };
 
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
+[[nodiscard]] std::uint64_t scenario_summary_start_day(const SimulationScenarioSummary& summary) noexcept;
+[[nodiscard]] std::uint64_t scenario_summary_end_day(const SimulationScenarioSummary& summary) noexcept;
+[[nodiscard]] std::uint64_t scenario_summary_duration_days(const SimulationScenarioSummary& summary) noexcept;
+[[nodiscard]] std::uint64_t scenario_result_start_day(const SimulationScenarioResult& result) noexcept;
+[[nodiscard]] std::uint64_t scenario_result_end_day(const SimulationScenarioResult& result) noexcept;
+[[nodiscard]] std::uint64_t scenario_result_duration_days(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] bool scenario_has_events(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] bool scenario_has_warnings(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] bool scenario_succeeded(const SimulationScenarioResult& result) noexcept;
