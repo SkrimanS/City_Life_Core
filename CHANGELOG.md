@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.3 - Unreleased
+
+### Added
+
+- `SimulationScenarioResult::final_snapshot` for returning the final simulation state alongside scenario reports and summary.
+- `SimulationEngine::run_scenario()` now captures a final snapshot after running the requested days.
+- Simulation test coverage for zero-day and multi-day scenario final snapshots.
+
 ## 0.6.2 - Unreleased
 
 ### Added
