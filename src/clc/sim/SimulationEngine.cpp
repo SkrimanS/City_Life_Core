@@ -16,6 +16,14 @@ ResourceStorage aggregate_storage(const std::vector<SettlementState>& settlement
     return aggregate;
 }
 
+void add_event(SimulationDayReport& report, std::string type, std::string message) {
+    report.events.push_back(SimulationEvent{
+        .day = report.day,
+        .type = std::move(type),
+        .message = std::move(message),
+    });
+}
+
 } // namespace
 
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
@@ -70,14 +78,23 @@ SimulationDayReport SimulationEngine::advance_day() {
     SimulationDayReport report{.day = current_day_};
     report.settlement_ticks.reserve(settlements_.size());
     report.settlements.reserve(settlements_.size());
+    report.events.reserve(settlements_.size() + 2);
+
+    add_event(report, "simulation.day.started", "simulation day started");
 
     for (auto& settlement : settlements_) {
-        report.settlement_ticks.push_back(advance_settlement_day(settlement, registry_));
+        auto tick_report = advance_settlement_day(settlement, registry_);
+        for (const auto& warning : tick_report.warnings) {
+            report.warnings.push_back(settlement.id + ": " + warning);
+        }
+        add_event(report, "simulation.settlement.advanced", "advanced settlement: " + settlement.id);
+        report.settlement_ticks.push_back(std::move(tick_report));
         report.settlements.push_back(make_settlement_report(settlement, registry_));
     }
 
     const auto aggregate = aggregate_storage(settlements_);
     report.market = economy::make_market_report(registry_, aggregate, market_);
+    add_event(report, "simulation.day.completed", "simulation day completed");
     return report;
 }
 
