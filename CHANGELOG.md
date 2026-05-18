@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.4 - Unreleased
+
+### Added
+
+- Market order API for buy/sell limit orders.
+- `MarketOrder`, `TradeExecution`, and `OrderMatchResult` structures.
+- Market order validation for empty resources, zero quantities, zero prices, and total value overflow.
+- Deterministic order matching by resource and limit price.
+- Economy test coverage for matching, no-match, and invalid-order scenarios.
+
 ## 0.4.3 - Unreleased
 
 ### Added

@@ -1,12 +1,14 @@
 #include "clc/data/DataRegistry.hpp"
 #include "clc/economy/Ledger.hpp"
 #include "clc/economy/Market.hpp"
+#include "clc/economy/Orders.hpp"
 #include "clc/economy/Trade.hpp"
 #include "clc/sim/Storage.hpp"
 
 #include <cstdlib>
 #include <iostream>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -121,6 +123,36 @@ int main() {
     require(ledger.total_bought("grain") == 3, "ledger should aggregate bought quantity");
     require(ledger.total_sold("grain") == 2, "ledger should aggregate sold quantity");
     require(ledger.entries()[0].note == "initial purchase", "ledger should preserve notes");
+
+    const auto invalid_order_report = clc::economy::validate_order(clc::economy::MarketOrder{}, "invalid_order");
+    require(!invalid_order_report.ok(), "empty market order should fail validation");
+
+    const auto matched_orders = clc::economy::match_orders(
+        std::vector<clc::economy::MarketOrder>{
+            clc::economy::MarketOrder{.resource_id = "grain", .quantity = 5, .limit_price = 12},
+            clc::economy::MarketOrder{.resource_id = "wood", .quantity = 3, .limit_price = 7},
+        },
+        std::vector<clc::economy::MarketOrder>{
+            clc::economy::MarketOrder{.resource_id = "grain", .quantity = 2, .limit_price = 9},
+            clc::economy::MarketOrder{.resource_id = "wood", .quantity = 10, .limit_price = 6},
+        }
+    );
+    require(matched_orders.trades.size() == 2, "compatible orders should match into trades");
+    require(matched_orders.total_quantity == 5, "matched orders should aggregate quantity");
+    require(matched_orders.total_value == 36, "matched orders should aggregate value at sell limits");
+
+    const auto no_match_orders = clc::economy::match_orders(
+        std::vector<clc::economy::MarketOrder>{clc::economy::MarketOrder{.resource_id = "grain", .quantity = 1, .limit_price = 5}},
+        std::vector<clc::economy::MarketOrder>{clc::economy::MarketOrder{.resource_id = "grain", .quantity = 1, .limit_price = 6}}
+    );
+    require(no_match_orders.trades.empty(), "orders should not match when buy limit is below sell limit");
+
+    const auto invalid_match_orders = clc::economy::match_orders(
+        std::vector<clc::economy::MarketOrder>{clc::economy::MarketOrder{.resource_id = "grain", .quantity = 0, .limit_price = 5}},
+        std::vector<clc::economy::MarketOrder>{clc::economy::MarketOrder{.resource_id = "grain", .quantity = 1, .limit_price = 4}}
+    );
+    require(invalid_match_orders.trades.empty(), "invalid buy orders should be ignored");
+    require(!invalid_match_orders.warnings.empty(), "invalid orders should produce warnings");
 
     return 0;
 }
