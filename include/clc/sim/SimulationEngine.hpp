@@ -77,6 +77,7 @@ struct SimulationScenarioResult final {
 [[nodiscard]] bool scenario_has_events(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] bool scenario_has_warnings(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] bool scenario_succeeded(const SimulationScenarioResult& result) noexcept;
+[[nodiscard]] std::string scenario_result_digest(const SimulationScenarioResult& result);
 
 class SimulationEngine final {
 public:
