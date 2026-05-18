@@ -88,6 +88,9 @@ starting_population=40
     const auto empty_result = engine.run_scenario(0);
     require(empty_result.reports.empty(), "run_scenario(0) should return no reports");
     require(empty_result.summary.days_run == 0, "run_scenario(0) summary should report zero days");
+    require(empty_result.final_snapshot.day == 0, "run_scenario(0) final snapshot should report current day");
+    require(empty_result.final_snapshot.settlements.size() == 1, "run_scenario(0) final snapshot should include current settlements");
+    require(empty_result.final_snapshot.settlements[0].total_stored_resources == 14, "run_scenario(0) final snapshot should include current storage");
     require(engine.current_day() == 0, "run_scenario(0) should not advance current day");
 
     const auto initial_snapshot = engine.snapshot();
@@ -156,6 +159,12 @@ starting_population=40
     require(result.summary.settlement_ticks == 2, "scenario result summary should count settlement ticks");
     require(result.summary.events == 6, "scenario result summary should aggregate events");
     require(result.summary.warnings == clc::sim::summarize_day_reports(result.reports).warnings, "scenario result summary should match report summary");
+    require(result.final_snapshot.day == 6, "scenario result final snapshot should report final day");
+    require(result.final_snapshot.settlements.size() == 1, "scenario result final snapshot should include settlement");
+    require(result.final_snapshot.settlements[0].id == "riverwatch", "scenario result final snapshot should include settlement id");
+    require(result.final_snapshot.settlements[0].total_stored_resources == 0, "scenario result final snapshot should include final storage");
+    require(result.final_snapshot.market.total_supply == 0, "scenario result final snapshot should include final market supply");
+    require(result.final_snapshot.events.size() == engine.events().size(), "scenario result final snapshot should include cumulative events");
     require(engine.current_day() == 6, "run_scenario(2) should advance current day by two");
 
     return 0;
