@@ -79,6 +79,12 @@ starting_population=40
     const auto zero_day_reports = engine.run_days(0);
     require(zero_day_reports.empty(), "run_days(0) should return no reports");
     require(engine.current_day() == 0, "run_days(0) should not advance current day");
+    const auto empty_summary = clc::sim::summarize_day_reports(zero_day_reports);
+    require(empty_summary.days_run == 0, "empty scenario summary should report zero days");
+    require(empty_summary.first_day == 0, "empty scenario summary should report first day 0");
+    require(empty_summary.last_day == 0, "empty scenario summary should report last day 0");
+    require(empty_summary.events == 0, "empty scenario summary should report zero events");
+    require(empty_summary.warnings == 0, "empty scenario summary should report zero warnings");
 
     const auto initial_snapshot = engine.snapshot();
     require(initial_snapshot.day == 0, "initial snapshot should report day 0");
@@ -124,6 +130,19 @@ starting_population=40
     require(!scenario_reports[0].warnings.empty(), "day 2 should collect settlement warnings");
     require(scenario_reports[0].warnings[0].find("riverwatch:") == 0, "engine warning should include settlement id prefix");
     require(engine.events_by_type("simulation.day.completed").size() == 4, "run_days should append day completion events to cumulative log");
+
+    const auto summary = clc::sim::summarize_day_reports(scenario_reports);
+    require(summary.days_run == 3, "scenario summary should report three days");
+    require(summary.first_day == 2, "scenario summary should report first scenario day");
+    require(summary.last_day == 4, "scenario summary should report last scenario day");
+    require(summary.settlement_ticks == 3, "scenario summary should count settlement ticks");
+    require(summary.consumed_food == 6, "scenario summary should aggregate consumed food");
+    require(summary.consumed_inputs == 0, "scenario summary should aggregate consumed inputs");
+    require(summary.produced_resources == 0, "scenario summary should aggregate produced resources");
+    require(summary.active_building_ticks == 0, "scenario summary should aggregate active buildings");
+    require(summary.skipped_building_ticks == 3, "scenario summary should aggregate skipped buildings");
+    require(summary.events == 9, "scenario summary should aggregate day report events");
+    require(summary.warnings == 6, "scenario summary should aggregate engine and tick warnings");
 
     return 0;
 }
