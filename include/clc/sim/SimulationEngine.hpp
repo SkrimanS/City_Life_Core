@@ -68,6 +68,9 @@ struct SimulationScenarioResult final {
 };
 
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
+[[nodiscard]] bool scenario_has_events(const SimulationScenarioResult& result) noexcept;
+[[nodiscard]] bool scenario_has_warnings(const SimulationScenarioResult& result) noexcept;
+[[nodiscard]] bool scenario_succeeded(const SimulationScenarioResult& result) noexcept;
 
 class SimulationEngine final {
 public:
