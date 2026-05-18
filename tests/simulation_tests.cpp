@@ -80,6 +80,11 @@ starting_population=40
     require(engine.current_day() == 1, "engine day should advance");
     require(day_report.settlement_ticks.size() == 1, "day report should include settlement tick");
     require(day_report.settlements.size() == 1, "day report should include settlement snapshot");
+    require(day_report.events.size() == 3, "day report should include start, settlement, and completion events");
+    require(day_report.events[0].type == "simulation.day.started", "first event should be day started");
+    require(day_report.events[1].type == "simulation.settlement.advanced", "second event should be settlement advanced");
+    require(day_report.events[2].type == "simulation.day.completed", "third event should be day completed");
+    require(day_report.warnings.empty(), "first day should not produce engine warnings");
     require(day_report.settlement_ticks[0].consumed_food == 4, "population 40 should consume 4 grain");
     require(day_report.settlement_ticks[0].consumed_inputs == 4, "farm should consume 4 wood");
     require(day_report.settlement_ticks[0].produced_resources == 4, "farm should produce 4 grain");
@@ -88,6 +93,12 @@ starting_population=40
     require(day_report.market.prices.size() == 1, "market report should include stored grain price");
     require(day_report.market.total_supply == 10, "market report should aggregate settlement storage supply");
     require(day_report.market.total_demand == 20, "market report should include configured demand");
+
+    const auto second_day_report = engine.advance_day();
+    require(second_day_report.day == 2, "second simulation day report should be day 2");
+    require(second_day_report.settlement_ticks[0].skipped_buildings == 1, "farm should be skipped on day 2 without wood");
+    require(!second_day_report.warnings.empty(), "second day should collect settlement warnings");
+    require(second_day_report.warnings[0].find("riverwatch:") == 0, "engine warning should include settlement id prefix");
 
     return 0;
 }
