@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.8 - Unreleased
+
+### Added
+
+- Engine event filtering helpers for activity log consumers.
+- `SimulationEngine::recent_events()` for retrieving the latest events while preserving chronological order.
+- `SimulationEngine::events_by_type()` for filtering cumulative events by exact event type.
+- Test coverage for empty logs, missing event types, success/failure filters, recent event limits, and latest day events.
+
 ## 0.5.7 - Unreleased
 
 ### Added
