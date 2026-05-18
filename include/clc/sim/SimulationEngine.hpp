@@ -82,6 +82,8 @@ public:
     [[nodiscard]] const SettlementState* settlement(std::string_view settlement_id) const;
     [[nodiscard]] std::uint64_t settlement_resource_amount(std::string_view settlement_id, std::string_view resource_id) const;
     [[nodiscard]] const std::vector<SimulationEvent>& events() const noexcept;
+    [[nodiscard]] std::vector<SimulationEvent> recent_events(std::uint64_t max_count) const;
+    [[nodiscard]] std::vector<SimulationEvent> events_by_type(std::string_view event_type) const;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
 
     [[nodiscard]] SimulationSnapshot snapshot() const;
