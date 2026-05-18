@@ -89,6 +89,7 @@ starting_population=40
     require(empty_result.reports.empty(), "run_scenario(0) should return no reports");
     require(empty_result.summary.days_run == 0, "run_scenario(0) summary should report zero days");
     require(empty_result.events_delta.empty(), "run_scenario(0) event delta should be empty");
+    require(empty_result.warnings_delta.empty(), "run_scenario(0) warning delta should be empty");
     require(empty_result.initial_snapshot.day == 0, "run_scenario(0) initial snapshot should report current day");
     require(empty_result.initial_snapshot.settlements.size() == 1, "run_scenario(0) initial snapshot should include current settlements");
     require(empty_result.initial_snapshot.settlements[0].total_stored_resources == 14, "run_scenario(0) initial snapshot should include current storage");
@@ -175,6 +176,10 @@ starting_population=40
     require(result.events_delta.front().day == 5, "scenario result event delta should start at first scenario day");
     require(result.events_delta.back().day == 6, "scenario result event delta should end at final scenario day");
     require(result.initial_snapshot.events.size() + result.events_delta.size() == result.final_snapshot.events.size(), "scenario result event delta should bridge initial and final snapshots");
+    require(result.warnings_delta.size() == 4, "scenario result warning delta should contain top-level scenario warnings");
+    require(result.warnings_delta.size() * 2 == result.summary.warnings, "scenario result warning delta should be top-level warning half of full summary warnings");
+    require(result.warnings_delta.front().find("riverwatch:") == 0, "scenario result warning delta should include settlement id prefix");
+    require(result.warnings_delta.back().find("riverwatch:") == 0, "scenario result warning delta should preserve prefixed warnings");
     require(result.final_snapshot.day == 6, "scenario result final snapshot should report final day");
     require(result.final_snapshot.settlements.size() == 1, "scenario result final snapshot should include settlement");
     require(result.final_snapshot.settlements[0].id == "riverwatch", "scenario result final snapshot should include settlement id");
