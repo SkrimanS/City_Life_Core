@@ -62,6 +62,7 @@ struct SimulationScenarioResult final {
     SimulationSnapshot initial_snapshot{};
     std::vector<SimulationDayReport> reports{};
     SimulationScenarioSummary summary{};
+    std::vector<SimulationEvent> events_delta{};
     SimulationSnapshot final_snapshot{};
 };
 
