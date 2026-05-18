@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.4 - Unreleased
+
+### Added
+
+- `SimulationScenarioResult::initial_snapshot` for returning the simulation state before scenario execution.
+- `SimulationEngine::run_scenario()` now captures both initial and final snapshots around scenario execution.
+- Simulation test coverage proving scenario snapshots bracket emitted events and state changes.
+
 ## 0.6.3 - Unreleased
 
 ### Added
