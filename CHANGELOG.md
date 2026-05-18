@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.4 - Unreleased
+
+### Added
+
+- Engine-level command API for removing resources from settlements by settlement ID.
+- Engine-level command API for transferring resources between settlements.
+- Validation coverage for empty IDs, same source/target settlements, unknown settlements, zero amounts, and insufficient resources.
+- Dedicated resource command test binary and CTest entry.
+
 ## 0.5.3 - Unreleased
 
 ### Added
