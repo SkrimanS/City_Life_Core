@@ -45,6 +45,7 @@ public:
     [[nodiscard]] data::ValidationReport add_settlement(SettlementState settlement);
     [[nodiscard]] data::ValidationReport create_settlement(std::string settlement_definition_id);
     [[nodiscard]] data::ValidationReport add_building_to_settlement(std::string settlement_id, BuildingInstance building);
+    [[nodiscard]] data::ValidationReport add_resource_to_settlement(std::string settlement_id, std::string resource_id, std::uint64_t amount);
 
     [[nodiscard]] const std::vector<SettlementState>& settlements() const noexcept;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
