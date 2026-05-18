@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.4.4
+    VERSION 0.5.0
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -23,6 +23,7 @@ add_library(city_life_core
     src/clc/data/DataPackLoader.cpp
     src/clc/sim/Storage.cpp
     src/clc/sim/Settlement.cpp
+    src/clc/sim/SimulationEngine.cpp
     src/clc/economy/Market.cpp
     src/clc/economy/Trade.cpp
     src/clc/economy/Ledger.cpp
