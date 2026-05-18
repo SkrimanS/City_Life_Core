@@ -17,6 +17,12 @@ struct SimulationEvent final {
     std::string message{};
 };
 
+struct SimulationSnapshot final {
+    std::uint64_t day{0};
+    std::vector<SettlementReport> settlements{};
+    economy::MarketReport market{};
+};
+
 struct SimulationDayReport final {
     std::uint64_t day{0};
     std::vector<SettlementTickReport> settlement_ticks{};
@@ -40,6 +46,7 @@ public:
     [[nodiscard]] const std::vector<SettlementState>& settlements() const noexcept;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
 
+    [[nodiscard]] SimulationSnapshot snapshot() const;
     [[nodiscard]] SimulationDayReport advance_day();
 
 private:
