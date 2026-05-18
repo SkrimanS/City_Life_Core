@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 - Unreleased
+
+### Added
+
+- `SimulationEngine::run_days()` for running multiple simulation days in sequence.
+- Multi-day scenario runner reports that preserve the same side effects as repeated `advance_day()` calls.
+- Simulation test coverage for zero-day runs, sequential day reports, current day advancement, warning propagation, and cumulative day events.
+
 ## 0.5.9 - Unreleased
 
 ### Added

@@ -89,6 +89,7 @@ public:
 
     [[nodiscard]] SimulationSnapshot snapshot() const;
     [[nodiscard]] SimulationDayReport advance_day();
+    [[nodiscard]] std::vector<SimulationDayReport> run_days(std::uint64_t day_count);
 
 private:
     data::DataRegistry registry_{};
