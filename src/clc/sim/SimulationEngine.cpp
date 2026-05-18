@@ -435,11 +435,18 @@ SimulationScenarioResult SimulationEngine::run_scenario(std::uint64_t day_count)
             final_snapshot.events.end()
         };
     }
+    std::vector<std::string> warnings_delta;
+    for (const auto& report : reports) {
+        for (const auto& warning : report.warnings) {
+            warnings_delta.push_back(warning);
+        }
+    }
     return SimulationScenarioResult{
         .initial_snapshot = std::move(initial_snapshot),
         .reports = std::move(reports),
         .summary = std::move(summary),
         .events_delta = std::move(events_delta),
+        .warnings_delta = std::move(warnings_delta),
         .final_snapshot = std::move(final_snapshot),
     };
 }
