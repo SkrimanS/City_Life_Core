@@ -149,6 +149,16 @@ bool scenario_succeeded(const SimulationScenarioResult& result) noexcept {
     return !scenario_has_warnings(result);
 }
 
+std::string scenario_result_digest(const SimulationScenarioResult& result) {
+    std::string digest = "scenario days=" + std::to_string(scenario_result_duration_days(result));
+    digest += " start=" + std::to_string(scenario_result_start_day(result));
+    digest += " end=" + std::to_string(scenario_result_end_day(result));
+    digest += " events=" + std::to_string(result.events_delta.size());
+    digest += " warnings=" + std::to_string(result.warnings_delta.size());
+    digest += scenario_succeeded(result) ? " status=success" : " status=warning";
+    return digest;
+}
+
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
     : registry_{std::move(registry)} {
 }
