@@ -61,6 +61,7 @@ struct SimulationScenarioSummary final {
 struct SimulationScenarioResult final {
     std::vector<SimulationDayReport> reports{};
     SimulationScenarioSummary summary{};
+    SimulationSnapshot final_snapshot{};
 };
 
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
