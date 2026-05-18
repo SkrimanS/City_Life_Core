@@ -45,7 +45,7 @@ int main() {
     const clc::sim::SimulationScenarioPreset invalid_preset;
     const auto invalid_report = clc::sim::validate_scenario_preset(invalid_preset);
     require(!invalid_report.ok(), "empty preset should fail validation");
-    require(invalid_report.messages.size() == 3, "empty preset should report id, display name, and day count errors");
+    require(invalid_report.messages().size() == 3, "empty preset should report id, display name, and day count errors");
 
     const clc::sim::SimulationScenarioPreset valid_preset{
         .id = "quick_check",
