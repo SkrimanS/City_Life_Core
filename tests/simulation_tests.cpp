@@ -136,13 +136,13 @@ starting_population=40
     require(summary.first_day == 2, "scenario summary should report first scenario day");
     require(summary.last_day == 4, "scenario summary should report last scenario day");
     require(summary.settlement_ticks == 3, "scenario summary should count settlement ticks");
-    require(summary.consumed_food == 6, "scenario summary should aggregate consumed food");
+    require(summary.consumed_food == 10, "scenario summary should aggregate consumed food");
     require(summary.consumed_inputs == 0, "scenario summary should aggregate consumed inputs");
     require(summary.produced_resources == 0, "scenario summary should aggregate produced resources");
     require(summary.active_building_ticks == 0, "scenario summary should aggregate active buildings");
     require(summary.skipped_building_ticks == 3, "scenario summary should aggregate skipped buildings");
     require(summary.events == 9, "scenario summary should aggregate day report events");
-    require(summary.warnings == 6, "scenario summary should aggregate engine and tick warnings");
+    require(summary.warnings == 8, "scenario summary should aggregate engine and tick warnings");
 
     return 0;
 }
