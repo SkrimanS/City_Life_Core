@@ -90,6 +90,9 @@ starting_population=40
     require(empty_result.summary.days_run == 0, "run_scenario(0) summary should report zero days");
     require(empty_result.events_delta.empty(), "run_scenario(0) event delta should be empty");
     require(empty_result.warnings_delta.empty(), "run_scenario(0) warning delta should be empty");
+    require(!clc::sim::scenario_has_events(empty_result), "empty scenario result helper should report no events");
+    require(!clc::sim::scenario_has_warnings(empty_result), "empty scenario result helper should report no warnings");
+    require(clc::sim::scenario_succeeded(empty_result), "empty scenario result helper should report success");
     require(empty_result.initial_snapshot.day == 0, "run_scenario(0) initial snapshot should report current day");
     require(empty_result.initial_snapshot.settlements.size() == 1, "run_scenario(0) initial snapshot should include current settlements");
     require(empty_result.initial_snapshot.settlements[0].total_stored_resources == 14, "run_scenario(0) initial snapshot should include current storage");
@@ -180,6 +183,9 @@ starting_population=40
     require(result.warnings_delta.size() * 2 == result.summary.warnings, "scenario result warning delta should be top-level warning half of full summary warnings");
     require(result.warnings_delta.front().find("riverwatch:") == 0, "scenario result warning delta should include settlement id prefix");
     require(result.warnings_delta.back().find("riverwatch:") == 0, "scenario result warning delta should preserve prefixed warnings");
+    require(clc::sim::scenario_has_events(result), "scenario result helper should report events");
+    require(clc::sim::scenario_has_warnings(result), "scenario result helper should report warnings");
+    require(!clc::sim::scenario_succeeded(result), "scenario result helper should reject warning scenario as success");
     require(result.final_snapshot.day == 6, "scenario result final snapshot should report final day");
     require(result.final_snapshot.settlements.size() == 1, "scenario result final snapshot should include settlement");
     require(result.final_snapshot.settlements[0].id == "riverwatch", "scenario result final snapshot should include settlement id");
