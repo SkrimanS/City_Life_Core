@@ -33,6 +33,15 @@ std::vector<SettlementReport> make_settlement_reports(const std::vector<Settleme
     return reports;
 }
 
+SettlementState* find_settlement(std::vector<SettlementState>& settlements, const std::string& settlement_id) {
+    for (auto& settlement : settlements) {
+        if (settlement.id == settlement_id) {
+            return &settlement;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace
 
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
@@ -121,6 +130,76 @@ data::ValidationReport SimulationEngine::add_resource_to_settlement(std::string 
 
     report.add_error("simulation.settlement." + settlement_id, "unknown settlement");
     return report;
+}
+
+data::ValidationReport SimulationEngine::remove_resource_from_settlement(std::string settlement_id, std::string resource_id, std::uint64_t amount) {
+    data::ValidationReport report;
+    if (settlement_id.empty()) {
+        report.add_error("simulation.remove_resource", "settlement_id must not be empty");
+        return report;
+    }
+    if (resource_id.empty()) {
+        report.add_error("simulation.remove_resource", "resource_id must not be empty");
+        return report;
+    }
+    if (amount == 0) {
+        report.add_error("simulation.remove_resource", "amount must be greater than zero");
+        return report;
+    }
+
+    auto* settlement = find_settlement(settlements_, settlement_id);
+    if (settlement == nullptr) {
+        report.add_error("simulation.settlement." + settlement_id, "unknown settlement");
+        return report;
+    }
+
+    if (!settlement->storage.try_remove(resource_id, amount)) {
+        report.add_error("simulation.settlement." + settlement_id + ".storage." + resource_id, "not enough resource in settlement storage");
+    }
+    return report;
+}
+
+data::ValidationReport SimulationEngine::transfer_resource_between_settlements(
+    std::string from_settlement_id,
+    std::string to_settlement_id,
+    std::string resource_id,
+    std::uint64_t amount
+) {
+    data::ValidationReport report;
+    if (from_settlement_id.empty()) {
+        report.add_error("simulation.transfer_resource", "from_settlement_id must not be empty");
+        return report;
+    }
+    if (to_settlement_id.empty()) {
+        report.add_error("simulation.transfer_resource", "to_settlement_id must not be empty");
+        return report;
+    }
+    if (from_settlement_id == to_settlement_id) {
+        report.add_error("simulation.transfer_resource", "source and target settlements must be different");
+        return report;
+    }
+    if (resource_id.empty()) {
+        report.add_error("simulation.transfer_resource", "resource_id must not be empty");
+        return report;
+    }
+    if (amount == 0) {
+        report.add_error("simulation.transfer_resource", "amount must be greater than zero");
+        return report;
+    }
+
+    auto* source = find_settlement(settlements_, from_settlement_id);
+    if (source == nullptr) {
+        report.add_error("simulation.settlement." + from_settlement_id, "unknown source settlement");
+        return report;
+    }
+
+    auto* target = find_settlement(settlements_, to_settlement_id);
+    if (target == nullptr) {
+        report.add_error("simulation.settlement." + to_settlement_id, "unknown target settlement");
+        return report;
+    }
+
+    return transfer(source->storage, target->storage, resource_id, amount);
 }
 
 const std::vector<SettlementState>& SimulationEngine::settlements() const noexcept {
