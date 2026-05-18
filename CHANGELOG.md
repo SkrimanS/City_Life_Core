@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.2 - Unreleased
+
+### Added
+
+- `SimulationScenarioResult` for returning scenario reports and their summary together.
+- `SimulationEngine::run_scenario()` convenience API over `run_days()` plus `summarize_day_reports()`.
+- Simulation test coverage for zero-day and multi-day scenario results.
+
 ## 0.6.1 - Unreleased
 
 ### Added
