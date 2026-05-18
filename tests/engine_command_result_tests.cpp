@@ -40,17 +40,21 @@ starting_population=10
     require(load_report.ok(), "data pack should load");
 
     clc::sim::SimulationEngine engine{std::move(registry)};
+    require(engine.events().empty(), "new engine event log should be empty");
 
     const auto failed_create = engine.create_settlement_command("missing");
     require(!failed_create.ok, "missing create should fail");
     require(failed_create.command == "create_settlement", "create command name");
     require(failed_create.subject_id == "missing", "create subject id");
     require(!failed_create.validation.ok(), "create validation failure");
+    require(engine.events().size() == 1, "failed command should append event");
+    require(engine.events()[0].type == "simulation.command.failed", "failed command event type");
 
     const auto created = engine.create_settlement_command("riverwatch");
     require(created.ok, "create should pass");
     require(created.validation.ok(), "create validation ok");
     require(created.subject_id == "riverwatch", "created subject id");
+    require(engine.events()[1].type == "simulation.command.succeeded", "successful command event type");
     require(engine.create_settlement_command("hillford").ok, "second create should pass");
 
     const auto added = engine.add_resource_to_settlement_command("riverwatch", "grain", 7);
@@ -81,6 +85,14 @@ starting_population=10
     require(moved.amount == 3, "transfer amount");
     require(engine.settlement_resource_amount("riverwatch", "grain") == 2, "source amount after transfer");
     require(engine.settlement_resource_amount("hillford", "grain") == 3, "target amount after transfer");
+    require(engine.events().size() == 7, "all command wrappers should append events");
+
+    const auto snapshot = engine.snapshot();
+    require(snapshot.events.size() == engine.events().size(), "snapshot should include cumulative engine events");
+
+    const auto day_report = engine.advance_day();
+    require(day_report.events.size() == 4, "day report should include day and settlement events");
+    require(engine.events().size() == 11, "advance_day should append day events to cumulative log");
 
     return 0;
 }
