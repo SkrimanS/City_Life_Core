@@ -85,6 +85,10 @@ starting_population=40
     require(empty_summary.last_day == 0, "empty scenario summary should report last day 0");
     require(empty_summary.events == 0, "empty scenario summary should report zero events");
     require(empty_summary.warnings == 0, "empty scenario summary should report zero warnings");
+    const auto empty_result = engine.run_scenario(0);
+    require(empty_result.reports.empty(), "run_scenario(0) should return no reports");
+    require(empty_result.summary.days_run == 0, "run_scenario(0) summary should report zero days");
+    require(engine.current_day() == 0, "run_scenario(0) should not advance current day");
 
     const auto initial_snapshot = engine.snapshot();
     require(initial_snapshot.day == 0, "initial snapshot should report day 0");
@@ -143,6 +147,16 @@ starting_population=40
     require(summary.skipped_building_ticks == 3, "scenario summary should aggregate skipped buildings");
     require(summary.events == 9, "scenario summary should aggregate day report events");
     require(summary.warnings == 8, "scenario summary should aggregate engine and tick warnings");
+
+    const auto result = engine.run_scenario(2);
+    require(result.reports.size() == 2, "run_scenario(2) should return two reports");
+    require(result.summary.days_run == 2, "scenario result summary should report two days");
+    require(result.summary.first_day == 5, "scenario result summary should continue from current day");
+    require(result.summary.last_day == 6, "scenario result summary should include final day");
+    require(result.summary.settlement_ticks == 2, "scenario result summary should count settlement ticks");
+    require(result.summary.events == 6, "scenario result summary should aggregate events");
+    require(result.summary.warnings == clc::sim::summarize_day_reports(result.reports).warnings, "scenario result summary should match report summary");
+    require(engine.current_day() == 6, "run_scenario(2) should advance current day by two");
 
     return 0;
 }
