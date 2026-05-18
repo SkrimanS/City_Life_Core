@@ -73,6 +73,56 @@ data::ValidationReport SimulationEngine::add_settlement(SettlementState settleme
     return report;
 }
 
+data::ValidationReport SimulationEngine::create_settlement(std::string settlement_definition_id) {
+    data::ValidationReport report;
+    if (settlement_definition_id.empty()) {
+        report.add_error("simulation.create_settlement", "settlement_definition_id must not be empty");
+        return report;
+    }
+
+    const auto* definition = registry_.settlement(settlement_definition_id);
+    if (definition == nullptr) {
+        report.add_error("simulation.create_settlement." + settlement_definition_id, "unknown settlement definition");
+        return report;
+    }
+
+    return add_settlement(create_settlement_from_definition(*definition));
+}
+
+data::ValidationReport SimulationEngine::add_building_to_settlement(std::string settlement_id, BuildingInstance building) {
+    data::ValidationReport report;
+    if (settlement_id.empty()) {
+        report.add_error("simulation.add_building", "settlement_id must not be empty");
+        return report;
+    }
+
+    for (auto& settlement : settlements_) {
+        if (settlement.id == settlement_id) {
+            return add_building(settlement, registry_, std::move(building));
+        }
+    }
+
+    report.add_error("simulation.settlement." + settlement_id, "unknown settlement");
+    return report;
+}
+
+data::ValidationReport SimulationEngine::add_resource_to_settlement(std::string settlement_id, std::string resource_id, std::uint64_t amount) {
+    data::ValidationReport report;
+    if (settlement_id.empty()) {
+        report.add_error("simulation.add_resource", "settlement_id must not be empty");
+        return report;
+    }
+
+    for (auto& settlement : settlements_) {
+        if (settlement.id == settlement_id) {
+            return settlement.storage.add(std::move(resource_id), amount);
+        }
+    }
+
+    report.add_error("simulation.settlement." + settlement_id, "unknown settlement");
+    return report;
+}
+
 const std::vector<SettlementState>& SimulationEngine::settlements() const noexcept {
     return settlements_;
 }
