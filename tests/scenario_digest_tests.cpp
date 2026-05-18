@@ -1,3 +1,4 @@
+#include "clc/data/DataRegistry.hpp"
 #include "clc/sim/SimulationEngine.hpp"
 
 #include <cstdlib>
@@ -40,6 +41,31 @@ int main() {
     defensive_result.initial_snapshot.day = 9;
     defensive_result.final_snapshot.day = 7;
     require(clc::sim::scenario_result_digest(defensive_result) == "scenario days=0 start=9 end=7 events=0 warnings=0 status=success", "defensive digest should clamp negative duration to zero");
+
+    const clc::sim::SimulationScenarioPreset invalid_preset;
+    const auto invalid_report = clc::sim::validate_scenario_preset(invalid_preset);
+    require(!invalid_report.ok(), "empty preset should fail validation");
+    require(invalid_report.messages.size() == 3, "empty preset should report id, display name, and day count errors");
+
+    const clc::sim::SimulationScenarioPreset valid_preset{
+        .id = "quick_check",
+        .display_name = "Quick Check",
+        .day_count = 2,
+    };
+    const auto valid_report = clc::sim::validate_scenario_preset(valid_preset);
+    require(valid_report.ok(), "valid preset should pass validation");
+
+    clc::sim::SimulationEngine engine{clc::data::DataRegistry{}};
+    const auto preset_result = engine.run_scenario_preset(valid_preset);
+    require(preset_result.summary.days_run == 2, "valid preset should run configured day count");
+    require(clc::sim::scenario_result_duration_days(preset_result) == 2, "valid preset should produce matching result duration");
+    require(engine.current_day() == 2, "valid preset should advance engine day count");
+    require(clc::sim::scenario_result_digest(preset_result) == "scenario days=2 start=0 end=2 events=4 warnings=0 status=success", "valid preset digest should remain compatible");
+
+    const auto invalid_preset_result = engine.run_scenario_preset(invalid_preset);
+    require(invalid_preset_result.summary.days_run == 0, "invalid preset should not run days");
+    require(clc::sim::scenario_result_duration_days(invalid_preset_result) == 0, "invalid preset should return unchanged snapshot range");
+    require(engine.current_day() == 2, "invalid preset should not advance engine day count");
 
     return 0;
 }
