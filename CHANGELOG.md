@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1 - Unreleased
+
+### Added
+
+- Engine-level `SimulationEvent` entries for day start, settlement advancement, and day completion.
+- Engine-level warning aggregation from settlement tick reports.
+- Simulation test coverage for engine events and warning collection.
+
 ## 0.5.0 - Unreleased
 
 ### Added
