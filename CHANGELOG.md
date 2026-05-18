@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.3 - Unreleased
+
+### Added
+
+- Engine-level command API for creating settlements from registered settlement definitions.
+- Engine-level command API for adding buildings to settlements by settlement ID.
+- Validation coverage for empty, unknown, and duplicate settlement/building command paths.
+- Simulation test coverage for command-driven setup.
+
 ## 0.5.2 - Unreleased
 
 ### Added
