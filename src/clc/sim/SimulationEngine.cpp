@@ -422,4 +422,13 @@ std::vector<SimulationDayReport> SimulationEngine::run_days(std::uint64_t day_co
     return reports;
 }
 
+SimulationScenarioResult SimulationEngine::run_scenario(std::uint64_t day_count) {
+    auto reports = run_days(day_count);
+    auto summary = summarize_day_reports(reports);
+    return SimulationScenarioResult{
+        .reports = std::move(reports),
+        .summary = std::move(summary),
+    };
+}
+
 } // namespace clc::sim
