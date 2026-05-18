@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.6 - Unreleased
+
+### Added
+
+- `SimulationCommandResult` for structured engine command outcomes.
+- Structured command wrappers for settlement, building, resource, and transfer commands.
+- Command result fields for command name, success flag, subject ID, target ID, resource ID, amount, and validation details.
+- Dedicated engine command result test binary and CTest entry.
+
 ## 0.5.5 - Unreleased
 
 ### Added
