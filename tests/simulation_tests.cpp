@@ -85,6 +85,9 @@ starting_population=40
     require(empty_summary.last_day == 0, "empty scenario summary should report last day 0");
     require(empty_summary.events == 0, "empty scenario summary should report zero events");
     require(empty_summary.warnings == 0, "empty scenario summary should report zero warnings");
+    require(clc::sim::scenario_summary_start_day(empty_summary) == 0, "empty summary start day helper should return 0");
+    require(clc::sim::scenario_summary_end_day(empty_summary) == 0, "empty summary end day helper should return 0");
+    require(clc::sim::scenario_summary_duration_days(empty_summary) == 0, "empty summary duration helper should return 0");
     const auto empty_result = engine.run_scenario(0);
     require(empty_result.reports.empty(), "run_scenario(0) should return no reports");
     require(empty_result.summary.days_run == 0, "run_scenario(0) summary should report zero days");
@@ -93,6 +96,9 @@ starting_population=40
     require(!clc::sim::scenario_has_events(empty_result), "empty scenario result helper should report no events");
     require(!clc::sim::scenario_has_warnings(empty_result), "empty scenario result helper should report no warnings");
     require(clc::sim::scenario_succeeded(empty_result), "empty scenario result helper should report success");
+    require(clc::sim::scenario_result_start_day(empty_result) == 0, "empty result start day helper should return current day");
+    require(clc::sim::scenario_result_end_day(empty_result) == 0, "empty result end day helper should return current day");
+    require(clc::sim::scenario_result_duration_days(empty_result) == 0, "empty result duration helper should return 0");
     require(empty_result.initial_snapshot.day == 0, "run_scenario(0) initial snapshot should report current day");
     require(empty_result.initial_snapshot.settlements.size() == 1, "run_scenario(0) initial snapshot should include current settlements");
     require(empty_result.initial_snapshot.settlements[0].total_stored_resources == 14, "run_scenario(0) initial snapshot should include current storage");
@@ -150,6 +156,9 @@ starting_population=40
     require(summary.days_run == 3, "scenario summary should report three days");
     require(summary.first_day == 2, "scenario summary should report first scenario day");
     require(summary.last_day == 4, "scenario summary should report last scenario day");
+    require(clc::sim::scenario_summary_start_day(summary) == 2, "scenario summary start day helper should return first day");
+    require(clc::sim::scenario_summary_end_day(summary) == 4, "scenario summary end day helper should return last day");
+    require(clc::sim::scenario_summary_duration_days(summary) == 3, "scenario summary duration helper should return days run");
     require(summary.settlement_ticks == 3, "scenario summary should count settlement ticks");
     require(summary.consumed_food == 10, "scenario summary should aggregate consumed food");
     require(summary.consumed_inputs == 0, "scenario summary should aggregate consumed inputs");
@@ -164,6 +173,9 @@ starting_population=40
     require(result.summary.days_run == 2, "scenario result summary should report two days");
     require(result.summary.first_day == 5, "scenario result summary should continue from current day");
     require(result.summary.last_day == 6, "scenario result summary should include final day");
+    require(clc::sim::scenario_summary_start_day(result.summary) == 5, "scenario result summary start helper should return first report day");
+    require(clc::sim::scenario_summary_end_day(result.summary) == 6, "scenario result summary end helper should return last report day");
+    require(clc::sim::scenario_summary_duration_days(result.summary) == 2, "scenario result summary duration helper should return days run");
     require(result.summary.settlement_ticks == 2, "scenario result summary should count settlement ticks");
     require(result.summary.events == 6, "scenario result summary should aggregate events");
     require(result.summary.warnings == clc::sim::summarize_day_reports(result.reports).warnings, "scenario result summary should match report summary");
@@ -186,6 +198,9 @@ starting_population=40
     require(clc::sim::scenario_has_events(result), "scenario result helper should report events");
     require(clc::sim::scenario_has_warnings(result), "scenario result helper should report warnings");
     require(!clc::sim::scenario_succeeded(result), "scenario result helper should reject warning scenario as success");
+    require(clc::sim::scenario_result_start_day(result) == 4, "scenario result start day helper should return initial snapshot day");
+    require(clc::sim::scenario_result_end_day(result) == 6, "scenario result end day helper should return final snapshot day");
+    require(clc::sim::scenario_result_duration_days(result) == 2, "scenario result duration helper should return snapshot day delta");
     require(result.final_snapshot.day == 6, "scenario result final snapshot should report final day");
     require(result.final_snapshot.settlements.size() == 1, "scenario result final snapshot should include settlement");
     require(result.final_snapshot.settlements[0].id == "riverwatch", "scenario result final snapshot should include settlement id");
