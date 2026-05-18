@@ -82,6 +82,34 @@ std::string command_event_message(const SimulationCommandResult& result) {
 
 } // namespace
 
+SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports) {
+    SimulationScenarioSummary summary;
+    summary.days_run = reports.size();
+    if (reports.empty()) {
+        return summary;
+    }
+
+    summary.first_day = reports.front().day;
+    summary.last_day = reports.back().day;
+
+    for (const auto& report : reports) {
+        summary.settlement_ticks += report.settlement_ticks.size();
+        summary.events += report.events.size();
+        summary.warnings += report.warnings.size();
+
+        for (const auto& tick : report.settlement_ticks) {
+            summary.consumed_food += tick.consumed_food;
+            summary.consumed_inputs += tick.consumed_inputs;
+            summary.produced_resources += tick.produced_resources;
+            summary.active_building_ticks += tick.active_buildings;
+            summary.skipped_building_ticks += tick.skipped_buildings;
+            summary.warnings += tick.warnings.size();
+        }
+    }
+
+    return summary;
+}
+
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
     : registry_{std::move(registry)} {
 }
