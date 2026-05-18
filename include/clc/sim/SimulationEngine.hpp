@@ -18,6 +18,16 @@ struct SimulationEvent final {
     std::string message{};
 };
 
+struct SimulationCommandResult final {
+    std::string command{};
+    bool ok{false};
+    std::string subject_id{};
+    std::string target_id{};
+    std::string resource_id{};
+    std::uint64_t amount{0};
+    data::ValidationReport validation{};
+};
+
 struct SimulationSnapshot final {
     std::uint64_t day{0};
     std::vector<SettlementReport> settlements{};
@@ -49,6 +59,17 @@ public:
     [[nodiscard]] data::ValidationReport add_resource_to_settlement(std::string settlement_id, std::string resource_id, std::uint64_t amount);
     [[nodiscard]] data::ValidationReport remove_resource_from_settlement(std::string settlement_id, std::string resource_id, std::uint64_t amount);
     [[nodiscard]] data::ValidationReport transfer_resource_between_settlements(
+        std::string from_settlement_id,
+        std::string to_settlement_id,
+        std::string resource_id,
+        std::uint64_t amount
+    );
+
+    [[nodiscard]] SimulationCommandResult create_settlement_command(std::string settlement_definition_id);
+    [[nodiscard]] SimulationCommandResult add_building_to_settlement_command(std::string settlement_id, BuildingInstance building);
+    [[nodiscard]] SimulationCommandResult add_resource_to_settlement_command(std::string settlement_id, std::string resource_id, std::uint64_t amount);
+    [[nodiscard]] SimulationCommandResult remove_resource_from_settlement_command(std::string settlement_id, std::string resource_id, std::uint64_t amount);
+    [[nodiscard]] SimulationCommandResult transfer_resource_between_settlements_command(
         std::string from_settlement_id,
         std::string to_settlement_id,
         std::string resource_id,

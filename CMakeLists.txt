@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.5.5
+    VERSION 0.5.6
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -67,4 +67,8 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_engine_lookup_tests tests/engine_lookup_tests.cpp)
     target_link_libraries(clc_engine_lookup_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_engine_lookup_tests COMMAND clc_engine_lookup_tests)
+
+    add_executable(clc_engine_command_result_tests tests/engine_command_result_tests.cpp)
+    target_link_libraries(clc_engine_command_result_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_engine_command_result_tests COMMAND clc_engine_command_result_tests)
 endif()

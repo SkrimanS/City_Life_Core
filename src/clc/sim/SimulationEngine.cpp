@@ -52,6 +52,26 @@ const SettlementState* find_settlement(const std::vector<SettlementState>& settl
     return nullptr;
 }
 
+SimulationCommandResult make_command_result(
+    std::string command,
+    std::string subject_id,
+    std::string target_id,
+    std::string resource_id,
+    std::uint64_t amount,
+    data::ValidationReport validation
+) {
+    const auto ok = validation.ok();
+    return SimulationCommandResult{
+        .command = std::move(command),
+        .ok = ok,
+        .subject_id = std::move(subject_id),
+        .target_id = std::move(target_id),
+        .resource_id = std::move(resource_id),
+        .amount = amount,
+        .validation = std::move(validation),
+    };
+}
+
 } // namespace
 
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
@@ -210,6 +230,51 @@ data::ValidationReport SimulationEngine::transfer_resource_between_settlements(
     }
 
     return transfer(source->storage, target->storage, resource_id, amount);
+}
+
+SimulationCommandResult SimulationEngine::create_settlement_command(std::string settlement_definition_id) {
+    auto subject_id = settlement_definition_id;
+    auto validation = create_settlement(std::move(settlement_definition_id));
+    return make_command_result("create_settlement", std::move(subject_id), {}, {}, 0, std::move(validation));
+}
+
+SimulationCommandResult SimulationEngine::add_building_to_settlement_command(std::string settlement_id, BuildingInstance building) {
+    auto subject_id = settlement_id;
+    auto target_id = building.definition_id;
+    auto validation = add_building_to_settlement(std::move(settlement_id), std::move(building));
+    return make_command_result("add_building_to_settlement", std::move(subject_id), std::move(target_id), {}, 0, std::move(validation));
+}
+
+SimulationCommandResult SimulationEngine::add_resource_to_settlement_command(std::string settlement_id, std::string resource_id, std::uint64_t amount) {
+    auto subject_id = settlement_id;
+    auto resource = resource_id;
+    auto validation = add_resource_to_settlement(std::move(settlement_id), std::move(resource_id), amount);
+    return make_command_result("add_resource_to_settlement", std::move(subject_id), {}, std::move(resource), amount, std::move(validation));
+}
+
+SimulationCommandResult SimulationEngine::remove_resource_from_settlement_command(std::string settlement_id, std::string resource_id, std::uint64_t amount) {
+    auto subject_id = settlement_id;
+    auto resource = resource_id;
+    auto validation = remove_resource_from_settlement(std::move(settlement_id), std::move(resource_id), amount);
+    return make_command_result("remove_resource_from_settlement", std::move(subject_id), {}, std::move(resource), amount, std::move(validation));
+}
+
+SimulationCommandResult SimulationEngine::transfer_resource_between_settlements_command(
+    std::string from_settlement_id,
+    std::string to_settlement_id,
+    std::string resource_id,
+    std::uint64_t amount
+) {
+    auto subject_id = from_settlement_id;
+    auto target_id = to_settlement_id;
+    auto resource = resource_id;
+    auto validation = transfer_resource_between_settlements(
+        std::move(from_settlement_id),
+        std::move(to_settlement_id),
+        std::move(resource_id),
+        amount
+    );
+    return make_command_result("transfer_resource_between_settlements", std::move(subject_id), std::move(target_id), std::move(resource), amount, std::move(validation));
 }
 
 const std::vector<SettlementState>& SimulationEngine::settlements() const noexcept {
