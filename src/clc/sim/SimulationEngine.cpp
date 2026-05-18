@@ -110,6 +110,18 @@ SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayR
     return summary;
 }
 
+bool scenario_has_events(const SimulationScenarioResult& result) noexcept {
+    return !result.events_delta.empty();
+}
+
+bool scenario_has_warnings(const SimulationScenarioResult& result) noexcept {
+    return !result.warnings_delta.empty();
+}
+
+bool scenario_succeeded(const SimulationScenarioResult& result) noexcept {
+    return !scenario_has_warnings(result);
+}
+
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
     : registry_{std::move(registry)} {
 }

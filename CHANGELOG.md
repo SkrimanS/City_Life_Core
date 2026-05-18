@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.7 - Unreleased
+
+### Added
+
+- Scenario result helper functions for API/UI consumers.
+- `scenario_has_events()` for checking scenario event deltas.
+- `scenario_has_warnings()` for checking scenario warning deltas.
+- `scenario_succeeded()` for treating warning-free scenario results as successful.
+- Simulation test coverage for helpers on empty and warning-producing scenarios.
+
 ## 0.6.6 - Unreleased
 
 ### Added
