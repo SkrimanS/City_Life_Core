@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.7 - Unreleased
+
+### Added
+
+- Cumulative engine event log for command and day events.
+- `SimulationEngine::events()` for read-only access to accumulated events.
+- `SimulationSnapshot::events` for exposing activity log entries alongside state snapshots.
+- Command wrapper events for succeeded and failed structured commands.
+- Cumulative storage of day events emitted by `advance_day()`.
+- Test coverage for command events and snapshot event exposure.
+
 ## 0.5.6 - Unreleased
 
 ### Added
