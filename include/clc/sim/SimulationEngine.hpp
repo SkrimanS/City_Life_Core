@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace clc::sim {
@@ -55,6 +56,9 @@ public:
     );
 
     [[nodiscard]] const std::vector<SettlementState>& settlements() const noexcept;
+    [[nodiscard]] bool has_settlement(std::string_view settlement_id) const;
+    [[nodiscard]] const SettlementState* settlement(std::string_view settlement_id) const;
+    [[nodiscard]] std::uint64_t settlement_resource_amount(std::string_view settlement_id, std::string_view resource_id) const;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
 
     [[nodiscard]] SimulationSnapshot snapshot() const;

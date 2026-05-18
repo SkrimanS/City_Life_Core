@@ -1,5 +1,6 @@
 #include "clc/sim/SimulationEngine.hpp"
 
+#include <string>
 #include <utility>
 
 namespace clc::sim {
@@ -35,6 +36,15 @@ std::vector<SettlementReport> make_settlement_reports(const std::vector<Settleme
 
 SettlementState* find_settlement(std::vector<SettlementState>& settlements, const std::string& settlement_id) {
     for (auto& settlement : settlements) {
+        if (settlement.id == settlement_id) {
+            return &settlement;
+        }
+    }
+    return nullptr;
+}
+
+const SettlementState* find_settlement(const std::vector<SettlementState>& settlements, std::string_view settlement_id) {
+    for (const auto& settlement : settlements) {
         if (settlement.id == settlement_id) {
             return &settlement;
         }
@@ -204,6 +214,22 @@ data::ValidationReport SimulationEngine::transfer_resource_between_settlements(
 
 const std::vector<SettlementState>& SimulationEngine::settlements() const noexcept {
     return settlements_;
+}
+
+bool SimulationEngine::has_settlement(std::string_view settlement_id) const {
+    return find_settlement(settlements_, settlement_id) != nullptr;
+}
+
+const SettlementState* SimulationEngine::settlement(std::string_view settlement_id) const {
+    return find_settlement(settlements_, settlement_id);
+}
+
+std::uint64_t SimulationEngine::settlement_resource_amount(std::string_view settlement_id, std::string_view resource_id) const {
+    const auto* found = find_settlement(settlements_, settlement_id);
+    if (found == nullptr) {
+        return 0;
+    }
+    return found->storage.amount(std::string{resource_id});
 }
 
 std::uint64_t SimulationEngine::current_day() const noexcept {
