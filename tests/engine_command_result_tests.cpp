@@ -110,5 +110,14 @@ starting_population=10
     require(engine.events().size() == 11, "advance_day should append day events to cumulative log");
     require(engine.recent_events(1)[0].type == "simulation.day.completed", "latest event should be day completed");
 
+    const auto day_before_clear = engine.current_day();
+    engine.clear_events();
+    require(engine.events().empty(), "clear_events should clear cumulative events");
+    require(engine.recent_events(10).empty(), "recent events should be empty after clear");
+    require(engine.events_by_type("simulation.day.completed").empty(), "filtered events should be empty after clear");
+    require(engine.snapshot().events.empty(), "snapshot events should be empty after clear");
+    require(engine.current_day() == day_before_clear, "clear_events should not change current day");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == 1, "clear_events should not mutate settlement resources");
+
     return 0;
 }
