@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.2 - Unreleased
+
+### Added
+
+- `SimulationSnapshot` for read-only engine state inspection without advancing the simulation.
+- `SimulationEngine::snapshot()` for current day, settlement snapshots, and aggregate market report.
+- Simulation test coverage proving snapshots do not mutate `current_day`.
+
 ## 0.5.1 - Unreleased
 
 ### Added
