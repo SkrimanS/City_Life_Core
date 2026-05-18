@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 - Unreleased
+
+### Added
+
+- Initial `SimulationEngine` for coordinating settlement simulation and economy reporting.
+- `SimulationDayReport` with day number, settlement tick reports, settlement snapshots, and market summary.
+- Engine-owned registry, market state, settlement list, and current day tracking.
+- Duplicate settlement ID validation when adding settlements to the engine.
+- Dedicated simulation test binary and CTest entry.
+
 ## 0.4.4 - Unreleased
 
 ### Added
