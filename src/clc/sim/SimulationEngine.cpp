@@ -338,6 +338,10 @@ std::vector<SimulationEvent> SimulationEngine::events_by_type(std::string_view e
     return filtered;
 }
 
+void SimulationEngine::clear_events() noexcept {
+    events_.clear();
+}
+
 std::uint64_t SimulationEngine::current_day() const noexcept {
     return current_day_;
 }

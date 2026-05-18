@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.9 - Unreleased
+
+### Added
+
+- `SimulationEngine::clear_events()` for clearing the cumulative engine event log.
+- Event clearing test coverage proving event filters, recent events, and snapshot events are empty after clearing.
+- Regression coverage that event clearing does not mutate current day or settlement resources.
+
 ## 0.5.8 - Unreleased
 
 ### Added
