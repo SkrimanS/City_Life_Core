@@ -319,6 +319,25 @@ const std::vector<SimulationEvent>& SimulationEngine::events() const noexcept {
     return events_;
 }
 
+std::vector<SimulationEvent> SimulationEngine::recent_events(std::uint64_t max_count) const {
+    if (max_count == 0 || events_.empty()) {
+        return {};
+    }
+
+    const auto count = max_count < events_.size() ? static_cast<std::size_t>(max_count) : events_.size();
+    return std::vector<SimulationEvent>{events_.end() - static_cast<std::ptrdiff_t>(count), events_.end()};
+}
+
+std::vector<SimulationEvent> SimulationEngine::events_by_type(std::string_view event_type) const {
+    std::vector<SimulationEvent> filtered;
+    for (const auto& event : events_) {
+        if (event.type == event_type) {
+            filtered.push_back(event);
+        }
+    }
+    return filtered;
+}
+
 std::uint64_t SimulationEngine::current_day() const noexcept {
     return current_day_;
 }
