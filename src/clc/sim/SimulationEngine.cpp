@@ -385,4 +385,13 @@ SimulationDayReport SimulationEngine::advance_day() {
     return report;
 }
 
+std::vector<SimulationDayReport> SimulationEngine::run_days(std::uint64_t day_count) {
+    std::vector<SimulationDayReport> reports;
+    reports.reserve(static_cast<std::size_t>(day_count));
+    for (std::uint64_t day_index = 0; day_index < day_count; ++day_index) {
+        reports.push_back(advance_day());
+    }
+    return reports;
+}
+
 } // namespace clc::sim
