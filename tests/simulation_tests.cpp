@@ -76,6 +76,10 @@ starting_population=40
     require(engine.add_resource_to_settlement("riverwatch", "grain", 10).ok(), "engine should add starting grain");
     require(engine.add_resource_to_settlement("riverwatch", "wood", 4).ok(), "engine should add starting wood");
 
+    const auto zero_day_reports = engine.run_days(0);
+    require(zero_day_reports.empty(), "run_days(0) should return no reports");
+    require(engine.current_day() == 0, "run_days(0) should not advance current day");
+
     const auto initial_snapshot = engine.snapshot();
     require(initial_snapshot.day == 0, "initial snapshot should report day 0");
     require(engine.current_day() == 0, "snapshot should not advance engine day");
@@ -110,11 +114,16 @@ starting_population=40
     require(post_day_snapshot.settlements[0].total_stored_resources == 10, "post-day snapshot should include current storage");
     require(post_day_snapshot.market.total_supply == 10, "post-day snapshot should include current aggregate supply");
 
-    const auto second_day_report = engine.advance_day();
-    require(second_day_report.day == 2, "second simulation day report should be day 2");
-    require(second_day_report.settlement_ticks[0].skipped_buildings == 1, "farm should be skipped on day 2 without wood");
-    require(!second_day_report.warnings.empty(), "second day should collect settlement warnings");
-    require(second_day_report.warnings[0].find("riverwatch:") == 0, "engine warning should include settlement id prefix");
+    const auto scenario_reports = engine.run_days(3);
+    require(scenario_reports.size() == 3, "run_days(3) should return three reports");
+    require(scenario_reports[0].day == 2, "first scenario report should continue from current day");
+    require(scenario_reports[1].day == 3, "second scenario report should be next day");
+    require(scenario_reports[2].day == 4, "third scenario report should be next day");
+    require(engine.current_day() == 4, "run_days(3) should advance current day by three");
+    require(scenario_reports[0].settlement_ticks[0].skipped_buildings == 1, "farm should be skipped on day 2 without wood");
+    require(!scenario_reports[0].warnings.empty(), "day 2 should collect settlement warnings");
+    require(scenario_reports[0].warnings[0].find("riverwatch:") == 0, "engine warning should include settlement id prefix");
+    require(engine.events_by_type("simulation.day.completed").size() == 4, "run_days should append day completion events to cumulative log");
 
     return 0;
 }
