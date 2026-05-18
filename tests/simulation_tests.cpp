@@ -88,6 +88,7 @@ starting_population=40
     const auto empty_result = engine.run_scenario(0);
     require(empty_result.reports.empty(), "run_scenario(0) should return no reports");
     require(empty_result.summary.days_run == 0, "run_scenario(0) summary should report zero days");
+    require(empty_result.events_delta.empty(), "run_scenario(0) event delta should be empty");
     require(empty_result.initial_snapshot.day == 0, "run_scenario(0) initial snapshot should report current day");
     require(empty_result.initial_snapshot.settlements.size() == 1, "run_scenario(0) initial snapshot should include current settlements");
     require(empty_result.initial_snapshot.settlements[0].total_stored_resources == 14, "run_scenario(0) initial snapshot should include current storage");
@@ -168,6 +169,12 @@ starting_population=40
     require(result.initial_snapshot.settlements[0].total_stored_resources == 0, "scenario result initial snapshot should include starting storage");
     require(result.initial_snapshot.market.total_supply == 0, "scenario result initial snapshot should include starting market supply");
     require(result.initial_snapshot.events.size() + result.summary.events == result.final_snapshot.events.size(), "scenario result snapshots should bracket emitted events");
+    require(result.events_delta.size() == result.summary.events, "scenario result event delta should contain emitted scenario events");
+    require(result.events_delta.front().type == "simulation.day.started", "scenario result event delta should preserve first emitted event");
+    require(result.events_delta.back().type == "simulation.day.completed", "scenario result event delta should preserve latest emitted event");
+    require(result.events_delta.front().day == 5, "scenario result event delta should start at first scenario day");
+    require(result.events_delta.back().day == 6, "scenario result event delta should end at final scenario day");
+    require(result.initial_snapshot.events.size() + result.events_delta.size() == result.final_snapshot.events.size(), "scenario result event delta should bridge initial and final snapshots");
     require(result.final_snapshot.day == 6, "scenario result final snapshot should report final day");
     require(result.final_snapshot.settlements.size() == 1, "scenario result final snapshot should include settlement");
     require(result.final_snapshot.settlements[0].id == "riverwatch", "scenario result final snapshot should include settlement id");
