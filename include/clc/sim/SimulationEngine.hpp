@@ -84,6 +84,7 @@ public:
     [[nodiscard]] const std::vector<SimulationEvent>& events() const noexcept;
     [[nodiscard]] std::vector<SimulationEvent> recent_events(std::uint64_t max_count) const;
     [[nodiscard]] std::vector<SimulationEvent> events_by_type(std::string_view event_type) const;
+    void clear_events() noexcept;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
 
     [[nodiscard]] SimulationSnapshot snapshot() const;
