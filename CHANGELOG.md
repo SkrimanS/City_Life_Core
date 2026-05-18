@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.8 - Unreleased
+
+### Added
+
+- Scenario duration helper functions for summaries and full scenario results.
+- `scenario_summary_start_day()`, `scenario_summary_end_day()`, and `scenario_summary_duration_days()` for report-range inspection.
+- `scenario_result_start_day()`, `scenario_result_end_day()`, and `scenario_result_duration_days()` for snapshot-range inspection.
+- Simulation test coverage for empty scenario duration helpers and non-empty report/snapshot ranges.
+
 ## 0.6.7 - Unreleased
 
 ### Added
