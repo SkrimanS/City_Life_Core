@@ -24,6 +24,15 @@ void add_event(SimulationDayReport& report, std::string type, std::string messag
     });
 }
 
+std::vector<SettlementReport> make_settlement_reports(const std::vector<SettlementState>& settlements, const data::DataRegistry& registry) {
+    std::vector<SettlementReport> reports;
+    reports.reserve(settlements.size());
+    for (const auto& settlement : settlements) {
+        reports.push_back(make_settlement_report(settlement, registry));
+    }
+    return reports;
+}
+
 } // namespace
 
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
@@ -70,6 +79,15 @@ const std::vector<SettlementState>& SimulationEngine::settlements() const noexce
 
 std::uint64_t SimulationEngine::current_day() const noexcept {
     return current_day_;
+}
+
+SimulationSnapshot SimulationEngine::snapshot() const {
+    const auto aggregate = aggregate_storage(settlements_);
+    return SimulationSnapshot{
+        .day = current_day_,
+        .settlements = make_settlement_reports(settlements_, registry_),
+        .market = economy::make_market_report(registry_, aggregate, market_),
+    };
 }
 
 SimulationDayReport SimulationEngine::advance_day() {
