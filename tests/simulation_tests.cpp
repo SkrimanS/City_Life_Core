@@ -61,19 +61,18 @@ starting_population=40
     require(engine.current_day() == 0, "new simulation should start at day 0");
     require(engine.market().set_demand("grain", 20).ok(), "engine market should accept demand");
 
-    const auto* settlement_definition = engine.registry().settlement("riverwatch");
-    require(settlement_definition != nullptr, "settlement definition should exist");
+    require(!engine.create_settlement("").ok(), "engine should reject empty settlement definition id");
+    require(!engine.create_settlement("missing_settlement").ok(), "engine should reject unknown settlement definition id");
+    require(engine.create_settlement("riverwatch").ok(), "engine should create settlement from definition id");
+    require(!engine.create_settlement("riverwatch").ok(), "engine should reject duplicate settlement created from definition id");
+    require(engine.settlements().size() == 1, "engine should contain created settlement");
 
-    auto settlement = clc::sim::create_settlement_from_definition(*settlement_definition);
-    require(settlement.storage.add("grain", 10).ok(), "settlement should accept starting grain");
-    require(settlement.storage.add("wood", 4).ok(), "settlement should accept starting wood");
-    require(clc::sim::add_building(settlement, engine.registry(), clc::sim::BuildingInstance{
-        .definition_id = "farm",
-        .assigned_workers = 4,
-    }).ok(), "settlement should accept farm building");
+    require(!engine.add_building_to_settlement("", clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4}).ok(), "engine should reject empty settlement id for building command");
+    require(!engine.add_building_to_settlement("missing", clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4}).ok(), "engine should reject unknown settlement for building command");
+    require(engine.add_building_to_settlement("riverwatch", clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4}).ok(), "engine should add building to settlement by id");
 
-    require(engine.add_settlement(std::move(settlement)).ok(), "engine should accept settlement");
-    require(!engine.add_settlement(clc::sim::SettlementState{.id = "riverwatch"}).ok(), "engine should reject duplicate settlement id");
+    require(engine.settlements()[0].storage.add("grain", 10).ok(), "settlement should accept starting grain");
+    require(engine.settlements()[0].storage.add("wood", 4).ok(), "settlement should accept starting wood");
 
     const auto initial_snapshot = engine.snapshot();
     require(initial_snapshot.day == 0, "initial snapshot should report day 0");
