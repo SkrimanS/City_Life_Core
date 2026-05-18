@@ -424,13 +424,22 @@ std::vector<SimulationDayReport> SimulationEngine::run_days(std::uint64_t day_co
 
 SimulationScenarioResult SimulationEngine::run_scenario(std::uint64_t day_count) {
     auto initial_snapshot = snapshot();
+    const auto initial_event_count = events_.size();
     auto reports = run_days(day_count);
     auto summary = summarize_day_reports(reports);
     auto final_snapshot = snapshot();
+    std::vector<SimulationEvent> events_delta;
+    if (initial_event_count < final_snapshot.events.size()) {
+        events_delta = std::vector<SimulationEvent>{
+            final_snapshot.events.begin() + static_cast<std::ptrdiff_t>(initial_event_count),
+            final_snapshot.events.end()
+        };
+    }
     return SimulationScenarioResult{
         .initial_snapshot = std::move(initial_snapshot),
         .reports = std::move(reports),
         .summary = std::move(summary),
+        .events_delta = std::move(events_delta),
         .final_snapshot = std::move(final_snapshot),
     };
 }
