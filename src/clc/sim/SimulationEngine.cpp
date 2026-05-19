@@ -181,6 +181,34 @@ std::string scenario_preset_result_digest(const SimulationScenarioPreset& preset
     return digest;
 }
 
+data::ValidationReport add_scenario_preset(SimulationScenarioPresetCatalog& catalog, SimulationScenarioPreset preset) {
+    auto report = validate_scenario_preset(preset);
+    if (!report.ok()) {
+        return report;
+    }
+
+    if (scenario_preset_by_id(catalog, preset.id) != nullptr) {
+        report.add_error("simulation.scenario_preset." + preset.id, "duplicate preset id");
+        return report;
+    }
+
+    catalog.presets.push_back(std::move(preset));
+    return report;
+}
+
+std::uint64_t scenario_preset_count(const SimulationScenarioPresetCatalog& catalog) noexcept {
+    return catalog.presets.size();
+}
+
+const SimulationScenarioPreset* scenario_preset_by_id(const SimulationScenarioPresetCatalog& catalog, std::string_view preset_id) noexcept {
+    for (const auto& preset : catalog.presets) {
+        if (preset.id == preset_id) {
+            return &preset;
+        }
+    }
+    return nullptr;
+}
+
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
     : registry_{std::move(registry)} {
 }
