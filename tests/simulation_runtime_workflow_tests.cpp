@@ -27,6 +27,7 @@ int main() {
     clc::sim::SimulationRuntime runtime{make_registry()};
     require(runtime.engine.create_settlement("riverwatch").ok(), "runtime should create origin settlement");
     require(runtime.engine.create_settlement("hillford").ok(), "runtime should create destination settlement");
+    require(runtime.engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "origin settlement should receive grain");
     require(clc::sim::add_settlement_route(runtime.routes, clc::sim::SettlementRoute{
         .id = "riverwatch_to_hillford",
         .display_name = "Riverwatch to Hillford",
@@ -63,15 +64,28 @@ int main() {
         runtime,
         "riverwatch_to_hillford",
         "caravan_runtime",
-        "Runtime Caravan",
-        cargo
+        "Runtime Caravan"
     );
     require(created.ok(), "runtime caravan should create from route");
     require(runtime.caravans.caravans.size() == 1, "runtime fleet should contain created caravan");
-    require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "created runtime caravan should preserve cargo");
+    require(runtime.caravans.caravans[0].cargo.empty(), "created runtime caravan should start empty when no cargo is provided");
+
+    require(!clc::sim::load_runtime_caravan_at_origin(runtime, "missing_caravan", "grain", 1).ok(), "runtime load should reject unknown caravan");
+    require(!clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 60).ok(), "runtime load should reject insufficient origin storage");
+    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 50, "failed runtime load should not debit origin storage");
+    require(runtime.caravans.caravans[0].cargo.empty(), "failed runtime load should not credit cargo");
+
+    require(clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 40).ok(), "runtime load should move grain from origin into cargo");
+    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 10, "runtime load should debit origin storage");
+    require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "runtime load should credit caravan cargo");
 
     runtime.wallet.coins = 10;
     require(clc::sim::set_caravan_owner(runtime.ownership, "caravan_runtime", "riverwatch").ok(), "runtime caravan owner should set");
+
+    const auto early_unload = clc::sim::unload_runtime_caravan_at_destination(runtime, "caravan_runtime", "grain", 5);
+    require(!early_unload.ok(), "runtime unload should require arrival");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 0, "early unload should not credit destination");
+    require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "early unload should not debit cargo");
 
     const auto early_fulfillment = clc::sim::fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger(
         runtime,
@@ -87,6 +101,7 @@ int main() {
     auto first_day = clc::sim::advance_runtime_caravan_day(runtime, "caravan_runtime");
     require(first_day.ok(), "runtime caravan should advance day one");
     require(first_day.report.days_remaining_after == 1, "runtime caravan should have one day remaining");
+    require(!clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 1).ok(), "runtime load should reject departed caravan");
     auto second_day = clc::sim::advance_runtime_caravan_day(runtime, "caravan_runtime");
     require(second_day.ok(), "runtime caravan should advance day two");
     require(second_day.report.arrived, "runtime caravan should arrive on second day");
@@ -114,6 +129,11 @@ int main() {
     require(runtime.ledger.entries().size() == 1, "fulfillment should record ledger entry");
     require(runtime.ledger.entries()[0].reference_id == "grain_delivery_runtime", "ledger should reference fulfilled contract");
     require(runtime.contracts.contracts[0].status == clc::sim::ContractStatus::fulfilled, "contract should be fulfilled");
+
+    require(!clc::sim::unload_runtime_caravan_at_destination(runtime, "caravan_runtime", "grain", 20).ok(), "runtime unload should reject insufficient cargo");
+    require(clc::sim::unload_runtime_caravan_at_destination(runtime, "caravan_runtime", "grain", 10).ok(), "runtime unload should move remaining cargo to destination");
+    require(runtime.caravans.caravans[0].cargo.empty(), "runtime unload should empty remaining cargo");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 10, "runtime unload should credit destination storage");
 
     const auto missing_caravan = clc::sim::advance_runtime_caravan_day(runtime, "missing_caravan");
     require(!missing_caravan.ok(), "runtime caravan advance should reject unknown caravan");
