@@ -4,15 +4,14 @@ namespace clc::sim {
 
 namespace {
 
-bool merge_report(data::ValidationReport& target, const data::ValidationReport& source) {
-    if (source.ok()) {
-        return true;
+void merge_report(data::ValidationReport& target, const data::ValidationReport& source) {
+    for (const auto& message : source.messages()) {
+        if (message.severity == data::ValidationSeverity::error) {
+            target.add_error(message.path, message.message);
+        } else {
+            target.add_warning(message.path, message.message);
+        }
     }
-
-    for (const auto& error : source.errors()) {
-        target.add_error(error.path, error.message);
-    }
-    return false;
 }
 
 } // namespace
