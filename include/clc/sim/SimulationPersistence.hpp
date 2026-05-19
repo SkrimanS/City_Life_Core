@@ -78,6 +78,30 @@ struct SimulationWorldStateLoadResult final {
     economy::EconomyLedger& ledger
 );
 
+[[nodiscard]] data::ValidationReport save_simulation_runtime_to_file(
+    const SimulationEngine& engine,
+    const SettlementRouteCatalog& routes,
+    const CaravanFleet& caravans,
+    const FactionCatalog& factions,
+    const OwnershipCatalog& ownership,
+    const ContractCatalog& contracts,
+    economy::Wallet wallet,
+    const economy::EconomyLedger& ledger,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] SimulationWorldStateLoadResult load_simulation_runtime_from_file(
+    const std::filesystem::path& path,
+    SimulationEngine& engine,
+    SettlementRouteCatalog& routes,
+    CaravanFleet& caravans,
+    FactionCatalog& factions,
+    OwnershipCatalog& ownership,
+    ContractCatalog& contracts,
+    economy::Wallet& wallet,
+    economy::EconomyLedger& ledger
+);
+
 [[nodiscard]] std::string serialize_simulation_world_state(const SimulationWorldState& state);
 [[nodiscard]] SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_view content);
 
