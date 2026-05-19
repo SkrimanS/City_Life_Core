@@ -131,6 +131,15 @@ int main() {
     require(loaded.state.ledger_entries[0].reference_id == "grain_delivery_done", "loaded world state should preserve ledger reference");
     require(loaded.state.ledger_entries[0].total_price == 40, "loaded world state should preserve ledger reward amount");
 
+    clc::economy::EconomyLedger restored_ledger;
+    require(clc::sim::restore_ledger_from_world_state(loaded.state, restored_ledger).ok(), "loaded ledger entries should restore into live ledger");
+    require(restored_ledger.entries().size() == 1, "restored live ledger should contain loaded entry");
+    require(restored_ledger.next_sequence() == 2, "restored live ledger should continue after max loaded sequence");
+    require(restored_ledger.record_contract_reward("grain_delivery_next", "grain", 10, 25, "next payout"), "restored live ledger should accept next reward entry");
+    require(restored_ledger.entries().size() == 2, "restored live ledger should append next entry");
+    require(restored_ledger.entries()[1].sequence == 2, "restored live ledger should assign next sequence");
+    require(restored_ledger.total_contract_rewards("grain") == 65, "restored live ledger should aggregate old and new rewards");
+
     const auto directory = std::filesystem::temp_directory_path() / "clc_world_state_persistence_tests";
     std::filesystem::remove_all(directory);
     std::filesystem::create_directories(directory);
@@ -148,6 +157,20 @@ int main() {
 
     const auto invalid = clc::sim::deserialize_simulation_world_state("day\t1\n");
     require(!invalid.ok(), "world state without header should fail");
+
+    clc::economy::EconomyLedger invalid_ledger;
+    clc::sim::SimulationWorldState invalid_ledger_state;
+    invalid_ledger_state.ledger_entries.push_back(clc::economy::LedgerEntry{
+        .sequence = 1,
+        .type = clc::economy::LedgerEntryType::contract_reward,
+        .resource_id = "grain",
+        .quantity = 0,
+        .unit_price = 0,
+        .total_price = 40,
+        .reference_id = "broken",
+    });
+    require(!clc::sim::restore_ledger_from_world_state(invalid_ledger_state, invalid_ledger).ok(), "invalid loaded ledger entries should fail restore");
+    require(invalid_ledger.entries().empty(), "failed ledger restore should not mutate live ledger");
 
     return 0;
 }
