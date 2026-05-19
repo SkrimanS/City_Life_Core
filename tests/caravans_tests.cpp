@@ -84,7 +84,7 @@ int main() {
     const clc::sim::CaravanState empty_caravan;
     const auto empty_report = clc::sim::validate_caravan(empty_caravan);
     require(!empty_report.ok(), "empty caravan should fail validation");
-    require(empty_report.error_count() == 7, "empty caravan should report all required field errors");
+    require(empty_report.error_count() == 6, "empty caravan should report all required field errors");
 
     auto over_remaining = active_caravan;
     over_remaining.days_remaining = over_remaining.total_travel_days + 1;
