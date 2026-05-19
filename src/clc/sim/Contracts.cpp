@@ -1,5 +1,6 @@
 #include "clc/sim/Contracts.hpp"
 
+#include <limits>
 #include <utility>
 
 namespace clc::sim {
@@ -179,6 +180,48 @@ ContractFulfillmentResult fulfill_contract_from_storage(
 
     contract->status = ContractStatus::fulfilled;
     result.fulfilled = true;
+    return result;
+}
+
+ContractFulfillmentResult fulfill_contract_from_storage_with_reward(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    ResourceStorage& delivered_resources,
+    economy::Wallet& reward_wallet
+) {
+    ContractFulfillmentResult result;
+    if (contract_id.empty()) {
+        result.validation.add_error("simulation.contract", "contract_id must not be empty");
+        return result;
+    }
+
+    const auto* contract = contract_by_id(catalog, contract_id);
+    if (contract == nullptr) {
+        result.contract_id = std::string{contract_id};
+        result.validation.add_error("simulation.contract." + std::string{contract_id}, "unknown contract");
+        return result;
+    }
+
+    result.contract_id = contract->id;
+    result.resource_id = contract->resource_id;
+    result.quantity = contract->quantity;
+    result.reward_coins = contract->reward_coins;
+
+    if (!contract_is_open(*contract)) {
+        result.validation.add_error("simulation.contract." + contract->id, "fulfillment requires an open contract");
+        return result;
+    }
+    if (contract->reward_coins > std::numeric_limits<std::uint64_t>::max() - reward_wallet.coins) {
+        result.validation.add_error("simulation.contract." + contract->id, "reward wallet overflow");
+        return result;
+    }
+
+    result = fulfill_contract_from_storage(catalog, contract_id, delivered_resources);
+    if (!result.ok()) {
+        return result;
+    }
+
+    reward_wallet.coins += result.reward_coins;
     return result;
 }
 
