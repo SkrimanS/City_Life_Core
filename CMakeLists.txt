@@ -11,6 +11,7 @@ option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(city_life_core
@@ -25,6 +26,7 @@ add_library(city_life_core
     src/clc/sim/Settlement.cpp
     src/clc/sim/SimulationEngine.cpp
     src/clc/sim/SimulationPersistence.cpp
+    src/clc/sim/SimulationWorldStatePersistence.cpp
     src/clc/sim/Routes.cpp
     src/clc/sim/Caravans.cpp
     src/clc/sim/Factions.cpp
@@ -86,6 +88,10 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_persistence_tests tests/persistence_tests.cpp)
     target_link_libraries(clc_persistence_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_persistence_tests COMMAND clc_persistence_tests)
+
+    add_executable(clc_world_state_persistence_tests tests/world_state_persistence_tests.cpp)
+    target_link_libraries(clc_world_state_persistence_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_world_state_persistence_tests COMMAND clc_world_state_persistence_tests)
 
     add_executable(clc_routes_tests tests/routes_tests.cpp)
     target_link_libraries(clc_routes_tests PRIVATE CityLifeCore::core)
