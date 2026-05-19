@@ -144,6 +144,44 @@ ResourceDeliveryContract* mutable_contract_by_id(ContractCatalog& catalog, std::
     return nullptr;
 }
 
+ContractFulfillmentResult fulfill_contract_from_storage(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    ResourceStorage& delivered_resources
+) {
+    ContractFulfillmentResult result;
+    if (contract_id.empty()) {
+        result.validation.add_error("simulation.contract", "contract_id must not be empty");
+        return result;
+    }
+
+    auto* contract = mutable_contract_by_id(catalog, contract_id);
+    if (contract == nullptr) {
+        result.contract_id = std::string{contract_id};
+        result.validation.add_error("simulation.contract." + std::string{contract_id}, "unknown contract");
+        return result;
+    }
+
+    result.contract_id = contract->id;
+    result.resource_id = contract->resource_id;
+    result.quantity = contract->quantity;
+    result.reward_coins = contract->reward_coins;
+
+    if (!contract_is_open(*contract)) {
+        result.validation.add_error("simulation.contract." + contract->id, "fulfillment requires an open contract");
+        return result;
+    }
+
+    if (!delivered_resources.try_remove(contract->resource_id, contract->quantity)) {
+        result.validation.add_error("simulation.contract." + contract->id, "delivered storage does not contain required resources");
+        return result;
+    }
+
+    contract->status = ContractStatus::fulfilled;
+    result.fulfilled = true;
+    return result;
+}
+
 data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id) {
     return mark_contract_status(catalog, contract_id, ContractStatus::fulfilled, "fulfill");
 }
