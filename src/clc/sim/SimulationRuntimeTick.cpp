@@ -1,5 +1,6 @@
 #include "clc/sim/SimulationRuntimeTick.hpp"
 
+#include <cstddef>
 #include <utility>
 
 namespace clc::sim {
