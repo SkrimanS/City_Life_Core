@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string_view>
 
@@ -142,7 +143,6 @@ int main() {
         ledger
     );
     broken_state.caravans.caravans[0].route_id = "missing_route";
-    require(!clc::sim::save_simulation_world_state_to_file(broken_state, file_path).ok() || true, "raw world state save remains format-level only");
     const auto broken_text = clc::sim::serialize_simulation_world_state(broken_state);
     std::ofstream output{file_path};
     output << broken_text;
