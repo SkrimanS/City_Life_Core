@@ -107,4 +107,10 @@ struct RuntimeCaravanAdvanceResult final {
     std::string_view expected_faction_id
 );
 
+[[nodiscard]] ContractFulfillmentResult fulfill_first_runtime_contract_for_owned_arrived_caravan_with_reward_and_ledger(
+    SimulationRuntime& runtime,
+    std::string_view caravan_id,
+    std::string_view expected_faction_id
+);
+
 } // namespace clc::sim
