@@ -197,6 +197,33 @@ ContractFulfillmentResult fulfill_contract_from_arrived_caravan(
     return fulfill_contract_from_storage(catalog, contract_id, caravan.cargo);
 }
 
+ContractFulfillmentResult fulfill_contract_from_owned_arrived_caravan(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    CaravanState& caravan,
+    const OwnershipCatalog& ownership,
+    std::string_view expected_faction_id
+) {
+    ContractFulfillmentResult result;
+    result.contract_id = std::string{contract_id};
+    if (expected_faction_id.empty()) {
+        result.validation.add_error("simulation.contract." + std::string{contract_id}, "expected_faction_id must not be empty");
+        return result;
+    }
+
+    const auto owner = caravan_owner(ownership, caravan.id);
+    if (owner.empty()) {
+        result.validation.add_error("simulation.caravan." + caravan.id + ".owner", "caravan owner is not assigned");
+        return result;
+    }
+    if (owner != expected_faction_id) {
+        result.validation.add_error("simulation.caravan." + caravan.id + ".owner", "caravan owner does not match expected faction");
+        return result;
+    }
+
+    return fulfill_contract_from_arrived_caravan(catalog, contract_id, caravan);
+}
+
 ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day) {
     ContractDeadlineReport report{.current_day = current_day};
     for (auto& contract : catalog.contracts) {
