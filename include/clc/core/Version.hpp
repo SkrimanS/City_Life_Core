@@ -11,11 +11,11 @@ struct Version final {
 };
 
 [[nodiscard]] constexpr Version core_version() noexcept {
-    return Version{0, 7, 5};
+    return Version{0, 7, 6};
 }
 
 [[nodiscard]] constexpr std::string_view core_version_string() noexcept {
-    return "0.7.5";
+    return "0.7.6";
 }
 
 } // namespace clc
