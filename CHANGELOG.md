@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.2 - Unreleased
+
+### Added
+
+- `SimulationScenarioPresetCatalog` for storing named scenario presets.
+- `add_scenario_preset()` for validated catalog insertion with duplicate ID rejection.
+- `scenario_preset_count()` and `scenario_preset_by_id()` helpers for catalog inspection and lookup.
+- Scenario digest test coverage for empty catalogs, valid inserts, missing lookups, duplicate rejection, and invalid preset rejection.
+
 ## 0.7.1 - Unreleased
 
 ### Added
