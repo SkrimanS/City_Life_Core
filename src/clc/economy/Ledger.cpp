@@ -14,6 +14,21 @@ std::uint64_t saturating_add(std::uint64_t lhs, std::uint64_t rhs) {
     return lhs + rhs;
 }
 
+bool ledger_entry_has_valid_payload(const LedgerEntry& entry) noexcept {
+    if (entry.sequence == 0 || entry.resource_id.empty() || entry.quantity == 0 || entry.total_price == 0) {
+        return false;
+    }
+
+    switch (entry.type) {
+    case LedgerEntryType::buy:
+    case LedgerEntryType::sell:
+        return entry.unit_price > 0;
+    case LedgerEntryType::contract_reward:
+        return entry.unit_price == 0 && !entry.reference_id.empty();
+    }
+    return false;
+}
+
 } // namespace
 
 bool EconomyLedger::record(LedgerEntryType type, const TradeResult& result, std::string note) {
@@ -65,6 +80,29 @@ bool EconomyLedger::record_contract_reward(
     }
 
     return true;
+}
+
+data::ValidationReport EconomyLedger::restore_entries(std::vector<LedgerEntry> entries) {
+    data::ValidationReport report;
+    std::uint64_t max_sequence = 0;
+    for (const auto& entry : entries) {
+        if (!ledger_entry_has_valid_payload(entry)) {
+            report.add_error("economy.ledger.entry." + std::to_string(entry.sequence), "invalid ledger entry payload");
+        }
+        if (entry.sequence > max_sequence) {
+            max_sequence = entry.sequence;
+        }
+    }
+
+    if (!report.ok()) {
+        return report;
+    }
+
+    entries_ = std::move(entries);
+    next_sequence_ = max_sequence == std::numeric_limits<std::uint64_t>::max()
+        ? std::numeric_limits<std::uint64_t>::max()
+        : max_sequence + 1;
+    return report;
 }
 
 const std::vector<LedgerEntry>& EconomyLedger::entries() const noexcept {
