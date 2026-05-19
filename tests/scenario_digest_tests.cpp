@@ -58,15 +58,20 @@ int main() {
 
     clc::sim::SimulationScenarioPresetCatalog catalog;
     require(clc::sim::scenario_preset_count(catalog) == 0, "empty preset catalog should have zero presets");
+    require(clc::sim::scenario_catalog_digest(catalog) == "scenario catalog presets=0", "empty preset catalog digest should report zero presets");
     require(clc::sim::scenario_preset_by_id(catalog, "quick_check") == nullptr, "empty preset catalog lookup should miss");
+    require(clc::sim::scenario_catalog_preset_lookup_digest(catalog, "quick_check") == "catalog preset id=quick_check status=missing", "empty preset catalog lookup digest should report missing status");
     require(clc::sim::add_scenario_preset(catalog, valid_preset).ok(), "valid preset should be added to catalog");
     require(clc::sim::scenario_preset_count(catalog) == 1, "catalog should count inserted preset");
+    require(clc::sim::scenario_catalog_digest(catalog) == "scenario catalog presets=1", "catalog digest should report inserted preset count");
 
     const auto* found_preset = clc::sim::scenario_preset_by_id(catalog, "quick_check");
     require(found_preset != nullptr, "catalog lookup should find inserted preset");
     require(found_preset->display_name == "Quick Check", "catalog lookup should preserve display name");
     require(found_preset->day_count == 2, "catalog lookup should preserve day count");
+    require(clc::sim::scenario_catalog_preset_lookup_digest(catalog, "quick_check") == "catalog preset id=quick_check status=found name=Quick Check days=2", "found preset lookup digest should include preset metadata");
     require(clc::sim::scenario_preset_by_id(catalog, "missing") == nullptr, "catalog lookup should miss unknown preset");
+    require(clc::sim::scenario_catalog_preset_lookup_digest(catalog, "missing") == "catalog preset id=missing status=missing", "missing preset lookup digest should be stable");
 
     const clc::sim::SimulationScenarioPreset long_preset{
         .id = "long_check",
@@ -75,6 +80,7 @@ int main() {
     };
     require(clc::sim::add_scenario_preset(catalog, long_preset).ok(), "second valid preset should be added to catalog");
     require(clc::sim::scenario_preset_count(catalog) == 2, "catalog should count second inserted preset");
+    require(clc::sim::scenario_catalog_digest(catalog) == "scenario catalog presets=2", "catalog digest should report second inserted preset count");
 
     const auto duplicate_report = clc::sim::add_scenario_preset(catalog, clc::sim::SimulationScenarioPreset{
         .id = "quick_check",
