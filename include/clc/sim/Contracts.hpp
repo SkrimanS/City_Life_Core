@@ -1,6 +1,7 @@
 #pragma once
 
 #include "clc/data/Validation.hpp"
+#include "clc/sim/Caravans.hpp"
 #include "clc/sim/Factions.hpp"
 #include "clc/sim/Storage.hpp"
 
@@ -66,6 +67,12 @@ struct ContractFulfillmentResult final {
     ContractCatalog& catalog,
     std::string_view contract_id,
     ResourceStorage& delivered_resources
+);
+
+[[nodiscard]] ContractFulfillmentResult fulfill_contract_from_arrived_caravan(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    CaravanState& caravan
 );
 
 [[nodiscard]] data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id);
