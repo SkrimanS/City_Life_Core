@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clc/data/Validation.hpp"
 #include "clc/economy/Trade.hpp"
 
 #include <cstdint>
@@ -36,6 +37,7 @@ public:
         std::uint64_t reward_coins,
         std::string note = {}
     );
+    [[nodiscard]] data::ValidationReport restore_entries(std::vector<LedgerEntry> entries);
 
     [[nodiscard]] const std::vector<LedgerEntry>& entries() const noexcept;
     [[nodiscard]] std::uint64_t next_sequence() const noexcept;
