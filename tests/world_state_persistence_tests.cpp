@@ -14,6 +14,15 @@ void require(bool condition, std::string_view message) {
     }
 }
 
+clc::data::DataRegistry make_registry() {
+    clc::data::DataRegistry registry;
+    require(registry.add(clc::data::ResourceDefinition{.id = "grain", .display_name = "Grain", .category = "food", .base_value = 10}).ok(), "grain should register");
+    require(registry.add(clc::data::ResourceDefinition{.id = "wood", .display_name = "Wood", .category = "construction", .base_value = 6}).ok(), "wood should register");
+    require(registry.add(clc::data::SettlementDefinition{.id = "riverwatch", .display_name = "Riverwatch", .starting_population = 120}).ok(), "riverwatch definition should register");
+    require(registry.add(clc::data::SettlementDefinition{.id = "hillford", .display_name = "Hillford", .starting_population = 80}).ok(), "hillford definition should register");
+    return registry;
+}
+
 clc::sim::SimulationWorldState make_world_state() {
     clc::sim::SimulationWorldState state;
     state.engine.current_day = 12;
@@ -139,6 +148,56 @@ int main() {
     require(restored_ledger.entries().size() == 2, "restored live ledger should append next entry");
     require(restored_ledger.entries()[1].sequence == 2, "restored live ledger should assign next sequence");
     require(restored_ledger.total_contract_rewards("grain") == 65, "restored live ledger should aggregate old and new rewards");
+
+    clc::sim::SimulationEngine source_engine{make_registry()};
+    require(source_engine.restore_state(state.engine).ok(), "source engine should restore base state");
+    clc::economy::EconomyLedger source_ledger;
+    require(clc::sim::restore_ledger_from_world_state(state, source_ledger).ok(), "source ledger should restore base entries");
+    const auto captured = clc::sim::capture_simulation_world_state(
+        source_engine,
+        state.routes,
+        state.caravans,
+        state.factions,
+        state.ownership,
+        state.contracts,
+        state.wallet,
+        source_ledger
+    );
+    const auto captured_roundtrip = clc::sim::deserialize_simulation_world_state(clc::sim::serialize_simulation_world_state(captured));
+    require(captured_roundtrip.ok(), "captured runtime world state should roundtrip");
+
+    clc::sim::SimulationEngine target_engine{make_registry()};
+    clc::sim::SettlementRouteCatalog target_routes;
+    clc::sim::CaravanFleet target_caravans;
+    clc::sim::FactionCatalog target_factions;
+    clc::sim::OwnershipCatalog target_ownership;
+    clc::sim::ContractCatalog target_contracts;
+    clc::economy::Wallet target_wallet;
+    clc::economy::EconomyLedger target_ledger;
+    require(clc::sim::restore_simulation_runtime_from_world_state(
+        captured_roundtrip.state,
+        target_engine,
+        target_routes,
+        target_caravans,
+        target_factions,
+        target_ownership,
+        target_contracts,
+        target_wallet,
+        target_ledger
+    ).ok(), "captured state should restore full runtime");
+    require(target_engine.current_day() == 12, "runtime restore should restore engine day");
+    require(target_engine.settlement_resource_amount("riverwatch", "grain") == 90, "runtime restore should restore settlement storage");
+    require(target_routes.routes.size() == 1, "runtime restore should restore routes");
+    require(target_caravans.caravans.size() == 1, "runtime restore should restore caravans");
+    require(target_caravans.caravans[0].days_remaining == 2, "runtime restore should restore caravan progress");
+    require(target_factions.factions.size() == 2, "runtime restore should restore factions");
+    require(target_ownership.caravans.size() == 1, "runtime restore should restore ownership");
+    require(target_contracts.contracts.size() == 2, "runtime restore should restore contracts");
+    require(target_wallet.coins == 250, "runtime restore should restore wallet");
+    require(target_ledger.next_sequence() == 2, "runtime restore should restore live ledger next sequence");
+    require(target_ledger.record_contract_reward("grain_delivery_after_restore", "grain", 5, 15, "after restore"), "runtime-restored ledger should continue recording");
+    require(target_ledger.entries()[1].sequence == 2, "runtime-restored ledger should continue sequence");
+    require(target_engine.advance_day().day == 13, "runtime-restored engine should continue simulation days");
 
     const auto directory = std::filesystem::temp_directory_path() / "clc_world_state_persistence_tests";
     std::filesystem::remove_all(directory);
