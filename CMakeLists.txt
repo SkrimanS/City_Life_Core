@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.7.8
+    VERSION 0.7.9
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -26,6 +26,7 @@ add_library(city_life_core
     src/clc/sim/SimulationEngine.cpp
     src/clc/sim/SimulationPersistence.cpp
     src/clc/sim/Routes.cpp
+    src/clc/sim/Caravans.cpp
     src/clc/economy/Market.cpp
     src/clc/economy/Trade.cpp
     src/clc/economy/Ledger.cpp
@@ -85,4 +86,8 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_routes_tests tests/routes_tests.cpp)
     target_link_libraries(clc_routes_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_routes_tests COMMAND clc_routes_tests)
+
+    add_executable(clc_caravans_tests tests/caravans_tests.cpp)
+    target_link_libraries(clc_caravans_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_caravans_tests COMMAND clc_caravans_tests)
 endif()
