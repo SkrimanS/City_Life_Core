@@ -35,9 +35,23 @@ struct RuntimeCaravanAdvanceResult final {
     ResourceStorage cargo = {}
 );
 
+[[nodiscard]] data::ValidationReport load_runtime_caravan_at_origin(
+    SimulationRuntime& runtime,
+    std::string_view caravan_id,
+    std::string_view resource_id,
+    std::uint64_t amount
+);
+
 [[nodiscard]] RuntimeCaravanAdvanceResult advance_runtime_caravan_day(
     SimulationRuntime& runtime,
     std::string_view caravan_id
+);
+
+[[nodiscard]] data::ValidationReport unload_runtime_caravan_at_destination(
+    SimulationRuntime& runtime,
+    std::string_view caravan_id,
+    std::string_view resource_id,
+    std::uint64_t amount
 );
 
 [[nodiscard]] ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
