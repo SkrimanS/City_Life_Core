@@ -173,6 +173,14 @@ data::ValidationReport validate_scenario_preset(const SimulationScenarioPreset& 
     return report;
 }
 
+std::string scenario_preset_result_digest(const SimulationScenarioPreset& preset, const SimulationScenarioResult& result) {
+    std::string digest = "preset id=" + preset.id;
+    digest += " name=" + preset.display_name;
+    digest += " days=" + std::to_string(preset.day_count);
+    digest += " | " + scenario_result_digest(result);
+    return digest;
+}
+
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
     : registry_{std::move(registry)} {
 }

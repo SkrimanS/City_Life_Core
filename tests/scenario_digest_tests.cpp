@@ -61,11 +61,13 @@ int main() {
     require(clc::sim::scenario_result_duration_days(preset_result) == 2, "valid preset should produce matching result duration");
     require(engine.current_day() == 2, "valid preset should advance engine day count");
     require(clc::sim::scenario_result_digest(preset_result) == "scenario days=2 start=0 end=2 events=4 warnings=0 status=success", "valid preset digest should remain compatible");
+    require(clc::sim::scenario_preset_result_digest(valid_preset, preset_result) == "preset id=quick_check name=Quick Check days=2 | scenario days=2 start=0 end=2 events=4 warnings=0 status=success", "valid preset result digest should include preset metadata and result digest");
 
     const auto invalid_preset_result = engine.run_scenario_preset(invalid_preset);
     require(invalid_preset_result.summary.days_run == 0, "invalid preset should not run days");
     require(clc::sim::scenario_result_duration_days(invalid_preset_result) == 0, "invalid preset should return unchanged snapshot range");
     require(engine.current_day() == 2, "invalid preset should not advance engine day count");
+    require(clc::sim::scenario_preset_result_digest(invalid_preset, invalid_preset_result) == "preset id= name= days=0 | scenario days=0 start=2 end=2 events=0 warnings=0 status=success", "invalid preset result digest should still be stable");
 
     return 0;
 }
