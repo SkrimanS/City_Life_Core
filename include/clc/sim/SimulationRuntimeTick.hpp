@@ -47,8 +47,23 @@ struct SimulationRuntimeRunResult final {
     }
 };
 
+struct SimulationRuntimeRunUntilArrivalResult final {
+    SimulationRuntimeRunResult run{};
+    bool arrival_reached{false};
+    std::string arrived_caravan_id{};
+    std::uint64_t arrival_day{0};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return run.ok();
+    }
+};
+
 [[nodiscard]] SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime);
 [[nodiscard]] SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports);
 [[nodiscard]] SimulationRuntimeRunResult run_runtime_days(SimulationRuntime& runtime, std::uint64_t day_count);
+[[nodiscard]] SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
+    SimulationRuntime& runtime,
+    std::uint64_t max_days
+);
 
 } // namespace clc::sim
