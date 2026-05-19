@@ -36,6 +36,77 @@ ContractFulfillmentResult missing_caravan_contract_result(std::string_view contr
 
 } // namespace
 
+data::ValidationReport create_runtime_settlement(
+    SimulationRuntime& runtime,
+    std::string settlement_definition_id
+) {
+    return runtime.engine.create_settlement(std::move(settlement_definition_id));
+}
+
+data::ValidationReport add_runtime_route(
+    SimulationRuntime& runtime,
+    SettlementRoute route
+) {
+    auto report = validate_settlement_route_for_settlements(route, runtime.engine.settlements());
+    if (!report.ok()) {
+        return report;
+    }
+    return add_settlement_route(runtime.routes, std::move(route));
+}
+
+data::ValidationReport add_runtime_faction(
+    SimulationRuntime& runtime,
+    FactionState faction
+) {
+    return add_faction(runtime.factions, std::move(faction));
+}
+
+data::ValidationReport set_runtime_faction_reputation(
+    SimulationRuntime& runtime,
+    std::string from_faction_id,
+    std::string to_faction_id,
+    std::int64_t value
+) {
+    return set_faction_reputation(runtime.factions, std::move(from_faction_id), std::move(to_faction_id), value);
+}
+
+data::ValidationReport set_runtime_settlement_owner(
+    SimulationRuntime& runtime,
+    std::string settlement_id,
+    std::string faction_id
+) {
+    SettlementOwnership ownership{.settlement_id = std::move(settlement_id), .faction_id = std::move(faction_id)};
+    auto report = validate_settlement_ownership_references(ownership, runtime.engine.settlements(), runtime.factions);
+    if (!report.ok()) {
+        return report;
+    }
+    return set_settlement_owner(runtime.ownership, std::move(ownership.settlement_id), std::move(ownership.faction_id));
+}
+
+data::ValidationReport set_runtime_caravan_owner(
+    SimulationRuntime& runtime,
+    std::string caravan_id,
+    std::string faction_id
+) {
+    CaravanOwnership ownership{.caravan_id = std::move(caravan_id), .faction_id = std::move(faction_id)};
+    auto report = validate_caravan_ownership_references(ownership, runtime.caravans, runtime.factions);
+    if (!report.ok()) {
+        return report;
+    }
+    return set_caravan_owner(runtime.ownership, std::move(ownership.caravan_id), std::move(ownership.faction_id));
+}
+
+data::ValidationReport add_runtime_resource_delivery_contract(
+    SimulationRuntime& runtime,
+    ResourceDeliveryContract contract
+) {
+    auto report = validate_resource_delivery_contract_for_factions(contract, runtime.factions);
+    if (!report.ok()) {
+        return report;
+    }
+    return add_contract(runtime.contracts, std::move(contract));
+}
+
 RuntimeCaravanCreationResult create_runtime_caravan_for_route(
     SimulationRuntime& runtime,
     std::string_view route_id,
