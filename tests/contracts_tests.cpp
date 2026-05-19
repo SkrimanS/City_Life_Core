@@ -191,6 +191,26 @@ int main() {
     require(caravan.cargo.amount("wood") == 3, "caravan fulfillment should not debit unrelated cargo");
     require(clc::sim::contract_by_id(catalog, "grain_delivery_caravan")->status == clc::sim::ContractStatus::fulfilled, "caravan fulfillment should mark contract fulfilled");
 
+    auto rewarded_caravan_contract = valid_contract;
+    rewarded_caravan_contract.id = "grain_delivery_rewarded_caravan";
+    rewarded_caravan_contract.display_name = "Rewarded Caravan Grain Delivery";
+    require(clc::sim::add_contract(catalog, rewarded_caravan_contract).ok(), "rewarded caravan contract should add");
+    auto rewarded_caravan = clc::sim::create_caravan_for_route(make_route(), "rewarded_contract_caravan", "Rewarded Contract Caravan");
+    require(rewarded_caravan.cargo.add("grain", 60).ok(), "rewarded caravan cargo should accept grain");
+    clc::economy::Wallet caravan_reward_wallet{.coins = 5};
+    const auto early_rewarded_caravan = clc::sim::fulfill_contract_from_arrived_caravan_with_reward(catalog, "grain_delivery_rewarded_caravan", rewarded_caravan, caravan_reward_wallet);
+    require(!early_rewarded_caravan.ok(), "rewarded caravan fulfillment should require arrival");
+    require(rewarded_caravan.cargo.amount("grain") == 60, "early rewarded caravan fulfillment should not debit cargo");
+    require(caravan_reward_wallet.coins == 5, "early rewarded caravan fulfillment should not mutate wallet");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_rewarded_caravan")->status == clc::sim::ContractStatus::open, "early rewarded caravan fulfillment should not mutate contract");
+    require(clc::sim::advance_caravan_day(rewarded_caravan).days_remaining_after == 1, "rewarded caravan should move day one");
+    require(clc::sim::advance_caravan_day(rewarded_caravan).arrived, "rewarded caravan should arrive day two");
+    const auto rewarded_caravan_fulfillment = clc::sim::fulfill_contract_from_arrived_caravan_with_reward(catalog, "grain_delivery_rewarded_caravan", rewarded_caravan, caravan_reward_wallet);
+    require(rewarded_caravan_fulfillment.ok(), "arrived rewarded caravan should fulfill contract with payout");
+    require(rewarded_caravan.cargo.amount("grain") == 10, "rewarded caravan fulfillment should debit required cargo");
+    require(caravan_reward_wallet.coins == 125, "rewarded caravan fulfillment should credit reward coins");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_rewarded_caravan")->status == clc::sim::ContractStatus::fulfilled, "rewarded caravan fulfillment should mark contract fulfilled");
+
     auto owned_contract = valid_contract;
     owned_contract.id = "grain_delivery_owned_caravan";
     owned_contract.display_name = "Owned Caravan Grain Delivery";
@@ -213,6 +233,28 @@ int main() {
     require(owned_fulfillment.contract_id == "grain_delivery_owned_caravan", "owned fulfillment result should include contract id");
     require(owned_caravan.cargo.amount("grain") == 10, "owned fulfillment should debit required cargo");
     require(clc::sim::contract_by_id(catalog, "grain_delivery_owned_caravan")->status == clc::sim::ContractStatus::fulfilled, "owned fulfillment should mark contract fulfilled");
+
+    auto owned_reward_contract = valid_contract;
+    owned_reward_contract.id = "grain_delivery_owned_reward_caravan";
+    owned_reward_contract.display_name = "Owned Reward Caravan Grain Delivery";
+    require(clc::sim::add_contract(catalog, owned_reward_contract).ok(), "owned reward caravan contract should add");
+    auto owned_reward_caravan = clc::sim::create_caravan_for_route(make_route(), "owned_reward_contract_caravan", "Owned Reward Contract Caravan");
+    require(owned_reward_caravan.cargo.add("grain", 60).ok(), "owned reward caravan cargo should accept grain");
+    require(clc::sim::advance_caravan_day(owned_reward_caravan).days_remaining_after == 1, "owned reward caravan should move day one");
+    require(clc::sim::advance_caravan_day(owned_reward_caravan).arrived, "owned reward caravan should arrive day two");
+    clc::economy::Wallet owned_reward_wallet{.coins = 30};
+    require(clc::sim::set_caravan_owner(ownership, "owned_reward_contract_caravan", "traders_guild").ok(), "wrong owned reward caravan owner should set");
+    const auto wrong_owned_reward = clc::sim::fulfill_contract_from_owned_arrived_caravan_with_reward(catalog, "grain_delivery_owned_reward_caravan", owned_reward_caravan, ownership, "riverwatch", owned_reward_wallet);
+    require(!wrong_owned_reward.ok(), "owned rewarded fulfillment should reject wrong owner");
+    require(owned_reward_caravan.cargo.amount("grain") == 60, "wrong owned reward owner should not debit cargo");
+    require(owned_reward_wallet.coins == 30, "wrong owned reward owner should not mutate wallet");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_owned_reward_caravan")->status == clc::sim::ContractStatus::open, "wrong owned reward owner should not mutate contract");
+    require(clc::sim::set_caravan_owner(ownership, "owned_reward_contract_caravan", "riverwatch").ok(), "expected owned reward caravan owner should set");
+    const auto owned_reward_fulfillment = clc::sim::fulfill_contract_from_owned_arrived_caravan_with_reward(catalog, "grain_delivery_owned_reward_caravan", owned_reward_caravan, ownership, "riverwatch", owned_reward_wallet);
+    require(owned_reward_fulfillment.ok(), "owned rewarded arrived caravan should fulfill contract");
+    require(owned_reward_caravan.cargo.amount("grain") == 10, "owned rewarded fulfillment should debit cargo");
+    require(owned_reward_wallet.coins == 150, "owned rewarded fulfillment should credit wallet");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_owned_reward_caravan")->status == clc::sim::ContractStatus::fulfilled, "owned rewarded fulfillment should mark contract fulfilled");
 
     auto failed_contract = valid_contract;
     failed_contract.id = "grain_delivery_failed";
