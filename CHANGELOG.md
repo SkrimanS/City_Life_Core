@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.1 - Unreleased
+
+### Added
+
+- `scenario_preset_result_digest()` for compact preset-aware scenario summaries.
+- Preset digest output includes preset ID, display name, configured day count, and the existing scenario result digest.
+- Scenario digest test coverage for valid and invalid preset result digests.
+
 ## 0.7.0 - Unreleased
 
 ### Added
