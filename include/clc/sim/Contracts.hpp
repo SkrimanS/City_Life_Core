@@ -3,6 +3,7 @@
 #include "clc/data/Validation.hpp"
 #include "clc/sim/Caravans.hpp"
 #include "clc/sim/Factions.hpp"
+#include "clc/sim/Ownership.hpp"
 #include "clc/sim/Storage.hpp"
 
 #include <cstdint>
@@ -79,6 +80,14 @@ struct ContractDeadlineReport final {
     ContractCatalog& catalog,
     std::string_view contract_id,
     CaravanState& caravan
+);
+
+[[nodiscard]] ContractFulfillmentResult fulfill_contract_from_owned_arrived_caravan(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    CaravanState& caravan,
+    const OwnershipCatalog& ownership,
+    std::string_view expected_faction_id
 );
 
 [[nodiscard]] ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day);
