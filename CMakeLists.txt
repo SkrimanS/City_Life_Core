@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.8.1
+    VERSION 0.8.2
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -28,6 +28,7 @@ add_library(city_life_core
     src/clc/sim/Routes.cpp
     src/clc/sim/Caravans.cpp
     src/clc/sim/Factions.cpp
+    src/clc/sim/Contracts.cpp
     src/clc/economy/Market.cpp
     src/clc/economy/Trade.cpp
     src/clc/economy/Ledger.cpp
@@ -95,4 +96,8 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_factions_tests tests/factions_tests.cpp)
     target_link_libraries(clc_factions_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_factions_tests COMMAND clc_factions_tests)
+
+    add_executable(clc_contracts_tests tests/contracts_tests.cpp)
+    target_link_libraries(clc_contracts_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_contracts_tests COMMAND clc_contracts_tests)
 endif()
