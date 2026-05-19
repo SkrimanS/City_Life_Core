@@ -44,6 +44,29 @@ int main() {
     require(caravan.cargo.amount("wood") == 5, "caravan cargo wood should be preserved");
     require(!clc::sim::caravan_arrived(caravan), "new caravan should not be arrived");
 
+    clc::sim::SettlementState origin{.id = "riverwatch", .display_name = "Riverwatch", .population = 120};
+    clc::sim::SettlementState destination{.id = "hillford", .display_name = "Hillford", .population = 80};
+    clc::sim::SettlementState wrong_settlement{.id = "stonegate", .display_name = "Stonegate", .population = 60};
+    require(origin.storage.add("grain", 50).ok(), "origin should accept grain");
+
+    auto logistics_caravan = clc::sim::create_caravan_for_route(route, "caravan_logistics", "Logistics Caravan");
+    require(clc::sim::load_caravan_at_origin(logistics_caravan, origin, "grain", 30).ok(), "caravan should load cargo at origin before departure");
+    require(origin.storage.amount("grain") == 20, "loading should debit origin storage");
+    require(logistics_caravan.cargo.amount("grain") == 30, "loading should credit caravan cargo");
+    require(!clc::sim::load_caravan_at_origin(logistics_caravan, wrong_settlement, "grain", 1).ok(), "caravan should reject loading at non-origin settlement");
+    require(!clc::sim::unload_caravan_at_destination(logistics_caravan, destination, "grain", 1).ok(), "caravan should reject unloading before arrival");
+    require(clc::sim::advance_caravan_day(logistics_caravan).days_remaining_after == 2, "logistics caravan should move day one");
+    require(!clc::sim::load_caravan_at_origin(logistics_caravan, origin, "grain", 1).ok(), "caravan should reject loading after departure");
+    require(clc::sim::advance_caravan_day(logistics_caravan).days_remaining_after == 1, "logistics caravan should move day two");
+    require(clc::sim::advance_caravan_day(logistics_caravan).arrived, "logistics caravan should arrive on final day");
+    require(!clc::sim::unload_caravan_at_destination(logistics_caravan, wrong_settlement, "grain", 1).ok(), "caravan should reject unloading at non-destination settlement");
+    require(!clc::sim::unload_caravan_at_destination(logistics_caravan, destination, "grain", 31).ok(), "caravan should reject unloading more cargo than available");
+    require(clc::sim::unload_caravan_at_destination(logistics_caravan, destination, "grain", 30).ok(), "caravan should unload cargo after arrival at destination");
+    require(logistics_caravan.cargo.amount("grain") == 0, "unloading should debit caravan cargo");
+    require(destination.storage.amount("grain") == 30, "unloading should credit destination storage");
+    require(!clc::sim::load_caravan_at_origin(logistics_caravan, origin, "", 1).ok(), "loading should reject empty resource id");
+    require(!clc::sim::load_caravan_at_origin(logistics_caravan, origin, "grain", 0).ok(), "loading should reject zero amount");
+
     const auto first_day = clc::sim::advance_caravan_day(caravan);
     require(first_day.caravan_id == "caravan_001", "advance report should include caravan id");
     require(first_day.route_id == route.id, "advance report should include route id");
