@@ -77,6 +77,18 @@ struct SimulationScenarioPresetCatalog final {
     std::vector<SimulationScenarioPreset> presets{};
 };
 
+struct SimulationMarketDemand final {
+    std::string resource_id{};
+    std::uint64_t demand{0};
+};
+
+struct SimulationEngineState final {
+    std::uint64_t current_day{0};
+    std::vector<SettlementState> settlements{};
+    std::vector<SimulationEvent> events{};
+    std::vector<SimulationMarketDemand> market_demands{};
+};
+
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
 [[nodiscard]] std::uint64_t scenario_summary_start_day(const SimulationScenarioSummary& summary) noexcept;
 [[nodiscard]] std::uint64_t scenario_summary_end_day(const SimulationScenarioSummary& summary) noexcept;
@@ -136,6 +148,9 @@ public:
     [[nodiscard]] std::vector<SimulationEvent> events_by_type(std::string_view event_type) const;
     void clear_events() noexcept;
     [[nodiscard]] std::uint64_t current_day() const noexcept;
+
+    [[nodiscard]] SimulationEngineState export_state() const;
+    [[nodiscard]] data::ValidationReport restore_state(SimulationEngineState state);
 
     [[nodiscard]] SimulationSnapshot snapshot() const;
     [[nodiscard]] SimulationDayReport advance_day();
