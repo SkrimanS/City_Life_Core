@@ -182,6 +182,21 @@ ContractFulfillmentResult fulfill_contract_from_storage(
     return result;
 }
 
+ContractFulfillmentResult fulfill_contract_from_arrived_caravan(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    CaravanState& caravan
+) {
+    ContractFulfillmentResult result;
+    if (!caravan_arrived(caravan)) {
+        result.contract_id = std::string{contract_id};
+        result.validation.add_error("simulation.contract." + std::string{contract_id}, "caravan must arrive before contract fulfillment");
+        return result;
+    }
+
+    return fulfill_contract_from_storage(catalog, contract_id, caravan.cargo);
+}
+
 data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id) {
     return mark_contract_status(catalog, contract_id, ContractStatus::fulfilled, "fulfill");
 }
