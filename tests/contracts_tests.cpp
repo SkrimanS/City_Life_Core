@@ -88,16 +88,38 @@ int main() {
     require(clc::sim::overdue_open_contracts(catalog, 7).empty(), "contract should not be overdue on due day");
     require(clc::sim::overdue_open_contracts(catalog, 8).size() == 1, "contract should be overdue after due day");
 
-    require(clc::sim::mark_contract_fulfilled(catalog, "grain_delivery_001").ok(), "open contract should mark fulfilled");
-    require(!clc::sim::contract_is_open(*clc::sim::contract_by_id(catalog, "grain_delivery_001")), "fulfilled contract should not be open");
-    require(clc::sim::contract_is_terminal(*clc::sim::contract_by_id(catalog, "grain_delivery_001")), "fulfilled contract should be terminal");
+    clc::sim::ResourceStorage insufficient_delivery;
+    require(insufficient_delivery.add("grain", 49).ok(), "insufficient delivery storage should accept grain");
+    const auto insufficient_result = clc::sim::fulfill_contract_from_storage(catalog, "grain_delivery_001", insufficient_delivery);
+    require(!insufficient_result.ok(), "fulfillment should fail when delivered resources are insufficient");
+    require(insufficient_delivery.amount("grain") == 49, "failed fulfillment should not debit delivered storage");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_001")->status == clc::sim::ContractStatus::open, "failed fulfillment should not mutate contract status");
+
+    clc::sim::ResourceStorage delivery;
+    require(delivery.add("grain", 60).ok(), "delivery storage should accept grain");
+    require(delivery.add("wood", 5).ok(), "delivery storage should accept unrelated resource");
+    const auto fulfillment = clc::sim::fulfill_contract_from_storage(catalog, "grain_delivery_001", delivery);
+    require(fulfillment.ok(), "fulfillment should succeed with enough delivered resources");
+    require(fulfillment.contract_id == "grain_delivery_001", "fulfillment result should include contract id");
+    require(fulfillment.resource_id == "grain", "fulfillment result should include resource id");
+    require(fulfillment.quantity == 50, "fulfillment result should include quantity");
+    require(fulfillment.reward_coins == 120, "fulfillment result should include reward");
+    require(delivery.amount("grain") == 10, "successful fulfillment should debit required grain only");
+    require(delivery.amount("wood") == 5, "successful fulfillment should not debit unrelated resources");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_001")->status == clc::sim::ContractStatus::fulfilled, "successful fulfillment should mark contract fulfilled");
     require(clc::sim::terminal_contracts(catalog).size() == 1, "terminal filter should include fulfilled contract");
     require(clc::sim::open_contracts(catalog).empty(), "open filter should exclude fulfilled contract");
     require(clc::sim::overdue_open_contracts(catalog, 100).empty(), "fulfilled contract should not be overdue open");
+
+    const auto second_fulfillment = clc::sim::fulfill_contract_from_storage(catalog, "grain_delivery_001", delivery);
+    require(!second_fulfillment.ok(), "terminal contract should reject second fulfillment");
+    require(delivery.amount("grain") == 10, "rejected second fulfillment should not debit storage");
     require(!clc::sim::mark_contract_failed(catalog, "grain_delivery_001").ok(), "terminal contract should reject second transition");
     require(!clc::sim::cancel_contract(catalog, "grain_delivery_001").ok(), "terminal contract should reject cancellation");
     require(!clc::sim::mark_contract_fulfilled(catalog, "missing").ok(), "unknown contract transition should fail");
     require(!clc::sim::mark_contract_fulfilled(catalog, "").ok(), "empty contract transition id should fail");
+    require(!clc::sim::fulfill_contract_from_storage(catalog, "missing", delivery).ok(), "unknown contract fulfillment should fail");
+    require(!clc::sim::fulfill_contract_from_storage(catalog, "", delivery).ok(), "empty contract fulfillment id should fail");
 
     auto failed_contract = valid_contract;
     failed_contract.id = "grain_delivery_failed";
