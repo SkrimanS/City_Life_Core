@@ -30,6 +30,7 @@ add_library(city_life_core
     src/clc/sim/SimulationWorldStateRuntimeBridge.cpp
     src/clc/sim/SimulationWorldStateValidation.cpp
     src/clc/sim/SimulationRuntimePersistence.cpp
+    src/clc/sim/SimulationRuntimeWorkflow.cpp
     src/clc/sim/Routes.cpp
     src/clc/sim/Caravans.cpp
     src/clc/sim/Factions.cpp
@@ -103,6 +104,10 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_simulation_runtime_bundle_tests tests/simulation_runtime_bundle_tests.cpp)
     target_link_libraries(clc_simulation_runtime_bundle_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_simulation_runtime_bundle_tests COMMAND clc_simulation_runtime_bundle_tests)
+
+    add_executable(clc_simulation_runtime_workflow_tests tests/simulation_runtime_workflow_tests.cpp)
+    target_link_libraries(clc_simulation_runtime_workflow_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_simulation_runtime_workflow_tests COMMAND clc_simulation_runtime_workflow_tests)
 
     add_executable(clc_routes_tests tests/routes_tests.cpp)
     target_link_libraries(clc_routes_tests PRIVATE CityLifeCore::core)
