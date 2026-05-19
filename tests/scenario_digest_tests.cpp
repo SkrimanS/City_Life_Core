@@ -1,4 +1,5 @@
 #include "clc/data/DataRegistry.hpp"
+#include "clc/sim/ScenarioCatalog.hpp"
 #include "clc/sim/SimulationEngine.hpp"
 
 #include <cstdlib>
@@ -93,11 +94,20 @@ int main() {
     require(clc::sim::scenario_result_digest(preset_result) == "scenario days=2 start=0 end=2 events=4 warnings=0 status=success", "valid preset digest should remain compatible");
     require(clc::sim::scenario_preset_result_digest(valid_preset, preset_result) == "preset id=quick_check name=Quick Check days=2 | scenario days=2 start=0 end=2 events=4 warnings=0 status=success", "valid preset result digest should include preset metadata and result digest");
 
+    const auto catalog_result = clc::sim::run_scenario_preset_from_catalog(engine, catalog, "quick_check");
+    require(catalog_result.summary.days_run == 2, "catalog runner should run found preset");
+    require(engine.current_day() == 4, "catalog runner should advance engine for found preset");
+
+    const auto missing_catalog_result = clc::sim::run_scenario_preset_from_catalog(engine, catalog, "missing");
+    require(missing_catalog_result.summary.days_run == 0, "catalog runner should no-op missing preset");
+    require(clc::sim::scenario_result_duration_days(missing_catalog_result) == 0, "missing catalog preset should return unchanged snapshot range");
+    require(engine.current_day() == 4, "missing catalog preset should not advance engine");
+
     const auto invalid_preset_result = engine.run_scenario_preset(invalid_preset);
     require(invalid_preset_result.summary.days_run == 0, "invalid preset should not run days");
     require(clc::sim::scenario_result_duration_days(invalid_preset_result) == 0, "invalid preset should return unchanged snapshot range");
-    require(engine.current_day() == 2, "invalid preset should not advance engine day count");
-    require(clc::sim::scenario_preset_result_digest(invalid_preset, invalid_preset_result) == "preset id= name= days=0 | scenario days=0 start=2 end=2 events=0 warnings=0 status=success", "invalid preset result digest should still be stable");
+    require(engine.current_day() == 4, "invalid preset should not advance engine day count");
+    require(clc::sim::scenario_preset_result_digest(invalid_preset, invalid_preset_result) == "preset id= name= days=0 | scenario days=0 start=4 end=4 events=0 warnings=0 status=success", "invalid preset result digest should still be stable");
 
     return 0;
 }
