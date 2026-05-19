@@ -151,6 +151,29 @@ int main() {
     require(caravan.cargo.amount("wood") == 3, "caravan fulfillment should not debit unrelated cargo");
     require(clc::sim::contract_by_id(catalog, "grain_delivery_caravan")->status == clc::sim::ContractStatus::fulfilled, "caravan fulfillment should mark contract fulfilled");
 
+    auto owned_contract = valid_contract;
+    owned_contract.id = "grain_delivery_owned_caravan";
+    owned_contract.display_name = "Owned Caravan Grain Delivery";
+    require(clc::sim::add_contract(catalog, owned_contract).ok(), "owned caravan contract should add");
+    auto owned_caravan = clc::sim::create_caravan_for_route(make_route(), "owned_contract_caravan", "Owned Contract Caravan");
+    require(owned_caravan.cargo.add("grain", 60).ok(), "owned caravan cargo should accept grain");
+    require(clc::sim::advance_caravan_day(owned_caravan).days_remaining_after == 1, "owned caravan should move day one");
+    require(clc::sim::advance_caravan_day(owned_caravan).arrived, "owned caravan should arrive day two");
+    clc::sim::OwnershipCatalog ownership;
+    require(!clc::sim::fulfill_contract_from_owned_arrived_caravan(catalog, "grain_delivery_owned_caravan", owned_caravan, ownership, "riverwatch").ok(), "owned fulfillment should require assigned caravan owner");
+    require(owned_caravan.cargo.amount("grain") == 60, "missing owner should not debit cargo");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_owned_caravan")->status == clc::sim::ContractStatus::open, "missing owner should not mutate contract");
+    require(clc::sim::set_caravan_owner(ownership, "owned_contract_caravan", "traders_guild").ok(), "wrong caravan owner should set");
+    require(!clc::sim::fulfill_contract_from_owned_arrived_caravan(catalog, "grain_delivery_owned_caravan", owned_caravan, ownership, "riverwatch").ok(), "owned fulfillment should reject wrong owner");
+    require(!clc::sim::fulfill_contract_from_owned_arrived_caravan(catalog, "grain_delivery_owned_caravan", owned_caravan, ownership, "").ok(), "owned fulfillment should reject empty expected faction");
+    require(owned_caravan.cargo.amount("grain") == 60, "wrong owner should not debit cargo");
+    require(clc::sim::set_caravan_owner(ownership, "owned_contract_caravan", "riverwatch").ok(), "expected caravan owner should set");
+    const auto owned_fulfillment = clc::sim::fulfill_contract_from_owned_arrived_caravan(catalog, "grain_delivery_owned_caravan", owned_caravan, ownership, "riverwatch");
+    require(owned_fulfillment.ok(), "owned arrived caravan should fulfill contract");
+    require(owned_fulfillment.contract_id == "grain_delivery_owned_caravan", "owned fulfillment result should include contract id");
+    require(owned_caravan.cargo.amount("grain") == 10, "owned fulfillment should debit required cargo");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_owned_caravan")->status == clc::sim::ContractStatus::fulfilled, "owned fulfillment should mark contract fulfilled");
+
     auto failed_contract = valid_contract;
     failed_contract.id = "grain_delivery_failed";
     failed_contract.display_name = "Failed Grain Delivery";
