@@ -38,6 +38,35 @@ bool EconomyLedger::record(LedgerEntryType type, const TradeResult& result, std:
     return true;
 }
 
+bool EconomyLedger::record_contract_reward(
+    std::string contract_id,
+    std::string resource_id,
+    std::uint64_t quantity,
+    std::uint64_t reward_coins,
+    std::string note
+) {
+    if (contract_id.empty() || resource_id.empty() || quantity == 0 || reward_coins == 0) {
+        return false;
+    }
+
+    entries_.push_back(LedgerEntry{
+        .sequence = next_sequence_,
+        .type = LedgerEntryType::contract_reward,
+        .resource_id = std::move(resource_id),
+        .quantity = quantity,
+        .unit_price = 0,
+        .total_price = reward_coins,
+        .reference_id = std::move(contract_id),
+        .note = std::move(note),
+    });
+
+    if (next_sequence_ != std::numeric_limits<std::uint64_t>::max()) {
+        ++next_sequence_;
+    }
+
+    return true;
+}
+
 const std::vector<LedgerEntry>& EconomyLedger::entries() const noexcept {
     return entries_;
 }
@@ -61,6 +90,16 @@ std::uint64_t EconomyLedger::total_sold(std::string_view resource_id) const {
     for (const auto& entry : entries_) {
         if (entry.type == LedgerEntryType::sell && entry.resource_id == resource_id) {
             total = saturating_add(total, entry.quantity);
+        }
+    }
+    return total;
+}
+
+std::uint64_t EconomyLedger::total_contract_rewards(std::string_view resource_id) const {
+    std::uint64_t total{};
+    for (const auto& entry : entries_) {
+        if (entry.type == LedgerEntryType::contract_reward && entry.resource_id == resource_id) {
+            total = saturating_add(total, entry.total_price);
         }
     }
     return total;
