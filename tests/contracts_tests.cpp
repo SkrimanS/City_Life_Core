@@ -34,6 +34,16 @@ clc::sim::FactionCatalog make_factions() {
     return factions;
 }
 
+clc::sim::SettlementRoute make_route() {
+    return clc::sim::SettlementRoute{
+        .id = "riverwatch_to_traders",
+        .display_name = "Riverwatch to Traders Guild",
+        .origin_settlement_id = "riverwatch",
+        .destination_settlement_id = "traders_guild",
+        .travel_days = 2,
+    };
+}
+
 } // namespace
 
 int main() {
@@ -120,6 +130,26 @@ int main() {
     require(!clc::sim::mark_contract_fulfilled(catalog, "").ok(), "empty contract transition id should fail");
     require(!clc::sim::fulfill_contract_from_storage(catalog, "missing", delivery).ok(), "unknown contract fulfillment should fail");
     require(!clc::sim::fulfill_contract_from_storage(catalog, "", delivery).ok(), "empty contract fulfillment id should fail");
+
+    auto caravan_contract = valid_contract;
+    caravan_contract.id = "grain_delivery_caravan";
+    caravan_contract.display_name = "Caravan Grain Delivery";
+    require(clc::sim::add_contract(catalog, caravan_contract).ok(), "caravan contract should add");
+    auto caravan = clc::sim::create_caravan_for_route(make_route(), "contract_caravan", "Contract Caravan");
+    require(caravan.cargo.add("grain", 55).ok(), "caravan cargo should accept grain");
+    require(caravan.cargo.add("wood", 3).ok(), "caravan cargo should accept unrelated resource");
+    const auto early_caravan_fulfillment = clc::sim::fulfill_contract_from_arrived_caravan(catalog, "grain_delivery_caravan", caravan);
+    require(!early_caravan_fulfillment.ok(), "caravan contract fulfillment should require arrival");
+    require(caravan.cargo.amount("grain") == 55, "non-arrived caravan fulfillment should not debit cargo");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_caravan")->status == clc::sim::ContractStatus::open, "non-arrived caravan fulfillment should not mutate contract");
+    require(clc::sim::advance_caravan_day(caravan).days_remaining_after == 1, "caravan should move day one");
+    require(clc::sim::advance_caravan_day(caravan).arrived, "caravan should arrive day two");
+    const auto caravan_fulfillment = clc::sim::fulfill_contract_from_arrived_caravan(catalog, "grain_delivery_caravan", caravan);
+    require(caravan_fulfillment.ok(), "arrived caravan should fulfill contract from cargo");
+    require(caravan_fulfillment.contract_id == "grain_delivery_caravan", "caravan fulfillment result should include contract id");
+    require(caravan.cargo.amount("grain") == 5, "caravan fulfillment should debit required cargo");
+    require(caravan.cargo.amount("wood") == 3, "caravan fulfillment should not debit unrelated cargo");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_caravan")->status == clc::sim::ContractStatus::fulfilled, "caravan fulfillment should mark contract fulfilled");
 
     auto failed_contract = valid_contract;
     failed_contract.id = "grain_delivery_failed";
