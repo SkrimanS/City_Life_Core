@@ -62,5 +62,9 @@ struct SimulationWorldStateLoadResult final {
 );
 
 [[nodiscard]] SimulationWorldStateLoadResult load_simulation_world_state_from_file(const std::filesystem::path& path);
+[[nodiscard]] data::ValidationReport restore_ledger_from_world_state(
+    const SimulationWorldState& state,
+    economy::EconomyLedger& ledger
+);
 
 } // namespace clc::sim
