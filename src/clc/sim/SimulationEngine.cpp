@@ -1,6 +1,7 @@
 #include "clc/sim/SimulationEngine.hpp"
 
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 namespace clc::sim {
@@ -471,6 +472,67 @@ void SimulationEngine::clear_events() noexcept {
 
 std::uint64_t SimulationEngine::current_day() const noexcept {
     return current_day_;
+}
+
+SimulationEngineState SimulationEngine::export_state() const {
+    SimulationEngineState state;
+    state.current_day = current_day_;
+    state.settlements = settlements_;
+    state.events = events_;
+    state.market_demands.reserve(market_.demands().size());
+    for (const auto& [resource_id, demand] : market_.demands()) {
+        state.market_demands.push_back(SimulationMarketDemand{
+            .resource_id = resource_id,
+            .demand = demand,
+        });
+    }
+    return state;
+}
+
+data::ValidationReport SimulationEngine::restore_state(SimulationEngineState state) {
+    data::ValidationReport report;
+
+    std::unordered_set<std::string> settlement_ids;
+    for (const auto& settlement : state.settlements) {
+        if (settlement.id.empty()) {
+            report.add_error("simulation.state.settlements", "settlement id must not be empty");
+            continue;
+        }
+        if (!settlement_ids.insert(settlement.id).second) {
+            report.add_error("simulation.state.settlement." + settlement.id, "duplicate settlement id");
+        }
+    }
+
+    std::unordered_set<std::string> demand_resource_ids;
+    for (const auto& demand : state.market_demands) {
+        if (demand.resource_id.empty()) {
+            report.add_error("simulation.state.market", "market demand resource_id must not be empty");
+            continue;
+        }
+        if (!demand_resource_ids.insert(demand.resource_id).second) {
+            report.add_error("simulation.state.market." + demand.resource_id, "duplicate market demand resource id");
+        }
+    }
+
+    if (!report.ok()) {
+        return report;
+    }
+
+    current_day_ = state.current_day;
+    settlements_ = std::move(state.settlements);
+    events_ = std::move(state.events);
+    market_ = economy::MarketState{};
+    for (auto& demand : state.market_demands) {
+        const auto demand_report = market_.set_demand(std::move(demand.resource_id), demand.demand);
+        for (const auto& message : demand_report.messages()) {
+            if (message.severity == data::ValidationSeverity::error) {
+                report.add_error(message.path, message.message);
+            } else {
+                report.add_warning(message.path, message.message);
+            }
+        }
+    }
+    return report;
 }
 
 SimulationSnapshot SimulationEngine::snapshot() const {
