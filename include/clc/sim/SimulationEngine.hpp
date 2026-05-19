@@ -73,6 +73,10 @@ struct SimulationScenarioPreset final {
     std::uint64_t day_count{0};
 };
 
+struct SimulationScenarioPresetCatalog final {
+    std::vector<SimulationScenarioPreset> presets{};
+};
+
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
 [[nodiscard]] std::uint64_t scenario_summary_start_day(const SimulationScenarioSummary& summary) noexcept;
 [[nodiscard]] std::uint64_t scenario_summary_end_day(const SimulationScenarioSummary& summary) noexcept;
@@ -86,6 +90,9 @@ struct SimulationScenarioPreset final {
 [[nodiscard]] std::string scenario_result_digest(const SimulationScenarioResult& result);
 [[nodiscard]] data::ValidationReport validate_scenario_preset(const SimulationScenarioPreset& preset);
 [[nodiscard]] std::string scenario_preset_result_digest(const SimulationScenarioPreset& preset, const SimulationScenarioResult& result);
+[[nodiscard]] data::ValidationReport add_scenario_preset(SimulationScenarioPresetCatalog& catalog, SimulationScenarioPreset preset);
+[[nodiscard]] std::uint64_t scenario_preset_count(const SimulationScenarioPresetCatalog& catalog) noexcept;
+[[nodiscard]] const SimulationScenarioPreset* scenario_preset_by_id(const SimulationScenarioPresetCatalog& catalog, std::string_view preset_id) noexcept;
 
 class SimulationEngine final {
 public:
