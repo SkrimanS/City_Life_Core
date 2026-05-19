@@ -16,13 +16,6 @@ void append_report(data::ValidationReport& target, const data::ValidationReport&
     }
 }
 
-bool settlement_exists(const std::vector<SettlementState>& settlements, std::string_view settlement_id) {
-    for (const auto& settlement : settlements) {
-        if (settlement.id == settlement_id) return true;
-    }
-    return false;
-}
-
 bool reputation_endpoint_exists(const FactionCatalog& factions, const FactionReputation& reputation) {
     return faction_exists(factions, reputation.from_faction_id) && faction_exists(factions, reputation.to_faction_id);
 }
@@ -119,7 +112,6 @@ data::ValidationReport validate_simulation_world_state(const SimulationWorldStat
         report.add_error("simulation.world_state.contracts", "contracts require factions");
     }
 
-    (void)settlement_exists;
     return report;
 }
 
