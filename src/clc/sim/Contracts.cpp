@@ -197,6 +197,18 @@ ContractFulfillmentResult fulfill_contract_from_arrived_caravan(
     return fulfill_contract_from_storage(catalog, contract_id, caravan.cargo);
 }
 
+ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day) {
+    ContractDeadlineReport report{.current_day = current_day};
+    for (auto& contract : catalog.contracts) {
+        if (contract_is_open(contract) && current_day > contract.due_day) {
+            contract.status = ContractStatus::failed;
+            report.failed_contract_ids.push_back(contract.id);
+        }
+    }
+    report.failed_count = report.failed_contract_ids.size();
+    return report;
+}
+
 data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id) {
     return mark_contract_status(catalog, contract_id, ContractStatus::fulfilled, "fulfill");
 }
