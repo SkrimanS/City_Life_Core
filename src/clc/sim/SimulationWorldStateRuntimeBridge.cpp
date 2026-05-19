@@ -37,20 +37,13 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
     economy::Wallet& wallet,
     economy::EconomyLedger& ledger
 ) {
-    auto report = engine.restore_state(state.engine);
+    economy::EconomyLedger restored_ledger;
+    auto report = restore_ledger_from_world_state(state, restored_ledger);
     if (!report.ok()) {
         return report;
     }
 
-    economy::EconomyLedger restored_ledger;
-    auto ledger_report = restore_ledger_from_world_state(state, restored_ledger);
-    for (const auto& message : ledger_report.messages()) {
-        if (message.severity == data::ValidationSeverity::error) {
-            report.add_error(message.path, message.message);
-        } else {
-            report.add_warning(message.path, message.message);
-        }
-    }
+    report = engine.restore_state(state.engine);
     if (!report.ok()) {
         return report;
     }
