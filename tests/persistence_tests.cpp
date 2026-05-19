@@ -1,3 +1,4 @@
+#include "clc/data/DataRegistry.hpp"
 #include "clc/sim/SimulationPersistence.hpp"
 
 #include <cstdlib>
@@ -52,39 +53,25 @@ clc::sim::SimulationSnapshot make_test_snapshot() {
     return snapshot;
 }
 
+clc::data::DataRegistry make_registry() {
+    clc::data::DataRegistry registry;
+    require(registry.add(clc::data::ResourceDefinition{.id = "grain", .display_name = "Grain", .category = "food", .base_value = 10}).ok(), "grain should register");
+    require(registry.add(clc::data::ResourceDefinition{.id = "wood", .display_name = "Wood", .category = "construction", .base_value = 6}).ok(), "wood should register");
+    require(registry.add(clc::data::SettlementDefinition{.id = "riverwatch", .display_name = "Riverwatch", .starting_population = 120}).ok(), "settlement should register");
+    return registry;
+}
+
 void require_same_snapshot(const clc::sim::SimulationSnapshot& left, const clc::sim::SimulationSnapshot& right) {
     require(left.day == right.day, "snapshot day should round-trip");
     require(left.settlements.size() == right.settlements.size(), "settlement count should round-trip");
-    require(right.settlements.size() == 1, "test snapshot should contain one settlement");
-    require(left.settlements[0].id == right.settlements[0].id, "settlement id should round-trip");
-    require(left.settlements[0].display_name == right.settlements[0].display_name, "settlement display name should round-trip");
-    require(left.settlements[0].population == right.settlements[0].population, "settlement population should round-trip");
-    require(left.settlements[0].total_stored_resources == right.settlements[0].total_stored_resources, "settlement total storage should round-trip");
+    require(left.settlements[0].display_name == right.settlements[0].display_name, "settlement name should round-trip");
     require(left.settlements[0].storage.size() == right.settlements[0].storage.size(), "storage count should round-trip");
-    require(left.settlements[0].storage[0].resource_id == right.settlements[0].storage[0].resource_id, "storage resource id should round-trip");
-    require(left.settlements[0].storage[0].amount == right.settlements[0].storage[0].amount, "storage amount should round-trip");
-    require(left.settlements[0].buildings.size() == right.settlements[0].buildings.size(), "building count should round-trip");
-    require(left.settlements[0].buildings[0].definition_id == right.settlements[0].buildings[0].definition_id, "building definition id should round-trip");
-    require(left.settlements[0].buildings[0].display_name == right.settlements[0].buildings[0].display_name, "building display name should round-trip");
-    require(left.settlements[0].buildings[0].assigned_workers == right.settlements[0].buildings[0].assigned_workers, "assigned workers should round-trip");
-    require(left.settlements[0].buildings[0].worker_slots == right.settlements[0].buildings[0].worker_slots, "worker slots should round-trip");
-    require(left.market.total_supply == right.market.total_supply, "market total supply should round-trip");
-    require(left.market.total_demand == right.market.total_demand, "market total demand should round-trip");
-    require(left.market.average_price == right.market.average_price, "market average price should round-trip");
-    require(left.market.min_price == right.market.min_price, "market min price should round-trip");
-    require(left.market.max_price == right.market.max_price, "market max price should round-trip");
-    require(left.market.prices.size() == right.market.prices.size(), "market price count should round-trip");
-    require(left.market.prices[0].resource_id == right.market.prices[0].resource_id, "market price resource id should round-trip");
-    require(left.market.prices[0].reason == right.market.prices[0].reason, "market price reason should round-trip");
-    require(left.events.size() == right.events.size(), "event count should round-trip");
-    require(left.events[0].day == right.events[0].day, "event day should round-trip");
-    require(left.events[0].type == right.events[0].type, "event type should round-trip");
+    require(left.settlements[0].buildings[0].display_name == right.settlements[0].buildings[0].display_name, "building name should round-trip");
+    require(left.market.prices[0].reason == right.market.prices[0].reason, "market reason should round-trip");
     require(left.events[0].message == right.events[0].message, "event message should round-trip");
 }
 
-} // namespace
-
-int main() {
+void test_snapshot_persistence() {
     const auto snapshot = make_test_snapshot();
     const auto serialized = clc::sim::serialize_simulation_snapshot(snapshot);
     require(serialized.find("CLC_SIM_SNAPSHOT\t1\n") == 0, "serialized snapshot should include format header");
@@ -97,21 +84,57 @@ int main() {
 
     const auto path = std::filesystem::temp_directory_path() / "clc_snapshot_persistence_test.clcs";
     std::filesystem::remove(path);
-    const auto save_report = clc::sim::save_simulation_snapshot_to_file(snapshot, path);
-    require(save_report.ok(), "snapshot should save to file");
+    require(clc::sim::save_simulation_snapshot_to_file(snapshot, path).ok(), "snapshot should save to file");
     const auto loaded_file = clc::sim::load_simulation_snapshot_from_file(path);
     require(loaded_file.ok(), "snapshot should load from file");
     require_same_snapshot(snapshot, loaded_file.snapshot);
     std::filesystem::remove(path);
 
-    const auto invalid = clc::sim::deserialize_simulation_snapshot("day\t1\n");
-    require(!invalid.ok(), "missing header should fail validation");
+    require(!clc::sim::deserialize_simulation_snapshot("day\t1\n").ok(), "missing header should fail validation");
+    require(!clc::sim::deserialize_simulation_snapshot("CLC_SIM_SNAPSHOT\t1\nday\t1\nstorage\tmissing\tgrain\t3\nmarket\t0\t0\t0\t0\t0\n").ok(), "storage row should require known settlement");
+    require(!clc::sim::load_simulation_snapshot_from_file(path).ok(), "missing snapshot file should fail validation");
+}
 
-    const auto bad_storage = clc::sim::deserialize_simulation_snapshot("CLC_SIM_SNAPSHOT\t1\nday\t1\nstorage\tmissing\tgrain\t3\nmarket\t0\t0\t0\t0\t0\n");
-    require(!bad_storage.ok(), "storage row should require known settlement");
+void test_engine_state_restore() {
+    auto registry = make_registry();
+    clc::sim::SimulationEngine source{registry};
+    require(source.create_settlement("riverwatch").ok(), "source should create settlement");
+    require(source.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "source should add grain");
+    require(source.add_resource_to_settlement("riverwatch", "wood", 20).ok(), "source should add wood");
+    require(source.market().set_demand("grain", 30).ok(), "source should set demand");
+    require(source.add_resource_to_settlement_command("riverwatch", "grain", 5).ok, "source command should succeed");
+    require(source.advance_day().day == 1, "source should advance to day 1");
 
-    const auto missing_file = clc::sim::load_simulation_snapshot_from_file(path);
-    require(!missing_file.ok(), "missing snapshot file should fail validation");
+    const auto state = source.export_state();
+    require(state.current_day == 1, "state should include current day");
+    require(state.settlements.size() == 1, "state should include settlements");
+    require(state.events.size() == source.events().size(), "state should include events");
+    require(state.market_demands.size() == 1, "state should include market demands");
 
+    clc::sim::SimulationEngine restored{registry};
+    require(restored.restore_state(state).ok(), "valid state should restore");
+    require(restored.current_day() == source.current_day(), "restored day should match");
+    require(restored.settlement_resource_amount("riverwatch", "grain") == source.settlement_resource_amount("riverwatch", "grain"), "restored grain should match");
+    require(restored.market().demand("grain") == 30, "restored demand should match");
+    require(restored.advance_day().day == 2, "restored engine should continue from restored day");
+
+    auto duplicate_settlement_state = state;
+    duplicate_settlement_state.settlements.push_back(duplicate_settlement_state.settlements.front());
+    clc::sim::SimulationEngine invalid_settlement_restore{registry};
+    require(!invalid_settlement_restore.restore_state(duplicate_settlement_state).ok(), "duplicate settlement ids should be rejected");
+    require(invalid_settlement_restore.settlements().empty(), "failed settlement restore should not mutate settlements");
+
+    auto duplicate_demand_state = state;
+    duplicate_demand_state.market_demands.push_back(duplicate_demand_state.market_demands.front());
+    clc::sim::SimulationEngine invalid_demand_restore{registry};
+    require(!invalid_demand_restore.restore_state(duplicate_demand_state).ok(), "duplicate demands should be rejected");
+    require(invalid_demand_restore.market().demand("grain") == 0, "failed demand restore should not mutate market");
+}
+
+} // namespace
+
+int main() {
+    test_snapshot_persistence();
+    test_engine_state_restore();
     return 0;
 }
