@@ -85,6 +85,7 @@ struct SimulationScenarioPreset final {
 [[nodiscard]] bool scenario_succeeded(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] std::string scenario_result_digest(const SimulationScenarioResult& result);
 [[nodiscard]] data::ValidationReport validate_scenario_preset(const SimulationScenarioPreset& preset);
+[[nodiscard]] std::string scenario_preset_result_digest(const SimulationScenarioPreset& preset, const SimulationScenarioResult& result);
 
 class SimulationEngine final {
 public:
