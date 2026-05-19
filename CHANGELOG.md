@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.4 - Unreleased
+
+### Added
+
+- `scenario_catalog_digest()` for compact scenario preset catalog summaries.
+- `scenario_catalog_preset_lookup_digest()` for stable found/missing preset lookup summaries.
+- Scenario digest test coverage for empty catalogs, found preset lookup digests, missing preset lookup digests, and catalog count updates.
+
 ## 0.7.3 - Unreleased
 
 ### Added
