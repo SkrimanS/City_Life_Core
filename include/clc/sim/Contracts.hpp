@@ -2,6 +2,7 @@
 
 #include "clc/data/Validation.hpp"
 #include "clc/sim/Factions.hpp"
+#include "clc/sim/Storage.hpp"
 
 #include <cstdint>
 #include <string>
@@ -33,6 +34,19 @@ struct ContractCatalog final {
     std::vector<ResourceDeliveryContract> contracts{};
 };
 
+struct ContractFulfillmentResult final {
+    std::string contract_id{};
+    std::string resource_id{};
+    std::uint64_t quantity{0};
+    std::uint64_t reward_coins{0};
+    bool fulfilled{false};
+    data::ValidationReport validation{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return fulfilled && validation.ok();
+    }
+};
+
 [[nodiscard]] std::string_view contract_status_name(ContractStatus status) noexcept;
 [[nodiscard]] bool contract_is_open(const ResourceDeliveryContract& contract) noexcept;
 [[nodiscard]] bool contract_is_terminal(const ResourceDeliveryContract& contract) noexcept;
@@ -47,6 +61,12 @@ struct ContractCatalog final {
 [[nodiscard]] std::uint64_t contract_count(const ContractCatalog& catalog) noexcept;
 [[nodiscard]] const ResourceDeliveryContract* contract_by_id(const ContractCatalog& catalog, std::string_view contract_id) noexcept;
 [[nodiscard]] ResourceDeliveryContract* mutable_contract_by_id(ContractCatalog& catalog, std::string_view contract_id) noexcept;
+
+[[nodiscard]] ContractFulfillmentResult fulfill_contract_from_storage(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    ResourceStorage& delivered_resources
+);
 
 [[nodiscard]] data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id);
 [[nodiscard]] data::ValidationReport mark_contract_failed(ContractCatalog& catalog, std::string_view contract_id);
