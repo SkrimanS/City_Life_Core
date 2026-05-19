@@ -2,6 +2,7 @@
 
 #include "clc/data/Validation.hpp"
 #include "clc/sim/Routes.hpp"
+#include "clc/sim/Settlement.hpp"
 #include "clc/sim/Storage.hpp"
 
 #include <cstdint>
@@ -46,6 +47,20 @@ struct CaravanFleet final {
 [[nodiscard]] data::ValidationReport validate_caravan_for_route(const CaravanState& caravan, const SettlementRoute& route);
 [[nodiscard]] bool caravan_arrived(const CaravanState& caravan) noexcept;
 [[nodiscard]] CaravanAdvanceReport advance_caravan_day(CaravanState& caravan);
+
+[[nodiscard]] data::ValidationReport load_caravan_at_origin(
+    CaravanState& caravan,
+    SettlementState& origin,
+    std::string_view resource_id,
+    std::uint64_t amount
+);
+
+[[nodiscard]] data::ValidationReport unload_caravan_at_destination(
+    CaravanState& caravan,
+    SettlementState& destination,
+    std::string_view resource_id,
+    std::uint64_t amount
+);
 
 [[nodiscard]] data::ValidationReport add_caravan(CaravanFleet& fleet, CaravanState caravan);
 [[nodiscard]] std::uint64_t caravan_count(const CaravanFleet& fleet) noexcept;
