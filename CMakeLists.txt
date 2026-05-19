@@ -103,6 +103,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_contracts_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_contracts_tests COMMAND clc_contracts_tests)
 
+    add_executable(clc_contract_reward_ledger_tests tests/contract_reward_ledger_tests.cpp)
+    target_link_libraries(clc_contract_reward_ledger_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_contract_reward_ledger_tests COMMAND clc_contract_reward_ledger_tests)
+
     add_executable(clc_ownership_tests tests/ownership_tests.cpp)
     target_link_libraries(clc_ownership_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_ownership_tests COMMAND clc_ownership_tests)
