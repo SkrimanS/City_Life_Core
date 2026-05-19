@@ -165,5 +165,24 @@ int main() {
     require(clc::sim::cancel_contract(catalog, "grain_delivery_cancelled").ok(), "open contract should cancel");
     require(clc::sim::contract_by_id(catalog, "grain_delivery_cancelled")->status == clc::sim::ContractStatus::cancelled, "cancel transition should set cancelled status");
 
+    auto deadline_contract = valid_contract;
+    deadline_contract.id = "grain_delivery_deadline";
+    deadline_contract.display_name = "Deadline Grain Delivery";
+    deadline_contract.due_day = 12;
+    require(clc::sim::add_contract(catalog, deadline_contract).ok(), "deadline contract should add");
+    auto deadline_boundary_report = clc::sim::fail_overdue_open_contracts(catalog, 12);
+    require(deadline_boundary_report.current_day == 12, "deadline report should include current day");
+    require(deadline_boundary_report.failed_count == 0, "contract should not fail on due day");
+    require(deadline_boundary_report.failed_contract_ids.empty(), "due day sweep should not report failures");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_deadline")->status == clc::sim::ContractStatus::open, "due day sweep should leave contract open");
+    auto deadline_report = clc::sim::fail_overdue_open_contracts(catalog, 13);
+    require(deadline_report.current_day == 13, "overdue report should include current day");
+    require(deadline_report.failed_count == 1, "overdue sweep should fail one open contract");
+    require(deadline_report.failed_contract_ids.size() == 1, "overdue sweep should report failed ids");
+    require(deadline_report.failed_contract_ids[0] == "grain_delivery_deadline", "overdue sweep should report expected failed contract id");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_deadline")->status == clc::sim::ContractStatus::failed, "overdue sweep should mark contract failed");
+    auto repeat_deadline_report = clc::sim::fail_overdue_open_contracts(catalog, 100);
+    require(repeat_deadline_report.failed_count == 0, "repeat sweep should not fail terminal contracts again");
+
     return 0;
 }
