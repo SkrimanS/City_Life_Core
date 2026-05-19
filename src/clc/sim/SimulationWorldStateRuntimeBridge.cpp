@@ -37,8 +37,13 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
     economy::Wallet& wallet,
     economy::EconomyLedger& ledger
 ) {
+    auto report = validate_simulation_world_state(state);
+    if (!report.ok()) {
+        return report;
+    }
+
     economy::EconomyLedger restored_ledger;
-    auto report = restore_ledger_from_world_state(state, restored_ledger);
+    report = restore_ledger_from_world_state(state, restored_ledger);
     if (!report.ok()) {
         return report;
     }
