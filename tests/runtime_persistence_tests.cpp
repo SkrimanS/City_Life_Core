@@ -29,6 +29,9 @@ clc::sim::SimulationEngineState make_engine_state() {
     clc::sim::SettlementState riverwatch{.id = "riverwatch", .display_name = "Riverwatch", .population = 120};
     require(riverwatch.storage.add("grain", 80).ok(), "riverwatch should accept grain");
     state.settlements.push_back(riverwatch);
+    clc::sim::SettlementState hillford{.id = "hillford", .display_name = "Hillford", .population = 80};
+    require(hillford.storage.add("grain", 20).ok(), "hillford should accept grain");
+    state.settlements.push_back(hillford);
     state.market_demands.push_back(clc::sim::SimulationMarketDemand{.resource_id = "grain", .demand = 70});
     state.events.push_back(clc::sim::SimulationEvent{.day = 4, .type = "runtime", .message = "saved"});
     return state;
@@ -120,6 +123,7 @@ int main() {
     require(load_result.ok(), "runtime should load from file");
     require(target_engine.current_day() == 4, "runtime load should restore engine day");
     require(target_engine.settlement_resource_amount("riverwatch", "grain") == 80, "runtime load should restore settlement storage");
+    require(target_engine.settlement_resource_amount("hillford", "grain") == 20, "runtime load should restore destination settlement storage");
     require(target_routes.routes.size() == 1, "runtime load should restore routes");
     require(target_caravans.caravans.size() == 1, "runtime load should restore caravans");
     require(target_caravans.caravans[0].days_remaining == 1, "runtime load should restore caravan progress");
