@@ -6,6 +6,7 @@
 #include "clc/sim/Contracts.hpp"
 #include "clc/sim/Ownership.hpp"
 #include "clc/sim/SimulationEngine.hpp"
+#include "clc/sim/SimulationRuntime.hpp"
 
 #include <filesystem>
 #include <string>
@@ -66,6 +67,8 @@ struct SimulationWorldStateLoadResult final {
     const economy::EconomyLedger& ledger
 );
 
+[[nodiscard]] SimulationWorldState capture_simulation_world_state(const SimulationRuntime& runtime);
+
 [[nodiscard]] data::ValidationReport restore_simulation_runtime_from_world_state(
     const SimulationWorldState& state,
     SimulationEngine& engine,
@@ -76,6 +79,11 @@ struct SimulationWorldStateLoadResult final {
     ContractCatalog& contracts,
     economy::Wallet& wallet,
     economy::EconomyLedger& ledger
+);
+
+[[nodiscard]] data::ValidationReport restore_simulation_runtime_from_world_state(
+    const SimulationWorldState& state,
+    SimulationRuntime& runtime
 );
 
 [[nodiscard]] data::ValidationReport save_simulation_runtime_to_file(
@@ -90,6 +98,11 @@ struct SimulationWorldStateLoadResult final {
     const std::filesystem::path& path
 );
 
+[[nodiscard]] data::ValidationReport save_simulation_runtime_to_file(
+    const SimulationRuntime& runtime,
+    const std::filesystem::path& path
+);
+
 [[nodiscard]] SimulationWorldStateLoadResult load_simulation_runtime_from_file(
     const std::filesystem::path& path,
     SimulationEngine& engine,
@@ -100,6 +113,11 @@ struct SimulationWorldStateLoadResult final {
     ContractCatalog& contracts,
     economy::Wallet& wallet,
     economy::EconomyLedger& ledger
+);
+
+[[nodiscard]] SimulationWorldStateLoadResult load_simulation_runtime_from_file(
+    const std::filesystem::path& path,
+    SimulationRuntime& runtime
 );
 
 [[nodiscard]] std::string serialize_simulation_world_state(const SimulationWorldState& state);
