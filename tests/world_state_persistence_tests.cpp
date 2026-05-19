@@ -199,6 +199,32 @@ int main() {
     require(target_ledger.entries()[1].sequence == 2, "runtime-restored ledger should continue sequence");
     require(target_engine.advance_day().day == 13, "runtime-restored engine should continue simulation days");
 
+    auto broken_runtime_state = captured_roundtrip.state;
+    broken_runtime_state.ledger_entries[0].quantity = 0;
+    clc::sim::SimulationEngine untouched_engine{make_registry()};
+    clc::sim::SettlementRouteCatalog untouched_routes;
+    clc::sim::CaravanFleet untouched_caravans;
+    clc::sim::FactionCatalog untouched_factions;
+    clc::sim::OwnershipCatalog untouched_ownership;
+    clc::sim::ContractCatalog untouched_contracts;
+    clc::economy::Wallet untouched_wallet{.coins = 999};
+    clc::economy::EconomyLedger untouched_ledger;
+    require(!clc::sim::restore_simulation_runtime_from_world_state(
+        broken_runtime_state,
+        untouched_engine,
+        untouched_routes,
+        untouched_caravans,
+        untouched_factions,
+        untouched_ownership,
+        untouched_contracts,
+        untouched_wallet,
+        untouched_ledger
+    ).ok(), "broken runtime state should fail before mutation");
+    require(untouched_engine.current_day() == 0, "failed runtime restore should not mutate engine");
+    require(untouched_routes.routes.empty(), "failed runtime restore should not mutate routes");
+    require(untouched_wallet.coins == 999, "failed runtime restore should not mutate wallet");
+    require(untouched_ledger.entries().empty(), "failed runtime restore should not mutate ledger");
+
     const auto directory = std::filesystem::temp_directory_path() / "clc_world_state_persistence_tests";
     std::filesystem::remove_all(directory);
     std::filesystem::create_directories(directory);
