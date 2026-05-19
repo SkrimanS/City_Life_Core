@@ -1,6 +1,7 @@
 #pragma once
 
 #include "clc/data/Validation.hpp"
+#include "clc/economy/Trade.hpp"
 #include "clc/sim/Caravans.hpp"
 #include "clc/sim/Factions.hpp"
 #include "clc/sim/Ownership.hpp"
@@ -74,6 +75,13 @@ struct ContractDeadlineReport final {
     ContractCatalog& catalog,
     std::string_view contract_id,
     ResourceStorage& delivered_resources
+);
+
+[[nodiscard]] ContractFulfillmentResult fulfill_contract_from_storage_with_reward(
+    ContractCatalog& catalog,
+    std::string_view contract_id,
+    ResourceStorage& delivered_resources,
+    economy::Wallet& reward_wallet
 );
 
 [[nodiscard]] ContractFulfillmentResult fulfill_contract_from_arrived_caravan(
