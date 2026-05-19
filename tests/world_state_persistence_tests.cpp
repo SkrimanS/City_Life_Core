@@ -105,6 +105,32 @@ clc::sim::SimulationWorldState make_world_state() {
 
 int main() {
     const auto state = make_world_state();
+    require(clc::sim::validate_simulation_world_state(state).ok(), "valid world state should pass integrated validation");
+
+    auto broken_route_state = state;
+    broken_route_state.routes.routes[0].destination_settlement_id = "missing_settlement";
+    require(!clc::sim::validate_simulation_world_state(broken_route_state).ok(), "world state validation should reject routes with unknown settlements");
+
+    auto broken_caravan_state = state;
+    broken_caravan_state.caravans.caravans[0].route_id = "missing_route";
+    require(!clc::sim::validate_simulation_world_state(broken_caravan_state).ok(), "world state validation should reject caravans with unknown routes");
+
+    auto broken_reputation_state = state;
+    broken_reputation_state.factions.reputations[0].to_faction_id = "missing_faction";
+    require(!clc::sim::validate_simulation_world_state(broken_reputation_state).ok(), "world state validation should reject reputations with unknown endpoints");
+
+    auto broken_ownership_state = state;
+    broken_ownership_state.ownership.caravans[0].faction_id = "missing_faction";
+    require(!clc::sim::validate_simulation_world_state(broken_ownership_state).ok(), "world state validation should reject ownership with unknown faction");
+
+    auto broken_contract_state = state;
+    broken_contract_state.contracts.contracts[0].receiver_faction_id = "missing_faction";
+    require(!clc::sim::validate_simulation_world_state(broken_contract_state).ok(), "world state validation should reject contracts with unknown factions");
+
+    auto duplicate_route_state = state;
+    duplicate_route_state.routes.routes.push_back(duplicate_route_state.routes.routes[0]);
+    require(!clc::sim::validate_simulation_world_state(duplicate_route_state).ok(), "world state validation should reject duplicate route ids");
+
     const auto serialized = clc::sim::serialize_simulation_world_state(state);
     require(serialized.find("CLC_SIM_WORLD_STATE\t1") != std::string::npos, "serialized state should include header");
     require(serialized.find("contract\tgrain_delivery_001") != std::string::npos, "serialized state should include open contract");
@@ -224,6 +250,22 @@ int main() {
     require(untouched_routes.routes.empty(), "failed runtime restore should not mutate routes");
     require(untouched_wallet.coins == 999, "failed runtime restore should not mutate wallet");
     require(untouched_ledger.entries().empty(), "failed runtime restore should not mutate ledger");
+
+    auto broken_reference_runtime_state = captured_roundtrip.state;
+    broken_reference_runtime_state.caravans.caravans[0].route_id = "missing_route";
+    require(!clc::sim::restore_simulation_runtime_from_world_state(
+        broken_reference_runtime_state,
+        untouched_engine,
+        untouched_routes,
+        untouched_caravans,
+        untouched_factions,
+        untouched_ownership,
+        untouched_contracts,
+        untouched_wallet,
+        untouched_ledger
+    ).ok(), "broken referenced runtime state should fail validation before mutation");
+    require(untouched_engine.current_day() == 0, "failed reference restore should not mutate engine");
+    require(untouched_routes.routes.empty(), "failed reference restore should not mutate routes");
 
     const auto directory = std::filesystem::temp_directory_path() / "clc_world_state_persistence_tests";
     std::filesystem::remove_all(directory);
