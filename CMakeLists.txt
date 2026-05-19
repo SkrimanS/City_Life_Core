@@ -100,6 +100,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_runtime_persistence_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_persistence_tests COMMAND clc_runtime_persistence_tests)
 
+    add_executable(clc_simulation_runtime_bundle_tests tests/simulation_runtime_bundle_tests.cpp)
+    target_link_libraries(clc_simulation_runtime_bundle_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_simulation_runtime_bundle_tests COMMAND clc_simulation_runtime_bundle_tests)
+
     add_executable(clc_routes_tests tests/routes_tests.cpp)
     target_link_libraries(clc_routes_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_routes_tests COMMAND clc_routes_tests)
