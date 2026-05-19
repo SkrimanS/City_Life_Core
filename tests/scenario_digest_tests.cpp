@@ -55,6 +55,36 @@ int main() {
     const auto valid_report = clc::sim::validate_scenario_preset(valid_preset);
     require(valid_report.ok(), "valid preset should pass validation");
 
+    clc::sim::SimulationScenarioPresetCatalog catalog;
+    require(clc::sim::scenario_preset_count(catalog) == 0, "empty preset catalog should have zero presets");
+    require(clc::sim::scenario_preset_by_id(catalog, "quick_check") == nullptr, "empty preset catalog lookup should miss");
+    require(clc::sim::add_scenario_preset(catalog, valid_preset).ok(), "valid preset should be added to catalog");
+    require(clc::sim::scenario_preset_count(catalog) == 1, "catalog should count inserted preset");
+
+    const auto* found_preset = clc::sim::scenario_preset_by_id(catalog, "quick_check");
+    require(found_preset != nullptr, "catalog lookup should find inserted preset");
+    require(found_preset->display_name == "Quick Check", "catalog lookup should preserve display name");
+    require(found_preset->day_count == 2, "catalog lookup should preserve day count");
+    require(clc::sim::scenario_preset_by_id(catalog, "missing") == nullptr, "catalog lookup should miss unknown preset");
+
+    const clc::sim::SimulationScenarioPreset long_preset{
+        .id = "long_check",
+        .display_name = "Long Check",
+        .day_count = 7,
+    };
+    require(clc::sim::add_scenario_preset(catalog, long_preset).ok(), "second valid preset should be added to catalog");
+    require(clc::sim::scenario_preset_count(catalog) == 2, "catalog should count second inserted preset");
+
+    const auto duplicate_report = clc::sim::add_scenario_preset(catalog, clc::sim::SimulationScenarioPreset{
+        .id = "quick_check",
+        .display_name = "Duplicate Quick Check",
+        .day_count = 1,
+    });
+    require(!duplicate_report.ok(), "duplicate preset id should be rejected");
+    require(clc::sim::scenario_preset_count(catalog) == 2, "duplicate preset should not change catalog size");
+    require(!clc::sim::add_scenario_preset(catalog, invalid_preset).ok(), "invalid preset should not be added to catalog");
+    require(clc::sim::scenario_preset_count(catalog) == 2, "invalid preset should not change catalog size");
+
     clc::sim::SimulationEngine engine{clc::data::DataRegistry{}};
     const auto preset_result = engine.run_scenario_preset(valid_preset);
     require(preset_result.summary.days_run == 2, "valid preset should run configured day count");
