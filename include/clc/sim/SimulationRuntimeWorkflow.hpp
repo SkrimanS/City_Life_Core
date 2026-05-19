@@ -3,6 +3,7 @@
 #include "clc/sim/Contracts.hpp"
 #include "clc/sim/SimulationRuntime.hpp"
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
@@ -26,6 +27,45 @@ struct RuntimeCaravanAdvanceResult final {
         return validation.ok();
     }
 };
+
+[[nodiscard]] data::ValidationReport create_runtime_settlement(
+    SimulationRuntime& runtime,
+    std::string settlement_definition_id
+);
+
+[[nodiscard]] data::ValidationReport add_runtime_route(
+    SimulationRuntime& runtime,
+    SettlementRoute route
+);
+
+[[nodiscard]] data::ValidationReport add_runtime_faction(
+    SimulationRuntime& runtime,
+    FactionState faction
+);
+
+[[nodiscard]] data::ValidationReport set_runtime_faction_reputation(
+    SimulationRuntime& runtime,
+    std::string from_faction_id,
+    std::string to_faction_id,
+    std::int64_t value
+);
+
+[[nodiscard]] data::ValidationReport set_runtime_settlement_owner(
+    SimulationRuntime& runtime,
+    std::string settlement_id,
+    std::string faction_id
+);
+
+[[nodiscard]] data::ValidationReport set_runtime_caravan_owner(
+    SimulationRuntime& runtime,
+    std::string caravan_id,
+    std::string faction_id
+);
+
+[[nodiscard]] data::ValidationReport add_runtime_resource_delivery_contract(
+    SimulationRuntime& runtime,
+    ResourceDeliveryContract contract
+);
 
 [[nodiscard]] RuntimeCaravanCreationResult create_runtime_caravan_for_route(
     SimulationRuntime& runtime,
