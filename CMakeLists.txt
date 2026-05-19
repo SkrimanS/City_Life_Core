@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.8.9
+    VERSION 0.9.0
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -29,6 +29,7 @@ add_library(city_life_core
     src/clc/sim/Caravans.cpp
     src/clc/sim/Factions.cpp
     src/clc/sim/Contracts.cpp
+    src/clc/sim/ContractRewards.cpp
     src/clc/sim/Ownership.cpp
     src/clc/economy/Market.cpp
     src/clc/economy/Trade.cpp
