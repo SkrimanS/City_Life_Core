@@ -82,4 +82,35 @@ SimulationRuntimeRunResult run_runtime_days(SimulationRuntime& runtime, std::uin
     return result;
 }
 
+SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
+    SimulationRuntime& runtime,
+    std::uint64_t max_days
+) {
+    SimulationRuntimeRunUntilArrivalResult result{};
+
+    result.run.reports.reserve(static_cast<std::size_t>(max_days));
+
+    for (std::uint64_t day = 0; day < max_days; ++day) {
+        auto report = advance_runtime_day(runtime);
+        merge_validation(result.run.validation, report.validation);
+
+        for (const auto& caravan : report.caravans) {
+            if (caravan.advance.arrived) {
+                result.arrival_reached = true;
+                result.arrived_caravan_id = caravan.caravan_id;
+                result.arrival_day = report.engine.day;
+            }
+        }
+
+        result.run.reports.push_back(std::move(report));
+
+        if (result.arrival_reached) {
+            break;
+        }
+    }
+
+    result.run.summary = summarize_runtime_day_reports(result.run.reports);
+    return result;
+}
+
 } // namespace clc::sim
