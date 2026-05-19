@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <string_view>
 
 namespace {
@@ -130,6 +131,45 @@ int main() {
     require(!clc::sim::mark_contract_fulfilled(catalog, "").ok(), "empty contract transition id should fail");
     require(!clc::sim::fulfill_contract_from_storage(catalog, "missing", delivery).ok(), "unknown contract fulfillment should fail");
     require(!clc::sim::fulfill_contract_from_storage(catalog, "", delivery).ok(), "empty contract fulfillment id should fail");
+
+    auto reward_contract = valid_contract;
+    reward_contract.id = "grain_delivery_reward";
+    reward_contract.display_name = "Rewarded Grain Delivery";
+    require(clc::sim::add_contract(catalog, reward_contract).ok(), "reward contract should add");
+    clc::sim::ResourceStorage rewarded_delivery;
+    require(rewarded_delivery.add("grain", 60).ok(), "rewarded delivery should accept grain");
+    clc::economy::Wallet reward_wallet{.coins = 10};
+    const auto rewarded_fulfillment = clc::sim::fulfill_contract_from_storage_with_reward(catalog, "grain_delivery_reward", rewarded_delivery, reward_wallet);
+    require(rewarded_fulfillment.ok(), "rewarded fulfillment should succeed");
+    require(rewarded_delivery.amount("grain") == 10, "rewarded fulfillment should debit required grain");
+    require(reward_wallet.coins == 130, "rewarded fulfillment should credit reward coins");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_reward")->status == clc::sim::ContractStatus::fulfilled, "rewarded fulfillment should mark contract fulfilled");
+
+    auto reward_overflow_contract = valid_contract;
+    reward_overflow_contract.id = "grain_delivery_reward_overflow";
+    reward_overflow_contract.display_name = "Overflow Reward Delivery";
+    require(clc::sim::add_contract(catalog, reward_overflow_contract).ok(), "reward overflow contract should add");
+    clc::sim::ResourceStorage overflow_delivery;
+    require(overflow_delivery.add("grain", 60).ok(), "overflow delivery should accept grain");
+    clc::economy::Wallet overflow_wallet{.coins = std::numeric_limits<std::uint64_t>::max() - 50};
+    const auto overflow_fulfillment = clc::sim::fulfill_contract_from_storage_with_reward(catalog, "grain_delivery_reward_overflow", overflow_delivery, overflow_wallet);
+    require(!overflow_fulfillment.ok(), "rewarded fulfillment should reject wallet overflow");
+    require(overflow_delivery.amount("grain") == 60, "reward overflow should not debit storage");
+    require(overflow_wallet.coins == std::numeric_limits<std::uint64_t>::max() - 50, "reward overflow should not mutate wallet");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_reward_overflow")->status == clc::sim::ContractStatus::open, "reward overflow should not mutate contract");
+
+    auto reward_insufficient_contract = valid_contract;
+    reward_insufficient_contract.id = "grain_delivery_reward_insufficient";
+    reward_insufficient_contract.display_name = "Insufficient Reward Delivery";
+    require(clc::sim::add_contract(catalog, reward_insufficient_contract).ok(), "reward insufficient contract should add");
+    clc::sim::ResourceStorage reward_insufficient_delivery;
+    require(reward_insufficient_delivery.add("grain", 49).ok(), "reward insufficient delivery should accept grain");
+    clc::economy::Wallet insufficient_reward_wallet{.coins = 20};
+    const auto reward_insufficient_fulfillment = clc::sim::fulfill_contract_from_storage_with_reward(catalog, "grain_delivery_reward_insufficient", reward_insufficient_delivery, insufficient_reward_wallet);
+    require(!reward_insufficient_fulfillment.ok(), "rewarded fulfillment should reject insufficient delivery");
+    require(reward_insufficient_delivery.amount("grain") == 49, "reward insufficient should not debit storage");
+    require(insufficient_reward_wallet.coins == 20, "reward insufficient should not mutate wallet");
+    require(clc::sim::contract_by_id(catalog, "grain_delivery_reward_insufficient")->status == clc::sim::ContractStatus::open, "reward insufficient should not mutate contract");
 
     auto caravan_contract = valid_contract;
     caravan_contract.id = "grain_delivery_caravan";
