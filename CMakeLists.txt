@@ -27,6 +27,7 @@ add_library(city_life_core
     src/clc/sim/SimulationPersistence.cpp
     src/clc/sim/SimulationWorldStatePersistence.cpp
     src/clc/sim/SimulationWorldStateLedgerRestore.cpp
+    src/clc/sim/SimulationWorldStateRuntimeBridge.cpp
     src/clc/sim/Routes.cpp
     src/clc/sim/Caravans.cpp
     src/clc/sim/Factions.cpp
