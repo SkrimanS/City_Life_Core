@@ -25,19 +25,40 @@ clc::data::DataRegistry make_registry() {
 
 int main() {
     clc::sim::SimulationRuntime runtime{make_registry()};
-    require(runtime.engine.create_settlement("riverwatch").ok(), "runtime should create origin settlement");
-    require(runtime.engine.create_settlement("hillford").ok(), "runtime should create destination settlement");
+    require(clc::sim::create_runtime_settlement(runtime, "riverwatch").ok(), "runtime should create origin settlement");
+    require(clc::sim::create_runtime_settlement(runtime, "hillford").ok(), "runtime should create destination settlement");
+    require(!clc::sim::add_runtime_route(runtime, clc::sim::SettlementRoute{
+        .id = "bad_route",
+        .display_name = "Bad Route",
+        .origin_settlement_id = "riverwatch",
+        .destination_settlement_id = "missing_settlement",
+        .travel_days = 2,
+    }).ok(), "runtime route should reject unknown settlement references");
     require(runtime.engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "origin settlement should receive grain");
-    require(clc::sim::add_settlement_route(runtime.routes, clc::sim::SettlementRoute{
+    require(clc::sim::add_runtime_route(runtime, clc::sim::SettlementRoute{
         .id = "riverwatch_to_hillford",
         .display_name = "Riverwatch to Hillford",
         .origin_settlement_id = "riverwatch",
         .destination_settlement_id = "hillford",
         .travel_days = 2,
     }).ok(), "runtime route should add");
-    require(clc::sim::add_faction(runtime.factions, clc::sim::FactionState{.id = "riverwatch", .display_name = "Riverwatch"}).ok(), "origin faction should add");
-    require(clc::sim::add_faction(runtime.factions, clc::sim::FactionState{.id = "traders_guild", .display_name = "Traders Guild"}).ok(), "receiver faction should add");
-    require(clc::sim::add_contract(runtime.contracts, clc::sim::ResourceDeliveryContract{
+    require(clc::sim::add_runtime_faction(runtime, clc::sim::FactionState{.id = "riverwatch", .display_name = "Riverwatch"}).ok(), "origin faction should add");
+    require(clc::sim::add_runtime_faction(runtime, clc::sim::FactionState{.id = "traders_guild", .display_name = "Traders Guild"}).ok(), "receiver faction should add");
+    require(!clc::sim::set_runtime_faction_reputation(runtime, "riverwatch", "missing_faction", 10).ok(), "runtime reputation should reject unknown faction");
+    require(clc::sim::set_runtime_faction_reputation(runtime, "riverwatch", "traders_guild", 10).ok(), "runtime reputation should set");
+    require(!clc::sim::set_runtime_settlement_owner(runtime, "missing_settlement", "riverwatch").ok(), "runtime settlement owner should reject unknown settlement");
+    require(clc::sim::set_runtime_settlement_owner(runtime, "riverwatch", "riverwatch").ok(), "runtime settlement owner should set");
+    require(!clc::sim::add_runtime_resource_delivery_contract(runtime, clc::sim::ResourceDeliveryContract{
+        .id = "bad_contract",
+        .display_name = "Bad Contract",
+        .issuer_faction_id = "riverwatch",
+        .receiver_faction_id = "missing_faction",
+        .resource_id = "grain",
+        .quantity = 30,
+        .reward_coins = 75,
+        .due_day = 8,
+    }).ok(), "runtime contract should reject unknown faction references");
+    require(clc::sim::add_runtime_resource_delivery_contract(runtime, clc::sim::ResourceDeliveryContract{
         .id = "grain_delivery_runtime",
         .display_name = "Runtime Grain Delivery",
         .issuer_faction_id = "riverwatch",
@@ -70,6 +91,10 @@ int main() {
     require(runtime.caravans.caravans.size() == 1, "runtime fleet should contain created caravan");
     require(runtime.caravans.caravans[0].cargo.empty(), "created runtime caravan should start empty when no cargo is provided");
 
+    require(!clc::sim::set_runtime_caravan_owner(runtime, "missing_caravan", "riverwatch").ok(), "runtime caravan owner should reject unknown caravan");
+    require(!clc::sim::set_runtime_caravan_owner(runtime, "caravan_runtime", "missing_faction").ok(), "runtime caravan owner should reject unknown faction");
+    require(clc::sim::set_runtime_caravan_owner(runtime, "caravan_runtime", "riverwatch").ok(), "runtime caravan owner should set");
+
     require(!clc::sim::load_runtime_caravan_at_origin(runtime, "missing_caravan", "grain", 1).ok(), "runtime load should reject unknown caravan");
     require(!clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 60).ok(), "runtime load should reject insufficient origin storage");
     require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 50, "failed runtime load should not debit origin storage");
@@ -80,7 +105,6 @@ int main() {
     require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "runtime load should credit caravan cargo");
 
     runtime.wallet.coins = 10;
-    require(clc::sim::set_caravan_owner(runtime.ownership, "caravan_runtime", "riverwatch").ok(), "runtime caravan owner should set");
 
     const auto early_unload = clc::sim::unload_runtime_caravan_at_destination(runtime, "caravan_runtime", "grain", 5);
     require(!early_unload.ok(), "runtime unload should require arrival");
