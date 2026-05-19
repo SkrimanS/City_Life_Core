@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.7.6
+    VERSION 0.7.7
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES CXX
 )
@@ -80,4 +80,8 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_persistence_tests tests/persistence_tests.cpp)
     target_link_libraries(clc_persistence_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_persistence_tests COMMAND clc_persistence_tests)
+
+    add_executable(clc_engine_state_tests tests/engine_state_tests.cpp)
+    target_link_libraries(clc_engine_state_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_engine_state_tests COMMAND clc_engine_state_tests)
 endif()
