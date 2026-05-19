@@ -1,6 +1,9 @@
 #include "clc/sim/SimulationPersistence.hpp"
 
+#include <cstdint>
 #include <fstream>
+#include <initializer_list>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -97,7 +100,7 @@ bool parse_uint64(std::string_view value, std::uint64_t& output) noexcept {
             return false;
         }
         const auto digit = static_cast<std::uint64_t>(character - '0');
-        if (parsed > (UINT64_MAX - digit) / 10) {
+        if (parsed > (std::numeric_limits<std::uint64_t>::max() - digit) / 10) {
             return false;
         }
         parsed = parsed * 10 + digit;
@@ -117,6 +120,19 @@ std::uint64_t parse_required_uint64(
         report.add_error(std::string{path}, "invalid unsigned integer");
     }
     return parsed;
+}
+
+std::uint32_t parse_required_uint32(
+    std::string_view value,
+    data::ValidationReport& report,
+    std::string_view path
+) {
+    const auto parsed = parse_required_uint64(value, report, path);
+    if (parsed > std::numeric_limits<std::uint32_t>::max()) {
+        report.add_error(std::string{path}, "unsigned integer exceeds uint32 range");
+        return 0;
+    }
+    return static_cast<std::uint32_t>(parsed);
 }
 
 void append_line(std::string& output, std::initializer_list<std::string> fields) {
@@ -283,8 +299,8 @@ SimulationSnapshotLoadResult deserialize_simulation_snapshot(std::string_view co
                         settlement->buildings.push_back(BuildingReport{
                             .definition_id = unescape_field(fields[2], result.validation, path + ".definition_id"),
                             .display_name = unescape_field(fields[3], result.validation, path + ".display_name"),
-                            .assigned_workers = static_cast<std::uint32_t>(parse_required_uint64(fields[4], result.validation, path + ".assigned_workers")),
-                            .worker_slots = static_cast<std::uint32_t>(parse_required_uint64(fields[5], result.validation, path + ".worker_slots")),
+                            .assigned_workers = parse_required_uint32(fields[4], result.validation, path + ".assigned_workers"),
+                            .worker_slots = parse_required_uint32(fields[5], result.validation, path + ".worker_slots"),
                         });
                     }
                 }
