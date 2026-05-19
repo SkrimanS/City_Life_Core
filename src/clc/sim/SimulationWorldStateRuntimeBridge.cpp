@@ -26,6 +26,19 @@ SimulationWorldState capture_simulation_world_state(
     };
 }
 
+SimulationWorldState capture_simulation_world_state(const SimulationRuntime& runtime) {
+    return capture_simulation_world_state(
+        runtime.engine,
+        runtime.routes,
+        runtime.caravans,
+        runtime.factions,
+        runtime.ownership,
+        runtime.contracts,
+        runtime.wallet,
+        runtime.ledger
+    );
+}
+
 data::ValidationReport restore_simulation_runtime_from_world_state(
     const SimulationWorldState& state,
     SimulationEngine& engine,
@@ -61,6 +74,23 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
     wallet = state.wallet;
     ledger = std::move(restored_ledger);
     return report;
+}
+
+data::ValidationReport restore_simulation_runtime_from_world_state(
+    const SimulationWorldState& state,
+    SimulationRuntime& runtime
+) {
+    return restore_simulation_runtime_from_world_state(
+        state,
+        runtime.engine,
+        runtime.routes,
+        runtime.caravans,
+        runtime.factions,
+        runtime.ownership,
+        runtime.contracts,
+        runtime.wallet,
+        runtime.ledger
+    );
 }
 
 } // namespace clc::sim
