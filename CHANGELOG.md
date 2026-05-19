@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.5 - Unreleased
+
+### Changed
+
+- Refreshed `README.md` so it no longer describes the project as being in the completed `0.1.0 Foundation Core` phase.
+- Documented the current `0.7.x Simulation Core Expansion` state and implemented subsystem list.
+- Realigned the near-term roadmap away from deeper report/digest layers and toward save/load, routes, caravans, factions, and contracts.
+
 ## 0.7.4 - Unreleased
 
 ### Added
