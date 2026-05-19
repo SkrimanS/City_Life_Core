@@ -48,6 +48,12 @@ struct ContractFulfillmentResult final {
     }
 };
 
+struct ContractDeadlineReport final {
+    std::uint64_t current_day{0};
+    std::uint64_t failed_count{0};
+    std::vector<std::string> failed_contract_ids{};
+};
+
 [[nodiscard]] std::string_view contract_status_name(ContractStatus status) noexcept;
 [[nodiscard]] bool contract_is_open(const ResourceDeliveryContract& contract) noexcept;
 [[nodiscard]] bool contract_is_terminal(const ResourceDeliveryContract& contract) noexcept;
@@ -74,6 +80,8 @@ struct ContractFulfillmentResult final {
     std::string_view contract_id,
     CaravanState& caravan
 );
+
+[[nodiscard]] ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day);
 
 [[nodiscard]] data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id);
 [[nodiscard]] data::ValidationReport mark_contract_failed(ContractCatalog& catalog, std::string_view contract_id);
