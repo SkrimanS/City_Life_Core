@@ -53,6 +53,8 @@ struct SimulationWorldStateLoadResult final {
 
 [[nodiscard]] SimulationSnapshotLoadResult load_simulation_snapshot_from_file(const std::filesystem::path& path);
 
+[[nodiscard]] data::ValidationReport validate_simulation_world_state(const SimulationWorldState& state);
+
 [[nodiscard]] SimulationWorldState capture_simulation_world_state(
     const SimulationEngine& engine,
     const SettlementRouteCatalog& routes,
