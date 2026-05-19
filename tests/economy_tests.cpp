@@ -116,13 +116,24 @@ int main() {
     require(ledger.record(clc::economy::LedgerEntryType::buy, buy, "initial purchase"), "ledger should record successful buy");
     require(ledger.record(clc::economy::LedgerEntryType::sell, sell, "partial sale"), "ledger should record successful sell");
     require(!ledger.record(clc::economy::LedgerEntryType::buy, failed_buy, "failed purchase"), "ledger should reject failed trade results");
-    require(ledger.entries().size() == 2, "ledger should contain two successful entries");
+    require(ledger.record_contract_reward("contract_001", "grain", 50, 120, "contract paid"), "ledger should record contract reward");
+    require(!ledger.record_contract_reward("", "grain", 50, 120, "invalid contract"), "ledger should reject empty reward contract id");
+    require(!ledger.record_contract_reward("contract_002", "", 50, 120, "invalid resource"), "ledger should reject empty reward resource id");
+    require(!ledger.record_contract_reward("contract_002", "grain", 0, 120, "invalid quantity"), "ledger should reject zero reward quantity");
+    require(!ledger.record_contract_reward("contract_002", "grain", 50, 0, "invalid reward"), "ledger should reject zero reward coins");
+    require(ledger.entries().size() == 3, "ledger should contain two trade entries and one reward entry");
     require(ledger.entries()[0].sequence == 1, "first ledger entry should have sequence 1");
     require(ledger.entries()[1].sequence == 2, "second ledger entry should have sequence 2");
-    require(ledger.next_sequence() == 3, "ledger next sequence should advance");
+    require(ledger.entries()[2].sequence == 3, "third ledger entry should have sequence 3");
+    require(ledger.entries()[2].type == clc::economy::LedgerEntryType::contract_reward, "third ledger entry should be contract reward");
+    require(ledger.entries()[2].reference_id == "contract_001", "reward entry should preserve contract reference id");
+    require(ledger.entries()[2].total_price == 120, "reward entry should store reward coins as total price");
+    require(ledger.next_sequence() == 4, "ledger next sequence should advance");
     require(ledger.total_bought("grain") == 3, "ledger should aggregate bought quantity");
     require(ledger.total_sold("grain") == 2, "ledger should aggregate sold quantity");
+    require(ledger.total_contract_rewards("grain") == 120, "ledger should aggregate reward coins by resource");
     require(ledger.entries()[0].note == "initial purchase", "ledger should preserve notes");
+    require(ledger.entries()[2].note == "contract paid", "ledger should preserve reward notes");
 
     const auto invalid_order_report = clc::economy::validate_order(clc::economy::MarketOrder{}, "invalid_order");
     require(!invalid_order_report.ok(), "empty market order should fail validation");
