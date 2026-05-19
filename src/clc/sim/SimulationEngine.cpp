@@ -159,6 +159,20 @@ std::string scenario_result_digest(const SimulationScenarioResult& result) {
     return digest;
 }
 
+data::ValidationReport validate_scenario_preset(const SimulationScenarioPreset& preset) {
+    data::ValidationReport report;
+    if (preset.id.empty()) {
+        report.add_error("simulation.scenario_preset", "preset id must not be empty");
+    }
+    if (preset.display_name.empty()) {
+        report.add_error("simulation.scenario_preset." + preset.id, "preset display_name must not be empty");
+    }
+    if (preset.day_count == 0) {
+        report.add_error("simulation.scenario_preset." + preset.id, "preset day_count must be greater than zero");
+    }
+    return report;
+}
+
 SimulationEngine::SimulationEngine(data::DataRegistry registry)
     : registry_{std::move(registry)} {
 }
@@ -498,6 +512,17 @@ SimulationScenarioResult SimulationEngine::run_scenario(std::uint64_t day_count)
         .warnings_delta = std::move(warnings_delta),
         .final_snapshot = std::move(final_snapshot),
     };
+}
+
+SimulationScenarioResult SimulationEngine::run_scenario_preset(const SimulationScenarioPreset& preset) {
+    const auto validation = validate_scenario_preset(preset);
+    if (!validation.ok()) {
+        return SimulationScenarioResult{
+            .initial_snapshot = snapshot(),
+            .final_snapshot = snapshot(),
+        };
+    }
+    return run_scenario(preset.day_count);
 }
 
 } // namespace clc::sim

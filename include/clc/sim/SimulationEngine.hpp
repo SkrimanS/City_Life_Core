@@ -67,6 +67,12 @@ struct SimulationScenarioResult final {
     SimulationSnapshot final_snapshot{};
 };
 
+struct SimulationScenarioPreset final {
+    std::string id{};
+    std::string display_name{};
+    std::uint64_t day_count{0};
+};
+
 [[nodiscard]] SimulationScenarioSummary summarize_day_reports(const std::vector<SimulationDayReport>& reports);
 [[nodiscard]] std::uint64_t scenario_summary_start_day(const SimulationScenarioSummary& summary) noexcept;
 [[nodiscard]] std::uint64_t scenario_summary_end_day(const SimulationScenarioSummary& summary) noexcept;
@@ -78,6 +84,7 @@ struct SimulationScenarioResult final {
 [[nodiscard]] bool scenario_has_warnings(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] bool scenario_succeeded(const SimulationScenarioResult& result) noexcept;
 [[nodiscard]] std::string scenario_result_digest(const SimulationScenarioResult& result);
+[[nodiscard]] data::ValidationReport validate_scenario_preset(const SimulationScenarioPreset& preset);
 
 class SimulationEngine final {
 public:
@@ -126,6 +133,7 @@ public:
     [[nodiscard]] SimulationDayReport advance_day();
     [[nodiscard]] std::vector<SimulationDayReport> run_days(std::uint64_t day_count);
     [[nodiscard]] SimulationScenarioResult run_scenario(std::uint64_t day_count);
+    [[nodiscard]] SimulationScenarioResult run_scenario_preset(const SimulationScenarioPreset& preset);
 
 private:
     data::DataRegistry registry_{};

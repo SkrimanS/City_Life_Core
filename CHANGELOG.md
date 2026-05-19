@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 - Unreleased
+
+### Added
+
+- `SimulationScenarioPreset` for named scenario run configurations.
+- `validate_scenario_preset()` for preset ID, display name, and day-count validation.
+- `SimulationEngine::run_scenario_preset()` for running validated scenario presets through the existing scenario pipeline.
+- Scenario preset test coverage for validation failures, valid execution, invalid no-op behavior, and digest compatibility.
+
 ## 0.6.9 - Unreleased
 
 ### Added
