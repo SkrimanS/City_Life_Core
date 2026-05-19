@@ -3,6 +3,22 @@
 #include <utility>
 
 namespace clc::sim {
+namespace {
+
+bool invalid_resource_request(data::ValidationReport& report, std::string_view path, std::string_view resource_id, std::uint64_t amount) {
+    bool invalid = false;
+    if (resource_id.empty()) {
+        report.add_error(std::string{path}, "resource_id must not be empty");
+        invalid = true;
+    }
+    if (amount == 0) {
+        report.add_error(std::string{path}, "amount must be greater than zero");
+        invalid = true;
+    }
+    return invalid;
+}
+
+} // namespace
 
 CaravanState create_caravan_for_route(
     const SettlementRoute& route,
@@ -96,6 +112,68 @@ CaravanAdvanceReport advance_caravan_day(CaravanState& caravan) {
     report.days_remaining_after = caravan.days_remaining;
     report.moved = true;
     report.arrived = caravan_arrived(caravan);
+    return report;
+}
+
+data::ValidationReport load_caravan_at_origin(
+    CaravanState& caravan,
+    SettlementState& origin,
+    std::string_view resource_id,
+    std::uint64_t amount
+) {
+    data::ValidationReport report;
+    if (invalid_resource_request(report, "simulation.caravan." + caravan.id + ".load", resource_id, amount)) {
+        return report;
+    }
+    if (origin.id != caravan.origin_settlement_id) {
+        report.add_error("simulation.caravan." + caravan.id + ".origin", "caravan can only load at its origin settlement");
+        return report;
+    }
+    if (caravan.days_remaining != caravan.total_travel_days) {
+        report.add_error("simulation.caravan." + caravan.id + ".load", "caravan can only load before departure");
+        return report;
+    }
+    if (!origin.storage.try_remove(resource_id, amount)) {
+        report.add_error("simulation.caravan." + caravan.id + ".load", "origin settlement does not have enough resource");
+        return report;
+    }
+
+    auto cargo_report = caravan.cargo.add(std::string{resource_id}, amount);
+    if (!cargo_report.ok()) {
+        origin.storage.add(std::string{resource_id}, amount);
+        return cargo_report;
+    }
+    return report;
+}
+
+data::ValidationReport unload_caravan_at_destination(
+    CaravanState& caravan,
+    SettlementState& destination,
+    std::string_view resource_id,
+    std::uint64_t amount
+) {
+    data::ValidationReport report;
+    if (invalid_resource_request(report, "simulation.caravan." + caravan.id + ".unload", resource_id, amount)) {
+        return report;
+    }
+    if (destination.id != caravan.destination_settlement_id) {
+        report.add_error("simulation.caravan." + caravan.id + ".destination", "caravan can only unload at its destination settlement");
+        return report;
+    }
+    if (!caravan_arrived(caravan)) {
+        report.add_error("simulation.caravan." + caravan.id + ".unload", "caravan can only unload after arrival");
+        return report;
+    }
+    if (!caravan.cargo.try_remove(resource_id, amount)) {
+        report.add_error("simulation.caravan." + caravan.id + ".unload", "caravan cargo does not have enough resource");
+        return report;
+    }
+
+    auto destination_report = destination.storage.add(std::string{resource_id}, amount);
+    if (!destination_report.ok()) {
+        caravan.cargo.add(std::string{resource_id}, amount);
+        return destination_report;
+    }
     return report;
 }
 
