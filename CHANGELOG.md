@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.3 - Unreleased
+
+### Added
+
+- `clc/sim/ScenarioCatalog.hpp` with `run_scenario_preset_from_catalog()` helper.
+- Catalog runner support for running a found preset by ID through `SimulationEngine`.
+- Missing preset IDs return unchanged snapshot-range scenario results without advancing the engine.
+- Scenario digest test coverage for found and missing catalog runner paths.
+
 ## 0.7.2 - Unreleased
 
 ### Added
