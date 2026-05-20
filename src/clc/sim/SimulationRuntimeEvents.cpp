@@ -147,4 +147,14 @@ data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLo
     return report;
 }
 
+data::ValidationReport validate_runtime_event_log(const clc::EventLog& log) {
+    auto report = validate_runtime_event_log_tick_order(log);
+
+    if (!report.ok()) {
+        return report;
+    }
+
+    return validate_runtime_event_log_known_types(log);
+}
+
 } // namespace clc::sim
