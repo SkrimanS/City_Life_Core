@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 int main() {
@@ -67,6 +68,20 @@ int main() {
 
     if (failed_validation.validation.ok()) {
         std::cerr << "invalid save path did not return validation error\n";
+        return 1;
+    }
+
+    const auto malformed_path = directory / "malformed_runtime.clcs";
+    {
+        std::ofstream malformed_file{malformed_path};
+        malformed_file << "not a city life runtime save\n";
+    }
+
+    clc::sim::SimulationRuntime malformed_target{clc::sim::make_basic_runtime_scenario_registry()};
+    const auto malformed_load = clc::sim::load_simulation_runtime_from_file(malformed_path, malformed_target);
+
+    if (malformed_load.ok()) {
+        std::cerr << "malformed runtime file unexpectedly loaded\n";
         return 1;
     }
 
