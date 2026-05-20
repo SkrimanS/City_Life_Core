@@ -17,6 +17,13 @@ void append_event(
     ++summary.events_appended;
 }
 
+bool is_known_runtime_event_type(const std::string& type) {
+    return type == "runtime.day.completed"
+        || type == "runtime.caravan.progress"
+        || type == "runtime.caravan.arrived"
+        || type == "runtime.contract.fulfilled";
+}
+
 } // namespace
 
 RuntimeEventLogSummary append_runtime_day_report_events(
@@ -120,6 +127,19 @@ data::ValidationReport validate_runtime_event_log_tick_order(const clc::EventLog
     for (std::size_t index = 1; index < events.size(); ++index) {
         if (events[index].tick < events[index - 1].tick) {
             report.add_error("runtime event log tick order regression detected");
+            return report;
+        }
+    }
+
+    return report;
+}
+
+data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLog& log) {
+    data::ValidationReport report{};
+
+    for (const auto& event : log.events()) {
+        if (!is_known_runtime_event_type(event.type)) {
+            report.add_error("runtime event log contains unknown event type");
             return report;
         }
     }
