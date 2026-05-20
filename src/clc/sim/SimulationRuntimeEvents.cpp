@@ -112,4 +112,19 @@ RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
     return analysis;
 }
 
+data::ValidationReport validate_runtime_event_log_tick_order(const clc::EventLog& log) {
+    data::ValidationReport report{};
+
+    const auto& events = log.events();
+
+    for (std::size_t index = 1; index < events.size(); ++index) {
+        if (events[index].tick < events[index - 1].tick) {
+            report.add_error("runtime event log tick order regression detected");
+            return report;
+        }
+    }
+
+    return report;
+}
+
 } // namespace clc::sim
