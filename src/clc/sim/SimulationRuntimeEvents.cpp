@@ -183,4 +183,18 @@ RuntimeEventLogChecksum calculate_runtime_event_log_checksum(const clc::EventLog
     return checksum;
 }
 
+RuntimeEventLogChecksumComparison compare_runtime_event_log_checksums(
+    RuntimeEventLogChecksum expected,
+    RuntimeEventLogChecksum actual
+) {
+    RuntimeEventLogChecksumComparison comparison{};
+    comparison.expected = expected;
+    comparison.actual = actual;
+    comparison.event_count_matches = expected.event_count == actual.event_count;
+    comparison.first_tick_matches = expected.first_tick == actual.first_tick;
+    comparison.last_tick_matches = expected.last_tick == actual.last_tick;
+    comparison.value_matches = expected.value == actual.value;
+    return comparison;
+}
+
 } // namespace clc::sim
