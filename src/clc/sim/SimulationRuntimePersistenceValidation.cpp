@@ -62,6 +62,42 @@ data::ValidationReport validate_simulation_runtimes_match(
     }
 
     add_mismatch(report,
+        expected.factions.reputations.size() == actual.factions.reputations.size(),
+        "runtime faction reputation count mismatch");
+
+    add_mismatch(report,
+        expected.ownership.settlements.size() == actual.ownership.settlements.size(),
+        "runtime settlement ownership count mismatch");
+
+    const auto settlement_ownership_count = expected.ownership.settlements.size() < actual.ownership.settlements.size()
+        ? expected.ownership.settlements.size()
+        : actual.ownership.settlements.size();
+    for (std::size_t index = 0; index < settlement_ownership_count; ++index) {
+        add_mismatch(report,
+            expected.ownership.settlements[index].settlement_id == actual.ownership.settlements[index].settlement_id,
+            "runtime settlement ownership settlement id mismatch");
+        add_mismatch(report,
+            expected.ownership.settlements[index].faction_id == actual.ownership.settlements[index].faction_id,
+            "runtime settlement ownership faction id mismatch");
+    }
+
+    add_mismatch(report,
+        expected.ownership.caravans.size() == actual.ownership.caravans.size(),
+        "runtime caravan ownership count mismatch");
+
+    const auto caravan_ownership_count = expected.ownership.caravans.size() < actual.ownership.caravans.size()
+        ? expected.ownership.caravans.size()
+        : actual.ownership.caravans.size();
+    for (std::size_t index = 0; index < caravan_ownership_count; ++index) {
+        add_mismatch(report,
+            expected.ownership.caravans[index].caravan_id == actual.ownership.caravans[index].caravan_id,
+            "runtime caravan ownership caravan id mismatch");
+        add_mismatch(report,
+            expected.ownership.caravans[index].faction_id == actual.ownership.caravans[index].faction_id,
+            "runtime caravan ownership faction id mismatch");
+    }
+
+    add_mismatch(report,
         expected.contracts.contracts.size() == actual.contracts.contracts.size(),
         "runtime contract count mismatch");
 
