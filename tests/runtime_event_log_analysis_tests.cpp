@@ -57,6 +57,13 @@ int main() {
         return 1;
     }
 
+    const auto known = clc::sim::validate_runtime_event_log_known_types(log);
+
+    if (!known.ok()) {
+        std::cerr << "known log unexpectedly invalid\n";
+        return 1;
+    }
+
     clc::EventLog broken{};
     broken.append(5, "runtime.day.completed", "day=5");
     broken.append(3, "runtime.caravan.progress", "caravan_a");
@@ -65,6 +72,15 @@ int main() {
 
     if (invalid.ok()) {
         std::cerr << "broken log unexpectedly valid\n";
+        return 1;
+    }
+
+    broken.append(6, "runtime.unknown", "mystery");
+
+    const auto unknown = clc::sim::validate_runtime_event_log_known_types(broken);
+
+    if (unknown.ok()) {
+        std::cerr << "unknown event unexpectedly accepted\n";
         return 1;
     }
 
