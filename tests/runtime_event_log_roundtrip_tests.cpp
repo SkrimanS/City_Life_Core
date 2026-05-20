@@ -84,6 +84,9 @@ int main() {
     require(events[4].type == "runtime.contract.fulfilled", "runtime event log roundtrip should record contract fulfillment after load");
     require(events[4].payload == "grain_delivery_runtime", "runtime event log roundtrip contract payload should use contract id");
 
+    const auto validation = clc::sim::validate_runtime_event_log(log);
+    require(validation.ok(), "runtime event log roundtrip should pass combined event validation");
+
     std::filesystem::remove_all(directory);
     return 0;
 }
