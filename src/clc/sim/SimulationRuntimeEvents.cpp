@@ -84,4 +84,32 @@ RuntimeEventLogSummary append_runtime_arrival_contract_events(
     return summary;
 }
 
+RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
+    RuntimeEventLogAnalysis analysis{};
+
+    const auto& events = log.events();
+    analysis.total_events = events.size();
+
+    if (!events.empty()) {
+        analysis.first_tick = events.front().tick;
+        analysis.last_tick = events.back().tick;
+    }
+
+    for (const auto& event : events) {
+        if (event.type == "runtime.day.completed") {
+            ++analysis.day_events;
+        } else if (event.type == "runtime.caravan.progress") {
+            ++analysis.caravan_progress_events;
+        } else if (event.type == "runtime.caravan.arrived") {
+            ++analysis.caravan_arrival_events;
+        } else if (event.type == "runtime.contract.fulfilled") {
+            ++analysis.contract_fulfilled_events;
+        } else {
+            ++analysis.unknown_events;
+        }
+    }
+
+    return analysis;
+}
+
 } // namespace clc::sim
