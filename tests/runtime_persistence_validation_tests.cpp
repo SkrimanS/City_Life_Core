@@ -51,6 +51,25 @@ int main() {
         return 1;
     }
 
+    clc::sim::SimulationRuntime failed_target{clc::sim::make_basic_runtime_scenario_registry()};
+    const auto invalid_path = directory / "missing" / "runtime_validation.clcs";
+
+    const auto failed_validation = clc::sim::validate_simulation_runtime_save_load_roundtrip(
+        runtime,
+        failed_target,
+        invalid_path
+    );
+
+    if (failed_validation.ok()) {
+        std::cerr << "invalid save path unexpectedly succeeded\n";
+        return 1;
+    }
+
+    if (failed_validation.validation.ok()) {
+        std::cerr << "invalid save path did not return validation error\n";
+        return 1;
+    }
+
     std::filesystem::remove_all(directory);
     return 0;
 }
