@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace clc::sim {
@@ -58,12 +59,26 @@ struct SimulationRuntimeRunUntilArrivalResult final {
     }
 };
 
+struct SimulationRuntimeArrivalContractResult final {
+    SimulationRuntimeRunUntilArrivalResult arrival{};
+    ContractFulfillmentResult fulfillment{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return arrival.ok() && arrival.arrival_reached && fulfillment.ok();
+    }
+};
+
 [[nodiscard]] SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime);
 [[nodiscard]] SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports);
 [[nodiscard]] SimulationRuntimeRunResult run_runtime_days(SimulationRuntime& runtime, std::uint64_t day_count);
 [[nodiscard]] SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
     SimulationRuntime& runtime,
     std::uint64_t max_days
+);
+[[nodiscard]] SimulationRuntimeArrivalContractResult run_runtime_until_first_caravan_arrival_and_fulfill_contract(
+    SimulationRuntime& runtime,
+    std::uint64_t max_days,
+    std::string_view expected_faction_id
 );
 
 } // namespace clc::sim
