@@ -1,34 +1,36 @@
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
-namespace clc::sim {
+#include <utility>
 
+namespace clc::sim {
 namespace {
 
-bool invalid_resource_request(
-    data::ValidationReport& report,
-    std::string path,
-    std::string_view resource_id,
-    std::uint64_t amount
-) {
-    if (resource_id.empty()) {
-        report.add_error(path + ".resource", "resource id cannot be empty");
+CaravanState* mutable_caravan_by_id(CaravanFleet& fleet, std::string_view caravan_id) noexcept {
+    for (auto& caravan : fleet.caravans) {
+        if (caravan.id == caravan_id) {
+            return &caravan;
+        }
     }
-    if (amount == 0) {
-        report.add_error(path + ".amount", "resource amount must be greater than zero");
-    }
-    return !report.ok();
+    return nullptr;
 }
 
-ContractFulfillmentResult missing_caravan_contract_result(
-    std::string_view contract_id,
-    std::string_view caravan_id
-) {
+bool invalid_resource_request(data::ValidationReport& report, std::string_view path, std::string_view resource_id, std::uint64_t amount) {
+    bool invalid = false;
+    if (resource_id.empty()) {
+        report.add_error(std::string{path}, "resource_id must not be empty");
+        invalid = true;
+    }
+    if (amount == 0) {
+        report.add_error(std::string{path}, "amount must be greater than zero");
+        invalid = true;
+    }
+    return invalid;
+}
+
+ContractFulfillmentResult missing_caravan_contract_result(std::string_view contract_id, std::string_view caravan_id) {
     ContractFulfillmentResult result;
     result.contract_id = std::string{contract_id};
-    result.validation.add_error(
-        "simulation.caravan." + std::string{caravan_id},
-        "unknown caravan"
-    );
+    result.validation.add_error("simulation.caravan." + std::string{caravan_id}, "unknown caravan");
     return result;
 }
 
@@ -45,7 +47,11 @@ data::ValidationReport add_runtime_route(
     SimulationRuntime& runtime,
     SettlementRoute route
 ) {
-    return add_route(runtime.routes, std::move(route));
+    auto report = validate_settlement_route_for_settlements(route, runtime.engine.settlements());
+    if (!report.ok()) {
+        return report;
+    }
+    return add_settlement_route(runtime.routes, std::move(route));
 }
 
 data::ValidationReport add_runtime_faction(
@@ -61,13 +67,7 @@ data::ValidationReport set_runtime_faction_reputation(
     std::string to_faction_id,
     std::int64_t value
 ) {
-    return set_faction_reputation(
-        runtime.reputation,
-        runtime.factions,
-        std::move(from_faction_id),
-        std::move(to_faction_id),
-        value
-    );
+    return set_faction_reputation(runtime.factions, std::move(from_faction_id), std::move(to_faction_id), value);
 }
 
 data::ValidationReport set_runtime_settlement_owner(
@@ -75,7 +75,12 @@ data::ValidationReport set_runtime_settlement_owner(
     std::string settlement_id,
     std::string faction_id
 ) {
-    return set_settlement_owner(runtime.ownership, std::move(settlement_id), std::move(faction_id));
+    SettlementOwnership ownership{.settlement_id = std::move(settlement_id), .faction_id = std::move(faction_id)};
+    auto report = validate_settlement_ownership_references(ownership, runtime.engine.settlements(), runtime.factions);
+    if (!report.ok()) {
+        return report;
+    }
+    return set_settlement_owner(runtime.ownership, std::move(ownership.settlement_id), std::move(ownership.faction_id));
 }
 
 data::ValidationReport set_runtime_caravan_owner(
@@ -83,13 +88,22 @@ data::ValidationReport set_runtime_caravan_owner(
     std::string caravan_id,
     std::string faction_id
 ) {
-    return set_caravan_owner(runtime.ownership, std::move(caravan_id), std::move(faction_id));
+    CaravanOwnership ownership{.caravan_id = std::move(caravan_id), .faction_id = std::move(faction_id)};
+    auto report = validate_caravan_ownership_references(ownership, runtime.caravans, runtime.factions);
+    if (!report.ok()) {
+        return report;
+    }
+    return set_caravan_owner(runtime.ownership, std::move(ownership.caravan_id), std::move(ownership.faction_id));
 }
 
 data::ValidationReport add_runtime_resource_delivery_contract(
     SimulationRuntime& runtime,
     ResourceDeliveryContract contract
 ) {
+    auto report = validate_resource_delivery_contract_for_factions(contract, runtime.factions);
+    if (!report.ok()) {
+        return report;
+    }
     return add_contract(runtime.contracts, std::move(contract));
 }
 
@@ -101,25 +115,22 @@ RuntimeCaravanCreationResult create_runtime_caravan_for_route(
     ResourceStorage cargo
 ) {
     RuntimeCaravanCreationResult result;
-    auto* route = route_by_id(runtime.routes, route_id);
+    result.caravan_id = caravan_id;
+
+    const auto* route = settlement_route_by_id(runtime.routes, route_id);
     if (route == nullptr) {
         result.validation.add_error("simulation.route." + std::string{route_id}, "unknown route");
         return result;
     }
 
-    CaravanState caravan{};
-    caravan.id = std::move(caravan_id);
-    caravan.display_name = std::move(display_name);
-    caravan.origin_settlement_id = route->origin_settlement_id;
-    caravan.destination_settlement_id = route->destination_settlement_id;
-    caravan.days_remaining = route->travel_days;
-    caravan.cargo = std::move(cargo);
-
-    result.validation = add_caravan(runtime.caravans, std::move(caravan));
-    result.created = result.validation.ok();
-    if (result.created) {
-        result.caravan_id = runtime.caravans.caravans.back().id;
+    auto caravan = create_caravan_for_route(*route, std::move(caravan_id), std::move(display_name), std::move(cargo));
+    auto report = add_caravan(runtime.caravans, std::move(caravan));
+    if (!report.ok()) {
+        result.validation = report;
+        return result;
     }
+
+    result.created = true;
     return result;
 }
 
@@ -138,27 +149,27 @@ data::ValidationReport load_runtime_caravan_at_origin(
     if (invalid_resource_request(report, "simulation.caravan." + caravan->id + ".load", resource_id, amount)) {
         return report;
     }
-    if (!caravan_at_origin(*caravan)) {
-        report.add_error("simulation.caravan." + caravan->id + ".load", "caravan can only load at origin before departure");
+    if (!runtime.engine.has_settlement(caravan->origin_settlement_id)) {
+        report.add_error("simulation.settlement." + caravan->origin_settlement_id, "unknown caravan origin settlement");
+        return report;
+    }
+    if (caravan->days_remaining != caravan->total_travel_days) {
+        report.add_error("simulation.caravan." + caravan->id + ".load", "caravan can only load before departure");
+        return report;
+    }
+    if (runtime.engine.settlement_resource_amount(caravan->origin_settlement_id, resource_id) < amount) {
+        report.add_error("simulation.caravan." + caravan->id + ".load", "origin settlement does not have enough resource");
         return report;
     }
 
-    auto removal_report = runtime.engine.remove_resource_from_settlement(
-        caravan->origin_settlement_id,
-        std::string{resource_id},
-        amount
-    );
-    if (!removal_report.ok()) {
-        return removal_report;
+    auto remove_report = runtime.engine.remove_resource_from_settlement(caravan->origin_settlement_id, std::string{resource_id}, amount);
+    if (!remove_report.ok()) {
+        return remove_report;
     }
 
     auto cargo_report = caravan->cargo.add(std::string{resource_id}, amount);
     if (!cargo_report.ok()) {
-        const auto rollback_report = runtime.engine.add_resource_to_settlement(
-            caravan->origin_settlement_id,
-            std::string{resource_id},
-            amount
-        );
+        const auto rollback_report = runtime.engine.add_resource_to_settlement(caravan->origin_settlement_id, std::string{resource_id}, amount);
         (void)rollback_report;
         return cargo_report;
     }
@@ -277,7 +288,6 @@ ContractFulfillmentResult fulfill_first_runtime_contract_for_owned_arrived_carav
         if (!contract_is_open(contract)) {
             continue;
         }
-
         if (caravan->cargo.amount(contract.resource_id) < contract.quantity) {
             continue;
         }
@@ -291,17 +301,13 @@ ContractFulfillmentResult fulfill_first_runtime_contract_for_owned_arrived_carav
             runtime.wallet,
             runtime.ledger
         );
-
         if (result.ok()) {
             return result;
         }
     }
 
     ContractFulfillmentResult result;
-    result.validation.add_error(
-        "simulation.contract.auto_fulfill",
-        "no matching open contract for caravan cargo"
-    );
+    result.validation.add_error("simulation.contract.auto_fulfill", "no matching open contract for caravan cargo");
     return result;
 }
 
