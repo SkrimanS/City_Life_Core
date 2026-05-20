@@ -33,6 +33,7 @@ add_library(city_life_core
     src/clc/sim/SimulationRuntimeWorkflow.cpp
     src/clc/sim/SimulationRuntimeScenario.cpp
     src/clc/sim/SimulationRuntimeTick.cpp
+    src/clc/sim/SimulationRuntimeEvents.cpp
     src/clc/sim/Routes.cpp
     src/clc/sim/Caravans.cpp
     src/clc/sim/Factions.cpp
@@ -142,6 +143,10 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_runtime_arrival_contract_roundtrip_tests tests/runtime_arrival_contract_roundtrip_tests.cpp)
     target_link_libraries(clc_runtime_arrival_contract_roundtrip_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_arrival_contract_roundtrip_tests COMMAND clc_runtime_arrival_contract_roundtrip_tests)
+
+    add_executable(clc_runtime_event_log_tests tests/runtime_event_log_tests.cpp)
+    target_link_libraries(clc_runtime_event_log_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_event_log_tests COMMAND clc_runtime_event_log_tests)
 
     add_executable(clc_routes_tests tests/routes_tests.cpp)
     target_link_libraries(clc_routes_tests PRIVATE CityLifeCore::core)
