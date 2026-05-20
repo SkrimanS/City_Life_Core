@@ -50,6 +50,23 @@ int main() {
         return 1;
     }
 
+    const auto checksum = clc::sim::calculate_runtime_event_log_checksum(log);
+
+    if (checksum.event_count != 5) {
+        std::cerr << "unexpected checksum event count\n";
+        return 1;
+    }
+
+    if (checksum.first_tick != 1 || checksum.last_tick != 2) {
+        std::cerr << "unexpected checksum tick range\n";
+        return 1;
+    }
+
+    if (checksum.value == 0) {
+        std::cerr << "unexpected zero checksum\n";
+        return 1;
+    }
+
     const auto ordered = clc::sim::validate_runtime_event_log_tick_order(log);
 
     if (!ordered.ok()) {
