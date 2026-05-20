@@ -30,6 +30,7 @@ add_library(city_life_core
     src/clc/sim/SimulationWorldStateRuntimeBridge.cpp
     src/clc/sim/SimulationWorldStateValidation.cpp
     src/clc/sim/SimulationRuntimePersistence.cpp
+    src/clc/sim/SimulationRuntimePersistenceValidation.cpp
     src/clc/sim/SimulationRuntimeWorkflow.cpp
     src/clc/sim/SimulationRuntimeScenario.cpp
     src/clc/sim/SimulationRuntimeTick.cpp
@@ -103,6 +104,10 @@ if(CLC_BUILD_TESTS)
     add_executable(clc_runtime_persistence_tests tests/runtime_persistence_tests.cpp)
     target_link_libraries(clc_runtime_persistence_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_persistence_tests COMMAND clc_runtime_persistence_tests)
+
+    add_executable(clc_runtime_persistence_validation_tests tests/runtime_persistence_validation_tests.cpp)
+    target_link_libraries(clc_runtime_persistence_validation_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_persistence_validation_tests COMMAND clc_runtime_persistence_validation_tests)
 
     add_executable(clc_simulation_runtime_bundle_tests tests/simulation_runtime_bundle_tests.cpp)
     target_link_libraries(clc_simulation_runtime_bundle_tests PRIVATE CityLifeCore::core)
