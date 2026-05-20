@@ -152,6 +152,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_runtime_event_log_roundtrip_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_event_log_roundtrip_tests COMMAND clc_runtime_event_log_roundtrip_tests)
 
+    add_executable(clc_runtime_event_log_analysis_tests tests/runtime_event_log_analysis_tests.cpp)
+    target_link_libraries(clc_runtime_event_log_analysis_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_event_log_analysis_tests COMMAND clc_runtime_event_log_analysis_tests)
+
     add_executable(clc_routes_tests tests/routes_tests.cpp)
     target_link_libraries(clc_routes_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_routes_tests COMMAND clc_routes_tests)
