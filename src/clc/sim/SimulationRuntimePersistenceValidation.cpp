@@ -39,15 +39,27 @@ data::ValidationReport validate_simulation_runtimes_match(
         expected.caravans.caravan_count() == actual.caravans.caravan_count(),
         "runtime caravan count mismatch");
 
-    if (!expected.caravans.caravans.empty() && !actual.caravans.caravans.empty()) {
+    const auto caravan_count = expected.caravans.caravans.size() < actual.caravans.caravans.size()
+        ? expected.caravans.caravans.size()
+        : actual.caravans.caravans.size();
+    for (std::size_t index = 0; index < caravan_count; ++index) {
         add_mismatch(report,
-            expected.caravans.caravans[0].id == actual.caravans.caravans[0].id,
+            expected.caravans.caravans[index].id == actual.caravans.caravans[index].id,
             "runtime caravan id mismatch");
     }
 
     add_mismatch(report,
         expected.factions.factions.size() == actual.factions.factions.size(),
         "runtime faction count mismatch");
+
+    const auto faction_count = expected.factions.factions.size() < actual.factions.factions.size()
+        ? expected.factions.factions.size()
+        : actual.factions.factions.size();
+    for (std::size_t index = 0; index < faction_count; ++index) {
+        add_mismatch(report,
+            expected.factions.factions[index].id == actual.factions.factions[index].id,
+            "runtime faction id mismatch");
+    }
 
     add_mismatch(report,
         expected.contracts.contracts.size() == actual.contracts.contracts.size(),
