@@ -87,10 +87,9 @@ int main() {
     const auto validation = clc::sim::validate_runtime_event_log(log);
     require(validation.ok(), "runtime event log roundtrip should pass combined event validation");
 
-    const auto checksum = clc::sim::calculate_runtime_event_log_checksum(log);
-    const auto checksum_copy = clc::sim::calculate_runtime_event_log_checksum(log);
-    const auto checksum_validation = clc::sim::validate_runtime_event_log_checksum_match(checksum, checksum_copy);
-    require(checksum_validation.ok(), "runtime event log roundtrip should pass checksum validation");
+    const clc::EventLog expected = log;
+    const auto pair_validation = clc::sim::validate_runtime_event_logs_match(expected, log);
+    require(pair_validation.ok(), "runtime event log roundtrip should pass pair event log validation");
 
     std::filesystem::remove_all(directory);
     return 0;
