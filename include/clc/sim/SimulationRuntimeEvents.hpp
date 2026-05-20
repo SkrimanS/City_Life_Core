@@ -3,6 +3,8 @@
 #include "clc/core/EventLog.hpp"
 #include "clc/sim/SimulationRuntimeTick.hpp"
 
+#include <cstdint>
+
 namespace clc::sim {
 
 struct RuntimeEventLogSummary final {
