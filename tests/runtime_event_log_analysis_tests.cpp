@@ -82,6 +82,13 @@ int main() {
         return 1;
     }
 
+    const auto valid_logs = clc::sim::validate_runtime_event_logs_match(log, log);
+
+    if (!valid_logs.ok()) {
+        std::cerr << "matching logs unexpectedly invalid\n";
+        return 1;
+    }
+
     clc::EventLog modified = log;
     modified.append(3, "runtime.day.completed", "day=3");
 
@@ -97,6 +104,13 @@ int main() {
 
     if (invalid_checksum.ok()) {
         std::cerr << "different checksums unexpectedly valid\n";
+        return 1;
+    }
+
+    const auto invalid_logs = clc::sim::validate_runtime_event_logs_match(log, modified);
+
+    if (invalid_logs.ok()) {
+        std::cerr << "different logs unexpectedly valid\n";
         return 1;
     }
 
