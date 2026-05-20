@@ -75,6 +75,13 @@ int main() {
         return 1;
     }
 
+    const auto valid_checksum = clc::sim::validate_runtime_event_log_checksum_match(checksum, checksum_copy);
+
+    if (!valid_checksum.ok()) {
+        std::cerr << "matching checksums unexpectedly invalid\n";
+        return 1;
+    }
+
     clc::EventLog modified = log;
     modified.append(3, "runtime.day.completed", "day=3");
 
@@ -83,6 +90,13 @@ int main() {
 
     if (mismatch.matches()) {
         std::cerr << "different checksums unexpectedly match\n";
+        return 1;
+    }
+
+    const auto invalid_checksum = clc::sim::validate_runtime_event_log_checksum_match(checksum, modified_checksum);
+
+    if (invalid_checksum.ok()) {
+        std::cerr << "different checksums unexpectedly valid\n";
         return 1;
     }
 
