@@ -212,4 +212,14 @@ data::ValidationReport validate_runtime_event_log_checksum_match(
     return report;
 }
 
+data::ValidationReport validate_runtime_event_logs_match(
+    const clc::EventLog& expected,
+    const clc::EventLog& actual
+) {
+    return validate_runtime_event_log_checksum_match(
+        calculate_runtime_event_log_checksum(expected),
+        calculate_runtime_event_log_checksum(actual)
+    );
+}
+
 } // namespace clc::sim
