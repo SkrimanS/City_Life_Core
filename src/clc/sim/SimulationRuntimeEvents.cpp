@@ -157,4 +157,30 @@ data::ValidationReport validate_runtime_event_log(const clc::EventLog& log) {
     return validate_runtime_event_log_known_types(log);
 }
 
+RuntimeEventLogChecksum calculate_runtime_event_log_checksum(const clc::EventLog& log) {
+    RuntimeEventLogChecksum checksum{};
+
+    const auto& events = log.events();
+    checksum.event_count = events.size();
+
+    if (!events.empty()) {
+        checksum.first_tick = events.front().tick;
+        checksum.last_tick = events.back().tick;
+    }
+
+    for (const auto& event : events) {
+        checksum.value ^= event.tick + 0x9e3779b97f4a7c15ULL;
+
+        for (const auto character : event.type) {
+            checksum.value = (checksum.value * 131ULL) + static_cast<unsigned char>(character);
+        }
+
+        for (const auto character : event.payload) {
+            checksum.value = (checksum.value * 131ULL) + static_cast<unsigned char>(character);
+        }
+    }
+
+    return checksum;
+}
+
 } // namespace clc::sim
