@@ -67,6 +67,25 @@ int main() {
         return 1;
     }
 
+    const auto checksum_copy = clc::sim::calculate_runtime_event_log_checksum(log);
+    const auto comparison = clc::sim::compare_runtime_event_log_checksums(checksum, checksum_copy);
+
+    if (!comparison.matches()) {
+        std::cerr << "matching checksums unexpectedly differ\n";
+        return 1;
+    }
+
+    clc::EventLog modified = log;
+    modified.append(3, "runtime.day.completed", "day=3");
+
+    const auto modified_checksum = clc::sim::calculate_runtime_event_log_checksum(modified);
+    const auto mismatch = clc::sim::compare_runtime_event_log_checksums(checksum, modified_checksum);
+
+    if (mismatch.matches()) {
+        std::cerr << "different checksums unexpectedly match\n";
+        return 1;
+    }
+
     const auto ordered = clc::sim::validate_runtime_event_log_tick_order(log);
 
     if (!ordered.ok()) {
