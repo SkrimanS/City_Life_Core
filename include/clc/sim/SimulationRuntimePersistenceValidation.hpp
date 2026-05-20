@@ -15,6 +15,11 @@ struct SimulationRuntimeSaveLoadValidationResult final {
     }
 };
 
+[[nodiscard]] data::ValidationReport validate_simulation_runtimes_match(
+    const SimulationRuntime& expected,
+    const SimulationRuntime& actual
+);
+
 [[nodiscard]] SimulationRuntimeSaveLoadValidationResult validate_simulation_runtime_save_load_roundtrip(
     const SimulationRuntime& source,
     SimulationRuntime& target,
