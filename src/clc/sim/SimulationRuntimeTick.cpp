@@ -113,4 +113,30 @@ SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
     return result;
 }
 
+SimulationRuntimeArrivalContractResult run_runtime_until_first_caravan_arrival_and_fulfill_contract(
+    SimulationRuntime& runtime,
+    std::uint64_t max_days,
+    std::string_view expected_faction_id
+) {
+    SimulationRuntimeArrivalContractResult result{};
+
+    result.arrival = run_runtime_until_first_caravan_arrival(runtime, max_days);
+
+    if (!result.arrival.arrival_reached) {
+        result.fulfillment.validation.add_error(
+            "simulation.contract.auto_fulfill",
+            "no caravan arrival reached before fulfillment"
+        );
+        return result;
+    }
+
+    result.fulfillment = fulfill_first_runtime_contract_for_owned_arrived_caravan_with_reward_and_ledger(
+        runtime,
+        result.arrival.arrived_caravan_id,
+        expected_faction_id
+    );
+
+    return result;
+}
+
 } // namespace clc::sim
