@@ -14,6 +14,17 @@ struct RuntimeEventLogSummary final {
     std::uint64_t contract_events{0};
 };
 
+struct RuntimeEventLogAnalysis final {
+    std::uint64_t total_events{0};
+    std::uint64_t day_events{0};
+    std::uint64_t caravan_progress_events{0};
+    std::uint64_t caravan_arrival_events{0};
+    std::uint64_t contract_fulfilled_events{0};
+    std::uint64_t unknown_events{0};
+    std::uint64_t first_tick{0};
+    std::uint64_t last_tick{0};
+};
+
 [[nodiscard]] RuntimeEventLogSummary append_runtime_day_report_events(
     clc::EventLog& log,
     const SimulationRuntimeDayReport& report
@@ -28,5 +39,7 @@ struct RuntimeEventLogSummary final {
     clc::EventLog& log,
     const SimulationRuntimeArrivalContractResult& result
 );
+
+[[nodiscard]] RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log);
 
 } // namespace clc::sim
