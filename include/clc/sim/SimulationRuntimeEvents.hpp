@@ -1,6 +1,7 @@
 #pragma once
 
 #include "clc/core/EventLog.hpp"
+#include "clc/data/Validation.hpp"
 #include "clc/sim/SimulationRuntimeTick.hpp"
 
 #include <cstdint>
@@ -41,5 +42,6 @@ struct RuntimeEventLogAnalysis final {
 );
 
 [[nodiscard]] RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log);
+[[nodiscard]] data::ValidationReport validate_runtime_event_log_tick_order(const clc::EventLog& log);
 
 } // namespace clc::sim
