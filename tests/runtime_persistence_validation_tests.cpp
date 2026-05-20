@@ -47,8 +47,43 @@ int main() {
         return 1;
     }
 
+    if (loaded.engine.current_day() != runtime.engine.current_day()) {
+        std::cerr << "current day mismatch after restore\n";
+        return 1;
+    }
+
+    if (loaded.routes.routes.size() != runtime.routes.routes.size()) {
+        std::cerr << "route count mismatch after restore\n";
+        return 1;
+    }
+
     if (loaded.caravans.caravan_count() != runtime.caravans.caravan_count()) {
         std::cerr << "caravan count mismatch after restore\n";
+        return 1;
+    }
+
+    if (loaded.caravans.caravans[0].id != runtime.caravans.caravans[0].id) {
+        std::cerr << "caravan id mismatch after restore\n";
+        return 1;
+    }
+
+    if (loaded.factions.factions.size() != runtime.factions.factions.size()) {
+        std::cerr << "faction count mismatch after restore\n";
+        return 1;
+    }
+
+    if (loaded.contracts.contracts.size() != runtime.contracts.contracts.size()) {
+        std::cerr << "contract count mismatch after restore\n";
+        return 1;
+    }
+
+    if (loaded.wallet.coins != runtime.wallet.coins) {
+        std::cerr << "wallet mismatch after restore\n";
+        return 1;
+    }
+
+    if (loaded.ledger.entries().size() != runtime.ledger.entries().size()) {
+        std::cerr << "ledger size mismatch after restore\n";
         return 1;
     }
 
