@@ -26,6 +26,15 @@ data::ValidationReport validate_simulation_runtimes_match(
         expected.routes.routes.size() == actual.routes.routes.size(),
         "runtime route count mismatch");
 
+    const auto route_count = expected.routes.routes.size() < actual.routes.routes.size()
+        ? expected.routes.routes.size()
+        : actual.routes.routes.size();
+    for (std::size_t index = 0; index < route_count; ++index) {
+        add_mismatch(report,
+            expected.routes.routes[index].id == actual.routes.routes[index].id,
+            "runtime route id mismatch");
+    }
+
     add_mismatch(report,
         expected.caravans.caravan_count() == actual.caravans.caravan_count(),
         "runtime caravan count mismatch");
@@ -43,6 +52,15 @@ data::ValidationReport validate_simulation_runtimes_match(
     add_mismatch(report,
         expected.contracts.contracts.size() == actual.contracts.contracts.size(),
         "runtime contract count mismatch");
+
+    const auto contract_count = expected.contracts.contracts.size() < actual.contracts.contracts.size()
+        ? expected.contracts.contracts.size()
+        : actual.contracts.contracts.size();
+    for (std::size_t index = 0; index < contract_count; ++index) {
+        add_mismatch(report,
+            expected.contracts.contracts[index].id == actual.contracts.contracts[index].id,
+            "runtime contract id mismatch");
+    }
 
     add_mismatch(report,
         expected.wallet.coins == actual.wallet.coins,
