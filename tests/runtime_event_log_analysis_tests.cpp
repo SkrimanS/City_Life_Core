@@ -64,6 +64,13 @@ int main() {
         return 1;
     }
 
+    const auto combined = clc::sim::validate_runtime_event_log(log);
+
+    if (!combined.ok()) {
+        std::cerr << "combined validator unexpectedly invalid\n";
+        return 1;
+    }
+
     clc::EventLog broken{};
     broken.append(5, "runtime.day.completed", "day=5");
     broken.append(3, "runtime.caravan.progress", "caravan_a");
@@ -72,6 +79,13 @@ int main() {
 
     if (invalid.ok()) {
         std::cerr << "broken log unexpectedly valid\n";
+        return 1;
+    }
+
+    const auto broken_combined = clc::sim::validate_runtime_event_log(broken);
+
+    if (broken_combined.ok()) {
+        std::cerr << "combined validator unexpectedly accepted broken order\n";
         return 1;
     }
 
