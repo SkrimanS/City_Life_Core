@@ -50,5 +50,23 @@ int main() {
         return 1;
     }
 
+    const auto ordered = clc::sim::validate_runtime_event_log_tick_order(log);
+
+    if (!ordered.ok()) {
+        std::cerr << "ordered log unexpectedly invalid\n";
+        return 1;
+    }
+
+    clc::EventLog broken{};
+    broken.append(5, "runtime.day.completed", "day=5");
+    broken.append(3, "runtime.caravan.progress", "caravan_a");
+
+    const auto invalid = clc::sim::validate_runtime_event_log_tick_order(broken);
+
+    if (invalid.ok()) {
+        std::cerr << "broken log unexpectedly valid\n";
+        return 1;
+    }
+
     return 0;
 }
