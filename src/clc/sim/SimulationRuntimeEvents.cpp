@@ -1,6 +1,7 @@
 #include "clc/sim/SimulationRuntimeEvents.hpp"
 
 #include <string>
+#include <utility>
 
 namespace clc::sim {
 namespace {
