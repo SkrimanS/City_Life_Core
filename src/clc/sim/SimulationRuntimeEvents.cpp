@@ -197,4 +197,19 @@ RuntimeEventLogChecksumComparison compare_runtime_event_log_checksums(
     return comparison;
 }
 
+data::ValidationReport validate_runtime_event_log_checksum_match(
+    RuntimeEventLogChecksum expected,
+    RuntimeEventLogChecksum actual
+) {
+    data::ValidationReport report{};
+
+    const auto comparison = compare_runtime_event_log_checksums(expected, actual);
+
+    if (!comparison.matches()) {
+        report.add_error("runtime event log checksum mismatch detected");
+    }
+
+    return report;
+}
+
 } // namespace clc::sim
