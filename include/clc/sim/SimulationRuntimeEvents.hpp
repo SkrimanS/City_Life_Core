@@ -74,5 +74,9 @@ struct RuntimeEventLogChecksumComparison final {
     RuntimeEventLogChecksum expected,
     RuntimeEventLogChecksum actual
 );
+[[nodiscard]] data::ValidationReport validate_runtime_event_logs_match(
+    const clc::EventLog& expected,
+    const clc::EventLog& actual
+);
 
 } // namespace clc::sim
