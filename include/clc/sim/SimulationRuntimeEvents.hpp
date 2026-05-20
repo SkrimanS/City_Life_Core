@@ -33,6 +33,19 @@ struct RuntimeEventLogChecksum final {
     std::uint64_t value{0};
 };
 
+struct RuntimeEventLogChecksumComparison final {
+    RuntimeEventLogChecksum expected{};
+    RuntimeEventLogChecksum actual{};
+    bool event_count_matches{false};
+    bool first_tick_matches{false};
+    bool last_tick_matches{false};
+    bool value_matches{false};
+
+    [[nodiscard]] bool matches() const noexcept {
+        return event_count_matches && first_tick_matches && last_tick_matches && value_matches;
+    }
+};
+
 [[nodiscard]] RuntimeEventLogSummary append_runtime_day_report_events(
     clc::EventLog& log,
     const SimulationRuntimeDayReport& report
@@ -53,5 +66,9 @@ struct RuntimeEventLogChecksum final {
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log(const clc::EventLog& log);
 [[nodiscard]] RuntimeEventLogChecksum calculate_runtime_event_log_checksum(const clc::EventLog& log);
+[[nodiscard]] RuntimeEventLogChecksumComparison compare_runtime_event_log_checksums(
+    RuntimeEventLogChecksum expected,
+    RuntimeEventLogChecksum actual
+);
 
 } // namespace clc::sim
