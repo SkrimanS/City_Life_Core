@@ -26,6 +26,13 @@ struct RuntimeEventLogAnalysis final {
     std::uint64_t last_tick{0};
 };
 
+struct RuntimeEventLogChecksum final {
+    std::uint64_t event_count{0};
+    std::uint64_t first_tick{0};
+    std::uint64_t last_tick{0};
+    std::uint64_t value{0};
+};
+
 [[nodiscard]] RuntimeEventLogSummary append_runtime_day_report_events(
     clc::EventLog& log,
     const SimulationRuntimeDayReport& report
@@ -45,5 +52,6 @@ struct RuntimeEventLogAnalysis final {
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_tick_order(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log(const clc::EventLog& log);
+[[nodiscard]] RuntimeEventLogChecksum calculate_runtime_event_log_checksum(const clc::EventLog& log);
 
 } // namespace clc::sim
