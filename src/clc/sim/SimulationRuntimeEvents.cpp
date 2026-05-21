@@ -125,6 +125,10 @@ RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
         return summary;
     }
 
+    if (result.total_amount == 0 || result.delivered.empty()) {
+        return summary;
+    }
+
     append_event(
         log,
         summary,
@@ -145,6 +149,10 @@ RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
     RuntimeEventLogSummary summary{};
 
     if (!validate_runtime_bulk_cargo_delivery_result(result).ok()) {
+        return summary;
+    }
+
+    if (result.total_amount == 0 || result.deliveries.empty()) {
         return summary;
     }
 
