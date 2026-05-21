@@ -121,7 +121,7 @@ RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
 ) {
     RuntimeEventLogSummary summary{};
 
-    if (!result.ok()) {
+    if (!validate_runtime_caravan_cargo_delivery_result(result).ok()) {
         return summary;
     }
 
@@ -144,7 +144,7 @@ RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
 ) {
     RuntimeEventLogSummary summary{};
 
-    if (!result.ok()) {
+    if (!validate_runtime_bulk_cargo_delivery_result(result).ok()) {
         return summary;
     }
 
