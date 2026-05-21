@@ -16,6 +16,40 @@ bool settlement_exists(const std::vector<SettlementState>& settlements, std::str
 
 } // namespace
 
+SettlementRoute make_settlement_route_days(
+    std::string id,
+    std::string display_name,
+    std::string origin_settlement_id,
+    std::string destination_settlement_id,
+    std::uint64_t travel_days
+) {
+    return SettlementRoute{
+        .id = std::move(id),
+        .display_name = std::move(display_name),
+        .origin_settlement_id = std::move(origin_settlement_id),
+        .destination_settlement_id = std::move(destination_settlement_id),
+        .travel_days = travel_days,
+        .travel_ticks = clc::days_to_ticks(travel_days),
+    };
+}
+
+SettlementRoute make_settlement_route_ticks(
+    std::string id,
+    std::string display_name,
+    std::string origin_settlement_id,
+    std::string destination_settlement_id,
+    clc::GameTime::Tick travel_ticks
+) {
+    return SettlementRoute{
+        .id = std::move(id),
+        .display_name = std::move(display_name),
+        .origin_settlement_id = std::move(origin_settlement_id),
+        .destination_settlement_id = std::move(destination_settlement_id),
+        .travel_days = 0,
+        .travel_ticks = travel_ticks,
+    };
+}
+
 data::ValidationReport validate_settlement_route(const SettlementRoute& route) {
     data::ValidationReport report;
     if (route.id.empty()) {
@@ -35,8 +69,8 @@ data::ValidationReport validate_settlement_route(const SettlementRoute& route) {
         && route.origin_settlement_id == route.destination_settlement_id) {
         report.add_error("simulation.route." + route.id, "origin and destination settlements must be different");
     }
-    if (route.travel_days == 0) {
-        report.add_error("simulation.route." + route.id, "travel_days must be greater than zero");
+    if (settlement_route_travel_ticks(route) == 0) {
+        report.add_error("simulation.route." + route.id, "travel_ticks must be greater than zero");
     }
     return report;
 }
@@ -68,6 +102,10 @@ data::ValidationReport add_settlement_route(SettlementRouteCatalog& catalog, Set
     if (settlement_route_by_id(catalog, route.id) != nullptr) {
         report.add_error("simulation.route." + route.id, "duplicate route id");
         return report;
+    }
+
+    if (route.travel_ticks == 0 && route.travel_days > 0) {
+        route.travel_ticks = clc::days_to_ticks(route.travel_days);
     }
 
     catalog.routes.push_back(std::move(route));
@@ -105,6 +143,13 @@ std::vector<SettlementRoute> settlement_routes_to(const SettlementRouteCatalog& 
         }
     }
     return routes;
+}
+
+clc::GameTime::Tick settlement_route_travel_ticks(const SettlementRoute& route) noexcept {
+    if (route.travel_ticks > 0) {
+        return route.travel_ticks;
+    }
+    return clc::days_to_ticks(route.travel_days);
 }
 
 } // namespace clc::sim
