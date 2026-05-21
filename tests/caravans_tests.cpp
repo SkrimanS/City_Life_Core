@@ -14,13 +14,13 @@ void require(bool condition, std::string_view message) {
 }
 
 clc::sim::SettlementRoute make_route() {
-    return clc::sim::SettlementRoute{
-        .id = "riverwatch_to_hillford",
-        .display_name = "Riverwatch to Hillford",
-        .origin_settlement_id = "riverwatch",
-        .destination_settlement_id = "hillford",
-        .travel_days = 3,
-    };
+    return clc::sim::make_settlement_route_days(
+        "riverwatch_to_hillford",
+        "Riverwatch to Hillford",
+        "riverwatch",
+        "hillford",
+        3
+    );
 }
 
 } // namespace
@@ -40,9 +40,36 @@ int main() {
     require(caravan.destination_settlement_id == route.destination_settlement_id, "caravan destination should come from route");
     require(caravan.total_travel_days == 3, "caravan total travel days should come from route");
     require(caravan.days_remaining == 3, "new caravan should start with full travel days remaining");
+    require(caravan.total_travel_ticks == clc::days_to_ticks(3), "caravan total travel ticks should come from route");
+    require(caravan.ticks_remaining == clc::days_to_ticks(3), "new caravan should start with full travel ticks remaining");
     require(caravan.cargo.amount("grain") == 20, "caravan cargo grain should be preserved");
     require(caravan.cargo.amount("wood") == 5, "caravan cargo wood should be preserved");
     require(!clc::sim::caravan_arrived(caravan), "new caravan should not be arrived");
+
+    const auto hour_route = clc::sim::make_settlement_route_ticks(
+        "riverwatch_to_hillford_hours",
+        "Riverwatch to Hillford Hours",
+        "riverwatch",
+        "hillford",
+        clc::hours_to_ticks(3)
+    );
+    auto hourly_caravan = clc::sim::create_caravan_for_route(hour_route, "hourly_caravan", "Hourly Caravan");
+    require(clc::sim::validate_caravan(hourly_caravan).ok(), "hourly caravan should pass validation");
+    require(clc::sim::validate_caravan_for_route(hourly_caravan, hour_route).ok(), "hourly caravan should match tick route");
+    require(hourly_caravan.total_travel_days == 0, "hourly caravan should not require day travel duration");
+    require(hourly_caravan.days_remaining == 0, "hourly caravan day compatibility field should remain zero");
+    require(hourly_caravan.total_travel_ticks == clc::hours_to_ticks(3), "hourly caravan total ticks should match route");
+    require(hourly_caravan.ticks_remaining == clc::hours_to_ticks(3), "hourly caravan remaining ticks should match route");
+    const auto first_hour = clc::sim::advance_caravan_ticks(hourly_caravan, clc::hours_to_ticks(1));
+    require(first_hour.ticks_remaining_before == clc::hours_to_ticks(3), "hourly caravan first report should expose starting ticks");
+    require(first_hour.ticks_remaining_after == clc::hours_to_ticks(2), "hourly caravan should move by one hour");
+    require(first_hour.ticks_elapsed == clc::hours_to_ticks(1), "hourly caravan should expose elapsed ticks");
+    require(first_hour.moved, "hourly caravan should move on first hour");
+    require(!first_hour.arrived, "hourly caravan should not arrive after one hour");
+    const auto final_hours = clc::sim::advance_caravan_ticks(hourly_caravan, clc::hours_to_ticks(2));
+    require(final_hours.ticks_remaining_after == 0, "hourly caravan should arrive after remaining hours");
+    require(final_hours.arrived, "hourly caravan should arrive after tick duration elapsed");
+    require(clc::sim::caravan_arrived(hourly_caravan), "hourly caravan should be arrived after tick travel elapsed");
 
     clc::sim::SettlementState origin{.id = "riverwatch", .display_name = "Riverwatch", .population = 120};
     clc::sim::SettlementState destination{.id = "hillford", .display_name = "Hillford", .population = 80};
@@ -72,6 +99,8 @@ int main() {
     require(first_day.route_id == route.id, "advance report should include route id");
     require(first_day.days_remaining_before == 3, "first day should start with 3 days remaining");
     require(first_day.days_remaining_after == 2, "first day should reduce remaining days");
+    require(first_day.ticks_remaining_before == clc::days_to_ticks(3), "first day should start with 3 days in ticks");
+    require(first_day.ticks_remaining_after == clc::days_to_ticks(2), "first day should reduce remaining ticks by one day");
     require(first_day.moved, "first day should move caravan");
     require(!first_day.arrived, "first day should not arrive");
 
@@ -110,8 +139,8 @@ int main() {
     require(empty_report.error_count() == 6, "empty caravan should report all required field errors");
 
     auto over_remaining = active_caravan;
-    over_remaining.days_remaining = over_remaining.total_travel_days + 1;
-    require(!clc::sim::validate_caravan(over_remaining).ok(), "caravan should reject days_remaining above total_travel_days");
+    over_remaining.ticks_remaining = over_remaining.total_travel_ticks + 1;
+    require(!clc::sim::validate_caravan(over_remaining).ok(), "caravan should reject ticks_remaining above total_travel_ticks");
 
     auto wrong_route = route;
     wrong_route.destination_settlement_id = "stonegate";
