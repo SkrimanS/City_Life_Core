@@ -1,5 +1,6 @@
 #include "clc/sim/Caravans.hpp"
 
+#include <algorithm>
 #include <utility>
 
 namespace clc::sim {
@@ -26,6 +27,7 @@ CaravanState create_caravan_for_route(
     std::string display_name,
     ResourceStorage cargo
 ) {
+    const auto travel_ticks = settlement_route_travel_ticks(route);
     return CaravanState{
         .id = std::move(id),
         .display_name = std::move(display_name),
@@ -34,6 +36,8 @@ CaravanState create_caravan_for_route(
         .destination_settlement_id = route.destination_settlement_id,
         .total_travel_days = route.travel_days,
         .days_remaining = route.travel_days,
+        .total_travel_ticks = travel_ticks,
+        .ticks_remaining = travel_ticks,
         .cargo = std::move(cargo),
     };
 }
@@ -60,11 +64,17 @@ data::ValidationReport validate_caravan(const CaravanState& caravan) {
         && caravan.origin_settlement_id == caravan.destination_settlement_id) {
         report.add_error("simulation.caravan." + caravan.id, "origin and destination settlements must be different");
     }
-    if (caravan.total_travel_days == 0) {
-        report.add_error("simulation.caravan." + caravan.id, "total_travel_days must be greater than zero");
+    if (caravan_total_travel_ticks(caravan) == 0) {
+        report.add_error("simulation.caravan." + caravan.id, "total_travel_ticks must be greater than zero");
     }
-    if (caravan.days_remaining > caravan.total_travel_days) {
-        report.add_error("simulation.caravan." + caravan.id, "days_remaining must not exceed total_travel_days");
+    if (caravan_ticks_remaining(caravan) > caravan_total_travel_ticks(caravan)) {
+        report.add_error("simulation.caravan." + caravan.id, "ticks_remaining must not exceed total_travel_ticks");
+    }
+    if (caravan.total_travel_days > 0 && caravan.total_travel_ticks > 0 && caravan.total_travel_ticks != clc::days_to_ticks(caravan.total_travel_days)) {
+        report.add_error("simulation.caravan." + caravan.id, "total_travel_days and total_travel_ticks must be equivalent when both are set");
+    }
+    if (caravan.days_remaining > 0 && caravan.ticks_remaining > 0 && caravan.ticks_remaining != clc::days_to_ticks(caravan.days_remaining)) {
+        report.add_error("simulation.caravan." + caravan.id, "days_remaining and ticks_remaining must be equivalent when both are set");
     }
     return report;
 }
@@ -84,35 +94,40 @@ data::ValidationReport validate_caravan_for_route(const CaravanState& caravan, c
     if (caravan.destination_settlement_id != route.destination_settlement_id) {
         report.add_error("simulation.caravan." + caravan.id + ".destination", "caravan destination does not match route destination");
     }
-    if (caravan.total_travel_days != route.travel_days) {
-        report.add_error("simulation.caravan." + caravan.id + ".travel_days", "caravan travel days do not match route travel days");
+    if (caravan_total_travel_ticks(caravan) != settlement_route_travel_ticks(route)) {
+        report.add_error("simulation.caravan." + caravan.id + ".travel_ticks", "caravan travel ticks do not match route travel ticks");
     }
     return report;
 }
 
 bool caravan_arrived(const CaravanState& caravan) noexcept {
-    return caravan.days_remaining == 0;
+    return caravan_ticks_remaining(caravan) == 0;
 }
 
-CaravanAdvanceReport advance_caravan_day(CaravanState& caravan) {
+CaravanAdvanceReport advance_caravan_ticks(CaravanState& caravan, clc::GameTime::Tick ticks) {
+    const auto before_ticks = caravan_ticks_remaining(caravan);
+    const auto elapsed = std::min(before_ticks, ticks);
+    const auto after_ticks = before_ticks - elapsed;
+
     CaravanAdvanceReport report{
         .caravan_id = caravan.id,
         .route_id = caravan.route_id,
-        .days_remaining_before = caravan.days_remaining,
-        .days_remaining_after = caravan.days_remaining,
-        .moved = false,
-        .arrived = caravan_arrived(caravan),
+        .days_remaining_before = before_ticks / clc::ticks_per_day(),
+        .days_remaining_after = after_ticks / clc::ticks_per_day(),
+        .ticks_remaining_before = before_ticks,
+        .ticks_remaining_after = after_ticks,
+        .ticks_elapsed = elapsed,
+        .moved = elapsed > 0,
+        .arrived = after_ticks == 0,
     };
 
-    if (caravan.days_remaining == 0) {
-        return report;
-    }
-
-    --caravan.days_remaining;
-    report.days_remaining_after = caravan.days_remaining;
-    report.moved = true;
-    report.arrived = caravan_arrived(caravan);
+    caravan.ticks_remaining = after_ticks;
+    caravan.days_remaining = after_ticks / clc::ticks_per_day();
     return report;
+}
+
+CaravanAdvanceReport advance_caravan_day(CaravanState& caravan) {
+    return advance_caravan_ticks(caravan, clc::ticks_per_day());
 }
 
 data::ValidationReport load_caravan_at_origin(
@@ -129,7 +144,7 @@ data::ValidationReport load_caravan_at_origin(
         report.add_error("simulation.caravan." + caravan.id + ".origin", "caravan can only load at its origin settlement");
         return report;
     }
-    if (caravan.days_remaining != caravan.total_travel_days) {
+    if (caravan_ticks_remaining(caravan) != caravan_total_travel_ticks(caravan)) {
         report.add_error("simulation.caravan." + caravan.id + ".load", "caravan can only load before departure");
         return report;
     }
@@ -178,6 +193,13 @@ data::ValidationReport unload_caravan_at_destination(
 }
 
 data::ValidationReport add_caravan(CaravanFleet& fleet, CaravanState caravan) {
+    if (caravan.total_travel_ticks == 0 && caravan.total_travel_days > 0) {
+        caravan.total_travel_ticks = clc::days_to_ticks(caravan.total_travel_days);
+    }
+    if (caravan.ticks_remaining == 0 && caravan.days_remaining > 0) {
+        caravan.ticks_remaining = clc::days_to_ticks(caravan.days_remaining);
+    }
+
     auto report = validate_caravan(caravan);
     if (!report.ok()) {
         return report;
@@ -223,6 +245,20 @@ std::vector<CaravanState> arrived_caravans(const CaravanFleet& fleet) {
         }
     }
     return caravans;
+}
+
+clc::GameTime::Tick caravan_total_travel_ticks(const CaravanState& caravan) noexcept {
+    if (caravan.total_travel_ticks > 0) {
+        return caravan.total_travel_ticks;
+    }
+    return clc::days_to_ticks(caravan.total_travel_days);
+}
+
+clc::GameTime::Tick caravan_ticks_remaining(const CaravanState& caravan) noexcept {
+    if (caravan.ticks_remaining > 0 || caravan.days_remaining == 0) {
+        return caravan.ticks_remaining;
+    }
+    return clc::days_to_ticks(caravan.days_remaining);
 }
 
 } // namespace clc::sim
