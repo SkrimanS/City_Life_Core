@@ -41,7 +41,7 @@ int main() {
     require(runtime.engine.state().settlements[0].storage.add("wood", 20).ok(), "roundtrip settlement should receive wood for tick economy");
     runtime.engine.state().settlements[0].buildings.push_back(clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4});
     const auto partial_tick = clc::sim::advance_settlement_ticks(runtime.engine.state().settlements[0], runtime.engine.registry(), clc::hours_to_ticks(1));
-    require(partial_tick.ok(), "partial settlement tick should succeed");
+    require(partial_tick.elapsed_ticks == clc::hours_to_ticks(1), "partial settlement tick should expose elapsed ticks");
     require(!runtime.engine.state().settlements[0].tick_remainders.empty(), "partial settlement tick should create remainders before save");
 
     auto uninterrupted = runtime;
