@@ -80,6 +80,15 @@ struct SimulationRuntimeTickRunUntilArrivalResult final {
     }
 };
 
+struct SimulationRuntimeTickArrivalContractResult final {
+    SimulationRuntimeTickRunUntilArrivalResult arrival{};
+    ContractFulfillmentResult fulfillment{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return arrival.ok() && arrival.arrival_reached && fulfillment.ok();
+    }
+};
+
 struct SimulationRuntimeRunSummary final {
     std::uint64_t days_run{0};
     std::uint64_t first_day{0};
@@ -134,6 +143,12 @@ struct SimulationRuntimeArrivalContractResult final {
     SimulationRuntime& runtime,
     clc::GameTime::Tick max_ticks,
     clc::GameTime::Tick step_ticks
+);
+[[nodiscard]] SimulationRuntimeTickArrivalContractResult run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(
+    SimulationRuntime& runtime,
+    clc::GameTime::Tick max_ticks,
+    clc::GameTime::Tick step_ticks,
+    std::string_view expected_faction_id
 );
 [[nodiscard]] SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports);
 [[nodiscard]] SimulationRuntimeRunResult run_runtime_days(SimulationRuntime& runtime, std::uint64_t day_count);
