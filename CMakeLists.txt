@@ -228,6 +228,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_simulation_runtime_scenario_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_simulation_runtime_scenario_tests COMMAND clc_simulation_runtime_scenario_tests)
 
+    add_executable(clc_runtime_legacy_time_restore_tests tests/runtime_legacy_time_restore_tests.cpp)
+    target_link_libraries(clc_runtime_legacy_time_restore_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_legacy_time_restore_tests COMMAND clc_runtime_legacy_time_restore_tests)
+
     add_executable(clc_runtime_full_roundtrip_tests tests/runtime_full_roundtrip_tests.cpp)
     target_link_libraries(clc_runtime_full_roundtrip_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_full_roundtrip_tests COMMAND clc_runtime_full_roundtrip_tests)
