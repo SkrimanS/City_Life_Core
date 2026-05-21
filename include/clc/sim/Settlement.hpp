@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clc/core/Time.hpp"
 #include "clc/data/Definitions.hpp"
 #include "clc/data/DataRegistry.hpp"
 #include "clc/data/Validation.hpp"
@@ -26,6 +27,7 @@ struct SettlementState final {
 
 struct SettlementTickReport final {
     std::string settlement_id{};
+    clc::GameTime::Tick elapsed_ticks{0};
     std::uint64_t consumed_food{0};
     std::uint64_t consumed_inputs{0};
     std::uint64_t produced_resources{0};
@@ -57,6 +59,11 @@ struct SettlementReport final {
 
 [[nodiscard]] SettlementState create_settlement_from_definition(const data::SettlementDefinition& definition);
 [[nodiscard]] data::ValidationReport add_building(SettlementState& settlement, const data::DataRegistry& registry, BuildingInstance building);
+[[nodiscard]] SettlementTickReport advance_settlement_ticks(
+    SettlementState& settlement,
+    const data::DataRegistry& registry,
+    clc::GameTime::Tick ticks
+);
 [[nodiscard]] SettlementTickReport advance_settlement_day(SettlementState& settlement, const data::DataRegistry& registry);
 [[nodiscard]] SettlementReport make_settlement_report(const SettlementState& settlement, const data::DataRegistry& registry);
 
