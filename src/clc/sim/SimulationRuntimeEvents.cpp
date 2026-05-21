@@ -137,6 +137,29 @@ RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
     return summary;
 }
 
+RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
+    clc::EventLog& log,
+    std::uint64_t tick,
+    const RuntimeBulkCargoDeliveryResult& result
+) {
+    RuntimeEventLogSummary summary{};
+
+    if (!result.ok()) {
+        return summary;
+    }
+
+    for (const auto& delivery : result.deliveries) {
+        const auto partial = append_runtime_caravan_cargo_delivery_event(log, tick, delivery);
+        summary.events_appended += partial.events_appended;
+        summary.day_events += partial.day_events;
+        summary.caravan_events += partial.caravan_events;
+        summary.cargo_events += partial.cargo_events;
+        summary.contract_events += partial.contract_events;
+    }
+
+    return summary;
+}
+
 RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
     RuntimeEventLogAnalysis analysis{};
 
