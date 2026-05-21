@@ -84,6 +84,22 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
 ```
 
+### SDK examples
+
+При `CLC_BUILD_EXAMPLES=ON` собираются примеры:
+
+- `clc_example_basic_runtime` — bootstrap runtime, запуск tick'ов и summary;
+- `clc_example_save_load_roundtrip` — runtime save/load validation;
+- `clc_example_replay_persistence` — midpoint save/load и deterministic replay continuation.
+
+```bash
+cmake -S . -B build -DCLC_BUILD_EXAMPLES=ON
+cmake --build build
+./build/clc_example_basic_runtime
+./build/clc_example_save_load_roundtrip
+./build/clc_example_replay_persistence
+```
+
 ### Минимальный runtime-сценарий
 
 ```cpp
@@ -213,6 +229,22 @@ Windows / multi-config generators:
 cmake -S . -B build -DCLC_BUILD_TESTS=ON
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
+```
+
+### SDK examples
+
+When `CLC_BUILD_EXAMPLES=ON`, the SDK examples are built:
+
+- `clc_example_basic_runtime` — runtime bootstrap, ticks, and summary;
+- `clc_example_save_load_roundtrip` — runtime save/load validation;
+- `clc_example_replay_persistence` — midpoint save/load and deterministic replay continuation.
+
+```bash
+cmake -S . -B build -DCLC_BUILD_EXAMPLES=ON
+cmake --build build
+./build/clc_example_basic_runtime
+./build/clc_example_save_load_roundtrip
+./build/clc_example_replay_persistence
 ```
 
 ### Minimal runtime scenario
