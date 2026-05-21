@@ -1,10 +1,17 @@
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <algorithm>
+#include <string>
 #include <utility>
 
 namespace clc::sim {
 namespace {
+
+struct DeliveryResourceAggregate final {
+    std::string destination_settlement_id{};
+    std::string resource_id{};
+    std::uint64_t amount{0};
+};
 
 CaravanState* mutable_caravan_by_id(CaravanFleet& fleet, std::string_view caravan_id) noexcept {
     for (auto& caravan : fleet.caravans) {
@@ -66,6 +73,26 @@ void append_validation_messages(data::ValidationReport& target, const data::Vali
             target.add_error(message.path, message.message);
         }
     }
+}
+
+void add_delivery_aggregate(
+    std::vector<DeliveryResourceAggregate>& aggregates,
+    std::string_view destination_settlement_id,
+    std::string_view resource_id,
+    std::uint64_t amount
+) {
+    for (auto& aggregate : aggregates) {
+        if (aggregate.destination_settlement_id == destination_settlement_id && aggregate.resource_id == resource_id) {
+            aggregate.amount += amount;
+            return;
+        }
+    }
+
+    aggregates.push_back(DeliveryResourceAggregate{
+        .destination_settlement_id = std::string{destination_settlement_id},
+        .resource_id = std::string{resource_id},
+        .amount = amount,
+    });
 }
 
 } // namespace
@@ -498,10 +525,26 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result_for_runtime(
         return report;
     }
 
+    std::vector<DeliveryResourceAggregate> aggregates{};
     for (const auto& delivery : result.deliveries) {
         auto delivery_report = validate_runtime_caravan_cargo_delivery_result_for_runtime(runtime, delivery);
         if (!delivery_report.ok()) {
             append_validation_messages(report, delivery_report);
+        }
+
+        for (const auto& entry : delivery.delivered) {
+            add_delivery_aggregate(
+                aggregates,
+                delivery.destination_settlement_id,
+                entry.resource_id,
+                entry.amount
+            );
+        }
+    }
+
+    for (const auto& aggregate : aggregates) {
+        if (runtime.engine.settlement_resource_amount(aggregate.destination_settlement_id, aggregate.resource_id) < aggregate.amount) {
+            report.add_error("runtime.bulk_cargo_delivery.delivered.amount", "destination settlement must contain at least aggregate delivered amount");
         }
     }
 
