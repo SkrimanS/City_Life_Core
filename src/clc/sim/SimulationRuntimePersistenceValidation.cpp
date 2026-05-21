@@ -1,6 +1,5 @@
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 
-#include <cstddef>
 #include <string_view>
 
 namespace clc::sim {
@@ -13,26 +12,26 @@ void add_mismatch(data::ValidationReport& report, bool condition, const char* me
     }
 }
 
+void append_report(data::ValidationReport& target, const data::ValidationReport& source) {
+    for (const auto& message : source.messages()) {
+        if (message.severity == data::ValidationSeverity::error) {
+            target.add_error(message.path, message.message);
+        } else {
+            target.add_warning(message.path, message.message);
+        }
+    }
+}
+
 void add_registry_count_mismatches(
     data::ValidationReport& report,
     const data::DataRegistry& expected,
     const data::DataRegistry& actual
 ) {
-    add_mismatch(report,
-        expected.resource_count() == actual.resource_count(),
-        "runtime registry resource count mismatch");
-    add_mismatch(report,
-        expected.currency_count() == actual.currency_count(),
-        "runtime registry currency count mismatch");
-    add_mismatch(report,
-        expected.building_count() == actual.building_count(),
-        "runtime registry building count mismatch");
-    add_mismatch(report,
-        expected.profession_count() == actual.profession_count(),
-        "runtime registry profession count mismatch");
-    add_mismatch(report,
-        expected.settlement_count() == actual.settlement_count(),
-        "runtime registry settlement count mismatch");
+    add_mismatch(report, expected.resource_count() == actual.resource_count(), "runtime registry resource count mismatch");
+    add_mismatch(report, expected.currency_count() == actual.currency_count(), "runtime registry currency count mismatch");
+    add_mismatch(report, expected.building_count() == actual.building_count(), "runtime registry building count mismatch");
+    add_mismatch(report, expected.profession_count() == actual.profession_count(), "runtime registry profession count mismatch");
+    add_mismatch(report, expected.settlement_count() == actual.settlement_count(), "runtime registry settlement count mismatch");
 }
 
 void add_resource_definition_mismatch(
@@ -47,27 +46,16 @@ void add_resource_definition_mismatch(
 
     const auto* expected_resource = expected.resource(resource_id);
     const auto* actual_resource = actual.resource(resource_id);
-
-    add_mismatch(report,
-        (expected_resource != nullptr) == (actual_resource != nullptr),
-        "runtime registry resource definition presence mismatch");
+    add_mismatch(report, (expected_resource != nullptr) == (actual_resource != nullptr), "runtime registry resource definition presence mismatch");
 
     if (expected_resource == nullptr || actual_resource == nullptr) {
         return;
     }
 
-    add_mismatch(report,
-        expected_resource->id == actual_resource->id,
-        "runtime registry resource id mismatch");
-    add_mismatch(report,
-        expected_resource->display_name == actual_resource->display_name,
-        "runtime registry resource display name mismatch");
-    add_mismatch(report,
-        expected_resource->category == actual_resource->category,
-        "runtime registry resource category mismatch");
-    add_mismatch(report,
-        expected_resource->base_value == actual_resource->base_value,
-        "runtime registry resource base value mismatch");
+    add_mismatch(report, expected_resource->id == actual_resource->id, "runtime registry resource id mismatch");
+    add_mismatch(report, expected_resource->display_name == actual_resource->display_name, "runtime registry resource display name mismatch");
+    add_mismatch(report, expected_resource->category == actual_resource->category, "runtime registry resource category mismatch");
+    add_mismatch(report, expected_resource->base_value == actual_resource->base_value, "runtime registry resource base value mismatch");
 }
 
 void add_settlement_definition_mismatch(
@@ -82,54 +70,85 @@ void add_settlement_definition_mismatch(
 
     const auto* expected_settlement = expected.settlement(settlement_id);
     const auto* actual_settlement = actual.settlement(settlement_id);
-
-    add_mismatch(report,
-        (expected_settlement != nullptr) == (actual_settlement != nullptr),
-        "runtime registry settlement definition presence mismatch");
+    add_mismatch(report, (expected_settlement != nullptr) == (actual_settlement != nullptr), "runtime registry settlement definition presence mismatch");
 
     if (expected_settlement == nullptr || actual_settlement == nullptr) {
         return;
     }
 
-    add_mismatch(report,
-        expected_settlement->id == actual_settlement->id,
-        "runtime registry settlement id mismatch");
-    add_mismatch(report,
-        expected_settlement->display_name == actual_settlement->display_name,
-        "runtime registry settlement display name mismatch");
-    add_mismatch(report,
-        expected_settlement->starting_population == actual_settlement->starting_population,
-        "runtime registry settlement starting population mismatch");
+    add_mismatch(report, expected_settlement->id == actual_settlement->id, "runtime registry settlement id mismatch");
+    add_mismatch(report, expected_settlement->display_name == actual_settlement->display_name, "runtime registry settlement display name mismatch");
+    add_mismatch(report, expected_settlement->starting_population == actual_settlement->starting_population, "runtime registry settlement starting population mismatch");
 }
 
-void add_storage_mismatch(
+void add_building_definition_mismatch(
     data::ValidationReport& report,
-    const ResourceStorage& expected,
-    const ResourceStorage& actual,
-    const char* count_message,
-    const char* missing_resource_message,
-    const char* quantity_message
+    const data::DataRegistry& expected,
+    const data::DataRegistry& actual,
+    std::string_view building_id
 ) {
-    const auto& expected_entries = expected.entries();
-    const auto& actual_entries = actual.entries();
+    if (building_id.empty()) {
+        return;
+    }
 
-    add_mismatch(report,
-        expected_entries.size() == actual_entries.size(),
-        count_message);
+    const auto* expected_building = expected.building(building_id);
+    const auto* actual_building = actual.building(building_id);
+    add_mismatch(report, (expected_building != nullptr) == (actual_building != nullptr), "runtime registry building definition presence mismatch");
 
-    for (const auto& [resource_id, expected_quantity] : expected_entries) {
-        const auto actual_entry = actual_entries.find(resource_id);
-        add_mismatch(report,
-            actual_entry != actual_entries.end(),
-            missing_resource_message);
+    if (expected_building == nullptr || actual_building == nullptr) {
+        return;
+    }
 
-        if (actual_entry == actual_entries.end()) {
-            continue;
+    add_mismatch(report, expected_building->id == actual_building->id, "runtime registry building id mismatch");
+    add_mismatch(report, expected_building->display_name == actual_building->display_name, "runtime registry building display name mismatch");
+    add_mismatch(report, expected_building->category == actual_building->category, "runtime registry building category mismatch");
+    add_mismatch(report, expected_building->worker_slots == actual_building->worker_slots, "runtime registry building worker slots mismatch");
+    add_mismatch(report, expected_building->required_profession_id == actual_building->required_profession_id, "runtime registry building required profession mismatch");
+    add_mismatch(report, expected_building->input_resource_ids == actual_building->input_resource_ids, "runtime registry building input resources mismatch");
+    add_mismatch(report, expected_building->output_resource_ids == actual_building->output_resource_ids, "runtime registry building output resources mismatch");
+}
+
+void add_registry_semantic_mismatches(
+    data::ValidationReport& report,
+    const data::DataRegistry& expected_registry,
+    const data::DataRegistry& actual_registry,
+    const SimulationWorldState& expected_state
+) {
+    for (const auto& settlement : expected_state.engine.settlements) {
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, settlement.id);
+        for (const auto& [resource_id, amount] : settlement.storage.entries()) {
+            (void)amount;
+            add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
         }
+        for (const auto& building : settlement.buildings) {
+            add_building_definition_mismatch(report, expected_registry, actual_registry, building.definition_id);
+        }
+    }
 
-        add_mismatch(report,
-            expected_quantity == actual_entry->second,
-            quantity_message);
+    for (const auto& demand : expected_state.engine.market_demands) {
+        add_resource_definition_mismatch(report, expected_registry, actual_registry, demand.resource_id);
+    }
+
+    for (const auto& route : expected_state.routes.routes) {
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, route.origin_settlement_id);
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, route.destination_settlement_id);
+    }
+
+    for (const auto& caravan : expected_state.caravans.caravans) {
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, caravan.origin_settlement_id);
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, caravan.destination_settlement_id);
+        for (const auto& [resource_id, amount] : caravan.cargo.entries()) {
+            (void)amount;
+            add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
+        }
+    }
+
+    for (const auto& contract : expected_state.contracts.contracts) {
+        add_resource_definition_mismatch(report, expected_registry, actual_registry, contract.resource_id);
+    }
+
+    for (const auto& entry : expected_state.ledger_entries) {
+        add_resource_definition_mismatch(report, expected_registry, actual_registry, entry.resource_id);
     }
 }
 
@@ -141,325 +160,22 @@ data::ValidationReport validate_simulation_runtimes_match(
 ) {
     data::ValidationReport report{};
 
+    const auto expected_state = capture_simulation_world_state(expected);
+    const auto actual_state = capture_simulation_world_state(actual);
+
+    append_report(report, validate_simulation_world_state(expected_state));
+    append_report(report, validate_simulation_world_state(actual_state));
+
+    add_mismatch(
+        report,
+        serialize_simulation_world_state(expected_state) == serialize_simulation_world_state(actual_state),
+        "runtime world state serialization mismatch"
+    );
+
     const auto& expected_registry = expected.engine.registry();
     const auto& actual_registry = actual.engine.registry();
-
     add_registry_count_mismatches(report, expected_registry, actual_registry);
-
-    add_mismatch(report,
-        expected.engine.current_day() == actual.engine.current_day(),
-        "runtime current day mismatch");
-
-    add_mismatch(report,
-        expected.engine.settlements().size() == actual.engine.settlements().size(),
-        "runtime engine settlement count mismatch");
-
-    const auto engine_settlement_count = expected.engine.settlements().size() < actual.engine.settlements().size()
-        ? expected.engine.settlements().size()
-        : actual.engine.settlements().size();
-    for (std::size_t index = 0; index < engine_settlement_count; ++index) {
-        const auto& expected_settlement = expected.engine.settlements()[index];
-        const auto& actual_settlement = actual.engine.settlements()[index];
-
-        add_mismatch(report,
-            expected_settlement.id == actual_settlement.id,
-            "runtime engine settlement id mismatch");
-        add_mismatch(report,
-            expected_settlement.display_name == actual_settlement.display_name,
-            "runtime engine settlement display name mismatch");
-        add_mismatch(report,
-            expected_settlement.population == actual_settlement.population,
-            "runtime engine settlement population mismatch");
-        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected_settlement.id);
-        add_storage_mismatch(report,
-            expected_settlement.storage,
-            actual_settlement.storage,
-            "runtime engine settlement storage resource count mismatch",
-            "runtime engine settlement storage resource id mismatch",
-            "runtime engine settlement storage resource quantity mismatch");
-        for (const auto& [resource_id, expected_quantity] : expected_settlement.storage.entries()) {
-            (void)expected_quantity;
-            add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
-        }
-
-        add_mismatch(report,
-            expected_settlement.buildings.size() == actual_settlement.buildings.size(),
-            "runtime engine settlement building count mismatch");
-
-        const auto building_count = expected_settlement.buildings.size() < actual_settlement.buildings.size()
-            ? expected_settlement.buildings.size()
-            : actual_settlement.buildings.size();
-        for (std::size_t building_index = 0; building_index < building_count; ++building_index) {
-            add_mismatch(report,
-                expected_settlement.buildings[building_index].definition_id == actual_settlement.buildings[building_index].definition_id,
-                "runtime engine settlement building definition id mismatch");
-            add_mismatch(report,
-                expected_settlement.buildings[building_index].assigned_workers == actual_settlement.buildings[building_index].assigned_workers,
-                "runtime engine settlement building assigned workers mismatch");
-        }
-    }
-
-    add_mismatch(report,
-        expected.engine.events().size() == actual.engine.events().size(),
-        "runtime engine event count mismatch");
-
-    const auto engine_event_count = expected.engine.events().size() < actual.engine.events().size()
-        ? expected.engine.events().size()
-        : actual.engine.events().size();
-    for (std::size_t index = 0; index < engine_event_count; ++index) {
-        add_mismatch(report,
-            expected.engine.events()[index].day == actual.engine.events()[index].day,
-            "runtime engine event day mismatch");
-        add_mismatch(report,
-            expected.engine.events()[index].type == actual.engine.events()[index].type,
-            "runtime engine event type mismatch");
-        add_mismatch(report,
-            expected.engine.events()[index].message == actual.engine.events()[index].message,
-            "runtime engine event message mismatch");
-    }
-
-    const auto& expected_market_demands = expected.engine.market().demands();
-    const auto& actual_market_demands = actual.engine.market().demands();
-    add_mismatch(report,
-        expected_market_demands.size() == actual_market_demands.size(),
-        "runtime engine market demand count mismatch");
-
-    for (const auto& [resource_id, expected_demand] : expected_market_demands) {
-        const auto actual_demand = actual_market_demands.find(resource_id);
-        add_mismatch(report,
-            actual_demand != actual_market_demands.end(),
-            "runtime engine market demand resource id mismatch");
-
-        if (actual_demand == actual_market_demands.end()) {
-            continue;
-        }
-
-        add_mismatch(report,
-            expected_demand == actual_demand->second,
-            "runtime engine market demand value mismatch");
-        add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
-    }
-
-    add_mismatch(report,
-        expected.routes.routes.size() == actual.routes.routes.size(),
-        "runtime route count mismatch");
-
-    const auto route_count = expected.routes.routes.size() < actual.routes.routes.size()
-        ? expected.routes.routes.size()
-        : actual.routes.routes.size();
-    for (std::size_t index = 0; index < route_count; ++index) {
-        add_mismatch(report,
-            expected.routes.routes[index].id == actual.routes.routes[index].id,
-            "runtime route id mismatch");
-        add_mismatch(report,
-            expected.routes.routes[index].display_name == actual.routes.routes[index].display_name,
-            "runtime route display name mismatch");
-        add_mismatch(report,
-            expected.routes.routes[index].origin_settlement_id == actual.routes.routes[index].origin_settlement_id,
-            "runtime route origin settlement id mismatch");
-        add_mismatch(report,
-            expected.routes.routes[index].destination_settlement_id == actual.routes.routes[index].destination_settlement_id,
-            "runtime route destination settlement id mismatch");
-        add_mismatch(report,
-            expected.routes.routes[index].travel_days == actual.routes.routes[index].travel_days,
-            "runtime route travel days mismatch");
-        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.routes.routes[index].origin_settlement_id);
-        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.routes.routes[index].destination_settlement_id);
-    }
-
-    add_mismatch(report,
-        expected.caravans.caravan_count() == actual.caravans.caravan_count(),
-        "runtime caravan count mismatch");
-
-    const auto caravan_count = expected.caravans.caravans.size() < actual.caravans.caravans.size()
-        ? expected.caravans.caravans.size()
-        : actual.caravans.caravans.size();
-    for (std::size_t index = 0; index < caravan_count; ++index) {
-        add_mismatch(report,
-            expected.caravans.caravans[index].id == actual.caravans.caravans[index].id,
-            "runtime caravan id mismatch");
-        add_mismatch(report,
-            expected.caravans.caravans[index].display_name == actual.caravans.caravans[index].display_name,
-            "runtime caravan display name mismatch");
-        add_mismatch(report,
-            expected.caravans.caravans[index].route_id == actual.caravans.caravans[index].route_id,
-            "runtime caravan route id mismatch");
-        add_mismatch(report,
-            expected.caravans.caravans[index].origin_settlement_id == actual.caravans.caravans[index].origin_settlement_id,
-            "runtime caravan origin settlement id mismatch");
-        add_mismatch(report,
-            expected.caravans.caravans[index].destination_settlement_id == actual.caravans.caravans[index].destination_settlement_id,
-            "runtime caravan destination settlement id mismatch");
-        add_mismatch(report,
-            expected.caravans.caravans[index].total_travel_days == actual.caravans.caravans[index].total_travel_days,
-            "runtime caravan total travel days mismatch");
-        add_mismatch(report,
-            expected.caravans.caravans[index].days_remaining == actual.caravans.caravans[index].days_remaining,
-            "runtime caravan days remaining mismatch");
-        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.caravans.caravans[index].origin_settlement_id);
-        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.caravans.caravans[index].destination_settlement_id);
-        add_storage_mismatch(report,
-            expected.caravans.caravans[index].cargo,
-            actual.caravans.caravans[index].cargo,
-            "runtime caravan cargo resource count mismatch",
-            "runtime caravan cargo resource id mismatch",
-            "runtime caravan cargo resource quantity mismatch");
-        for (const auto& [resource_id, expected_quantity] : expected.caravans.caravans[index].cargo.entries()) {
-            (void)expected_quantity;
-            add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
-        }
-    }
-
-    add_mismatch(report,
-        expected.factions.factions.size() == actual.factions.factions.size(),
-        "runtime faction count mismatch");
-
-    const auto faction_count = expected.factions.factions.size() < actual.factions.factions.size()
-        ? expected.factions.factions.size()
-        : actual.factions.factions.size();
-    for (std::size_t index = 0; index < faction_count; ++index) {
-        add_mismatch(report,
-            expected.factions.factions[index].id == actual.factions.factions[index].id,
-            "runtime faction id mismatch");
-        add_mismatch(report,
-            expected.factions.factions[index].display_name == actual.factions.factions[index].display_name,
-            "runtime faction display name mismatch");
-    }
-
-    add_mismatch(report,
-        expected.factions.reputations.size() == actual.factions.reputations.size(),
-        "runtime faction reputation count mismatch");
-
-    const auto faction_reputation_count = expected.factions.reputations.size() < actual.factions.reputations.size()
-        ? expected.factions.reputations.size()
-        : actual.factions.reputations.size();
-    for (std::size_t index = 0; index < faction_reputation_count; ++index) {
-        add_mismatch(report,
-            expected.factions.reputations[index].from_faction_id == actual.factions.reputations[index].from_faction_id,
-            "runtime faction reputation from faction id mismatch");
-        add_mismatch(report,
-            expected.factions.reputations[index].to_faction_id == actual.factions.reputations[index].to_faction_id,
-            "runtime faction reputation to faction id mismatch");
-        add_mismatch(report,
-            expected.factions.reputations[index].value == actual.factions.reputations[index].value,
-            "runtime faction reputation value mismatch");
-    }
-
-    add_mismatch(report,
-        expected.ownership.settlements.size() == actual.ownership.settlements.size(),
-        "runtime settlement ownership count mismatch");
-
-    const auto settlement_ownership_count = expected.ownership.settlements.size() < actual.ownership.settlements.size()
-        ? expected.ownership.settlements.size()
-        : actual.ownership.settlements.size();
-    for (std::size_t index = 0; index < settlement_ownership_count; ++index) {
-        add_mismatch(report,
-            expected.ownership.settlements[index].settlement_id == actual.ownership.settlements[index].settlement_id,
-            "runtime settlement ownership settlement id mismatch");
-        add_mismatch(report,
-            expected.ownership.settlements[index].faction_id == actual.ownership.settlements[index].faction_id,
-            "runtime settlement ownership faction id mismatch");
-        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.ownership.settlements[index].settlement_id);
-    }
-
-    add_mismatch(report,
-        expected.ownership.caravans.size() == actual.ownership.caravans.size(),
-        "runtime caravan ownership count mismatch");
-
-    const auto caravan_ownership_count = expected.ownership.caravans.size() < actual.ownership.caravans.size()
-        ? expected.ownership.caravans.size()
-        : actual.ownership.caravans.size();
-    for (std::size_t index = 0; index < caravan_ownership_count; ++index) {
-        add_mismatch(report,
-            expected.ownership.caravans[index].caravan_id == actual.ownership.caravans[index].caravan_id,
-            "runtime caravan ownership caravan id mismatch");
-        add_mismatch(report,
-            expected.ownership.caravans[index].faction_id == actual.ownership.caravans[index].faction_id,
-            "runtime caravan ownership faction id mismatch");
-    }
-
-    add_mismatch(report,
-        expected.contracts.contracts.size() == actual.contracts.contracts.size(),
-        "runtime contract count mismatch");
-
-    const auto contract_count = expected.contracts.contracts.size() < actual.contracts.contracts.size()
-        ? expected.contracts.contracts.size()
-        : actual.contracts.contracts.size();
-    for (std::size_t index = 0; index < contract_count; ++index) {
-        add_mismatch(report,
-            expected.contracts.contracts[index].id == actual.contracts.contracts[index].id,
-            "runtime contract id mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].display_name == actual.contracts.contracts[index].display_name,
-            "runtime contract display name mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].issuer_faction_id == actual.contracts.contracts[index].issuer_faction_id,
-            "runtime contract issuer faction id mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].receiver_faction_id == actual.contracts.contracts[index].receiver_faction_id,
-            "runtime contract receiver faction id mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].resource_id == actual.contracts.contracts[index].resource_id,
-            "runtime contract resource id mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].quantity == actual.contracts.contracts[index].quantity,
-            "runtime contract quantity mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].reward_coins == actual.contracts.contracts[index].reward_coins,
-            "runtime contract reward coins mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].due_day == actual.contracts.contracts[index].due_day,
-            "runtime contract due day mismatch");
-        add_mismatch(report,
-            expected.contracts.contracts[index].status == actual.contracts.contracts[index].status,
-            "runtime contract status mismatch");
-        add_resource_definition_mismatch(report, expected_registry, actual_registry, expected.contracts.contracts[index].resource_id);
-    }
-
-    add_mismatch(report,
-        expected.wallet.coins == actual.wallet.coins,
-        "runtime wallet mismatch");
-
-    add_mismatch(report,
-        expected.ledger.next_sequence() == actual.ledger.next_sequence(),
-        "runtime ledger next sequence mismatch");
-
-    const auto& expected_ledger_entries = expected.ledger.entries();
-    const auto& actual_ledger_entries = actual.ledger.entries();
-    add_mismatch(report,
-        expected_ledger_entries.size() == actual_ledger_entries.size(),
-        "runtime ledger size mismatch");
-
-    const auto ledger_count = expected_ledger_entries.size() < actual_ledger_entries.size()
-        ? expected_ledger_entries.size()
-        : actual_ledger_entries.size();
-    for (std::size_t index = 0; index < ledger_count; ++index) {
-        add_mismatch(report,
-            expected_ledger_entries[index].sequence == actual_ledger_entries[index].sequence,
-            "runtime ledger sequence mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].type == actual_ledger_entries[index].type,
-            "runtime ledger type mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].resource_id == actual_ledger_entries[index].resource_id,
-            "runtime ledger resource id mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].quantity == actual_ledger_entries[index].quantity,
-            "runtime ledger quantity mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].unit_price == actual_ledger_entries[index].unit_price,
-            "runtime ledger unit price mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].total_price == actual_ledger_entries[index].total_price,
-            "runtime ledger total price mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].reference_id == actual_ledger_entries[index].reference_id,
-            "runtime ledger reference id mismatch");
-        add_mismatch(report,
-            expected_ledger_entries[index].note == actual_ledger_entries[index].note,
-            "runtime ledger note mismatch");
-        add_resource_definition_mismatch(report, expected_registry, actual_registry, expected_ledger_entries[index].resource_id);
-    }
+    add_registry_semantic_mismatches(report, expected_registry, actual_registry, expected_state);
 
     return report;
 }
