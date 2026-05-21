@@ -71,6 +71,12 @@ struct RuntimeEventLogChecksumComparison final {
     const RuntimeCaravanCargoDeliveryResult& result
 );
 
+[[nodiscard]] RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
+    clc::EventLog& log,
+    std::uint64_t tick,
+    const RuntimeBulkCargoDeliveryResult& result
+);
+
 [[nodiscard]] RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_tick_order(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLog& log);
