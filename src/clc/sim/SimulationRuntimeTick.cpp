@@ -32,11 +32,16 @@ SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime) {
 
         if (advanced.ok()) {
             caravan_report.advance = advanced.report;
+            if (advanced.report.arrived) {
+                report.arrived_caravan_ids.push_back(advanced.report.caravan_id);
+            }
         }
 
         merge_validation(report.validation, advanced.validation);
         report.caravans.push_back(std::move(caravan_report));
     }
+
+    report.contracts = fail_overdue_open_contracts(runtime.contracts, runtime.engine.current_day());
 
     return report;
 }
@@ -54,6 +59,7 @@ SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<Simu
 
     for (const auto& report : reports) {
         summary.warnings += report.validation.warning_count();
+        summary.contract_failures += report.contracts.failed_count;
 
         for (const auto& caravan : report.caravans) {
             ++summary.caravan_ticks;
@@ -94,12 +100,10 @@ SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
         auto report = advance_runtime_day(runtime);
         merge_validation(result.run.validation, report.validation);
 
-        for (const auto& caravan : report.caravans) {
-            if (caravan.advance.arrived) {
-                result.arrival_reached = true;
-                result.arrived_caravan_id = caravan.caravan_id;
-                result.arrival_day = report.engine.day;
-            }
+        if (!report.arrived_caravan_ids.empty()) {
+            result.arrival_reached = true;
+            result.arrived_caravan_id = report.arrived_caravan_ids.front();
+            result.arrival_day = report.engine.day;
         }
 
         result.run.reports.push_back(std::move(report));
