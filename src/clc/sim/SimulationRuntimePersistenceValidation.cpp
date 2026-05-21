@@ -114,9 +114,41 @@ data::ValidationReport validate_simulation_runtimes_match(
         expected.wallet.coins == actual.wallet.coins,
         "runtime wallet mismatch");
 
+    const auto& expected_ledger_entries = expected.ledger.entries();
+    const auto& actual_ledger_entries = actual.ledger.entries();
     add_mismatch(report,
-        expected.ledger.entries().size() == actual.ledger.entries().size(),
+        expected_ledger_entries.size() == actual_ledger_entries.size(),
         "runtime ledger size mismatch");
+
+    const auto ledger_count = expected_ledger_entries.size() < actual_ledger_entries.size()
+        ? expected_ledger_entries.size()
+        : actual_ledger_entries.size();
+    for (std::size_t index = 0; index < ledger_count; ++index) {
+        add_mismatch(report,
+            expected_ledger_entries[index].sequence == actual_ledger_entries[index].sequence,
+            "runtime ledger sequence mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].type == actual_ledger_entries[index].type,
+            "runtime ledger type mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].resource_id == actual_ledger_entries[index].resource_id,
+            "runtime ledger resource id mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].quantity == actual_ledger_entries[index].quantity,
+            "runtime ledger quantity mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].unit_price == actual_ledger_entries[index].unit_price,
+            "runtime ledger unit price mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].total_price == actual_ledger_entries[index].total_price,
+            "runtime ledger total price mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].reference_id == actual_ledger_entries[index].reference_id,
+            "runtime ledger reference id mismatch");
+        add_mismatch(report,
+            expected_ledger_entries[index].note == actual_ledger_entries[index].note,
+            "runtime ledger note mismatch");
+    }
 
     return report;
 }
