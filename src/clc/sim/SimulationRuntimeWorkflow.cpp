@@ -323,6 +323,10 @@ RuntimeBulkCargoDeliveryResult deliver_all_runtime_arrived_caravan_cargo_to_dest
         if (!caravan_arrived(caravan) || caravan.cargo.empty()) {
             continue;
         }
+        if (!runtime.engine.has_settlement(caravan.destination_settlement_id)) {
+            result.validation.add_error("simulation.settlement." + caravan.destination_settlement_id, "unknown caravan destination settlement");
+            return result;
+        }
         caravan_ids.push_back(caravan.id);
     }
 
