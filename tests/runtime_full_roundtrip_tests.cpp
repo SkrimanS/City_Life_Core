@@ -36,6 +36,13 @@ int main() {
 
     require(clc::sim::advance_runtime_caravan_day(runtime, "roundtrip_caravan").ok(), "roundtrip caravan should advance before save");
     require(runtime.caravans.caravans[0].days_remaining == 1, "caravan progress should be partially advanced before save");
+    require(runtime.caravans.caravans[0].ticks_remaining == clc::ticks_per_day(), "caravan tick progress should be partially advanced before save");
+
+    require(runtime.engine.state().settlements[0].storage.add("wood", 20).ok(), "roundtrip settlement should receive wood for tick economy");
+    runtime.engine.state().settlements[0].buildings.push_back(clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4});
+    const auto partial_tick = clc::sim::advance_settlement_ticks(runtime.engine.state().settlements[0], runtime.engine.registry(), clc::hours_to_ticks(1));
+    require(partial_tick.ok(), "partial settlement tick should succeed");
+    require(!runtime.engine.state().settlements[0].tick_remainders.empty(), "partial settlement tick should create remainders before save");
 
     auto uninterrupted = runtime;
 
@@ -51,12 +58,22 @@ int main() {
     require(loaded_result.ok(), "runtime should load mid-scenario");
     require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "loaded runtime should match uninterrupted replay baseline after load");
 
-    require(loaded.engine.settlement_resource_amount("riverwatch", "grain") == 10, "loaded runtime should preserve origin storage debit");
+    auto tick_drift = loaded;
+    tick_drift.caravans.caravans[0].ticks_remaining += 1;
+    require(!clc::sim::validate_simulation_runtimes_match(uninterrupted, tick_drift).ok(), "runtime matcher should reject caravan tick progress drift");
+
+    auto remainder_drift = loaded;
+    remainder_drift.engine.state().settlements[0].tick_remainders[0].numerator += 1;
+    require(!clc::sim::validate_simulation_runtimes_match(uninterrupted, remainder_drift).ok(), "runtime matcher should reject settlement tick remainder drift");
+
+    require(loaded.engine.settlement_resource_amount("riverwatch", "grain") == runtime.engine.settlement_resource_amount("riverwatch", "grain"), "loaded runtime should preserve origin storage debit");
     require(loaded.engine.settlement_resource_amount("hillford", "grain") == 0, "loaded runtime should preserve destination before arrival");
     require(loaded.caravans.caravans.size() == 1, "loaded runtime should preserve caravan");
     require(loaded.caravans.caravans[0].id == "roundtrip_caravan", "loaded runtime should preserve caravan id");
     require(loaded.caravans.caravans[0].days_remaining == 1, "loaded runtime should preserve partial travel progress");
+    require(loaded.caravans.caravans[0].ticks_remaining == clc::ticks_per_day(), "loaded runtime should preserve partial tick travel progress");
     require(loaded.caravans.caravans[0].cargo.amount("grain") == 40, "loaded runtime should preserve cargo");
+    require(!loaded.engine.state().settlements[0].tick_remainders.empty(), "loaded runtime should preserve settlement tick remainders");
     require(loaded.wallet.coins == 10, "loaded runtime should preserve wallet before reward");
     require(loaded.ledger.entries().empty(), "loaded runtime should preserve empty ledger before fulfillment");
 
