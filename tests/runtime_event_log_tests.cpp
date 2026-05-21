@@ -78,6 +78,15 @@ int main() {
     require(log.events().back().payload == "event_log_caravan->hillford:total=10", "runtime event log should record cargo delivery payload");
     require(clc::sim::validate_runtime_event_log(log).ok(), "runtime event log with cargo delivery should validate");
 
+    const auto size_before_zero_delivery_append = log.size();
+    const auto repeated_delivery = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, "event_log_caravan");
+    require(repeated_delivery.ok(), "runtime event log repeated cargo delivery should succeed as empty result");
+    require(repeated_delivery.total_amount == 0, "runtime event log repeated cargo delivery should have zero total");
+    const auto zero_delivery_summary = clc::sim::append_runtime_caravan_cargo_delivery_event(log, orchestration.arrival.arrival_day, repeated_delivery);
+    require(zero_delivery_summary.events_appended == 0, "runtime event log should not append zero cargo delivery event");
+    require(zero_delivery_summary.cargo_events == 0, "runtime event log should not count zero cargo delivery event");
+    require(log.size() == size_before_zero_delivery_append, "runtime event log should not mutate for zero cargo delivery result");
+
     auto invalid_delivery_result = delivery;
     invalid_delivery_result.total_amount = 11;
     const auto size_before_invalid_delivery_append = log.size();
