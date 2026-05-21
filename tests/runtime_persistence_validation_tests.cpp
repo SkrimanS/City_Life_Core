@@ -117,6 +117,16 @@ int main() {
         return 1;
     }
 
+    auto faction_name_drifted = loaded;
+    faction_name_drifted.factions.factions[0].display_name = "Drifted Faction";
+
+    const auto faction_name_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, faction_name_drifted);
+
+    if (faction_name_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted faction display name drift\n";
+        return 1;
+    }
+
     auto drifted = loaded;
     ++drifted.wallet.coins;
 
