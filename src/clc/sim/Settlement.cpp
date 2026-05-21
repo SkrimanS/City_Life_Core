@@ -14,21 +14,38 @@ std::uint64_t food_needed_for_population(std::uint64_t population) {
     return (population + k_people_per_food_unit - 1) / k_people_per_food_unit;
 }
 
-bool has_required_inputs(const ResourceStorage& storage, const data::BuildingDefinition& building_definition, std::uint64_t workers) {
+std::uint64_t scale_daily_amount(std::uint64_t amount_per_day, clc::GameTime::Tick ticks) noexcept {
+    if (amount_per_day == 0 || ticks == 0) {
+        return 0;
+    }
+    return (amount_per_day * ticks) / clc::ticks_per_day();
+}
+
+bool has_required_inputs(
+    const ResourceStorage& storage,
+    const data::BuildingDefinition& building_definition,
+    std::uint64_t workers,
+    clc::GameTime::Tick ticks
+) {
     for (const auto& input_resource_id : building_definition.input_resource_ids) {
-        const auto required = workers * k_input_per_worker_per_day;
-        if (storage.amount(input_resource_id) < required) {
+        const auto required = scale_daily_amount(workers * k_input_per_worker_per_day, ticks);
+        if (required > 0 && storage.amount(input_resource_id) < required) {
             return false;
         }
     }
     return true;
 }
 
-std::uint64_t consume_inputs(ResourceStorage& storage, const data::BuildingDefinition& building_definition, std::uint64_t workers) {
+std::uint64_t consume_inputs(
+    ResourceStorage& storage,
+    const data::BuildingDefinition& building_definition,
+    std::uint64_t workers,
+    clc::GameTime::Tick ticks
+) {
     std::uint64_t consumed{};
     for (const auto& input_resource_id : building_definition.input_resource_ids) {
-        const auto required = workers * k_input_per_worker_per_day;
-        if (storage.try_remove(input_resource_id, required)) {
+        const auto required = scale_daily_amount(workers * k_input_per_worker_per_day, ticks);
+        if (required > 0 && storage.try_remove(input_resource_id, required)) {
             consumed += required;
         }
     }
@@ -62,10 +79,14 @@ data::ValidationReport add_building(SettlementState& settlement, const data::Dat
     return report;
 }
 
-SettlementTickReport advance_settlement_day(SettlementState& settlement, const data::DataRegistry& registry) {
-    SettlementTickReport report{.settlement_id = settlement.id};
+SettlementTickReport advance_settlement_ticks(
+    SettlementState& settlement,
+    const data::DataRegistry& registry,
+    clc::GameTime::Tick ticks
+) {
+    SettlementTickReport report{.settlement_id = settlement.id, .elapsed_ticks = ticks};
 
-    const auto food_needed = food_needed_for_population(settlement.population);
+    const auto food_needed = scale_daily_amount(food_needed_for_population(settlement.population), ticks);
     const auto consumed = settlement.storage.remove_up_to("grain", food_needed);
     report.consumed_food = consumed;
 
@@ -88,27 +109,37 @@ SettlementTickReport advance_settlement_day(SettlementState& settlement, const d
             continue;
         }
 
-        if (!has_required_inputs(settlement.storage, *building_definition, workers)) {
+        const auto produced_per_output = scale_daily_amount(static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day, ticks);
+        if (produced_per_output == 0 && ticks > 0) {
+            ++report.skipped_buildings;
+            report.warnings.push_back("skipped building due to sub-unit tick production: " + building.definition_id);
+            continue;
+        }
+
+        if (!has_required_inputs(settlement.storage, *building_definition, workers, ticks)) {
             ++report.skipped_buildings;
             report.warnings.push_back("skipped building due to missing inputs: " + building.definition_id);
             continue;
         }
 
-        report.consumed_inputs += consume_inputs(settlement.storage, *building_definition, workers);
+        report.consumed_inputs += consume_inputs(settlement.storage, *building_definition, workers, ticks);
         ++report.active_buildings;
 
         for (const auto& output_resource_id : building_definition->output_resource_ids) {
-            const auto produced = static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day;
-            const auto add_report = settlement.storage.add(output_resource_id, produced);
+            const auto add_report = settlement.storage.add(output_resource_id, produced_per_output);
             if (!add_report.ok()) {
                 report.warnings.push_back("failed to store produced resource: " + output_resource_id);
                 continue;
             }
-            report.produced_resources += produced;
+            report.produced_resources += produced_per_output;
         }
     }
 
     return report;
+}
+
+SettlementTickReport advance_settlement_day(SettlementState& settlement, const data::DataRegistry& registry) {
+    return advance_settlement_ticks(settlement, registry, clc::ticks_per_day());
 }
 
 SettlementReport make_settlement_report(const SettlementState& settlement, const data::DataRegistry& registry) {
