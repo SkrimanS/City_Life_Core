@@ -1,5 +1,7 @@
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 
+#include <cstddef>
+
 namespace clc::sim {
 
 namespace {
@@ -7,6 +9,37 @@ namespace {
 void add_mismatch(data::ValidationReport& report, bool condition, const char* message) {
     if (!condition) {
         report.add_error(message);
+    }
+}
+
+void add_storage_mismatch(
+    data::ValidationReport& report,
+    const ResourceStorage& expected,
+    const ResourceStorage& actual,
+    const char* count_message,
+    const char* missing_resource_message,
+    const char* quantity_message
+) {
+    const auto& expected_entries = expected.entries();
+    const auto& actual_entries = actual.entries();
+
+    add_mismatch(report,
+        expected_entries.size() == actual_entries.size(),
+        count_message);
+
+    for (const auto& [resource_id, expected_quantity] : expected_entries) {
+        const auto actual_entry = actual_entries.find(resource_id);
+        add_mismatch(report,
+            actual_entry != actual_entries.end(),
+            missing_resource_message);
+
+        if (actual_entry == actual_entries.end()) {
+            continue;
+        }
+
+        add_mismatch(report,
+            expected_quantity == actual_entry->second,
+            quantity_message);
     }
 }
 
@@ -33,6 +66,18 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.routes.routes[index].id == actual.routes.routes[index].id,
             "runtime route id mismatch");
+        add_mismatch(report,
+            expected.routes.routes[index].display_name == actual.routes.routes[index].display_name,
+            "runtime route display name mismatch");
+        add_mismatch(report,
+            expected.routes.routes[index].origin_settlement_id == actual.routes.routes[index].origin_settlement_id,
+            "runtime route origin settlement id mismatch");
+        add_mismatch(report,
+            expected.routes.routes[index].destination_settlement_id == actual.routes.routes[index].destination_settlement_id,
+            "runtime route destination settlement id mismatch");
+        add_mismatch(report,
+            expected.routes.routes[index].travel_days == actual.routes.routes[index].travel_days,
+            "runtime route travel days mismatch");
     }
 
     add_mismatch(report,
@@ -46,6 +91,30 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.caravans.caravans[index].id == actual.caravans.caravans[index].id,
             "runtime caravan id mismatch");
+        add_mismatch(report,
+            expected.caravans.caravans[index].display_name == actual.caravans.caravans[index].display_name,
+            "runtime caravan display name mismatch");
+        add_mismatch(report,
+            expected.caravans.caravans[index].route_id == actual.caravans.caravans[index].route_id,
+            "runtime caravan route id mismatch");
+        add_mismatch(report,
+            expected.caravans.caravans[index].origin_settlement_id == actual.caravans.caravans[index].origin_settlement_id,
+            "runtime caravan origin settlement id mismatch");
+        add_mismatch(report,
+            expected.caravans.caravans[index].destination_settlement_id == actual.caravans.caravans[index].destination_settlement_id,
+            "runtime caravan destination settlement id mismatch");
+        add_mismatch(report,
+            expected.caravans.caravans[index].total_travel_days == actual.caravans.caravans[index].total_travel_days,
+            "runtime caravan total travel days mismatch");
+        add_mismatch(report,
+            expected.caravans.caravans[index].days_remaining == actual.caravans.caravans[index].days_remaining,
+            "runtime caravan days remaining mismatch");
+        add_storage_mismatch(report,
+            expected.caravans.caravans[index].cargo,
+            actual.caravans.caravans[index].cargo,
+            "runtime caravan cargo resource count mismatch",
+            "runtime caravan cargo resource id mismatch",
+            "runtime caravan cargo resource quantity mismatch");
     }
 
     add_mismatch(report,
@@ -59,11 +128,29 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.factions.factions[index].id == actual.factions.factions[index].id,
             "runtime faction id mismatch");
+        add_mismatch(report,
+            expected.factions.factions[index].display_name == actual.factions.factions[index].display_name,
+            "runtime faction display name mismatch");
     }
 
     add_mismatch(report,
         expected.factions.reputations.size() == actual.factions.reputations.size(),
         "runtime faction reputation count mismatch");
+
+    const auto faction_reputation_count = expected.factions.reputations.size() < actual.factions.reputations.size()
+        ? expected.factions.reputations.size()
+        : actual.factions.reputations.size();
+    for (std::size_t index = 0; index < faction_reputation_count; ++index) {
+        add_mismatch(report,
+            expected.factions.reputations[index].from_faction_id == actual.factions.reputations[index].from_faction_id,
+            "runtime faction reputation from faction id mismatch");
+        add_mismatch(report,
+            expected.factions.reputations[index].to_faction_id == actual.factions.reputations[index].to_faction_id,
+            "runtime faction reputation to faction id mismatch");
+        add_mismatch(report,
+            expected.factions.reputations[index].value == actual.factions.reputations[index].value,
+            "runtime faction reputation value mismatch");
+    }
 
     add_mismatch(report,
         expected.ownership.settlements.size() == actual.ownership.settlements.size(),
@@ -108,6 +195,30 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.contracts.contracts[index].id == actual.contracts.contracts[index].id,
             "runtime contract id mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].display_name == actual.contracts.contracts[index].display_name,
+            "runtime contract display name mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].issuer_faction_id == actual.contracts.contracts[index].issuer_faction_id,
+            "runtime contract issuer faction id mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].receiver_faction_id == actual.contracts.contracts[index].receiver_faction_id,
+            "runtime contract receiver faction id mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].resource_id == actual.contracts.contracts[index].resource_id,
+            "runtime contract resource id mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].quantity == actual.contracts.contracts[index].quantity,
+            "runtime contract quantity mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].reward_coins == actual.contracts.contracts[index].reward_coins,
+            "runtime contract reward coins mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].due_day == actual.contracts.contracts[index].due_day,
+            "runtime contract due day mismatch");
+        add_mismatch(report,
+            expected.contracts.contracts[index].status == actual.contracts.contracts[index].status,
+            "runtime contract status mismatch");
     }
 
     add_mismatch(report,
