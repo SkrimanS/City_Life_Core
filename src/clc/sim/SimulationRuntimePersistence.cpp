@@ -36,17 +36,14 @@ data::ValidationReport save_simulation_runtime_to_file(
     const SimulationRuntime& runtime,
     const std::filesystem::path& path
 ) {
-    return save_simulation_runtime_to_file(
-        runtime.engine,
-        runtime.routes,
-        runtime.caravans,
-        runtime.factions,
-        runtime.ownership,
-        runtime.contracts,
-        runtime.wallet,
-        runtime.ledger,
-        path
-    );
+    const auto state = capture_simulation_world_state(runtime);
+
+    auto report = validate_simulation_world_state(state);
+    if (!report.ok()) {
+        return report;
+    }
+
+    return save_simulation_world_state_to_file(state, path);
 }
 
 SimulationWorldStateLoadResult load_simulation_runtime_from_file(
@@ -92,17 +89,22 @@ SimulationWorldStateLoadResult load_simulation_runtime_from_file(
     const std::filesystem::path& path,
     SimulationRuntime& runtime
 ) {
-    return load_simulation_runtime_from_file(
-        path,
-        runtime.engine,
-        runtime.routes,
-        runtime.caravans,
-        runtime.factions,
-        runtime.ownership,
-        runtime.contracts,
-        runtime.wallet,
-        runtime.ledger
-    );
+    auto result = load_simulation_world_state_from_file(path);
+    if (!result.ok()) {
+        return result;
+    }
+
+    auto validation = validate_simulation_world_state(result.state);
+    if (!validation.ok()) {
+        result.validation = validation;
+        return result;
+    }
+
+    validation = restore_simulation_runtime_from_world_state(result.state, runtime);
+    if (!validation.ok()) {
+        result.validation = validation;
+    }
+    return result;
 }
 
 } // namespace clc::sim
