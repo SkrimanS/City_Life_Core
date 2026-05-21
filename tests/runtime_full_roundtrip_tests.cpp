@@ -1,4 +1,5 @@
 #include "clc/sim/SimulationPersistence.hpp"
+#include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
 
 #include <cstdlib>
@@ -36,6 +37,8 @@ int main() {
     require(clc::sim::advance_runtime_caravan_day(runtime, "roundtrip_caravan").ok(), "roundtrip caravan should advance before save");
     require(runtime.caravans.caravans[0].days_remaining == 1, "caravan progress should be partially advanced before save");
 
+    auto uninterrupted = runtime;
+
     const auto directory = std::filesystem::temp_directory_path() / "clc_runtime_full_roundtrip_tests";
     std::filesystem::remove_all(directory);
     std::filesystem::create_directories(directory);
@@ -46,6 +49,7 @@ int main() {
     clc::sim::SimulationRuntime loaded{clc::sim::make_basic_runtime_scenario_registry()};
     const auto loaded_result = clc::sim::load_simulation_runtime_from_file(file_path, loaded);
     require(loaded_result.ok(), "runtime should load mid-scenario");
+    require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "loaded runtime should match uninterrupted replay baseline after load");
 
     require(loaded.engine.settlement_resource_amount("riverwatch", "grain") == 10, "loaded runtime should preserve origin storage debit");
     require(loaded.engine.settlement_resource_amount("hillford", "grain") == 0, "loaded runtime should preserve destination before arrival");
@@ -58,10 +62,24 @@ int main() {
 
     const auto early_load_after_departure = clc::sim::load_runtime_caravan_at_origin(loaded, "roundtrip_caravan", "grain", 1);
     require(!early_load_after_departure.ok(), "loaded runtime should still reject loading after departure");
+    require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "failed loaded-runtime command should not drift from replay baseline");
+
+    auto uninterrupted_second_day = clc::sim::advance_runtime_caravan_day(uninterrupted, "roundtrip_caravan");
+    require(uninterrupted_second_day.ok(), "uninterrupted runtime should continue caravan travel");
+    require(uninterrupted_second_day.report.arrived, "uninterrupted runtime caravan should arrive on continued day");
 
     auto second_day = clc::sim::advance_runtime_caravan_day(loaded, "roundtrip_caravan");
     require(second_day.ok(), "loaded runtime should continue caravan travel");
     require(second_day.report.arrived, "loaded runtime caravan should arrive after continuing");
+    require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "continued loaded runtime should match uninterrupted replay baseline after arrival");
+
+    auto uninterrupted_fulfilled = clc::sim::fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger(
+        uninterrupted,
+        "grain_delivery_runtime",
+        "roundtrip_caravan",
+        "riverwatch"
+    );
+    require(uninterrupted_fulfilled.ok(), "uninterrupted runtime should fulfill contract after arrival");
 
     auto fulfilled = clc::sim::fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger(
         loaded,
@@ -70,6 +88,8 @@ int main() {
         "riverwatch"
     );
     require(fulfilled.ok(), "loaded runtime should fulfill contract after arrival");
+    require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "fulfilled loaded runtime should match uninterrupted replay baseline");
+
     require(loaded.wallet.coins == 85, "loaded runtime should credit reward wallet");
     require(loaded.ledger.entries().size() == 1, "loaded runtime should record reward ledger");
     require(loaded.ledger.entries()[0].sequence == 1, "loaded runtime ledger should start at sequence one");
@@ -77,7 +97,9 @@ int main() {
     require(loaded.contracts.contracts[0].status == clc::sim::ContractStatus::fulfilled, "loaded runtime should update contract status");
     require(loaded.caravans.caravans[0].cargo.amount("grain") == 10, "loaded runtime fulfillment should debit cargo");
 
+    require(clc::sim::unload_runtime_caravan_at_destination(uninterrupted, "roundtrip_caravan", "grain", 10).ok(), "uninterrupted runtime should unload remaining cargo");
     require(clc::sim::unload_runtime_caravan_at_destination(loaded, "roundtrip_caravan", "grain", 10).ok(), "loaded runtime should unload remaining cargo");
+    require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "unloaded loaded runtime should match uninterrupted replay baseline");
     require(loaded.engine.settlement_resource_amount("hillford", "grain") == 10, "loaded runtime should credit destination after unload");
     require(loaded.caravans.caravans[0].cargo.empty(), "loaded runtime cargo should be empty after unload");
 
