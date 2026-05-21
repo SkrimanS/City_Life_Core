@@ -1,5 +1,6 @@
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <cstdlib>
 #include <filesystem>
@@ -14,6 +15,7 @@ constexpr std::string_view caravan_id = "replay_caravan";
 constexpr std::string_view origin_faction_id = "riverwatch";
 constexpr std::string_view contract_id = "grain_delivery_runtime";
 constexpr std::string_view resource_id = "grain";
+constexpr std::string_view destination_settlement_id = "hillford";
 
 void require(bool condition, std::string_view message) {
     if (!condition) {
@@ -55,7 +57,7 @@ void apply_pre_save_replay_sequence(clc::sim::SimulationRuntime& runtime) {
     );
 
     require(
-        clc::sim::load_runtime_caravan_at_origin(runtime, caravan_id, resource_id, 30).ok(),
+        clc::sim::load_runtime_caravan_at_origin(runtime, caravan_id, resource_id, 40).ok(),
         "replay caravan cargo load failed"
     );
 
@@ -77,6 +79,14 @@ void apply_post_load_replay_sequence(clc::sim::SimulationRuntime& runtime) {
         origin_faction_id
     );
     require(fulfilled.ok(), "replay contract fulfillment failed");
+
+    const auto delivery = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, caravan_id);
+    require(delivery.ok(), "replay cargo delivery failed");
+    require(delivery.total_amount == 10, "replay cargo delivery moved unexpected total amount");
+    require(delivery.delivered.size() == 1, "replay cargo delivery should report one resource entry");
+    require(delivery.delivered[0].resource_id == resource_id, "replay cargo delivery should report grain entry");
+    require(delivery.delivered[0].amount == 10, "replay cargo delivery should report remaining grain amount");
+    require(runtime.engine.settlement_resource_amount(destination_settlement_id, resource_id) == 10, "replay cargo delivery should credit destination storage");
 
     const auto reports = runtime.engine.run_days(2);
     require(reports.size() == 2, "replay engine post-load advance failed");
@@ -114,12 +124,16 @@ int main() {
     apply_post_load_replay_sequence(control);
     apply_post_load_replay_sequence(replayed);
 
-    require_runtimes_match(control, replayed, "post-load replay runtime mismatch");
+    require_runtimes_match(control, replayed, "post-load replay runtime mismatch after cargo delivery");
 
     auto drifted = replayed;
     const auto reports = drifted.engine.run_days(1);
     require(reports.size() == 1, "replay negative drift setup failed");
     expect_runtime_drift_detected(control, drifted, "runtime match unexpectedly accepted replay drift");
+
+    auto storage_drifted = replayed;
+    require(storage_drifted.engine.add_resource_to_settlement(std::string{destination_settlement_id}, std::string{resource_id}, 1).ok(), "replay destination storage drift setup failed");
+    expect_runtime_drift_detected(control, storage_drifted, "runtime match unexpectedly accepted delivered storage drift");
 
     std::filesystem::remove_all(directory);
     return 0;
