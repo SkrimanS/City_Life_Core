@@ -80,6 +80,7 @@ struct RuntimeEventLogChecksumComparison final {
 [[nodiscard]] RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_tick_order(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLog& log);
+[[nodiscard]] data::ValidationReport validate_runtime_event_log_payloads(const clc::EventLog& log);
 [[nodiscard]] data::ValidationReport validate_runtime_event_log(const clc::EventLog& log);
 [[nodiscard]] RuntimeEventLogChecksum calculate_runtime_event_log_checksum(const clc::EventLog& log);
 [[nodiscard]] RuntimeEventLogChecksumComparison compare_runtime_event_log_checksums(
