@@ -177,6 +177,16 @@ int main() {
         return 1;
     }
 
+    auto contract_name_drifted = loaded;
+    contract_name_drifted.contracts.contracts[0].display_name = "Drifted Contract";
+
+    const auto contract_name_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, contract_name_drifted);
+
+    if (contract_name_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted contract display name drift\n";
+        return 1;
+    }
+
     auto contract_drifted = loaded;
     contract_drifted.contracts.contracts[0].id = "drifted_contract";
 
