@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace clc::sim {
 
@@ -21,6 +22,23 @@ struct RuntimeCaravanCreationResult final {
 
 struct RuntimeCaravanAdvanceResult final {
     CaravanAdvanceReport report{};
+    data::ValidationReport validation{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return validation.ok();
+    }
+};
+
+struct RuntimeCargoDeliveryEntry final {
+    std::string resource_id{};
+    std::uint64_t amount{0};
+};
+
+struct RuntimeCaravanCargoDeliveryResult final {
+    std::string caravan_id{};
+    std::string destination_settlement_id{};
+    std::vector<RuntimeCargoDeliveryEntry> delivered{};
+    std::uint64_t total_amount{0};
     data::ValidationReport validation{};
 
     [[nodiscard]] bool ok() const noexcept {
@@ -92,6 +110,11 @@ struct RuntimeCaravanAdvanceResult final {
     std::string_view caravan_id,
     std::string_view resource_id,
     std::uint64_t amount
+);
+
+[[nodiscard]] RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_destination(
+    SimulationRuntime& runtime,
+    std::string_view caravan_id
 );
 
 [[nodiscard]] ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
