@@ -17,12 +17,18 @@ struct BuildingInstance final {
     std::uint32_t assigned_workers{0};
 };
 
+struct SettlementTickRemainder final {
+    std::string key{};
+    std::uint64_t numerator{0};
+};
+
 struct SettlementState final {
     std::string id{};
     std::string display_name{};
     std::uint64_t population{0};
     ResourceStorage storage{};
     std::vector<BuildingInstance> buildings{};
+    std::vector<SettlementTickRemainder> tick_remainders{};
 };
 
 struct SettlementTickReport final {
