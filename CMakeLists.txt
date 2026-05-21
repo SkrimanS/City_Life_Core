@@ -240,6 +240,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_runtime_tick_deadline_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_tick_deadline_tests COMMAND clc_runtime_tick_deadline_tests)
 
+    add_executable(clc_runtime_tick_deadline_persistence_tests tests/runtime_tick_deadline_persistence_tests.cpp)
+    target_link_libraries(clc_runtime_tick_deadline_persistence_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_tick_deadline_persistence_tests COMMAND clc_runtime_tick_deadline_persistence_tests)
+
     add_executable(clc_runtime_run_days_tests tests/runtime_run_days_tests.cpp)
     target_link_libraries(clc_runtime_run_days_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_run_days_tests COMMAND clc_runtime_run_days_tests)
