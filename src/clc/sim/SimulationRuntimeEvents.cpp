@@ -85,11 +85,12 @@ RuntimeEventLogSummary append_runtime_day_report_events(
     const SimulationRuntimeDayReport& report
 ) {
     RuntimeEventLogSummary summary{};
+    const auto event_tick = report.ticks.tick_after;
 
     append_event(
         log,
         summary,
-        report.engine.day,
+        event_tick,
         "runtime.day.completed",
         "day=" + std::to_string(report.engine.day)
     );
@@ -99,7 +100,7 @@ RuntimeEventLogSummary append_runtime_day_report_events(
         append_event(
             log,
             summary,
-            report.engine.day,
+            event_tick,
             caravan.advance.arrived ? "runtime.caravan.arrived" : "runtime.caravan.progress",
             caravan.caravan_id
         );
@@ -110,7 +111,7 @@ RuntimeEventLogSummary append_runtime_day_report_events(
         append_event(
             log,
             summary,
-            report.engine.day,
+            report.contracts.current_tick,
             "runtime.contract.failed",
             contract_id
         );
@@ -148,7 +149,7 @@ RuntimeEventLogSummary append_runtime_arrival_contract_events(
         append_event(
             log,
             summary,
-            result.arrival.arrival_day,
+            result.arrival.arrival_elapsed_ticks,
             "runtime.contract.fulfilled",
             result.fulfillment.contract_id
         );
