@@ -36,6 +36,16 @@ void restore_engine_state(
     require(restore_report.ok(), message);
 }
 
+void advance_runtime_for_continuation(clc::sim::SimulationRuntime& runtime) {
+    const auto reports = runtime.engine.run_days(2);
+    require(reports.size() == 2, "runtime continuation engine advance failed");
+
+    for (auto& caravan : runtime.caravans.caravans) {
+        const auto report = clc::sim::advance_caravan_day(caravan);
+        (void)report;
+    }
+}
+
 clc::sim::SimulationRuntime make_runtime_with_registry(
     const clc::sim::SimulationRuntime& source,
     clc::data::DataRegistry registry
@@ -127,6 +137,22 @@ int main() {
 
     const auto runtime_match = clc::sim::validate_simulation_runtimes_match(runtime, loaded);
     require(runtime_match.ok(), "runtime match validation failed");
+
+    auto continued_runtime = runtime;
+    auto continued_loaded = loaded;
+    advance_runtime_for_continuation(continued_runtime);
+    advance_runtime_for_continuation(continued_loaded);
+
+    const auto continued_match = clc::sim::validate_simulation_runtimes_match(continued_runtime, continued_loaded);
+    require(continued_match.ok(), "post-load continuation runtime match failed");
+
+    auto extra_continuation_drifted = continued_loaded;
+    advance_runtime_for_continuation(extra_continuation_drifted);
+    expect_runtime_drift_detected(
+        continued_runtime,
+        extra_continuation_drifted,
+        "runtime match unexpectedly accepted extra post-load continuation drift"
+    );
 
     auto registry_resource_drifted = loaded;
     require(
