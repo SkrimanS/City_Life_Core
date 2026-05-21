@@ -23,12 +23,11 @@ SimulationRuntimeTickReport advance_runtime_ticks(SimulationRuntime& runtime, cl
     SimulationRuntimeTickReport report{};
     report.elapsed_ticks = ticks;
 
-    for (const auto& caravan : runtime.caravans.caravans) {
+    for (auto& caravan : runtime.caravans.caravans) {
         RuntimeCaravanTickReport caravan_report{};
         caravan_report.caravan_id = caravan.id;
 
-        auto* mutable_caravan = const_cast<CaravanState*>(&caravan);
-        const auto advanced = advance_caravan_ticks(*mutable_caravan, ticks);
+        const auto advanced = advance_caravan_ticks(caravan, ticks);
         caravan_report.advance = advanced;
 
         if (advanced.arrived && advanced.ticks_elapsed > 0) {
@@ -109,13 +108,11 @@ SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
         auto report = advance_runtime_day(runtime);
         merge_validation(result.run.validation, report.validation);
 
+        result.arrival_elapsed_ticks += report.ticks.elapsed_ticks;
         if (!report.arrived_caravan_ids.empty()) {
             result.arrival_reached = true;
             result.arrived_caravan_id = report.arrived_caravan_ids.front();
             result.arrival_day = report.engine.day;
-            result.arrival_elapsed_ticks += report.ticks.elapsed_ticks;
-        } else {
-            result.arrival_elapsed_ticks += report.ticks.elapsed_ticks;
         }
 
         result.run.reports.push_back(std::move(report));
