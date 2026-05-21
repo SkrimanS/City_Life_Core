@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clc/core/Time.hpp"
 #include "clc/data/Validation.hpp"
 #include "clc/economy/Ledger.hpp"
 #include "clc/economy/Trade.hpp"
@@ -26,6 +27,7 @@ struct SimulationSnapshotLoadResult final {
 
 struct SimulationWorldState final {
     SimulationEngineState engine{};
+    clc::GameTime time{};
     SettlementRouteCatalog routes{};
     CaravanFleet caravans{};
     FactionCatalog factions{};
