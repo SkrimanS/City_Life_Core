@@ -284,6 +284,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_contracts_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_contracts_tests COMMAND clc_contracts_tests)
 
+    add_executable(clc_contract_tick_deadline_tests tests/contract_tick_deadline_tests.cpp)
+    target_link_libraries(clc_contract_tick_deadline_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_contract_tick_deadline_tests COMMAND clc_contract_tick_deadline_tests)
+
     add_executable(clc_contract_reward_ledger_tests tests/contract_reward_ledger_tests.cpp)
     target_link_libraries(clc_contract_reward_ledger_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_contract_reward_ledger_tests COMMAND clc_contract_reward_ledger_tests)
