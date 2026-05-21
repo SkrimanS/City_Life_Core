@@ -214,7 +214,7 @@ data::ValidationReport load_runtime_caravan_at_origin(
         report.add_error("simulation.settlement." + caravan->origin_settlement_id, "unknown caravan origin settlement");
         return report;
     }
-    if (caravan->days_remaining != caravan->total_travel_days) {
+    if (caravan_ticks_remaining(*caravan) != caravan_total_travel_ticks(*caravan)) {
         report.add_error("simulation.caravan." + caravan->id + ".load", "caravan can only load before departure");
         return report;
     }
