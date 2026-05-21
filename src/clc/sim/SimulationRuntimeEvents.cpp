@@ -26,6 +26,50 @@ bool is_known_runtime_event_type(const std::string& type) {
         || type == "runtime.contract.failed";
 }
 
+bool decimal_digits_only(std::string_view value) noexcept {
+    if (value.empty()) {
+        return false;
+    }
+    for (const auto character : value) {
+        if (character < '0' || character > '9') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool positive_decimal_digits(std::string_view value) noexcept {
+    if (!decimal_digits_only(value)) {
+        return false;
+    }
+    for (const auto character : value) {
+        if (character != '0') {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool valid_cargo_delivery_payload(std::string_view payload) noexcept {
+    const auto arrow = payload.find("->");
+    if (arrow == std::string_view::npos || arrow == 0) {
+        return false;
+    }
+
+    constexpr std::string_view total_marker = ":total=";
+    const auto total = payload.find(total_marker, arrow + 2);
+    if (total == std::string_view::npos || total == arrow + 2) {
+        return false;
+    }
+
+    const auto amount_start = total + total_marker.size();
+    if (amount_start >= payload.size()) {
+        return false;
+    }
+
+    return positive_decimal_digits(payload.substr(amount_start));
+}
+
 std::string cargo_delivery_payload(const RuntimeCaravanCargoDeliveryResult& result) {
     return result.caravan_id
         + "->"
@@ -228,6 +272,35 @@ data::ValidationReport validate_runtime_event_log_known_types(const clc::EventLo
     return report;
 }
 
+data::ValidationReport validate_runtime_event_log_payloads(const clc::EventLog& log) {
+    data::ValidationReport report{};
+
+    for (const auto& event : log.events()) {
+        if (event.type == "runtime.day.completed") {
+            constexpr std::string_view prefix = "day=";
+            if (event.payload.rfind(prefix, 0) != 0 || !decimal_digits_only(std::string_view{event.payload}.substr(prefix.size()))) {
+                report.add_error("runtime.event_log.payload", "day event payload must be day=N");
+                return report;
+            }
+        } else if (event.type == "runtime.caravan.progress"
+            || event.type == "runtime.caravan.arrived"
+            || event.type == "runtime.contract.fulfilled"
+            || event.type == "runtime.contract.failed") {
+            if (event.payload.empty()) {
+                report.add_error("runtime.event_log.payload", "runtime event payload must not be empty");
+                return report;
+            }
+        } else if (event.type == "runtime.caravan.cargo_delivered") {
+            if (!valid_cargo_delivery_payload(event.payload)) {
+                report.add_error("runtime.event_log.payload", "cargo delivery payload must be caravan->settlement:total=N with N greater than zero");
+                return report;
+            }
+        }
+    }
+
+    return report;
+}
+
 data::ValidationReport validate_runtime_event_log(const clc::EventLog& log) {
     auto report = validate_runtime_event_log_tick_order(log);
 
@@ -235,7 +308,12 @@ data::ValidationReport validate_runtime_event_log(const clc::EventLog& log) {
         return report;
     }
 
-    return validate_runtime_event_log_known_types(log);
+    report = validate_runtime_event_log_known_types(log);
+    if (!report.ok()) {
+        return report;
+    }
+
+    return validate_runtime_event_log_payloads(log);
 }
 
 RuntimeEventLogChecksum calculate_runtime_event_log_checksum(const clc::EventLog& log) {
