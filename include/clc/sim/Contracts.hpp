@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clc/core/Time.hpp"
 #include "clc/data/Validation.hpp"
 #include "clc/economy/Ledger.hpp"
 #include "clc/economy/Trade.hpp"
@@ -31,6 +32,7 @@ struct ResourceDeliveryContract final {
     std::uint64_t quantity{0};
     std::uint64_t reward_coins{0};
     std::uint64_t due_day{0};
+    clc::GameTime::Tick due_ticks{0};
     ContractStatus status{ContractStatus::open};
 };
 
@@ -53,6 +55,7 @@ struct ContractFulfillmentResult final {
 
 struct ContractDeadlineReport final {
     std::uint64_t current_day{0};
+    clc::GameTime::Tick current_tick{0};
     std::uint64_t failed_count{0};
     std::vector<std::string> failed_contract_ids{};
 };
@@ -60,6 +63,7 @@ struct ContractDeadlineReport final {
 [[nodiscard]] std::string_view contract_status_name(ContractStatus status) noexcept;
 [[nodiscard]] bool contract_is_open(const ResourceDeliveryContract& contract) noexcept;
 [[nodiscard]] bool contract_is_terminal(const ResourceDeliveryContract& contract) noexcept;
+[[nodiscard]] clc::GameTime::Tick contract_due_ticks(const ResourceDeliveryContract& contract) noexcept;
 
 [[nodiscard]] data::ValidationReport validate_resource_delivery_contract(const ResourceDeliveryContract& contract);
 [[nodiscard]] data::ValidationReport validate_resource_delivery_contract_for_factions(
@@ -141,6 +145,7 @@ struct ContractDeadlineReport final {
     economy::EconomyLedger& ledger
 );
 
+[[nodiscard]] ContractDeadlineReport fail_overdue_open_contracts_at_tick(ContractCatalog& catalog, clc::GameTime::Tick current_tick);
 [[nodiscard]] ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day);
 
 [[nodiscard]] data::ValidationReport mark_contract_fulfilled(ContractCatalog& catalog, std::string_view contract_id);
@@ -150,6 +155,7 @@ struct ContractDeadlineReport final {
 [[nodiscard]] std::vector<ResourceDeliveryContract> open_contracts(const ContractCatalog& catalog);
 [[nodiscard]] std::vector<ResourceDeliveryContract> terminal_contracts(const ContractCatalog& catalog);
 [[nodiscard]] std::vector<ResourceDeliveryContract> contracts_for_faction(const ContractCatalog& catalog, std::string_view faction_id);
+[[nodiscard]] std::vector<ResourceDeliveryContract> overdue_open_contracts_at_tick(const ContractCatalog& catalog, clc::GameTime::Tick current_tick);
 [[nodiscard]] std::vector<ResourceDeliveryContract> overdue_open_contracts(const ContractCatalog& catalog, std::uint64_t current_day);
 
 } // namespace clc::sim
