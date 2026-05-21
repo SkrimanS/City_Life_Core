@@ -201,6 +201,7 @@ std::string serialize_simulation_world_state(const SimulationWorldState& state) 
     std::string output;
     append_line(output, {"CLC_SIM_WORLD_STATE", "1"});
     append_line(output, {"day", std::to_string(state.engine.current_day)});
+    append_line(output, {"time", std::to_string(state.time.current_tick())});
     append_line(output, {"wallet", std::to_string(state.wallet.coins)});
 
     for (const auto& settlement : state.engine.settlements) {
@@ -263,7 +264,19 @@ std::string serialize_simulation_world_state(const SimulationWorldState& state) 
         append_line(output, {"caravan_owner", escape_field(ownership.caravan_id), escape_field(ownership.faction_id)});
     }
     for (const auto& contract : state.contracts.contracts) {
-        append_line(output, {"contract", escape_field(contract.id), escape_field(contract.display_name), escape_field(contract.issuer_faction_id), escape_field(contract.receiver_faction_id), escape_field(contract.resource_id), std::to_string(contract.quantity), std::to_string(contract.reward_coins), std::to_string(contract.due_day), contract_status_to_string(contract.status)});
+        append_line(output, {
+            "contract",
+            escape_field(contract.id),
+            escape_field(contract.display_name),
+            escape_field(contract.issuer_faction_id),
+            escape_field(contract.receiver_faction_id),
+            escape_field(contract.resource_id),
+            std::to_string(contract.quantity),
+            std::to_string(contract.reward_coins),
+            std::to_string(contract.due_day),
+            std::to_string(contract_due_ticks(contract)),
+            contract_status_to_string(contract.status)
+        });
     }
     for (const auto& entry : state.ledger_entries) {
         append_line(output, {"ledger", std::to_string(entry.sequence), ledger_type_to_string(entry.type), escape_field(entry.resource_id), std::to_string(entry.quantity), std::to_string(entry.unit_price), std::to_string(entry.total_price), escape_field(entry.reference_id), escape_field(entry.note)});
@@ -293,6 +306,9 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
             } else if (fields[0] == "day") {
                 if (fields.size() != 2) result.validation.add_error(path, "day row must have 2 fields");
                 else result.state.engine.current_day = parse_required_uint64(fields[1], result.validation, path + ".day");
+            } else if (fields[0] == "time") {
+                if (fields.size() != 2) result.validation.add_error(path, "time row must have 2 fields");
+                else result.state.time = clc::GameTime{parse_required_uint64(fields[1], result.validation, path + ".tick")};
             } else if (fields[0] == "wallet") {
                 if (fields.size() != 2) result.validation.add_error(path, "wallet row must have 2 fields");
                 else result.state.wallet.coins = parse_required_uint64(fields[1], result.validation, path + ".coins");
@@ -356,8 +372,15 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
                 if (fields.size() != 3) result.validation.add_error(path, "caravan_owner row must have 3 fields");
                 else result.state.ownership.caravans.push_back(CaravanOwnership{.caravan_id = unescape_field(fields[1], result.validation, path + ".caravan_id"), .faction_id = unescape_field(fields[2], result.validation, path + ".faction_id")});
             } else if (fields[0] == "contract") {
-                if (fields.size() != 10) result.validation.add_error(path, "contract row must have 10 fields");
-                else result.state.contracts.contracts.push_back(ResourceDeliveryContract{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .issuer_faction_id = unescape_field(fields[3], result.validation, path + ".issuer"), .receiver_faction_id = unescape_field(fields[4], result.validation, path + ".receiver"), .resource_id = unescape_field(fields[5], result.validation, path + ".resource_id"), .quantity = parse_required_uint64(fields[6], result.validation, path + ".quantity"), .reward_coins = parse_required_uint64(fields[7], result.validation, path + ".reward"), .due_day = parse_required_uint64(fields[8], result.validation, path + ".due_day"), .status = parse_contract_status(fields[9], result.validation, path + ".status")});
+                if (fields.size() != 10 && fields.size() != 11) result.validation.add_error(path, "contract row must have 10 or 11 fields");
+                else {
+                    const auto due_day = parse_required_uint64(fields[8], result.validation, path + ".due_day");
+                    const auto due_ticks = fields.size() == 11
+                        ? parse_required_uint64(fields[9], result.validation, path + ".due_ticks")
+                        : clc::days_to_ticks(due_day);
+                    const auto status_index = fields.size() == 11 ? 10U : 9U;
+                    result.state.contracts.contracts.push_back(ResourceDeliveryContract{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .issuer_faction_id = unescape_field(fields[3], result.validation, path + ".issuer"), .receiver_faction_id = unescape_field(fields[4], result.validation, path + ".receiver"), .resource_id = unescape_field(fields[5], result.validation, path + ".resource_id"), .quantity = parse_required_uint64(fields[6], result.validation, path + ".quantity"), .reward_coins = parse_required_uint64(fields[7], result.validation, path + ".reward"), .due_day = due_day, .due_ticks = due_ticks, .status = parse_contract_status(fields[status_index], result.validation, path + ".status")});
+                }
             } else if (fields[0] == "ledger") {
                 if (fields.size() != 9) result.validation.add_error(path, "ledger row must have 9 fields");
                 else result.state.ledger_entries.push_back(economy::LedgerEntry{.sequence = parse_required_uint64(fields[1], result.validation, path + ".sequence"), .type = parse_ledger_type(fields[2], result.validation, path + ".type"), .resource_id = unescape_field(fields[3], result.validation, path + ".resource_id"), .quantity = parse_required_uint64(fields[4], result.validation, path + ".quantity"), .unit_price = parse_required_uint64(fields[5], result.validation, path + ".unit_price"), .total_price = parse_required_uint64(fields[6], result.validation, path + ".total_price"), .reference_id = unescape_field(fields[7], result.validation, path + ".reference_id"), .note = unescape_field(fields[8], result.validation, path + ".note")});
