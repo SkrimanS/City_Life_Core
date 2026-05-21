@@ -1,5 +1,6 @@
 #include "clc/sim/SimulationRuntimeTick.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <utility>
 
@@ -55,6 +56,97 @@ SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime) {
     merge_validation(report.validation, report.ticks.validation);
 
     return report;
+}
+
+SimulationRuntimeTickRunSummary summarize_runtime_tick_reports(const std::vector<SimulationRuntimeTickReport>& reports) {
+    SimulationRuntimeTickRunSummary summary{};
+
+    if (reports.empty()) {
+        return summary;
+    }
+
+    summary.tick_steps = reports.size();
+    summary.first_tick = reports.front().tick_after;
+    summary.last_tick = reports.back().tick_after;
+
+    for (const auto& report : reports) {
+        summary.ticks_elapsed += report.elapsed_ticks;
+        summary.warnings += report.validation.warning_count();
+        summary.contract_failures += report.contracts.failed_count;
+
+        for (const auto& caravan : report.caravans) {
+            ++summary.caravan_ticks;
+            if (caravan.advance.arrived && caravan.advance.ticks_elapsed > 0) {
+                ++summary.caravan_arrivals;
+            }
+        }
+    }
+
+    return summary;
+}
+
+SimulationRuntimeTickRunResult run_runtime_ticks(
+    SimulationRuntime& runtime,
+    clc::GameTime::Tick total_ticks,
+    clc::GameTime::Tick step_ticks
+) {
+    SimulationRuntimeTickRunResult result{};
+
+    if (step_ticks == 0) {
+        result.validation.add_error("simulation.runtime.tick", "step_ticks must be greater than zero");
+        return result;
+    }
+
+    clc::GameTime::Tick elapsed = 0;
+    while (elapsed < total_ticks) {
+        const auto remaining = total_ticks - elapsed;
+        const auto step = std::min(step_ticks, remaining);
+        auto report = advance_runtime_ticks(runtime, step);
+        elapsed += step;
+        merge_validation(result.validation, report.validation);
+        result.reports.push_back(std::move(report));
+    }
+
+    result.summary = summarize_runtime_tick_reports(result.reports);
+    return result;
+}
+
+SimulationRuntimeTickRunUntilArrivalResult run_runtime_until_first_caravan_arrival_by_ticks(
+    SimulationRuntime& runtime,
+    clc::GameTime::Tick max_ticks,
+    clc::GameTime::Tick step_ticks
+) {
+    SimulationRuntimeTickRunUntilArrivalResult result{};
+
+    if (step_ticks == 0) {
+        result.run.validation.add_error("simulation.runtime.tick", "step_ticks must be greater than zero");
+        return result;
+    }
+
+    clc::GameTime::Tick elapsed = 0;
+    while (elapsed < max_ticks) {
+        const auto remaining = max_ticks - elapsed;
+        const auto step = std::min(step_ticks, remaining);
+        auto report = advance_runtime_ticks(runtime, step);
+        elapsed += step;
+        merge_validation(result.run.validation, report.validation);
+
+        result.arrival_elapsed_ticks += report.elapsed_ticks;
+        if (!report.arrived_caravan_ids.empty()) {
+            result.arrival_reached = true;
+            result.arrived_caravan_id = report.arrived_caravan_ids.front();
+            result.arrival_tick = report.tick_after;
+        }
+
+        result.run.reports.push_back(std::move(report));
+
+        if (result.arrival_reached) {
+            break;
+        }
+    }
+
+    result.run.summary = summarize_runtime_tick_reports(result.run.reports);
+    return result;
 }
 
 SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports) {
