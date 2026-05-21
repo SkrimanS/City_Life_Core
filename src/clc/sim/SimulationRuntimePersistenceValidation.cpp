@@ -1,6 +1,7 @@
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 
 #include <cstddef>
+#include <string_view>
 
 namespace clc::sim {
 
@@ -32,6 +33,73 @@ void add_registry_count_mismatches(
     add_mismatch(report,
         expected.settlement_count() == actual.settlement_count(),
         "runtime registry settlement count mismatch");
+}
+
+void add_resource_definition_mismatch(
+    data::ValidationReport& report,
+    const data::DataRegistry& expected,
+    const data::DataRegistry& actual,
+    std::string_view resource_id
+) {
+    if (resource_id.empty()) {
+        return;
+    }
+
+    const auto* expected_resource = expected.resource(resource_id);
+    const auto* actual_resource = actual.resource(resource_id);
+
+    add_mismatch(report,
+        (expected_resource != nullptr) == (actual_resource != nullptr),
+        "runtime registry resource definition presence mismatch");
+
+    if (expected_resource == nullptr || actual_resource == nullptr) {
+        return;
+    }
+
+    add_mismatch(report,
+        expected_resource->id == actual_resource->id,
+        "runtime registry resource id mismatch");
+    add_mismatch(report,
+        expected_resource->display_name == actual_resource->display_name,
+        "runtime registry resource display name mismatch");
+    add_mismatch(report,
+        expected_resource->category == actual_resource->category,
+        "runtime registry resource category mismatch");
+    add_mismatch(report,
+        expected_resource->base_value == actual_resource->base_value,
+        "runtime registry resource base value mismatch");
+}
+
+void add_settlement_definition_mismatch(
+    data::ValidationReport& report,
+    const data::DataRegistry& expected,
+    const data::DataRegistry& actual,
+    std::string_view settlement_id
+) {
+    if (settlement_id.empty()) {
+        return;
+    }
+
+    const auto* expected_settlement = expected.settlement(settlement_id);
+    const auto* actual_settlement = actual.settlement(settlement_id);
+
+    add_mismatch(report,
+        (expected_settlement != nullptr) == (actual_settlement != nullptr),
+        "runtime registry settlement definition presence mismatch");
+
+    if (expected_settlement == nullptr || actual_settlement == nullptr) {
+        return;
+    }
+
+    add_mismatch(report,
+        expected_settlement->id == actual_settlement->id,
+        "runtime registry settlement id mismatch");
+    add_mismatch(report,
+        expected_settlement->display_name == actual_settlement->display_name,
+        "runtime registry settlement display name mismatch");
+    add_mismatch(report,
+        expected_settlement->starting_population == actual_settlement->starting_population,
+        "runtime registry settlement starting population mismatch");
 }
 
 void add_storage_mismatch(
@@ -73,7 +141,10 @@ data::ValidationReport validate_simulation_runtimes_match(
 ) {
     data::ValidationReport report{};
 
-    add_registry_count_mismatches(report, expected.engine.registry(), actual.engine.registry());
+    const auto& expected_registry = expected.engine.registry();
+    const auto& actual_registry = actual.engine.registry();
+
+    add_registry_count_mismatches(report, expected_registry, actual_registry);
 
     add_mismatch(report,
         expected.engine.current_day() == actual.engine.current_day(),
@@ -99,12 +170,17 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected_settlement.population == actual_settlement.population,
             "runtime engine settlement population mismatch");
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected_settlement.id);
         add_storage_mismatch(report,
             expected_settlement.storage,
             actual_settlement.storage,
             "runtime engine settlement storage resource count mismatch",
             "runtime engine settlement storage resource id mismatch",
             "runtime engine settlement storage resource quantity mismatch");
+        for (const auto& [resource_id, expected_quantity] : expected_settlement.storage.entries()) {
+            (void)expected_quantity;
+            add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
+        }
 
         add_mismatch(report,
             expected_settlement.buildings.size() == actual_settlement.buildings.size(),
@@ -161,6 +237,7 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected_demand == actual_demand->second,
             "runtime engine market demand value mismatch");
+        add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
     }
 
     add_mismatch(report,
@@ -186,6 +263,8 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.routes.routes[index].travel_days == actual.routes.routes[index].travel_days,
             "runtime route travel days mismatch");
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.routes.routes[index].origin_settlement_id);
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.routes.routes[index].destination_settlement_id);
     }
 
     add_mismatch(report,
@@ -217,12 +296,18 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.caravans.caravans[index].days_remaining == actual.caravans.caravans[index].days_remaining,
             "runtime caravan days remaining mismatch");
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.caravans.caravans[index].origin_settlement_id);
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.caravans.caravans[index].destination_settlement_id);
         add_storage_mismatch(report,
             expected.caravans.caravans[index].cargo,
             actual.caravans.caravans[index].cargo,
             "runtime caravan cargo resource count mismatch",
             "runtime caravan cargo resource id mismatch",
             "runtime caravan cargo resource quantity mismatch");
+        for (const auto& [resource_id, expected_quantity] : expected.caravans.caravans[index].cargo.entries()) {
+            (void)expected_quantity;
+            add_resource_definition_mismatch(report, expected_registry, actual_registry, resource_id);
+        }
     }
 
     add_mismatch(report,
@@ -274,6 +359,7 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.ownership.settlements[index].faction_id == actual.ownership.settlements[index].faction_id,
             "runtime settlement ownership faction id mismatch");
+        add_settlement_definition_mismatch(report, expected_registry, actual_registry, expected.ownership.settlements[index].settlement_id);
     }
 
     add_mismatch(report,
@@ -327,6 +413,7 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected.contracts.contracts[index].status == actual.contracts.contracts[index].status,
             "runtime contract status mismatch");
+        add_resource_definition_mismatch(report, expected_registry, actual_registry, expected.contracts.contracts[index].resource_id);
     }
 
     add_mismatch(report,
@@ -371,6 +458,7 @@ data::ValidationReport validate_simulation_runtimes_match(
         add_mismatch(report,
             expected_ledger_entries[index].note == actual_ledger_entries[index].note,
             "runtime ledger note mismatch");
+        add_resource_definition_mismatch(report, expected_registry, actual_registry, expected_ledger_entries[index].resource_id);
     }
 
     return report;
