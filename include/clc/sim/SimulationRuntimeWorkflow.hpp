@@ -132,6 +132,14 @@ struct RuntimeBulkCargoDeliveryResult final {
     SimulationRuntime& runtime
 );
 
+[[nodiscard]] data::ValidationReport validate_runtime_caravan_cargo_delivery_result(
+    const RuntimeCaravanCargoDeliveryResult& result
+);
+
+[[nodiscard]] data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
+    const RuntimeBulkCargoDeliveryResult& result
+);
+
 [[nodiscard]] ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
     SimulationRuntime& runtime,
     std::string_view contract_id,
