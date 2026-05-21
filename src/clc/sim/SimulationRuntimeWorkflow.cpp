@@ -312,6 +312,37 @@ RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_desti
     return result;
 }
 
+RuntimeBulkCargoDeliveryResult deliver_all_runtime_arrived_caravan_cargo_to_destinations(
+    SimulationRuntime& runtime
+) {
+    RuntimeBulkCargoDeliveryResult result{};
+    std::vector<std::string> caravan_ids{};
+    caravan_ids.reserve(runtime.caravans.caravans.size());
+
+    for (const auto& caravan : runtime.caravans.caravans) {
+        if (!caravan_arrived(caravan) || caravan.cargo.empty()) {
+            continue;
+        }
+        caravan_ids.push_back(caravan.id);
+    }
+
+    for (const auto& caravan_id : caravan_ids) {
+        auto delivery = deliver_runtime_arrived_caravan_cargo_to_destination(runtime, caravan_id);
+        if (!delivery.ok()) {
+            result.validation = delivery.validation;
+            return result;
+        }
+
+        if (delivery.total_amount > 0) {
+            ++result.delivered_caravans;
+            result.total_amount += delivery.total_amount;
+            result.deliveries.push_back(std::move(delivery));
+        }
+    }
+
+    return result;
+}
+
 ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
     SimulationRuntime& runtime,
     std::string_view contract_id,
