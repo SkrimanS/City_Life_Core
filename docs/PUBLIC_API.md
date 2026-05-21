@@ -223,6 +223,8 @@ auto caravan = clc::sim::create_caravan_for_route(
 clc::sim::advance_caravan_day(caravan);
 ```
 
+Runtime day ticks now expose arrival consequences through `SimulationRuntimeDayReport::arrived_caravan_ids`.
+
 ### Factions and Ownership API
 
 Основные headers:
@@ -259,6 +261,7 @@ Supported contract model:
 - due day;
 - status;
 - fulfillment from arrived caravan;
+- overdue failure through runtime day ticks;
 - reward + ledger integration.
 
 Example:
@@ -326,6 +329,21 @@ Workflow helpers:
 - `fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger()`
 - `fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger()`
 
+Runtime tick reports:
+
+- `advance_runtime_day()` advances engine and caravans;
+- `SimulationRuntimeDayReport::arrived_caravan_ids` lists caravans that arrived on that tick;
+- `SimulationRuntimeDayReport::contracts` contains overdue contract failures for the tick;
+- `SimulationRuntimeRunSummary::contract_failures` aggregates failed contracts across a run.
+
+Runtime events:
+
+- `runtime.day.completed`
+- `runtime.caravan.progress`
+- `runtime.caravan.arrived`
+- `runtime.contract.fulfilled`
+- `runtime.contract.failed`
+
 ### Persistence API
 
 Основные headers:
@@ -391,12 +409,14 @@ Stable enough for internal integration:
 - storage operations;
 - runtime scenario bootstrap;
 - runtime workflow helpers;
+- runtime tick reports;
+- runtime event diagnostics;
 - runtime persistence validation.
 
 Still evolving:
 
 - public SDK packaging;
-- runtime tick consequences;
+- deeper settlement-side arrival consequences;
 - external C ABI;
 - binary distribution layout;
 - final naming of some workflow helpers.
@@ -546,6 +566,37 @@ const auto day = engine.advance_day();
 const auto snapshot = engine.snapshot();
 ```
 
+### Routes and Caravans API
+
+Main headers:
+
+```cpp
+#include "clc/sim/Routes.hpp"
+#include "clc/sim/Caravans.hpp"
+```
+
+Caravans carry cargo, progress by days, and surface arrival IDs through runtime day reports.
+
+### Contracts API
+
+Main headers:
+
+```cpp
+#include "clc/sim/Contracts.hpp"
+#include "clc/sim/ContractRewards.hpp"
+```
+
+Supported contract model:
+
+- resource delivery contracts;
+- issuer/receiver factions;
+- required resource and quantity;
+- reward coins;
+- due day and status;
+- fulfillment from arrived caravan;
+- overdue failure through runtime ticks;
+- reward and ledger integration.
+
 ### Runtime API
 
 Main headers:
@@ -568,6 +619,21 @@ if (!bootstrap.ok()) {
 
 auto& runtime = bootstrap.runtime;
 ```
+
+Runtime tick reports:
+
+- `advance_runtime_day()` advances engine and caravans;
+- `SimulationRuntimeDayReport::arrived_caravan_ids` lists caravans that arrived on that tick;
+- `SimulationRuntimeDayReport::contracts` contains overdue contract failures for the tick;
+- `SimulationRuntimeRunSummary::contract_failures` aggregates failed contracts across a run.
+
+Runtime events:
+
+- `runtime.day.completed`
+- `runtime.caravan.progress`
+- `runtime.caravan.arrived`
+- `runtime.contract.fulfilled`
+- `runtime.contract.failed`
 
 ### Persistence API
 
@@ -608,12 +674,14 @@ Ready for internal integration:
 - storage operations;
 - runtime scenario bootstrap;
 - runtime workflow helpers;
+- runtime tick reports;
+- runtime event diagnostics;
 - runtime persistence validation.
 
 Still evolving:
 
 - public SDK packaging;
-- runtime tick consequences;
+- deeper settlement-side arrival consequences;
 - external C ABI;
 - binary distribution layout;
 - final naming of workflow helpers.
