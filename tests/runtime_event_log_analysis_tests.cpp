@@ -11,12 +11,13 @@ int main() {
     log.append(1, "runtime.caravan.progress", "caravan_a");
     log.append(2, "runtime.day.completed", "day=2");
     log.append(2, "runtime.caravan.arrived", "caravan_a");
+    log.append(2, "runtime.caravan.cargo_delivered", "caravan_a->hillford:total=10");
     log.append(2, "runtime.contract.fulfilled", "contract_a");
     log.append(3, "runtime.contract.failed", "contract_b");
 
     const auto analysis = clc::sim::analyze_runtime_event_log(log);
 
-    if (analysis.total_events != 6) {
+    if (analysis.total_events != 7) {
         std::cerr << "unexpected total_events\n";
         return 1;
     }
@@ -33,6 +34,11 @@ int main() {
 
     if (analysis.caravan_arrival_events != 1) {
         std::cerr << "unexpected arrival events\n";
+        return 1;
+    }
+
+    if (analysis.caravan_cargo_delivered_events != 1) {
+        std::cerr << "unexpected cargo delivery events\n";
         return 1;
     }
 
@@ -58,7 +64,7 @@ int main() {
 
     const auto checksum = clc::sim::calculate_runtime_event_log_checksum(log);
 
-    if (checksum.event_count != 6) {
+    if (checksum.event_count != 7) {
         std::cerr << "unexpected checksum event count\n";
         return 1;
     }
