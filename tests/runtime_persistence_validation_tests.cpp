@@ -104,6 +104,19 @@ int main() {
         return 1;
     }
 
+    auto building_drifted = loaded;
+    building_drifted.engine.settlements()[0].buildings.push_back(clc::sim::BuildingInstance{
+        .definition_id = "drifted_building",
+        .assigned_workers = 1,
+    });
+
+    const auto building_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, building_drifted);
+
+    if (building_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted engine settlement building drift\n";
+        return 1;
+    }
+
     auto drifted = loaded;
     ++drifted.wallet.coins;
 
