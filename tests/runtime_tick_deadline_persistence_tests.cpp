@@ -49,6 +49,7 @@ int main() {
     clc::sim::SimulationRuntime loaded{clc::sim::make_basic_runtime_scenario_registry()};
     const auto load = clc::sim::load_simulation_runtime_from_file(file_path, loaded);
     require(load.ok(), "runtime with tick deadline should load");
+    require(load.state.time.current_tick() == clc::hours_to_ticks(2), "loaded world state should restore clock");
     require(loaded.time.current_tick() == clc::hours_to_ticks(2), "loaded runtime should restore clock");
 
     const auto* loaded_contract = clc::sim::contract_by_id(loaded.contracts, "runtime_tick_deadline_persisted");
