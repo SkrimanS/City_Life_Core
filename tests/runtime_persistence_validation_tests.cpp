@@ -167,6 +167,21 @@ int main() {
         return 1;
     }
 
+    auto caravan_cargo_drifted = loaded;
+    const auto cargo_add_report = caravan_cargo_drifted.caravans.caravans[0].cargo.add("grain", 1);
+
+    if (!cargo_add_report.ok()) {
+        std::cerr << "caravan cargo drift setup failed\n";
+        return 1;
+    }
+
+    const auto caravan_cargo_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, caravan_cargo_drifted);
+
+    if (caravan_cargo_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted caravan cargo drift\n";
+        return 1;
+    }
+
     auto faction_reputation_drifted = loaded;
     ++faction_reputation_drifted.factions.reputations[0].value;
 
