@@ -77,12 +77,24 @@ int main() {
     require(full_day_settlement.storage.amount("grain") == half_day_settlement.storage.amount("grain"), "two half-days should equal one day for grain");
     require(full_day_settlement.storage.amount("wood") == half_day_settlement.storage.amount("wood"), "two half-days should equal one day for wood");
 
-    auto sub_unit_settlement = make_settlement(registry);
-    const auto one_hour = clc::sim::advance_settlement_ticks(sub_unit_settlement, registry, clc::hours_to_ticks(1));
-    require(one_hour.elapsed_ticks == clc::hours_to_ticks(1), "one-hour report should expose elapsed ticks");
-    require(one_hour.produced_resources == 0, "one-hour integer production should stay below one resource unit");
-    require(one_hour.skipped_buildings == 1, "one-hour sub-unit production should skip building until accumulated systems exist");
-    require(!one_hour.warnings.empty(), "one-hour sub-unit production should warn about skipped production");
+    auto hourly_settlement = make_settlement(registry);
+    for (int hour = 0; hour < 5; ++hour) {
+        const auto report = clc::sim::advance_settlement_ticks(hourly_settlement, registry, clc::hours_to_ticks(1));
+        require(report.elapsed_ticks == clc::hours_to_ticks(1), "hourly report should expose elapsed ticks");
+        require(report.consumed_food == 0, "early hourly ticks should accumulate food without whole-unit consumption");
+        require(report.consumed_inputs == 0, "early hourly ticks should accumulate inputs without whole-unit consumption");
+        require(report.produced_resources == 0, "early hourly ticks should accumulate output without whole-unit production");
+        require(report.skipped_buildings == 0, "hourly accumulation should not skip buildings");
+        require(report.warnings.empty(), "hourly accumulation should not warn while waiting for whole units");
+    }
+    const auto sixth_hour = clc::sim::advance_settlement_ticks(hourly_settlement, registry, clc::hours_to_ticks(1));
+    require(sixth_hour.consumed_food == 1, "six hourly ticks should produce one whole food consumption unit");
+    require(sixth_hour.consumed_inputs == 1, "six hourly ticks should produce one whole input consumption unit");
+    require(sixth_hour.produced_resources == 1, "six hourly ticks should produce one whole output unit");
+    require(sixth_hour.active_buildings == 1, "sixth hourly tick should run building when accumulated units mature");
+    require(hourly_settlement.storage.amount("grain") == 20, "six hourly ticks should consume one grain and produce one grain");
+    require(hourly_settlement.storage.amount("wood") == 19, "six hourly ticks should consume one wood input");
+    require(!hourly_settlement.tick_remainders.empty(), "hourly settlement should keep deterministic tick remainders");
 
     auto zero_tick_settlement = make_settlement(registry);
     const auto zero = clc::sim::advance_settlement_ticks(zero_tick_settlement, registry, 0);
