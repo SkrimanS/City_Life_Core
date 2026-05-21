@@ -448,12 +448,20 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
         return report;
     }
 
+    std::vector<std::string> delivery_caravan_ids{};
     std::uint64_t calculated_total = 0;
     for (const auto& delivery : result.deliveries) {
         auto delivery_report = validate_runtime_caravan_cargo_delivery_result(delivery);
         if (!delivery_report.ok()) {
             append_validation_messages(report, delivery_report);
         }
+
+        if (std::find(delivery_caravan_ids.begin(), delivery_caravan_ids.end(), delivery.caravan_id) != delivery_caravan_ids.end()) {
+            report.add_error("runtime.bulk_cargo_delivery.deliveries", "delivery caravan_id values must be unique");
+        } else {
+            delivery_caravan_ids.push_back(delivery.caravan_id);
+        }
+
         calculated_total += delivery.total_amount;
     }
 
