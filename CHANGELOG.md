@@ -4,6 +4,73 @@ All notable changes to City Life Core are tracked here.
 
 Все заметные изменения City Life Core фиксируются здесь.
 
+## 0.9.6 - Unreleased
+
+### Added
+
+- Added event-log roundtrip coverage for `runtime.caravan.cargo_delivered` after midpoint runtime save/load.
+- Added deterministic cargo delivery event payload validation using `caravan_id->destination_settlement_id:total=N`.
+- Added cargo delivery event-log analysis checks for `caravan_cargo_delivered_events` and replayed contract fulfillment events.
+- Added negative event-log checksum drift coverage for changed cargo delivery payloads.
+- Added `docs/RELEASE_NOTES_0.9.6.md`.
+
+### Changed
+
+- Bumped project version from `0.9.5` to `0.9.6` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Extended `clc_runtime_event_log_roundtrip_tests` to cover explicit cargo delivery event emission after runtime load and contract fulfillment.
+- Updated README to describe cargo delivery roundtrip diagnostics.
+
+## 0.9.5 - Unreleased
+
+### Added
+
+- Added `clc_runtime_cargo_delivery_persistence_tests` for explicit cargo delivery save/load coverage.
+- Added roundtrip coverage proving delivered destination settlement storage persists and caravan cargo remains empty after load.
+- Added negative drift coverage for delivered destination storage and redelivered caravan cargo.
+- Added `docs/RELEASE_NOTES_0.9.5.md`.
+
+### Changed
+
+- Bumped project version from `0.9.4` to `0.9.5` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Extended runtime replay persistence tests to deliver remaining cargo after midpoint load and contract fulfillment.
+- Updated README persistence status to include cargo delivery replay coverage.
+
+## 0.9.4 - Unreleased
+
+### Added
+
+- Added explicit arrived cargo delivery workflow through `deliver_runtime_arrived_caravan_cargo_to_destination()`.
+- Added `RuntimeCargoDeliveryEntry` and `RuntimeCaravanCargoDeliveryResult`.
+- Added rollback-safe delivery of all remaining arrived caravan cargo into destination settlement storage.
+- Added runtime event type `runtime.caravan.cargo_delivered`.
+- Added cargo delivery event summary and analysis counters.
+- Added `append_runtime_caravan_cargo_delivery_event()` helper.
+- Added workflow and event-log coverage for explicit cargo delivery.
+- Added `docs/RELEASE_NOTES_0.9.4.md`.
+
+### Changed
+
+- Bumped project version from `0.9.3` to `0.9.4` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Updated README and Public API documentation for explicit cargo delivery.
+- Kept default runtime tick semantics unchanged: cargo delivery is explicit and not auto-unloaded by tick.
+
+## 0.9.3 - Unreleased
+
+### Added
+
+- Added CMake install/export package support for the C++ SDK.
+- Added generated `CityLifeCoreConfig.cmake` and `CityLifeCoreConfigVersion.cmake` package files.
+- Added exported package target `CityLifeCore::core` for external `find_package(CityLifeCore CONFIG REQUIRED)` consumers.
+- Added install rules for public headers, SDK docs, examples, and demo data.
+- Added `docs/PACKAGING.md` with bilingual source install and package consumption guidance.
+- Added `docs/RELEASE_NOTES_0.9.3.md`.
+
+### Changed
+
+- Bumped project version from `0.9.2` to `0.9.3` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Updated README packaging status and install/find_package usage examples.
+- Updated Public API and SDK Structure documentation versions and package-mode guidance.
+
 ## 0.9.2 - Unreleased
 
 ### Added
