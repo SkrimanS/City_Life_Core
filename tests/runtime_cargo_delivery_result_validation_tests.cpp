@@ -150,5 +150,39 @@ int main() {
     bad_runtime_bulk.deliveries[0].destination_settlement_id = "riverwatch";
     require(!clc::sim::validate_runtime_bulk_cargo_delivery_result_for_runtime(runtime, bad_runtime_bulk).ok(), "runtime-aware bulk validator should reject invalid nested runtime delivery");
 
+    auto aggregate_bootstrap = clc::sim::make_basic_runtime_scenario();
+    require(aggregate_bootstrap.ok(), "aggregate runtime-aware validator bootstrap should succeed");
+    auto& aggregate_runtime = aggregate_bootstrap.runtime;
+    require(aggregate_runtime.engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "aggregate runtime-aware validator origin top-up should succeed");
+
+    auto aggregate_a = clc::sim::create_runtime_caravan_for_route(
+        aggregate_runtime,
+        "riverwatch_to_hillford",
+        "aggregate_validator_a",
+        "Aggregate Validator A"
+    );
+    require(aggregate_a.ok(), "aggregate validator caravan a should create");
+    auto aggregate_b = clc::sim::create_runtime_caravan_for_route(
+        aggregate_runtime,
+        "riverwatch_to_hillford",
+        "aggregate_validator_b",
+        "Aggregate Validator B"
+    );
+    require(aggregate_b.ok(), "aggregate validator caravan b should create");
+    require(clc::sim::load_runtime_caravan_at_origin(aggregate_runtime, "aggregate_validator_a", "grain", 15).ok(), "aggregate validator caravan a should load");
+    require(clc::sim::load_runtime_caravan_at_origin(aggregate_runtime, "aggregate_validator_b", "grain", 20).ok(), "aggregate validator caravan b should load");
+    require(clc::sim::advance_runtime_caravan_day(aggregate_runtime, "aggregate_validator_a").ok(), "aggregate validator caravan a first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(aggregate_runtime, "aggregate_validator_a").ok(), "aggregate validator caravan a second advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(aggregate_runtime, "aggregate_validator_b").ok(), "aggregate validator caravan b first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(aggregate_runtime, "aggregate_validator_b").ok(), "aggregate validator caravan b second advance should succeed");
+
+    const auto aggregate_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(aggregate_runtime);
+    require(aggregate_delivery.ok(), "aggregate validator bulk delivery should succeed");
+    require(clc::sim::validate_runtime_bulk_cargo_delivery_result_for_runtime(aggregate_runtime, aggregate_delivery).ok(), "aggregate validator should accept valid delivered runtime state");
+
+    auto aggregate_drift_runtime = aggregate_runtime;
+    require(aggregate_drift_runtime.engine.remove_resource_from_settlement("hillford", "grain", 20).ok(), "aggregate destination drift setup should succeed");
+    require(!clc::sim::validate_runtime_bulk_cargo_delivery_result_for_runtime(aggregate_drift_runtime, aggregate_delivery).ok(), "runtime-aware bulk validator should reject aggregate destination storage drift");
+
     return 0;
 }
