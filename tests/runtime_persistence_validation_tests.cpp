@@ -64,6 +64,16 @@ int main() {
         return 1;
     }
 
+    auto route_drifted = loaded;
+    route_drifted.routes.routes[0].id = "drifted_route";
+
+    const auto route_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, route_drifted);
+
+    if (route_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted route id drift\n";
+        return 1;
+    }
+
     clc::sim::SimulationRuntime failed_target{clc::sim::make_basic_runtime_scenario_registry()};
     const auto invalid_path = directory / "missing" / "runtime_validation.clcs";
 
