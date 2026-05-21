@@ -82,6 +82,10 @@ int main() {
     bad_bulk_nested.total_amount = 28;
     require(!clc::sim::validate_runtime_bulk_cargo_delivery_result(bad_bulk_nested).ok(), "bulk validator should reject invalid nested delivery result");
 
+    auto bad_bulk_duplicate = bulk;
+    bad_bulk_duplicate.deliveries[1].caravan_id = bad_bulk_duplicate.deliveries[0].caravan_id;
+    require(!clc::sim::validate_runtime_bulk_cargo_delivery_result(bad_bulk_duplicate).ok(), "bulk validator should reject duplicate caravan ids");
+
     clc::sim::RuntimeBulkCargoDeliveryResult empty_bulk{};
     require(clc::sim::validate_runtime_bulk_cargo_delivery_result(empty_bulk).ok(), "empty successful bulk delivery result should validate");
 
