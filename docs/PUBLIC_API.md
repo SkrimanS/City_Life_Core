@@ -1,6 +1,6 @@
 # City Life Core Public API / Публичный API
 
-Version: **0.9.3**
+Version: **0.9.4**
 
 This document describes the current public C++ API surface of City Life Core. The API is usable today, but it is still pre-1.0.0: names and structures can still change while the SDK surface is being finalized.
 
@@ -223,7 +223,7 @@ auto caravan = clc::sim::create_caravan_for_route(
 clc::sim::advance_caravan_day(caravan);
 ```
 
-Runtime day ticks now expose arrival consequences through `SimulationRuntimeDayReport::arrived_caravan_ids`.
+Runtime day ticks expose arrival consequences through `SimulationRuntimeDayReport::arrived_caravan_ids`. Cargo delivery into destination settlement storage is explicit through `deliver_runtime_arrived_caravan_cargo_to_destination()` so contract fulfillment from arrived cargo remains deterministic and opt-in.
 
 ### Factions and Ownership API
 
@@ -326,8 +326,16 @@ Workflow helpers:
 - `load_runtime_caravan_at_origin()`
 - `advance_runtime_caravan_day()`
 - `unload_runtime_caravan_at_destination()`
+- `deliver_runtime_arrived_caravan_cargo_to_destination()`
 - `fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger()`
 - `fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger()`
+
+Explicit cargo delivery result types:
+
+- `RuntimeCargoDeliveryEntry`
+- `RuntimeCaravanCargoDeliveryResult`
+
+`RuntimeCaravanCargoDeliveryResult` reports the caravan ID, destination settlement ID, delivered resource entries, total delivered amount, and validation state.
 
 Runtime tick reports:
 
@@ -341,6 +349,7 @@ Runtime events:
 - `runtime.day.completed`
 - `runtime.caravan.progress`
 - `runtime.caravan.arrived`
+- `runtime.caravan.cargo_delivered`
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
 
@@ -409,6 +418,7 @@ Stable enough for internal integration:
 - storage operations;
 - runtime scenario bootstrap;
 - runtime workflow helpers;
+- explicit runtime cargo delivery;
 - runtime tick reports;
 - runtime event diagnostics;
 - runtime persistence validation.
@@ -416,7 +426,7 @@ Stable enough for internal integration:
 Still evolving:
 
 - public SDK packaging;
-- deeper settlement-side arrival consequences;
+- broader settlement-side arrival effects;
 - external C ABI;
 - binary distribution layout;
 - final naming of some workflow helpers.
@@ -575,7 +585,7 @@ Main headers:
 #include "clc/sim/Caravans.hpp"
 ```
 
-Caravans carry cargo, progress by days, and surface arrival IDs through runtime day reports.
+Caravans carry cargo, progress by days, surface arrival IDs through runtime day reports, and can explicitly deliver remaining arrived cargo into destination settlement storage.
 
 ### Contracts API
 
@@ -620,6 +630,8 @@ if (!bootstrap.ok()) {
 auto& runtime = bootstrap.runtime;
 ```
 
+Runtime workflow helpers include explicit cargo delivery through `deliver_runtime_arrived_caravan_cargo_to_destination()`. This helper moves all remaining arrived cargo into the destination settlement and returns a `RuntimeCaravanCargoDeliveryResult` with delivered entries and total amount.
+
 Runtime tick reports:
 
 - `advance_runtime_day()` advances engine and caravans;
@@ -632,6 +644,7 @@ Runtime events:
 - `runtime.day.completed`
 - `runtime.caravan.progress`
 - `runtime.caravan.arrived`
+- `runtime.caravan.cargo_delivered`
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
 
@@ -674,6 +687,7 @@ Ready for internal integration:
 - storage operations;
 - runtime scenario bootstrap;
 - runtime workflow helpers;
+- explicit runtime cargo delivery;
 - runtime tick reports;
 - runtime event diagnostics;
 - runtime persistence validation.
@@ -681,7 +695,7 @@ Ready for internal integration:
 Still evolving:
 
 - public SDK packaging;
-- deeper settlement-side arrival consequences;
+- broader settlement-side arrival effects;
 - external C ABI;
 - binary distribution layout;
-- final naming of some workflow helpers.
+- final naming of workflow helpers.
