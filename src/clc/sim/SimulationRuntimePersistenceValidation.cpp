@@ -114,6 +114,10 @@ data::ValidationReport validate_simulation_runtimes_match(
         expected.wallet.coins == actual.wallet.coins,
         "runtime wallet mismatch");
 
+    add_mismatch(report,
+        expected.ledger.next_sequence() == actual.ledger.next_sequence(),
+        "runtime ledger next sequence mismatch");
+
     const auto& expected_ledger_entries = expected.ledger.entries();
     const auto& actual_ledger_entries = actual.ledger.entries();
     add_mismatch(report,
