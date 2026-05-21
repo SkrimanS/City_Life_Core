@@ -14,22 +14,45 @@ std::uint64_t food_needed_for_population(std::uint64_t population) {
     return (population + k_people_per_food_unit - 1) / k_people_per_food_unit;
 }
 
-std::uint64_t scale_daily_amount(std::uint64_t amount_per_day, clc::GameTime::Tick ticks) noexcept {
-    if (amount_per_day == 0 || ticks == 0) {
+SettlementTickRemainder* remainder_by_key(SettlementState& settlement, std::string_view key) noexcept {
+    for (auto& remainder : settlement.tick_remainders) {
+        if (remainder.key == key) {
+            return &remainder;
+        }
+    }
+    return nullptr;
+}
+
+std::uint64_t consume_scaled_units(
+    SettlementState& settlement,
+    std::string key,
+    std::uint64_t units_per_day,
+    clc::GameTime::Tick ticks
+) {
+    if (units_per_day == 0 || ticks == 0) {
         return 0;
     }
-    return (amount_per_day * ticks) / clc::ticks_per_day();
+
+    auto* remainder = remainder_by_key(settlement, key);
+    if (remainder == nullptr) {
+        settlement.tick_remainders.push_back(SettlementTickRemainder{.key = std::move(key), .numerator = 0});
+        remainder = &settlement.tick_remainders.back();
+    }
+
+    const auto denominator = clc::ticks_per_day();
+    const auto numerator = remainder->numerator + (units_per_day * ticks);
+    const auto whole_units = numerator / denominator;
+    remainder->numerator = numerator % denominator;
+    return whole_units;
 }
 
 bool has_required_inputs(
     const ResourceStorage& storage,
     const data::BuildingDefinition& building_definition,
-    std::uint64_t workers,
-    clc::GameTime::Tick ticks
+    std::uint64_t required_per_input
 ) {
     for (const auto& input_resource_id : building_definition.input_resource_ids) {
-        const auto required = scale_daily_amount(workers * k_input_per_worker_per_day, ticks);
-        if (required > 0 && storage.amount(input_resource_id) < required) {
+        if (required_per_input > 0 && storage.amount(input_resource_id) < required_per_input) {
             return false;
         }
     }
@@ -39,14 +62,12 @@ bool has_required_inputs(
 std::uint64_t consume_inputs(
     ResourceStorage& storage,
     const data::BuildingDefinition& building_definition,
-    std::uint64_t workers,
-    clc::GameTime::Tick ticks
+    std::uint64_t required_per_input
 ) {
     std::uint64_t consumed{};
     for (const auto& input_resource_id : building_definition.input_resource_ids) {
-        const auto required = scale_daily_amount(workers * k_input_per_worker_per_day, ticks);
-        if (required > 0 && storage.try_remove(input_resource_id, required)) {
-            consumed += required;
+        if (required_per_input > 0 && storage.try_remove(input_resource_id, required_per_input)) {
+            consumed += required_per_input;
         }
     }
     return consumed;
@@ -86,7 +107,12 @@ SettlementTickReport advance_settlement_ticks(
 ) {
     SettlementTickReport report{.settlement_id = settlement.id, .elapsed_ticks = ticks};
 
-    const auto food_needed = scale_daily_amount(food_needed_for_population(settlement.population), ticks);
+    const auto food_needed = consume_scaled_units(
+        settlement,
+        "food:grain",
+        food_needed_for_population(settlement.population),
+        ticks
+    );
     const auto consumed = settlement.storage.remove_up_to("grain", food_needed);
     report.consumed_food = consumed;
 
@@ -109,23 +135,37 @@ SettlementTickReport advance_settlement_ticks(
             continue;
         }
 
-        const auto produced_per_output = scale_daily_amount(static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day, ticks);
-        if (produced_per_output == 0 && ticks > 0) {
-            ++report.skipped_buildings;
-            report.warnings.push_back("skipped building due to sub-unit tick production: " + building.definition_id);
+        const auto input_required_per_resource = consume_scaled_units(
+            settlement,
+            "input:" + building.definition_id,
+            static_cast<std::uint64_t>(workers) * k_input_per_worker_per_day,
+            ticks
+        );
+
+        const auto produced_per_output = consume_scaled_units(
+            settlement,
+            "output:" + building.definition_id,
+            static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day,
+            ticks
+        );
+
+        if (input_required_per_resource == 0 && produced_per_output == 0) {
             continue;
         }
 
-        if (!has_required_inputs(settlement.storage, *building_definition, workers, ticks)) {
+        if (!has_required_inputs(settlement.storage, *building_definition, input_required_per_resource)) {
             ++report.skipped_buildings;
             report.warnings.push_back("skipped building due to missing inputs: " + building.definition_id);
             continue;
         }
 
-        report.consumed_inputs += consume_inputs(settlement.storage, *building_definition, workers, ticks);
+        report.consumed_inputs += consume_inputs(settlement.storage, *building_definition, input_required_per_resource);
         ++report.active_buildings;
 
         for (const auto& output_resource_id : building_definition->output_resource_ids) {
+            if (produced_per_output == 0) {
+                continue;
+            }
             const auto add_report = settlement.storage.add(output_resource_id, produced_per_output);
             if (!add_report.ok()) {
                 report.warnings.push_back("failed to store produced resource: " + output_resource_id);
