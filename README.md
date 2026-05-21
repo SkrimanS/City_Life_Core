@@ -4,7 +4,7 @@
 
 **City Life Core / Ядро** — это headless-ядро симуляции на C++20 для живых поселений, ресурсов, экономики, маршрутов, караванов, фракций, владения, контрактов, сохранений, детерминированного replay и будущих server-authoritative игровых серверов.
 
-Current version: **0.9.5**
+Current version: **0.9.6**
 
 ---
 
@@ -55,9 +55,9 @@ City Life Core полезен, если нужно:
 | Caravans | караваны, cargo, movement, arrival state, arrival tick reports, explicit cargo delivery |
 | Factions/Ownership | фракции, reputation, ownership |
 | Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
-| Persistence | world/runtime save/load, corrupted-load coverage, cargo delivery replay coverage |
+| Persistence | world/runtime save-load, corrupted-load coverage, cargo delivery replay coverage |
 | Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
-| Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, contract fulfilled/failed events, diagnostics |
+| Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, cargo delivery roundtrip diagnostics, contract fulfilled/failed events |
 | Public SDK/API | в процессе стабилизации |
 | C ABI | ещё не готово |
 | Packaging/Release | CMake install/export package flow добавлен, binary release ещё впереди |
@@ -223,7 +223,7 @@ Implemented and actively hardened areas:
 | Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
 | Persistence | world/runtime save-load, corrupted-load coverage, cargo delivery replay coverage |
 | Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
-| Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, contract fulfilled/failed events, diagnostics |
+| Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, cargo delivery roundtrip diagnostics, contract fulfilled/failed events |
 | Public SDK/API | being stabilized |
 | C ABI | not ready yet |
 | Packaging/Release | CMake install/export package flow added, binary release still pending |
