@@ -56,6 +56,90 @@ data::ValidationReport validate_simulation_runtimes_match(
         "runtime current day mismatch");
 
     add_mismatch(report,
+        expected.engine.settlements().size() == actual.engine.settlements().size(),
+        "runtime engine settlement count mismatch");
+
+    const auto engine_settlement_count = expected.engine.settlements().size() < actual.engine.settlements().size()
+        ? expected.engine.settlements().size()
+        : actual.engine.settlements().size();
+    for (std::size_t index = 0; index < engine_settlement_count; ++index) {
+        const auto& expected_settlement = expected.engine.settlements()[index];
+        const auto& actual_settlement = actual.engine.settlements()[index];
+
+        add_mismatch(report,
+            expected_settlement.id == actual_settlement.id,
+            "runtime engine settlement id mismatch");
+        add_mismatch(report,
+            expected_settlement.display_name == actual_settlement.display_name,
+            "runtime engine settlement display name mismatch");
+        add_mismatch(report,
+            expected_settlement.population == actual_settlement.population,
+            "runtime engine settlement population mismatch");
+        add_storage_mismatch(report,
+            expected_settlement.storage,
+            actual_settlement.storage,
+            "runtime engine settlement storage resource count mismatch",
+            "runtime engine settlement storage resource id mismatch",
+            "runtime engine settlement storage resource quantity mismatch");
+
+        add_mismatch(report,
+            expected_settlement.buildings.size() == actual_settlement.buildings.size(),
+            "runtime engine settlement building count mismatch");
+
+        const auto building_count = expected_settlement.buildings.size() < actual_settlement.buildings.size()
+            ? expected_settlement.buildings.size()
+            : actual_settlement.buildings.size();
+        for (std::size_t building_index = 0; building_index < building_count; ++building_index) {
+            add_mismatch(report,
+                expected_settlement.buildings[building_index].definition_id == actual_settlement.buildings[building_index].definition_id,
+                "runtime engine settlement building definition id mismatch");
+            add_mismatch(report,
+                expected_settlement.buildings[building_index].assigned_workers == actual_settlement.buildings[building_index].assigned_workers,
+                "runtime engine settlement building assigned workers mismatch");
+        }
+    }
+
+    add_mismatch(report,
+        expected.engine.events().size() == actual.engine.events().size(),
+        "runtime engine event count mismatch");
+
+    const auto engine_event_count = expected.engine.events().size() < actual.engine.events().size()
+        ? expected.engine.events().size()
+        : actual.engine.events().size();
+    for (std::size_t index = 0; index < engine_event_count; ++index) {
+        add_mismatch(report,
+            expected.engine.events()[index].day == actual.engine.events()[index].day,
+            "runtime engine event day mismatch");
+        add_mismatch(report,
+            expected.engine.events()[index].type == actual.engine.events()[index].type,
+            "runtime engine event type mismatch");
+        add_mismatch(report,
+            expected.engine.events()[index].message == actual.engine.events()[index].message,
+            "runtime engine event message mismatch");
+    }
+
+    const auto& expected_market_demands = expected.engine.market().demands();
+    const auto& actual_market_demands = actual.engine.market().demands();
+    add_mismatch(report,
+        expected_market_demands.size() == actual_market_demands.size(),
+        "runtime engine market demand count mismatch");
+
+    for (const auto& [resource_id, expected_demand] : expected_market_demands) {
+        const auto actual_demand = actual_market_demands.find(resource_id);
+        add_mismatch(report,
+            actual_demand != actual_market_demands.end(),
+            "runtime engine market demand resource id mismatch");
+
+        if (actual_demand == actual_market_demands.end()) {
+            continue;
+        }
+
+        add_mismatch(report,
+            expected_demand == actual_demand->second,
+            "runtime engine market demand value mismatch");
+    }
+
+    add_mismatch(report,
         expected.routes.routes.size() == actual.routes.routes.size(),
         "runtime route count mismatch");
 
