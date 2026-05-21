@@ -1,6 +1,7 @@
 #include "clc/core/Version.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
 #include "clc/sim/SimulationRuntimeTick.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <iostream>
 
