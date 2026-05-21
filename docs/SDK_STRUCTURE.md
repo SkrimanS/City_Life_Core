@@ -26,6 +26,10 @@ SDK должен позволять внешнему проекту подклю
 ```text
 apps/
   clc_runner/                  # минимальный CLI/bootstrap runner
+examples/                      # SDK examples for external users
+  basic_runtime.cpp
+  save_load_roundtrip.cpp
+  replay_persistence.cpp
 include/
   clc/
     core/                      # version, time, world, event log
@@ -57,6 +61,10 @@ city-life-core-sdk-0.9.2/
       sim/
   src/
     clc/
+  examples/
+    basic_runtime.cpp
+    save_load_roundtrip.cpp
+    replay_persistence.cpp
   data/
     demo_fantasy/
   docs/
@@ -79,15 +87,18 @@ city-life-core-sdk-1.0.0/
     <platform libraries>
   bin/
     clc_runner                 # optional tools
+    clc_example_basic_runtime
+    clc_example_save_load_roundtrip
+    clc_example_replay_persistence
   data/
     demo_fantasy/
   docs/
     PUBLIC_API.md
     SDK_STRUCTURE.md
   examples/
-    basic_runtime/
-    save_load_roundtrip/
-    replay_persistence/
+    basic_runtime.cpp
+    save_load_roundtrip.cpp
+    replay_persistence.cpp
 ```
 
 ### Public include policy
@@ -110,6 +121,22 @@ city-life-core-sdk-1.0.0/
 ```cpp
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
 auto& runtime = bootstrap.runtime;
+```
+
+### SDK examples
+
+При `CLC_BUILD_EXAMPLES=ON` CMake собирает:
+
+- `clc_example_basic_runtime` — bootstrap runtime, ticks, summary;
+- `clc_example_save_load_roundtrip` — save/load roundtrip validation;
+- `clc_example_replay_persistence` — midpoint persistence and deterministic replay continuation.
+
+```bash
+cmake -S . -B build -DCLC_BUILD_EXAMPLES=ON
+cmake --build build
+./build/clc_example_basic_runtime
+./build/clc_example_save_load_roundtrip
+./build/clc_example_replay_persistence
 ```
 
 ### C++ SDK boundary
@@ -179,6 +206,7 @@ C ABI не должен появляться раньше, чем будут з�
 - CHANGELOG has release notes;
 - PUBLIC_API is up to date;
 - SDK_STRUCTURE is up to date;
+- SDK examples build registration is up to date;
 - new tests are registered in CMake;
 - `main` receives only completed blocks by fast-forward;
 - no force push;
@@ -195,7 +223,7 @@ target_link_libraries(my_game PRIVATE CityLifeCore::core)
 
 #### 2. Source vendoring
 
-Copy `include/`, `src/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
+Copy `include/`, `src/`, `examples/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
 
 #### 3. Future package mode
 
@@ -226,6 +254,10 @@ The SDK should let external projects integrate City Life Core as an independent 
 ```text
 apps/
   clc_runner/                  # minimal CLI/bootstrap runner
+examples/                      # SDK examples for external users
+  basic_runtime.cpp
+  save_load_roundtrip.cpp
+  replay_persistence.cpp
 include/
   clc/
     core/                      # version, time, world, event log
@@ -257,6 +289,10 @@ city-life-core-sdk-0.9.2/
       sim/
   src/
     clc/
+  examples/
+    basic_runtime.cpp
+    save_load_roundtrip.cpp
+    replay_persistence.cpp
   data/
     demo_fantasy/
   docs/
@@ -279,15 +315,18 @@ city-life-core-sdk-1.0.0/
     <platform libraries>
   bin/
     clc_runner                 # optional tools
+    clc_example_basic_runtime
+    clc_example_save_load_roundtrip
+    clc_example_replay_persistence
   data/
     demo_fantasy/
   docs/
     PUBLIC_API.md
     SDK_STRUCTURE.md
   examples/
-    basic_runtime/
-    save_load_roundtrip/
-    replay_persistence/
+    basic_runtime.cpp
+    save_load_roundtrip.cpp
+    replay_persistence.cpp
 ```
 
 ### Public include policy
@@ -310,6 +349,22 @@ External code should prefer runtime-level APIs over manually wiring every subsys
 ```cpp
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
 auto& runtime = bootstrap.runtime;
+```
+
+### SDK examples
+
+When `CLC_BUILD_EXAMPLES=ON`, CMake builds:
+
+- `clc_example_basic_runtime` — runtime bootstrap, ticks, and summary;
+- `clc_example_save_load_roundtrip` — save/load roundtrip validation;
+- `clc_example_replay_persistence` — midpoint persistence and deterministic replay continuation.
+
+```bash
+cmake -S . -B build -DCLC_BUILD_EXAMPLES=ON
+cmake --build build
+./build/clc_example_basic_runtime
+./build/clc_example_save_load_roundtrip
+./build/clc_example_replay_persistence
 ```
 
 ### C++ SDK boundary
@@ -379,6 +434,7 @@ Before each release block:
 - CHANGELOG has release notes;
 - PUBLIC_API is up to date;
 - SDK_STRUCTURE is up to date;
+- SDK examples build registration is up to date;
 - new tests are registered in CMake;
 - `main` receives only completed blocks by fast-forward;
 - no force push;
@@ -395,7 +451,7 @@ target_link_libraries(my_game PRIVATE CityLifeCore::core)
 
 #### 2. Source vendoring
 
-Copy `include/`, `src/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
+Copy `include/`, `src/`, `examples/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
 
 #### 3. Future package mode
 
