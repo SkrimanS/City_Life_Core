@@ -119,6 +119,67 @@ int main() {
     const auto drift_validation = clc::sim::validate_runtime_event_logs_match(expected, drifted);
     require(!drift_validation.ok(), "runtime event log roundtrip should reject cargo delivery event drift");
 
+    auto bulk_bootstrap = clc::sim::make_basic_runtime_scenario();
+    require(bulk_bootstrap.ok(), "runtime event log bulk roundtrip bootstrap should succeed");
+    auto& bulk_runtime = bulk_bootstrap.runtime;
+    require(bulk_runtime.engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "runtime event log bulk roundtrip origin top-up should succeed");
+
+    auto bulk_a = clc::sim::create_runtime_caravan_for_route(
+        bulk_runtime,
+        "riverwatch_to_hillford",
+        "event_log_roundtrip_bulk_a",
+        "Event Log Roundtrip Bulk A"
+    );
+    require(bulk_a.ok(), "runtime event log bulk roundtrip caravan a should create");
+    auto bulk_b = clc::sim::create_runtime_caravan_for_route(
+        bulk_runtime,
+        "riverwatch_to_hillford",
+        "event_log_roundtrip_bulk_b",
+        "Event Log Roundtrip Bulk B"
+    );
+    require(bulk_b.ok(), "runtime event log bulk roundtrip caravan b should create");
+
+    require(clc::sim::load_runtime_caravan_at_origin(bulk_runtime, "event_log_roundtrip_bulk_a", "grain", 15).ok(), "runtime event log bulk roundtrip caravan a should load");
+    require(clc::sim::load_runtime_caravan_at_origin(bulk_runtime, "event_log_roundtrip_bulk_b", "grain", 20).ok(), "runtime event log bulk roundtrip caravan b should load");
+
+    const auto bulk_file_path = directory / "event_log_bulk_roundtrip.clcs";
+    require(clc::sim::save_simulation_runtime_to_file(bulk_runtime, bulk_file_path).ok(), "runtime event log bulk roundtrip should save");
+
+    clc::sim::SimulationRuntime bulk_loaded{clc::sim::make_basic_runtime_scenario_registry()};
+    const auto bulk_load_result = clc::sim::load_simulation_runtime_from_file(bulk_file_path, bulk_loaded);
+    require(bulk_load_result.ok(), "runtime event log bulk roundtrip should load");
+
+    require(clc::sim::advance_runtime_caravan_day(bulk_loaded, "event_log_roundtrip_bulk_a").ok(), "runtime event log bulk roundtrip caravan a first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(bulk_loaded, "event_log_roundtrip_bulk_a").ok(), "runtime event log bulk roundtrip caravan a second advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(bulk_loaded, "event_log_roundtrip_bulk_b").ok(), "runtime event log bulk roundtrip caravan b first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(bulk_loaded, "event_log_roundtrip_bulk_b").ok(), "runtime event log bulk roundtrip caravan b second advance should succeed");
+
+    const auto bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(bulk_loaded);
+    require(bulk_delivery.ok(), "runtime event log bulk roundtrip delivery should succeed");
+    require(bulk_delivery.delivered_caravans == 2, "runtime event log bulk roundtrip should deliver two caravans");
+    require(bulk_delivery.total_amount == 35, "runtime event log bulk roundtrip should deliver expected total cargo");
+    require(bulk_loaded.engine.settlement_resource_amount("hillford", "grain") == 35, "runtime event log bulk roundtrip should credit destination storage");
+
+    clc::EventLog bulk_log{};
+    const auto bulk_summary = clc::sim::append_runtime_bulk_caravan_cargo_delivery_events(bulk_log, 2, bulk_delivery);
+    require(bulk_summary.events_appended == 2, "runtime event log bulk roundtrip should append two cargo events");
+    require(bulk_summary.cargo_events == 2, "runtime event log bulk roundtrip should count two cargo events");
+    require(bulk_log.size() == 2, "runtime event log bulk roundtrip should contain two events");
+    require(bulk_log.events()[0].payload == "event_log_roundtrip_bulk_a->hillford:total=15", "runtime event log bulk roundtrip first payload should be deterministic");
+    require(bulk_log.events()[1].payload == "event_log_roundtrip_bulk_b->hillford:total=20", "runtime event log bulk roundtrip second payload should be deterministic");
+    require(clc::sim::validate_runtime_event_log(bulk_log).ok(), "runtime event log bulk roundtrip should pass combined event validation");
+
+    const auto bulk_analysis = clc::sim::analyze_runtime_event_log(bulk_log);
+    require(bulk_analysis.total_events == 2, "runtime event log bulk roundtrip analysis should count all events");
+    require(bulk_analysis.caravan_cargo_delivered_events == 2, "runtime event log bulk roundtrip analysis should count cargo delivery events");
+    require(bulk_analysis.unknown_events == 0, "runtime event log bulk roundtrip analysis should not report unknown events");
+
+    const clc::EventLog bulk_expected = bulk_log;
+    require(clc::sim::validate_runtime_event_logs_match(bulk_expected, bulk_log).ok(), "runtime event log bulk roundtrip should pass pair validation");
+    clc::EventLog bulk_drifted = bulk_log;
+    bulk_drifted.append(2, "runtime.caravan.cargo_delivered", "event_log_roundtrip_bulk_b->hillford:total=21");
+    require(!clc::sim::validate_runtime_event_logs_match(bulk_expected, bulk_drifted).ok(), "runtime event log bulk roundtrip should reject cargo delivery payload drift");
+
     std::filesystem::remove_all(directory);
     return 0;
 }
