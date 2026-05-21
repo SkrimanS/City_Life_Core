@@ -32,6 +32,7 @@ City Life Core полезен, если нужно:
 - связывать поселения маршрутами и караванами;
 - добавлять фракции, репутацию, владение поселениями/караванами;
 - создавать контракты на доставку ресурсов и вознаграждения;
+- автоматически отмечать прибытия караванов и просроченные контракты во время runtime tick;
 - сохранять и загружать runtime state;
 - проверять, что загруженный мир семантически равен исходному;
 - продолжать симуляцию после загрузки без расхождения состояния;
@@ -50,12 +51,12 @@ City Life Core полезен, если нужно:
 | Settlement/Storage | рабочая симуляция поселений и складов |
 | Basic Economy/Market | базовая экономика, рынок, trade, ledger |
 | Routes | маршруты между поселениями |
-| Caravans | караваны, cargo, movement, arrival state |
+| Caravans | караваны, cargo, movement, arrival state, arrival tick reports |
 | Factions/Ownership | фракции, reputation, ownership |
-| Contracts | delivery contracts, fulfillment, reward ledger |
+| Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
 | Persistence | world/runtime save/load, corrupted-load coverage |
-| Runtime/World Integration | runtime bundle, scenario bootstrap, workflows |
-| Runtime Events/Diagnostics | event log, runtime event helpers, diagnostics |
+| Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
+| Runtime Events/Diagnostics | event log, caravan arrival events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | в процессе стабилизации |
 | C ABI | ещё не готово |
 | Packaging/Release | начальная подготовка |
@@ -129,7 +130,7 @@ int main() {
 
 ### Ближайшие цели до 1.0.0
 
-- завершить runtime tick consequences: overdue contracts, contract events, arrival consequences;
+- расширить arrival consequences до более глубоких settlement-side effects;
 - стабилизировать Public SDK/API;
 - подготовить release SDK layout;
 - расширить external documentation;
@@ -162,6 +163,7 @@ City Life Core is useful when you need to:
 - connect settlements with routes and caravans;
 - model factions, reputation, and ownership;
 - create delivery contracts and reward flows;
+- automatically report caravan arrivals and overdue contract failures during runtime ticks;
 - save and load complete runtime state;
 - validate that loaded runtime state is semantically equivalent;
 - continue simulation after load without deterministic drift;
@@ -180,12 +182,12 @@ Implemented and actively hardened areas:
 | Settlement/Storage | working settlement and storage simulation |
 | Basic Economy/Market | basic economy, market, trade, ledger |
 | Routes | settlement routes |
-| Caravans | caravans, cargo, movement, arrival state |
+| Caravans | caravans, cargo, movement, arrival state, arrival tick reports |
 | Factions/Ownership | factions, reputation, ownership |
-| Contracts | delivery contracts, fulfillment, reward ledger |
+| Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
 | Persistence | world/runtime save-load, corrupted-load coverage |
-| Runtime/World Integration | runtime bundle, scenario bootstrap, workflows |
-| Runtime Events/Diagnostics | event log, runtime event helpers, diagnostics |
+| Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
+| Runtime Events/Diagnostics | event log, caravan arrival events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | being stabilized |
 | C ABI | not ready yet |
 | Packaging/Release | early preparation |
@@ -259,7 +261,7 @@ int main() {
 
 ### Near-term goals before 1.0.0
 
-- finish runtime tick consequences: overdue contracts, contract events, arrival consequences;
+- extend arrival consequences into deeper settlement-side effects;
 - stabilize the Public SDK/API surface;
 - prepare release SDK layout;
 - expand external user documentation;
