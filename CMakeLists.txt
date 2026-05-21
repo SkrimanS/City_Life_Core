@@ -164,6 +164,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_settlement_tick_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_settlement_tick_tests COMMAND clc_settlement_tick_tests)
 
+    add_executable(clc_settlement_tick_remainder_validation_tests tests/settlement_tick_remainder_validation_tests.cpp)
+    target_link_libraries(clc_settlement_tick_remainder_validation_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_settlement_tick_remainder_validation_tests COMMAND clc_settlement_tick_remainder_validation_tests)
+
     add_executable(clc_scenario_digest_tests tests/scenario_digest_tests.cpp)
     target_link_libraries(clc_scenario_digest_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_scenario_digest_tests COMMAND clc_scenario_digest_tests)
