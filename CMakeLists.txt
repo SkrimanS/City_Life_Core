@@ -62,6 +62,17 @@ endif()
 add_executable(clc_runner apps/clc_runner/main.cpp)
 target_link_libraries(clc_runner PRIVATE CityLifeCore::core)
 
+if(CLC_BUILD_EXAMPLES)
+    add_executable(clc_example_basic_runtime examples/basic_runtime.cpp)
+    target_link_libraries(clc_example_basic_runtime PRIVATE CityLifeCore::core)
+
+    add_executable(clc_example_save_load_roundtrip examples/save_load_roundtrip.cpp)
+    target_link_libraries(clc_example_save_load_roundtrip PRIVATE CityLifeCore::core)
+
+    add_executable(clc_example_replay_persistence examples/replay_persistence.cpp)
+    target_link_libraries(clc_example_replay_persistence PRIVATE CityLifeCore::core)
+endif()
+
 if(CLC_BUILD_TESTS)
     enable_testing()
 
