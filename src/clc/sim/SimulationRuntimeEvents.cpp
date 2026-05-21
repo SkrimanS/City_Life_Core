@@ -21,7 +21,8 @@ bool is_known_runtime_event_type(const std::string& type) {
     return type == "runtime.day.completed"
         || type == "runtime.caravan.progress"
         || type == "runtime.caravan.arrived"
-        || type == "runtime.contract.fulfilled";
+        || type == "runtime.contract.fulfilled"
+        || type == "runtime.contract.failed";
 }
 
 } // namespace
@@ -52,6 +53,17 @@ RuntimeEventLogSummary append_runtime_day_report_events(
         ++summary.caravan_events;
     }
 
+    for (const auto& contract_id : report.contracts.failed_contract_ids) {
+        append_event(
+            log,
+            summary,
+            report.engine.day,
+            "runtime.contract.failed",
+            contract_id
+        );
+        ++summary.contract_events;
+    }
+
     return summary;
 }
 
@@ -66,6 +78,7 @@ RuntimeEventLogSummary append_runtime_run_events(
         summary.events_appended += partial.events_appended;
         summary.day_events += partial.day_events;
         summary.caravan_events += partial.caravan_events;
+        summary.contract_events += partial.contract_events;
     }
 
     return summary;
@@ -111,6 +124,8 @@ RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
             ++analysis.caravan_arrival_events;
         } else if (event.type == "runtime.contract.fulfilled") {
             ++analysis.contract_fulfilled_events;
+        } else if (event.type == "runtime.contract.failed") {
+            ++analysis.contract_failed_events;
         } else {
             ++analysis.unknown_events;
         }
