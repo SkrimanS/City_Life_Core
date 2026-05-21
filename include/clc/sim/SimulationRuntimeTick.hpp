@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clc/core/Time.hpp"
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <cstdint>
@@ -19,8 +20,20 @@ struct RuntimeCaravanTickReport final {
     }
 };
 
+struct SimulationRuntimeTickReport final {
+    clc::GameTime::Tick elapsed_ticks{0};
+    std::vector<RuntimeCaravanTickReport> caravans{};
+    std::vector<std::string> arrived_caravan_ids{};
+    data::ValidationReport validation{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return validation.ok();
+    }
+};
+
 struct SimulationRuntimeDayReport final {
     SimulationDayReport engine{};
+    SimulationRuntimeTickReport ticks{};
     std::vector<RuntimeCaravanTickReport> caravans{};
     std::vector<std::string> arrived_caravan_ids{};
     ContractDeadlineReport contracts{};
@@ -35,6 +48,7 @@ struct SimulationRuntimeRunSummary final {
     std::uint64_t days_run{0};
     std::uint64_t first_day{0};
     std::uint64_t last_day{0};
+    clc::GameTime::Tick ticks_elapsed{0};
     std::uint64_t caravan_ticks{0};
     std::uint64_t caravan_arrivals{0};
     std::uint64_t contract_failures{0};
@@ -56,6 +70,7 @@ struct SimulationRuntimeRunUntilArrivalResult final {
     bool arrival_reached{false};
     std::string arrived_caravan_id{};
     std::uint64_t arrival_day{0};
+    clc::GameTime::Tick arrival_elapsed_ticks{0};
 
     [[nodiscard]] bool ok() const noexcept {
         return run.ok();
@@ -71,6 +86,7 @@ struct SimulationRuntimeArrivalContractResult final {
     }
 };
 
+[[nodiscard]] SimulationRuntimeTickReport advance_runtime_ticks(SimulationRuntime& runtime, clc::GameTime::Tick ticks);
 [[nodiscard]] SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime);
 [[nodiscard]] SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports);
 [[nodiscard]] SimulationRuntimeRunResult run_runtime_days(SimulationRuntime& runtime, std::uint64_t day_count);
