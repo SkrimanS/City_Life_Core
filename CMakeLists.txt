@@ -272,6 +272,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_runtime_event_log_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_event_log_tests COMMAND clc_runtime_event_log_tests)
 
+    add_executable(clc_runtime_event_log_absolute_tick_tests tests/runtime_event_log_absolute_tick_tests.cpp)
+    target_link_libraries(clc_runtime_event_log_absolute_tick_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_event_log_absolute_tick_tests COMMAND clc_runtime_event_log_absolute_tick_tests)
+
     add_executable(clc_runtime_event_log_roundtrip_tests tests/runtime_event_log_roundtrip_tests.cpp)
     target_link_libraries(clc_runtime_event_log_roundtrip_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_event_log_roundtrip_tests COMMAND clc_runtime_event_log_roundtrip_tests)
