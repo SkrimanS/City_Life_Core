@@ -1,3 +1,4 @@
+#include "clc/data/Definitions.hpp"
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
 
@@ -67,6 +68,63 @@ int main() {
 
     const auto runtime_match = clc::sim::validate_simulation_runtimes_match(runtime, loaded);
     require(runtime_match.ok(), "runtime match validation failed");
+
+    auto registry_resource_drifted = loaded;
+    require(
+        registry_resource_drifted.engine.registry().add(clc::data::ResourceDefinition{
+            .id = "drifted_resource",
+            .display_name = "Drifted Resource",
+            .category = "test",
+            .base_value = 1,
+        }).ok(),
+        "registry resource drift setup failed"
+    );
+    expect_runtime_drift_detected(runtime, registry_resource_drifted, "runtime match unexpectedly accepted registry resource drift");
+
+    auto registry_currency_drifted = loaded;
+    require(
+        registry_currency_drifted.engine.registry().add(clc::data::CurrencyDefinition{
+            .id = "drifted_currency",
+            .display_name = "Drifted Currency",
+            .fractional_digits = 2,
+        }).ok(),
+        "registry currency drift setup failed"
+    );
+    expect_runtime_drift_detected(runtime, registry_currency_drifted, "runtime match unexpectedly accepted registry currency drift");
+
+    auto registry_building_drifted = loaded;
+    require(
+        registry_building_drifted.engine.registry().add(clc::data::BuildingDefinition{
+            .id = "drifted_building_definition",
+            .display_name = "Drifted Building Definition",
+            .category = "test",
+            .worker_slots = 1,
+        }).ok(),
+        "registry building drift setup failed"
+    );
+    expect_runtime_drift_detected(runtime, registry_building_drifted, "runtime match unexpectedly accepted registry building drift");
+
+    auto registry_profession_drifted = loaded;
+    require(
+        registry_profession_drifted.engine.registry().add(clc::data::ProfessionDefinition{
+            .id = "drifted_profession",
+            .display_name = "Drifted Profession",
+            .category = "test",
+        }).ok(),
+        "registry profession drift setup failed"
+    );
+    expect_runtime_drift_detected(runtime, registry_profession_drifted, "runtime match unexpectedly accepted registry profession drift");
+
+    auto registry_settlement_drifted = loaded;
+    require(
+        registry_settlement_drifted.engine.registry().add(clc::data::SettlementDefinition{
+            .id = "drifted_settlement_definition",
+            .display_name = "Drifted Settlement Definition",
+            .starting_population = 1,
+        }).ok(),
+        "registry settlement drift setup failed"
+    );
+    expect_runtime_drift_detected(runtime, registry_settlement_drifted, "runtime match unexpectedly accepted registry settlement drift");
 
     auto current_day_drifted = loaded;
     auto current_day_state = current_day_drifted.engine.export_state();
