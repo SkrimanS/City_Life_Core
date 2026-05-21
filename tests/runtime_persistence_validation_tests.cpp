@@ -74,6 +74,36 @@ int main() {
         return 1;
     }
 
+    auto route_duration_drifted = loaded;
+    ++route_duration_drifted.routes.routes[0].travel_days;
+
+    const auto route_duration_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, route_duration_drifted);
+
+    if (route_duration_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted route travel duration drift\n";
+        return 1;
+    }
+
+    auto caravan_progress_drifted = loaded;
+    --caravan_progress_drifted.caravans.caravans[0].days_remaining;
+
+    const auto caravan_progress_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, caravan_progress_drifted);
+
+    if (caravan_progress_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted caravan progress drift\n";
+        return 1;
+    }
+
+    auto faction_reputation_drifted = loaded;
+    ++faction_reputation_drifted.factions.reputations[0].value;
+
+    const auto faction_reputation_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, faction_reputation_drifted);
+
+    if (faction_reputation_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted faction reputation drift\n";
+        return 1;
+    }
+
     auto contract_drifted = loaded;
     contract_drifted.contracts.contracts[0].id = "drifted_contract";
 
@@ -81,6 +111,16 @@ int main() {
 
     if (contract_drift_match.ok()) {
         std::cerr << "runtime match unexpectedly accepted contract id drift\n";
+        return 1;
+    }
+
+    auto contract_reward_drifted = loaded;
+    ++contract_reward_drifted.contracts.contracts[0].reward_coins;
+
+    const auto contract_reward_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, contract_reward_drifted);
+
+    if (contract_reward_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted contract reward drift\n";
         return 1;
     }
 
