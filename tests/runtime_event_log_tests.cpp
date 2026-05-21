@@ -66,5 +66,31 @@ int main() {
     require(events[4].type == "runtime.contract.fulfilled", "runtime event log should record contract event");
     require(events[4].payload == "grain_delivery_runtime", "runtime event log contract payload should use contract id");
 
+    clc::sim::RuntimeScenarioBootstrapConfig overdue_config{};
+    overdue_config.contract_due_day = 1;
+    auto overdue_bootstrap = clc::sim::make_basic_runtime_scenario(overdue_config);
+    require(overdue_bootstrap.ok(), "runtime failed-contract event bootstrap should succeed");
+
+    const auto overdue_run = clc::sim::run_runtime_days(overdue_bootstrap.runtime, 2);
+    require(overdue_run.ok(), "runtime failed-contract event run should succeed");
+    require(overdue_run.summary.contract_failures == 1, "runtime failed-contract event run should fail one contract");
+
+    clc::EventLog failed_log{};
+    const auto failed_summary = clc::sim::append_runtime_run_events(failed_log, overdue_run);
+    require(failed_summary.contract_events == 1, "runtime event log should append one failed contract event");
+
+    const auto failed_analysis = clc::sim::analyze_runtime_event_log(failed_log);
+    require(failed_analysis.contract_failed_events == 1, "runtime event analysis should count failed contracts");
+    require(failed_analysis.contract_fulfilled_events == 0, "runtime event analysis should not count fulfilled contracts in failed run");
+    require(clc::sim::validate_runtime_event_log(failed_log).ok(), "runtime failed-contract event log should validate");
+
+    bool found_failed_contract_event = false;
+    for (const auto& event : failed_log.events()) {
+        if (event.type == "runtime.contract.failed" && event.payload == "grain_delivery_runtime") {
+            found_failed_contract_event = true;
+        }
+    }
+    require(found_failed_contract_event, "runtime event log should record failed contract event payload");
+
     return 0;
 }
