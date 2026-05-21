@@ -344,7 +344,108 @@ RuntimeBulkCargoDeliveryResult deliver_all_runtime_arrived_caravan_cargo_to_dest
         }
     }
 
+    const auto validation = validate_runtime_bulk_cargo_delivery_result(result);
+    if (!validation.ok()) {
+        result.validation = validation;
+    }
+
     return result;
+}
+
+data::ValidationReport validate_runtime_caravan_cargo_delivery_result(
+    const RuntimeCaravanCargoDeliveryResult& result
+) {
+    data::ValidationReport report{};
+
+    if (!result.validation.ok()) {
+        for (const auto& message : result.validation.messages()) {
+            if (message.severity == data::ValidationSeverity::warning) {
+                report.add_warning(message.path, message.message);
+            } else {
+                report.add_error(message.path, message.message);
+            }
+        }
+        return report;
+    }
+
+    if (result.caravan_id.empty()) {
+        report.add_error("runtime.cargo_delivery.caravan_id", "caravan_id must not be empty");
+    }
+
+    if (result.destination_settlement_id.empty()) {
+        report.add_error("runtime.cargo_delivery.destination_settlement_id", "destination_settlement_id must not be empty");
+    }
+
+    std::uint64_t calculated_total = 0;
+    for (const auto& entry : result.delivered) {
+        if (entry.resource_id.empty()) {
+            report.add_error("runtime.cargo_delivery.delivered.resource_id", "resource_id must not be empty");
+        }
+        if (entry.amount == 0) {
+            report.add_error("runtime.cargo_delivery.delivered.amount", "amount must be greater than zero");
+        }
+        calculated_total += entry.amount;
+    }
+
+    if (calculated_total != result.total_amount) {
+        report.add_error("runtime.cargo_delivery.total_amount", "total_amount must equal delivered entry sum");
+    }
+
+    if (result.delivered.empty() && result.total_amount != 0) {
+        report.add_error("runtime.cargo_delivery.total_amount", "total_amount must be zero when no resources were delivered");
+    }
+
+    return report;
+}
+
+data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
+    const RuntimeBulkCargoDeliveryResult& result
+) {
+    data::ValidationReport report{};
+
+    if (!result.validation.ok()) {
+        for (const auto& message : result.validation.messages()) {
+            if (message.severity == data::ValidationSeverity::warning) {
+                report.add_warning(message.path, message.message);
+            } else {
+                report.add_error(message.path, message.message);
+            }
+        }
+        return report;
+    }
+
+    std::uint64_t calculated_total = 0;
+    for (const auto& delivery : result.deliveries) {
+        auto delivery_report = validate_runtime_caravan_cargo_delivery_result(delivery);
+        if (!delivery_report.ok()) {
+            for (const auto& message : delivery_report.messages()) {
+                if (message.severity == data::ValidationSeverity::warning) {
+                    report.add_warning(message.path, message.message);
+                } else {
+                    report.add_error(message.path, message.message);
+                }
+            }
+        }
+        calculated_total += delivery.total_amount;
+    }
+
+    if (calculated_total != result.total_amount) {
+        report.add_error("runtime.bulk_cargo_delivery.total_amount", "total_amount must equal delivery total sum");
+    }
+
+    if (result.delivered_caravans != result.deliveries.size()) {
+        report.add_error("runtime.bulk_cargo_delivery.delivered_caravans", "delivered_caravans must equal delivery count");
+    }
+
+    if (result.deliveries.empty() && result.total_amount != 0) {
+        report.add_error("runtime.bulk_cargo_delivery.total_amount", "total_amount must be zero when no deliveries were recorded");
+    }
+
+    if (result.deliveries.empty() && result.delivered_caravans != 0) {
+        report.add_error("runtime.bulk_cargo_delivery.delivered_caravans", "delivered_caravans must be zero when no deliveries were recorded");
+    }
+
+    return report;
 }
 
 ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
