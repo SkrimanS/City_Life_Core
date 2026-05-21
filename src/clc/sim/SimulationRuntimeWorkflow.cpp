@@ -1,5 +1,6 @@
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
+#include <algorithm>
 #include <utility>
 
 namespace clc::sim {
@@ -32,6 +33,20 @@ ContractFulfillmentResult missing_caravan_contract_result(std::string_view contr
     result.contract_id = std::string{contract_id};
     result.validation.add_error("simulation.caravan." + std::string{caravan_id}, "unknown caravan");
     return result;
+}
+
+void rollback_delivered_cargo(SimulationRuntime& runtime, CaravanState& caravan, const std::vector<RuntimeCargoDeliveryEntry>& delivered) {
+    for (auto delivered_it = delivered.rbegin(); delivered_it != delivered.rend(); ++delivered_it) {
+        const auto removed = runtime.engine.remove_resource_from_settlement(
+            caravan.destination_settlement_id,
+            delivered_it->resource_id,
+            delivered_it->amount
+        );
+        (void)removed;
+
+        const auto restored = caravan.cargo.add(delivered_it->resource_id, delivered_it->amount);
+        (void)restored;
+    }
 }
 
 } // namespace
@@ -231,6 +246,70 @@ data::ValidationReport unload_runtime_caravan_at_destination(
         return destination_report;
     }
     return report;
+}
+
+RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_destination(
+    SimulationRuntime& runtime,
+    std::string_view caravan_id
+) {
+    RuntimeCaravanCargoDeliveryResult result{};
+    result.caravan_id = std::string{caravan_id};
+
+    auto* caravan = mutable_caravan_by_id(runtime.caravans, caravan_id);
+    if (caravan == nullptr) {
+        result.validation.add_error("simulation.caravan." + std::string{caravan_id}, "unknown caravan");
+        return result;
+    }
+
+    result.destination_settlement_id = caravan->destination_settlement_id;
+
+    if (!runtime.engine.has_settlement(caravan->destination_settlement_id)) {
+        result.validation.add_error("simulation.settlement." + caravan->destination_settlement_id, "unknown caravan destination settlement");
+        return result;
+    }
+
+    if (!caravan_arrived(*caravan)) {
+        result.validation.add_error("simulation.caravan." + caravan->id + ".deliver", "caravan can only deliver cargo after arrival");
+        return result;
+    }
+
+    std::vector<RuntimeCargoDeliveryEntry> entries{};
+    entries.reserve(caravan->cargo.entries().size());
+    for (const auto& [resource_id, amount] : caravan->cargo.entries()) {
+        if (amount == 0) {
+            continue;
+        }
+        entries.push_back(RuntimeCargoDeliveryEntry{.resource_id = resource_id, .amount = amount});
+    }
+    std::sort(entries.begin(), entries.end(), [](const auto& lhs, const auto& rhs) {
+        return lhs.resource_id < rhs.resource_id;
+    });
+
+    for (const auto& entry : entries) {
+        if (!caravan->cargo.try_remove(entry.resource_id, entry.amount)) {
+            rollback_delivered_cargo(runtime, *caravan, result.delivered);
+            result.validation.add_error("simulation.caravan." + caravan->id + ".deliver", "caravan cargo changed during delivery");
+            return result;
+        }
+
+        auto destination_report = runtime.engine.add_resource_to_settlement(
+            caravan->destination_settlement_id,
+            entry.resource_id,
+            entry.amount
+        );
+        if (!destination_report.ok()) {
+            const auto restored = caravan->cargo.add(entry.resource_id, entry.amount);
+            (void)restored;
+            rollback_delivered_cargo(runtime, *caravan, result.delivered);
+            result.validation = destination_report;
+            return result;
+        }
+
+        result.delivered.push_back(entry);
+        result.total_amount += entry.amount;
+    }
+
+    return result;
 }
 
 ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
