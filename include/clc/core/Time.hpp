@@ -47,4 +47,10 @@ private:
     return days * ticks_per_day();
 }
 
+[[nodiscard]] inline GameTime make_game_time_at_tick(GameTime::Tick tick) noexcept {
+    GameTime time{};
+    time.advance(tick);
+    return time;
+}
+
 } // namespace clc
