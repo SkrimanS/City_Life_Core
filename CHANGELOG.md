@@ -14,12 +14,16 @@ All notable changes to City Life Core are tracked here.
 - Added deterministic runtime replay persistence coverage with midpoint save/load, post-load replay continuation, contract fulfillment, reward flow, ledger validation, and negative replay drift detection.
 - Added corrupted runtime save/load coverage for unknown rows, invalid contract status, orphan settlement storage, orphan caravan cargo, and invalid escape sequences.
 - Added failed-load mutation guard coverage proving corrupted runtime loads do not mutate the target runtime.
+- Added runtime tick consequences for arrived caravan IDs and overdue contract failures in day reports and run summaries.
+- Added runtime event log support for `runtime.contract.failed` events, including analysis and validation coverage.
 
 ### Changed
 
 - Bumped project version from `0.9.0` to `0.9.2` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
 - Registered `clc_runtime_replay_persistence_tests` and `clc_runtime_corrupted_save_tests` in CMake.
 - Added explicit compile-safety include coverage for replay persistence tests.
+- Extended runtime tick tests to cover arrival consequences, overdue contract status transitions, and contract failure summaries.
+- Extended runtime event log tests to cover failed contract event emission and analysis.
 
 ## 0.9.1 - Unreleased
 
@@ -125,7 +129,7 @@ All notable changes to City Life Core are tracked here.
 - `SimulationScenarioPreset` for named scenario run configurations.
 - `validate_scenario_preset()` for preset ID, display name, and day-count validation.
 - `SimulationEngine::run_scenario_preset()` for running validated scenario presets through the existing scenario pipeline.
-- Scenario preset test coverage for validation failures, valid execution, invalid no-op behavior, and digest compatibility.
+- Scenario preset test coverage for validation failures, valid no-op behavior, and digest compatibility.
 
 ## 0.6.x - Unreleased
 
