@@ -4,7 +4,7 @@
 
 **City Life Core / Ядро** — это headless-ядро симуляции на C++20 для живых поселений, ресурсов, экономики, маршрутов, караванов, фракций, владения, контрактов, сохранений, детерминированного replay и будущих server-authoritative игровых серверов.
 
-Current version: **0.9.4**
+Current version: **0.9.5**
 
 ---
 
@@ -55,7 +55,7 @@ City Life Core полезен, если нужно:
 | Caravans | караваны, cargo, movement, arrival state, arrival tick reports, explicit cargo delivery |
 | Factions/Ownership | фракции, reputation, ownership |
 | Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
-| Persistence | world/runtime save/load, corrupted-load coverage |
+| Persistence | world/runtime save/load, corrupted-load coverage, cargo delivery replay coverage |
 | Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
 | Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | в процессе стабилизации |
@@ -221,7 +221,7 @@ Implemented and actively hardened areas:
 | Caravans | caravans, cargo, movement, arrival state, arrival tick reports, explicit cargo delivery |
 | Factions/Ownership | factions, reputation, ownership |
 | Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
-| Persistence | world/runtime save-load, corrupted-load coverage |
+| Persistence | world/runtime save-load, corrupted-load coverage, cargo delivery replay coverage |
 | Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
 | Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | being stabilized |
