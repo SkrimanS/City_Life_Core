@@ -21,7 +21,11 @@ void merge_validation(data::ValidationReport& target, const data::ValidationRepo
 
 SimulationRuntimeTickReport advance_runtime_ticks(SimulationRuntime& runtime, clc::GameTime::Tick ticks) {
     SimulationRuntimeTickReport report{};
+    report.tick_before = runtime.time.current_tick();
     report.elapsed_ticks = ticks;
+
+    runtime.time.advance(ticks);
+    report.tick_after = runtime.time.current_tick();
 
     for (auto& caravan : runtime.caravans.caravans) {
         RuntimeCaravanTickReport caravan_report{};
@@ -37,6 +41,7 @@ SimulationRuntimeTickReport advance_runtime_ticks(SimulationRuntime& runtime, cl
         report.caravans.push_back(std::move(caravan_report));
     }
 
+    report.contracts = fail_overdue_open_contracts_at_tick(runtime.contracts, report.tick_after);
     return report;
 }
 
@@ -46,9 +51,8 @@ SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime) {
     report.ticks = advance_runtime_ticks(runtime, clc::ticks_per_day());
     report.caravans = report.ticks.caravans;
     report.arrived_caravan_ids = report.ticks.arrived_caravan_ids;
+    report.contracts = report.ticks.contracts;
     merge_validation(report.validation, report.ticks.validation);
-
-    report.contracts = fail_overdue_open_contracts(runtime.contracts, runtime.engine.current_day());
 
     return report;
 }
