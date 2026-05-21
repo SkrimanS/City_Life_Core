@@ -1,6 +1,7 @@
 # City Life Core Public API / Публичный API
 
-Version: **0.9.4**
+Version: **0.9.9**  
+Status: **pre-1.0 audit build / сборка для аудита перед 1.0**
 
 This document describes the current public C++ API surface of City Life Core. The API is usable today, but it is still pre-1.0.0: names and structures can still change while the SDK surface is being finalized.
 
@@ -20,7 +21,7 @@ City Life Core разделён на несколько уровней:
 4. **Economy** — market, trade, wallet, ledger, orders.
 5. **Persistence** — snapshot/world-state/runtime save-load, validation, deterministic equivalence.
 
-Главный namespace:
+Главные namespaces:
 
 ```cpp
 namespace clc {}
@@ -42,19 +43,21 @@ namespace clc::economy {}
 
 Ключевые возможности:
 
-- `clc::core_version()` — compile-time version object.
-- `clc::core_version_string()` — строковая версия ядра.
-- базовые world lifecycle primitives;
-- in-memory event log;
-- игровые time primitives.
+- `clc::core_version()` — compile-time version object;
+- `clc::core_version_string()` — строковая версия ядра;
+- `clc::GameTime` — runtime tick clock;
+- `ticks_per_second()`, `ticks_per_minute()`, `ticks_per_hour()`, `ticks_per_day()`;
+- `seconds_to_ticks(...)`, `minutes_to_ticks(...)`, `hours_to_ticks(...)`, `days_to_ticks(...)`;
+- in-memory `EventLog`.
 
 Пример:
 
 ```cpp
 #include "clc/core/Version.hpp"
+#include "clc/core/Time.hpp"
 
-static_assert(clc::core_version().major == 0);
-auto version = clc::core_version_string();
+static_assert(clc::core_version().minor == 9);
+auto two_hours = clc::hours_to_ticks(2);
 ```
 
 ### Data Registry API
@@ -75,20 +78,6 @@ auto version = clc::core_version_string();
 - `BuildingDefinition`
 - `ProfessionDefinition`
 - `SettlementDefinition`
-
-`DataRegistry` отвечает за добавление, хранение и lookup definitions:
-
-```cpp
-clc::data::DataRegistry registry;
-registry.add(clc::data::ResourceDefinition{
-    .id = "grain",
-    .display_name = "Grain",
-    .category = "food",
-    .base_value = 10,
-});
-
-const auto* grain = registry.resource("grain");
-```
 
 Validation convention:
 
@@ -111,16 +100,8 @@ Validation convention:
 - `SettlementState`
 - `BuildingInstance`
 - `SettlementTickReport`
+- `SettlementTickRemainder`
 - `SettlementReport`
-
-`ResourceStorage` — контролируемый контейнер ресурсов:
-
-```cpp
-clc::sim::ResourceStorage storage;
-storage.add("grain", 50);
-storage.try_remove("grain", 10);
-auto amount = storage.amount("grain");
-```
 
 Settlement simulation поддерживает:
 
@@ -128,67 +109,9 @@ Settlement simulation поддерживает:
 - food consumption;
 - building input consumption;
 - building output production;
+- day advancement;
+- partial tick advancement with deterministic remainders;
 - deterministic settlement reports.
-
-### Economy API
-
-Основные headers:
-
-```cpp
-#include "clc/economy/Market.hpp"
-#include "clc/economy/Trade.hpp"
-#include "clc/economy/Ledger.hpp"
-#include "clc/economy/Orders.hpp"
-```
-
-Ключевые области:
-
-- market demand and price reports;
-- wallet operations;
-- buy/sell trade transactions;
-- economy ledger;
-- market orders.
-
-Ledger сохраняет последовательные entries и используется contract reward flows.
-
-### Simulation Engine API
-
-Основной header:
-
-```cpp
-#include "clc/sim/SimulationEngine.hpp"
-```
-
-`SimulationEngine` содержит:
-
-- `DataRegistry`;
-- `MarketState`;
-- settlement list;
-- current day;
-- cumulative engine events.
-
-Пример:
-
-```cpp
-clc::sim::SimulationEngine engine{registry};
-engine.create_settlement("riverwatch");
-engine.add_resource_to_settlement("riverwatch", "grain", 50);
-
-const auto day = engine.advance_day();
-const auto snapshot = engine.snapshot();
-```
-
-Useful APIs:
-
-- `create_settlement()`
-- `add_resource_to_settlement()`
-- `remove_resource_from_settlement()`
-- `transfer_resource_between_settlements()`
-- `advance_day()`
-- `run_days()`
-- `snapshot()`
-- `export_state()` / `restore_state()`
-- `events()`, `recent_events()`, `events_by_type()`
 
 ### Routes and Caravans API
 
@@ -199,19 +122,19 @@ Useful APIs:
 #include "clc/sim/Caravans.hpp"
 ```
 
-Routes describe movement between settlements:
+Routes могут быть day-based или tick-based:
 
 ```cpp
-clc::sim::SettlementRoute route{
-    .id = "riverwatch_to_hillford",
-    .display_name = "Riverwatch to Hillford",
-    .origin_settlement_id = "riverwatch",
-    .destination_settlement_id = "hillford",
-    .travel_days = 2,
-};
+auto route = clc::sim::make_settlement_route_ticks(
+    "riverwatch_to_hillford_3h",
+    "Riverwatch to Hillford 3h",
+    "riverwatch",
+    "hillford",
+    clc::hours_to_ticks(3)
+);
 ```
 
-Caravans carry cargo and progress by days:
+Caravans carry cargo and progress by days or ticks:
 
 ```cpp
 auto caravan = clc::sim::create_caravan_for_route(
@@ -220,27 +143,17 @@ auto caravan = clc::sim::create_caravan_for_route(
     "Caravan 01"
 );
 
-clc::sim::advance_caravan_day(caravan);
+clc::sim::advance_caravan_ticks(caravan, clc::minutes_to_ticks(30));
 ```
 
-Runtime day ticks expose arrival consequences through `SimulationRuntimeDayReport::arrived_caravan_ids`. Cargo delivery into destination settlement storage is explicit through `deliver_runtime_arrived_caravan_cargo_to_destination()` so contract fulfillment from arrived cargo remains deterministic and opt-in.
+Important helpers:
 
-### Factions and Ownership API
-
-Основные headers:
-
-```cpp
-#include "clc/sim/Factions.hpp"
-#include "clc/sim/Ownership.hpp"
-```
-
-Supported concepts:
-
-- faction catalog;
-- faction reputation;
-- settlement ownership;
-- caravan ownership;
-- reference validation.
+- `settlement_route_travel_ticks(...)`
+- `caravan_total_travel_ticks(...)`
+- `caravan_ticks_remaining(...)`
+- `advance_caravan_ticks(...)`
+- `advance_caravan_day(...)`
+- `caravan_arrived(...)`
 
 ### Contracts API
 
@@ -258,10 +171,11 @@ Supported contract model:
 - receiver faction;
 - required resource and quantity;
 - reward coins;
-- due day;
+- `due_day` for day-based games;
+- `due_ticks` for real-time/MMO runtime;
 - status;
 - fulfillment from arrived caravan;
-- overdue failure through runtime day ticks;
+- overdue failure through runtime ticks;
 - reward + ledger integration.
 
 Example:
@@ -275,7 +189,7 @@ clc::sim::ResourceDeliveryContract contract{
     .resource_id = "grain",
     .quantity = 30,
     .reward_coins = 75,
-    .due_day = 8,
+    .due_ticks = clc::hours_to_ticks(6),
 };
 ```
 
@@ -293,16 +207,17 @@ clc::sim::ResourceDeliveryContract contract{
 
 `SimulationRuntime` bundles the major runtime subsystems:
 
-- engine;
-- routes;
-- caravans;
-- factions;
-- ownership;
-- contracts;
-- wallet;
-- ledger.
+- `engine`;
+- `routes`;
+- `caravans`;
+- `factions`;
+- `ownership`;
+- `contracts`;
+- `wallet`;
+- `ledger`;
+- `time`.
 
-Recommended entry point for examples and tests:
+Recommended entry point:
 
 ```cpp
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
@@ -315,43 +230,102 @@ auto& runtime = bootstrap.runtime;
 
 Workflow helpers:
 
-- `create_runtime_settlement()`
-- `add_runtime_route()`
-- `add_runtime_faction()`
-- `set_runtime_faction_reputation()`
-- `set_runtime_settlement_owner()`
-- `set_runtime_caravan_owner()`
-- `add_runtime_resource_delivery_contract()`
-- `create_runtime_caravan_for_route()`
-- `load_runtime_caravan_at_origin()`
-- `advance_runtime_caravan_day()`
-- `unload_runtime_caravan_at_destination()`
-- `deliver_runtime_arrived_caravan_cargo_to_destination()`
-- `fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger()`
-- `fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger()`
+- `create_runtime_settlement(...)`
+- `add_runtime_route(...)`
+- `add_runtime_faction(...)`
+- `set_runtime_faction_reputation(...)`
+- `set_runtime_settlement_owner(...)`
+- `set_runtime_caravan_owner(...)`
+- `add_runtime_resource_delivery_contract(...)`
+- `create_runtime_caravan_for_route(...)`
+- `load_runtime_caravan_at_origin(...)`
+- `advance_runtime_caravan_day(...)`
+- `unload_runtime_caravan_at_destination(...)`
+- `deliver_runtime_arrived_caravan_cargo_to_destination(...)`
+- `deliver_all_runtime_arrived_caravan_cargo_to_destinations(...)`
+- `fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(...)`
+- `fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger(...)`
 
-Explicit cargo delivery result types:
+### Tick-based runtime API
 
-- `RuntimeCargoDeliveryEntry`
-- `RuntimeCaravanCargoDeliveryResult`
+`0.9.9` добавляет полноценный tick-based orchestration layer. Он нужен для real-time игр, MMO и серверов, где события происходят через секунды/минуты/часы, а не только через дни.
 
-`RuntimeCaravanCargoDeliveryResult` reports the caravan ID, destination settlement ID, delivered resource entries, total delivered amount, and validation state.
+Главные функции:
 
-Runtime tick reports:
+```cpp
+clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(10));
 
-- `advance_runtime_day()` advances engine and caravans;
-- `SimulationRuntimeDayReport::arrived_caravan_ids` lists caravans that arrived on that tick;
-- `SimulationRuntimeDayReport::contracts` contains overdue contract failures for the tick;
-- `SimulationRuntimeRunSummary::contract_failures` aggregates failed contracts across a run.
+clc::sim::run_runtime_ticks(
+    runtime,
+    clc::hours_to_ticks(2),
+    clc::minutes_to_ticks(30)
+);
+
+clc::sim::run_runtime_until_first_caravan_arrival_by_ticks(
+    runtime,
+    clc::hours_to_ticks(6),
+    clc::minutes_to_ticks(15)
+);
+
+clc::sim::run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(
+    runtime,
+    clc::hours_to_ticks(6),
+    clc::minutes_to_ticks(15),
+    "riverwatch"
+);
+```
+
+Ключевые result types:
+
+- `SimulationRuntimeTickReport`
+- `SimulationRuntimeTickRunSummary`
+- `SimulationRuntimeTickRunResult`
+- `SimulationRuntimeTickRunUntilArrivalResult`
+- `SimulationRuntimeTickArrivalContractResult`
+
+Day-based functions remain available:
+
+- `advance_runtime_day(...)`
+- `run_runtime_days(...)`
+- `run_runtime_until_first_caravan_arrival(...)`
+- `run_runtime_until_first_caravan_arrival_and_fulfill_contract(...)`
+
+Но для real-time/MMO рекомендуется tick-based API.
+
+### Runtime Events / Diagnostics API
+
+Event log helpers:
+
+- `append_runtime_day_report_events(...)`
+- `append_runtime_run_events(...)`
+- `append_runtime_arrival_contract_events(...)`
+- `append_runtime_tick_report_events(...)`
+- `append_runtime_tick_run_events(...)`
+- `append_runtime_tick_arrival_contract_events(...)`
+- `append_runtime_caravan_cargo_delivery_event(...)`
+- `append_runtime_bulk_caravan_cargo_delivery_events(...)`
 
 Runtime events:
 
 - `runtime.day.completed`
+- `runtime.tick.completed`
 - `runtime.caravan.progress`
 - `runtime.caravan.arrived`
 - `runtime.caravan.cargo_delivered`
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
+
+All event timestamps are absolute runtime ticks, not day numbers.
+
+Validation/analysis helpers:
+
+- `analyze_runtime_event_log(...)`
+- `validate_runtime_event_log_tick_order(...)`
+- `validate_runtime_event_log_known_types(...)`
+- `validate_runtime_event_log_payloads(...)`
+- `validate_runtime_event_log(...)`
+- `calculate_runtime_event_log_checksum(...)`
+- `validate_runtime_event_logs_match(...)`
 
 ### Persistence API
 
@@ -362,13 +336,20 @@ Runtime events:
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 ```
 
-Persistence layers:
+Runtime persistence сохраняет:
 
-- snapshot persistence;
-- world-state persistence;
-- runtime persistence;
-- runtime save-load validation;
-- semantic runtime equivalence validation.
+- engine state;
+- routes;
+- caravans and cargo;
+- factions;
+- ownership;
+- contracts;
+- wallet;
+- ledger entries;
+- runtime `time`;
+- caravan tick progress;
+- contract `due_ticks`;
+- settlement tick remainders.
 
 Common runtime roundtrip:
 
@@ -380,10 +361,6 @@ auto result = clc::sim::validate_simulation_runtime_save_load_roundtrip(
     loaded,
     "runtime.clcs"
 );
-
-if (!result.ok()) {
-    // inspect result.validation / result.load
-}
 ```
 
 Semantic runtime comparison:
@@ -395,41 +372,33 @@ if (!report.ok()) {
 }
 ```
 
-Current validation covers:
+Compatibility:
 
-- engine day/state/events;
-- market demands;
-- registry counts;
-- referenced resource and settlement definition semantics;
-- routes;
-- caravans and cargo;
-- factions and reputation;
-- ownership;
-- contracts;
-- wallet;
-- ledger.
+- old saves without explicit `time` synchronize runtime clock from `current_day`;
+- old contract rows without `due_ticks` derive tick deadlines from `due_day`.
 
 ### Stability notes before 1.0.0
 
-Stable enough for internal integration:
+Stable enough for 0.9.9 audit:
 
 - data definitions;
 - registry lookup;
 - storage operations;
+- day and tick time primitives;
 - runtime scenario bootstrap;
 - runtime workflow helpers;
 - explicit runtime cargo delivery;
-- runtime tick reports;
-- runtime event diagnostics;
+- tick-based runtime reports;
+- day/tick runtime event diagnostics;
 - runtime persistence validation.
 
 Still evolving:
 
-- public SDK packaging;
+- public SDK naming freeze;
 - broader settlement-side arrival effects;
 - external C ABI;
 - binary distribution layout;
-- final naming of some workflow helpers.
+- final 1.0 documentation pass.
 
 ---
 
@@ -467,11 +436,12 @@ Main headers:
 
 Key features:
 
-- `clc::core_version()` — compile-time version object.
-- `clc::core_version_string()` — string version.
-- world lifecycle primitives;
-- in-memory event log;
-- game time primitives.
+- `clc::core_version()` — compile-time version object;
+- `clc::core_version_string()` — string version;
+- `clc::GameTime` — runtime tick clock;
+- `ticks_per_second()`, `ticks_per_minute()`, `ticks_per_hour()`, `ticks_per_day()`;
+- `seconds_to_ticks(...)`, `minutes_to_ticks(...)`, `hours_to_ticks(...)`, `days_to_ticks(...)`;
+- in-memory `EventLog`.
 
 ### Data Registry API
 
@@ -492,19 +462,7 @@ Definition types:
 - `ProfessionDefinition`
 - `SettlementDefinition`
 
-`DataRegistry` stores and validates definitions:
-
-```cpp
-clc::data::DataRegistry registry;
-registry.add(clc::data::ResourceDefinition{
-    .id = "grain",
-    .display_name = "Grain",
-    .category = "food",
-    .base_value = 10,
-});
-
-const auto* grain = registry.resource("grain");
-```
+Most mutating/validation operations return `clc::data::ValidationReport`.
 
 ### Settlement and Storage API
 
@@ -521,60 +479,10 @@ Key types:
 - `SettlementState`
 - `BuildingInstance`
 - `SettlementTickReport`
+- `SettlementTickRemainder`
 - `SettlementReport`
 
-`ResourceStorage` is a controlled resource container:
-
-```cpp
-clc::sim::ResourceStorage storage;
-storage.add("grain", 50);
-storage.try_remove("grain", 10);
-auto amount = storage.amount("grain");
-```
-
-### Economy API
-
-Main headers:
-
-```cpp
-#include "clc/economy/Market.hpp"
-#include "clc/economy/Trade.hpp"
-#include "clc/economy/Ledger.hpp"
-#include "clc/economy/Orders.hpp"
-```
-
-Supported areas:
-
-- market demand and price reports;
-- wallet operations;
-- buy/sell trade transactions;
-- economy ledger;
-- market orders.
-
-### Simulation Engine API
-
-Main header:
-
-```cpp
-#include "clc/sim/SimulationEngine.hpp"
-```
-
-`SimulationEngine` owns:
-
-- data registry;
-- market state;
-- settlements;
-- current day;
-- cumulative events.
-
-```cpp
-clc::sim::SimulationEngine engine{registry};
-engine.create_settlement("riverwatch");
-engine.add_resource_to_settlement("riverwatch", "grain", 50);
-
-const auto day = engine.advance_day();
-const auto snapshot = engine.snapshot();
-```
+Settlement simulation supports day advancement and partial tick advancement with deterministic remainders.
 
 ### Routes and Caravans API
 
@@ -585,7 +493,28 @@ Main headers:
 #include "clc/sim/Caravans.hpp"
 ```
 
-Caravans carry cargo, progress by days, surface arrival IDs through runtime day reports, and can explicitly deliver remaining arrived cargo into destination settlement storage.
+Routes may be day-based or tick-based:
+
+```cpp
+auto route = clc::sim::make_settlement_route_ticks(
+    "riverwatch_to_hillford_3h",
+    "Riverwatch to Hillford 3h",
+    "riverwatch",
+    "hillford",
+    clc::hours_to_ticks(3)
+);
+```
+
+Caravans carry cargo and progress by days or ticks.
+
+Important helpers:
+
+- `settlement_route_travel_ticks(...)`
+- `caravan_total_travel_ticks(...)`
+- `caravan_ticks_remaining(...)`
+- `advance_caravan_ticks(...)`
+- `advance_caravan_day(...)`
+- `caravan_arrived(...)`
 
 ### Contracts API
 
@@ -602,7 +531,8 @@ Supported contract model:
 - issuer/receiver factions;
 - required resource and quantity;
 - reward coins;
-- due day and status;
+- `due_day` for day-based games;
+- `due_ticks` for real-time/MMO runtime;
 - fulfillment from arrived caravan;
 - overdue failure through runtime ticks;
 - reward and ledger integration.
@@ -619,7 +549,7 @@ Main headers:
 #include "clc/sim/SimulationRuntimeEvents.hpp"
 ```
 
-`SimulationRuntime` is the recommended integration surface for game/server code. It bundles engine, routes, caravans, factions, ownership, contracts, wallet, and ledger.
+`SimulationRuntime` is the recommended integration surface for game/server code. It bundles engine, routes, caravans, factions, ownership, contracts, wallet, ledger, and runtime time.
 
 ```cpp
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
@@ -630,23 +560,71 @@ if (!bootstrap.ok()) {
 auto& runtime = bootstrap.runtime;
 ```
 
-Runtime workflow helpers include explicit cargo delivery through `deliver_runtime_arrived_caravan_cargo_to_destination()`. This helper moves all remaining arrived cargo into the destination settlement and returns a `RuntimeCaravanCargoDeliveryResult` with delivered entries and total amount.
+Runtime workflow helpers include explicit cargo delivery through `deliver_runtime_arrived_caravan_cargo_to_destination()` and `deliver_all_runtime_arrived_caravan_cargo_to_destinations()`.
 
-Runtime tick reports:
+### Tick-based runtime API
 
-- `advance_runtime_day()` advances engine and caravans;
-- `SimulationRuntimeDayReport::arrived_caravan_ids` lists caravans that arrived on that tick;
-- `SimulationRuntimeDayReport::contracts` contains overdue contract failures for the tick;
-- `SimulationRuntimeRunSummary::contract_failures` aggregates failed contracts across a run.
+`0.9.9` adds a full tick-based orchestration layer for real-time games, MMOs, and servers where events happen after seconds, minutes, or hours instead of only after days.
+
+Main functions:
+
+```cpp
+clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(10));
+
+clc::sim::run_runtime_ticks(
+    runtime,
+    clc::hours_to_ticks(2),
+    clc::minutes_to_ticks(30)
+);
+
+clc::sim::run_runtime_until_first_caravan_arrival_by_ticks(
+    runtime,
+    clc::hours_to_ticks(6),
+    clc::minutes_to_ticks(15)
+);
+
+clc::sim::run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(
+    runtime,
+    clc::hours_to_ticks(6),
+    clc::minutes_to_ticks(15),
+    "riverwatch"
+);
+```
+
+Key result types:
+
+- `SimulationRuntimeTickReport`
+- `SimulationRuntimeTickRunSummary`
+- `SimulationRuntimeTickRunResult`
+- `SimulationRuntimeTickRunUntilArrivalResult`
+- `SimulationRuntimeTickArrivalContractResult`
+
+Day-based APIs remain available for turn-based/daily games, but tick-based APIs are the preferred integration path for real-time/MMO runtimes.
+
+### Runtime Events / Diagnostics API
+
+Event log helpers:
+
+- `append_runtime_day_report_events(...)`
+- `append_runtime_run_events(...)`
+- `append_runtime_arrival_contract_events(...)`
+- `append_runtime_tick_report_events(...)`
+- `append_runtime_tick_run_events(...)`
+- `append_runtime_tick_arrival_contract_events(...)`
+- `append_runtime_caravan_cargo_delivery_event(...)`
+- `append_runtime_bulk_caravan_cargo_delivery_events(...)`
 
 Runtime events:
 
 - `runtime.day.completed`
+- `runtime.tick.completed`
 - `runtime.caravan.progress`
 - `runtime.caravan.arrived`
 - `runtime.caravan.cargo_delivered`
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
+
+All event timestamps are absolute runtime ticks, not day numbers.
 
 ### Persistence API
 
@@ -656,6 +634,8 @@ Main headers:
 #include "clc/sim/SimulationPersistence.hpp"
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 ```
+
+Runtime persistence stores runtime time, route/caravan tick progress, contract tick deadlines, settlement tick remainders, and the existing world/runtime systems.
 
 Runtime roundtrip:
 
@@ -678,24 +658,30 @@ if (!report.ok()) {
 }
 ```
 
+Compatibility:
+
+- old saves without explicit `time` synchronize runtime clock from `current_day`;
+- old contract rows without `due_ticks` derive tick deadlines from `due_day`.
+
 ### Stability notes before 1.0.0
 
-Ready for internal integration:
+Ready for 0.9.9 audit:
 
 - data definitions;
 - registry lookup;
 - storage operations;
+- day and tick time primitives;
 - runtime scenario bootstrap;
 - runtime workflow helpers;
 - explicit runtime cargo delivery;
-- runtime tick reports;
-- runtime event diagnostics;
+- tick-based runtime reports;
+- day/tick runtime event diagnostics;
 - runtime persistence validation.
 
 Still evolving:
 
-- public SDK packaging;
+- public SDK naming freeze;
 - broader settlement-side arrival effects;
 - external C ABI;
 - binary distribution layout;
-- final naming of workflow helpers.
+- final 1.0 documentation pass.
