@@ -6,8 +6,13 @@ project(CityLifeCore
     LANGUAGES CXX
 )
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 option(CLC_BUILD_TESTS "Build City Life Core tests" ON)
 option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ON)
+
+set(CLC_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore" CACHE STRING "City Life Core CMake package install directory")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -49,7 +54,13 @@ add_library(city_life_core
 
 add_library(CityLifeCore::core ALIAS city_life_core)
 
-target_include_directories(city_life_core PUBLIC include)
+set_target_properties(city_life_core PROPERTIES EXPORT_NAME core)
+
+target_include_directories(city_life_core
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 target_compile_features(city_life_core PUBLIC cxx_std_20)
 
@@ -72,6 +83,43 @@ if(CLC_BUILD_EXAMPLES)
     add_executable(clc_example_replay_persistence examples/replay_persistence.cpp)
     target_link_libraries(clc_example_replay_persistence PRIVATE CityLifeCore::core)
 endif()
+
+install(
+    TARGETS city_life_core
+    EXPORT CityLifeCoreTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+    EXPORT CityLifeCoreTargets
+    NAMESPACE CityLifeCore::
+    FILE CityLifeCoreTargets.cmake
+    DESTINATION ${CLC_INSTALL_CMAKEDIR}
+)
+
+configure_package_config_file(
+    cmake/CityLifeCoreConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake"
+    INSTALL_DESTINATION ${CLC_INSTALL_CMAKEDIR}
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfigVersion.cmake"
+    DESTINATION ${CLC_INSTALL_CMAKEDIR}
+)
 
 if(CLC_BUILD_TESTS)
     enable_testing()
