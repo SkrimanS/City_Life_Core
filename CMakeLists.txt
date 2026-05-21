@@ -96,6 +96,30 @@ install(
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
+    FILES README.md CHANGELOG.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+)
+
+install(
+    DIRECTORY docs/
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+    FILES_MATCHING PATTERN "*.md"
+)
+
+install(
+    DIRECTORY examples/
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples
+    FILES_MATCHING
+        PATTERN "*.cpp"
+        PATTERN "*.md"
+)
+
+install(
+    DIRECTORY data/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/CityLifeCore/data
+)
+
+install(
     EXPORT CityLifeCoreTargets
     NAMESPACE CityLifeCore::
     FILE CityLifeCoreTargets.cmake
