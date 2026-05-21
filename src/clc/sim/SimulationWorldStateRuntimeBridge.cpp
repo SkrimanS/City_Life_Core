@@ -4,6 +4,17 @@
 
 namespace clc::sim {
 
+namespace {
+
+clc::GameTime restored_runtime_time(const SimulationWorldState& state) noexcept {
+    if (state.time.current_tick() > 0 || state.engine.current_day == 0) {
+        return state.time;
+    }
+    return clc::GameTime{clc::days_to_ticks(state.engine.current_day)};
+}
+
+} // namespace
+
 SimulationWorldState capture_simulation_world_state(
     const SimulationEngine& engine,
     const SettlementRouteCatalog& routes,
@@ -96,7 +107,7 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
     if (!report.ok()) {
         return report;
     }
-    runtime.time = state.time;
+    runtime.time = restored_runtime_time(state);
     return report;
 }
 
