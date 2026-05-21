@@ -19,27 +19,35 @@ void merge_validation(data::ValidationReport& target, const data::ValidationRepo
 
 } // namespace
 
-SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime) {
-    SimulationRuntimeDayReport report{};
-    report.engine = runtime.engine.advance_day();
+SimulationRuntimeTickReport advance_runtime_ticks(SimulationRuntime& runtime, clc::GameTime::Tick ticks) {
+    SimulationRuntimeTickReport report{};
+    report.elapsed_ticks = ticks;
 
     for (const auto& caravan : runtime.caravans.caravans) {
         RuntimeCaravanTickReport caravan_report{};
         caravan_report.caravan_id = caravan.id;
 
-        const auto advanced = advance_runtime_caravan_day(runtime, caravan.id);
-        caravan_report.validation = advanced.validation;
+        auto* mutable_caravan = const_cast<CaravanState*>(&caravan);
+        const auto advanced = advance_caravan_ticks(*mutable_caravan, ticks);
+        caravan_report.advance = advanced;
 
-        if (advanced.ok()) {
-            caravan_report.advance = advanced.report;
-            if (advanced.report.arrived) {
-                report.arrived_caravan_ids.push_back(advanced.report.caravan_id);
-            }
+        if (advanced.arrived && advanced.ticks_elapsed > 0) {
+            report.arrived_caravan_ids.push_back(advanced.caravan_id);
         }
 
-        merge_validation(report.validation, advanced.validation);
         report.caravans.push_back(std::move(caravan_report));
     }
+
+    return report;
+}
+
+SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime) {
+    SimulationRuntimeDayReport report{};
+    report.engine = runtime.engine.advance_day();
+    report.ticks = advance_runtime_ticks(runtime, clc::ticks_per_day());
+    report.caravans = report.ticks.caravans;
+    report.arrived_caravan_ids = report.ticks.arrived_caravan_ids;
+    merge_validation(report.validation, report.ticks.validation);
 
     report.contracts = fail_overdue_open_contracts(runtime.contracts, runtime.engine.current_day());
 
@@ -58,13 +66,14 @@ SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<Simu
     summary.last_day = reports.back().engine.day;
 
     for (const auto& report : reports) {
+        summary.ticks_elapsed += report.ticks.elapsed_ticks;
         summary.warnings += report.validation.warning_count();
         summary.contract_failures += report.contracts.failed_count;
 
         for (const auto& caravan : report.caravans) {
             ++summary.caravan_ticks;
 
-            if (caravan.advance.arrived) {
+            if (caravan.advance.arrived && caravan.advance.ticks_elapsed > 0) {
                 ++summary.caravan_arrivals;
             }
         }
@@ -104,6 +113,9 @@ SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
             result.arrival_reached = true;
             result.arrived_caravan_id = report.arrived_caravan_ids.front();
             result.arrival_day = report.engine.day;
+            result.arrival_elapsed_ticks += report.ticks.elapsed_ticks;
+        } else {
+            result.arrival_elapsed_ticks += report.ticks.elapsed_ticks;
         }
 
         result.run.reports.push_back(std::move(report));
