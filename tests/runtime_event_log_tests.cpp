@@ -81,6 +81,62 @@ int main() {
     const auto delivery_analysis = clc::sim::analyze_runtime_event_log(log);
     require(delivery_analysis.caravan_cargo_delivered_events == 1, "runtime event analysis should count cargo delivery events");
 
+    auto bulk_bootstrap = clc::sim::make_basic_runtime_scenario();
+    require(bulk_bootstrap.ok(), "runtime bulk event bootstrap should succeed");
+    auto& bulk_runtime = bulk_bootstrap.runtime;
+    require(bulk_runtime.engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "runtime bulk event origin should receive extra grain");
+
+    auto bulk_a = clc::sim::create_runtime_caravan_for_route(
+        bulk_runtime,
+        "riverwatch_to_hillford",
+        "event_bulk_a",
+        "Event Bulk A"
+    );
+    require(bulk_a.ok(), "runtime bulk event caravan a should create");
+    auto bulk_b = clc::sim::create_runtime_caravan_for_route(
+        bulk_runtime,
+        "riverwatch_to_hillford",
+        "event_bulk_b",
+        "Event Bulk B"
+    );
+    require(bulk_b.ok(), "runtime bulk event caravan b should create");
+
+    require(clc::sim::load_runtime_caravan_at_origin(bulk_runtime, "event_bulk_a", "grain", 15).ok(), "runtime bulk event caravan a should load");
+    require(clc::sim::load_runtime_caravan_at_origin(bulk_runtime, "event_bulk_b", "grain", 20).ok(), "runtime bulk event caravan b should load");
+    require(clc::sim::advance_runtime_caravan_day(bulk_runtime, "event_bulk_a").ok(), "runtime bulk event caravan a first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(bulk_runtime, "event_bulk_a").ok(), "runtime bulk event caravan a second advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(bulk_runtime, "event_bulk_b").ok(), "runtime bulk event caravan b first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(bulk_runtime, "event_bulk_b").ok(), "runtime bulk event caravan b second advance should succeed");
+
+    const auto bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(bulk_runtime);
+    require(bulk_delivery.ok(), "runtime bulk event delivery should succeed");
+    require(bulk_delivery.delivered_caravans == 2, "runtime bulk event delivery should count two caravans");
+    require(bulk_delivery.total_amount == 35, "runtime bulk event delivery should total cargo amount");
+
+    clc::EventLog bulk_log{};
+    const auto bulk_summary = clc::sim::append_runtime_bulk_caravan_cargo_delivery_events(bulk_log, 2, bulk_delivery);
+    require(bulk_summary.events_appended == 2, "runtime bulk event log should append two cargo delivery events");
+    require(bulk_summary.cargo_events == 2, "runtime bulk event log should count two cargo delivery events");
+    require(bulk_summary.day_events == 0, "runtime bulk event log should not count day events");
+    require(bulk_summary.caravan_events == 0, "runtime bulk event log should not count caravan progress events");
+    require(bulk_summary.contract_events == 0, "runtime bulk event log should not count contract events");
+    require(bulk_log.size() == 2, "runtime bulk event log should contain two events");
+    require(bulk_log.events()[0].type == "runtime.caravan.cargo_delivered", "runtime bulk event log first event should be cargo delivery");
+    require(bulk_log.events()[0].payload == "event_bulk_a->hillford:total=15", "runtime bulk event log first payload should be deterministic");
+    require(bulk_log.events()[1].payload == "event_bulk_b->hillford:total=20", "runtime bulk event log second payload should be deterministic");
+    require(clc::sim::validate_runtime_event_log(bulk_log).ok(), "runtime bulk event log should validate");
+
+    const auto bulk_analysis = clc::sim::analyze_runtime_event_log(bulk_log);
+    require(bulk_analysis.caravan_cargo_delivered_events == 2, "runtime bulk event analysis should count cargo delivery events");
+    require(bulk_analysis.total_events == 2, "runtime bulk event analysis should count total events");
+
+    const auto repeated_bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(bulk_runtime);
+    require(repeated_bulk_delivery.ok(), "runtime repeated bulk delivery should succeed");
+    require(repeated_bulk_delivery.deliveries.empty(), "runtime repeated bulk delivery should produce no deliveries");
+    const auto repeated_bulk_summary = clc::sim::append_runtime_bulk_caravan_cargo_delivery_events(bulk_log, 2, repeated_bulk_delivery);
+    require(repeated_bulk_summary.events_appended == 0, "runtime empty bulk event append should append no events");
+    require(bulk_log.size() == 2, "runtime empty bulk event append should not mutate log");
+
     clc::sim::RuntimeScenarioBootstrapConfig overdue_config{};
     overdue_config.contract_due_day = 1;
     auto overdue_bootstrap = clc::sim::make_basic_runtime_scenario(overdue_config);
