@@ -92,6 +92,7 @@ int main() {
     require(!first_hour.caravans[0].advance.arrived, "hourly runtime caravan should not arrive after one hour");
     require(first_hour.arrived_caravan_ids.empty(), "hourly runtime tick should not report early arrival");
     require(hourly_runtime.engine.current_day() == engine_day_before_hourly_ticks, "hourly runtime tick should not advance daily engine day");
+    require(!clc::sim::load_runtime_caravan_at_origin(hourly_runtime, "runtime_hourly_caravan", "grain", 1).ok(), "hourly runtime caravan should reject loading after tick departure");
 
     auto final_hours = clc::sim::advance_runtime_ticks(hourly_runtime, clc::hours_to_ticks(2));
     require(final_hours.ok(), "hourly runtime final tick should succeed");
