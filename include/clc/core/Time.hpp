@@ -8,6 +8,10 @@ class GameTime final {
 public:
     using Tick = std::uint64_t;
 
+    constexpr GameTime() noexcept = default;
+    explicit constexpr GameTime(Tick tick) noexcept
+        : tick_(tick) {}
+
     [[nodiscard]] Tick current_tick() const noexcept;
     void advance(Tick ticks) noexcept;
 
@@ -48,9 +52,7 @@ private:
 }
 
 [[nodiscard]] inline GameTime make_game_time_at_tick(GameTime::Tick tick) noexcept {
-    GameTime time{};
-    time.advance(tick);
-    return time;
+    return GameTime{tick};
 }
 
 } // namespace clc
