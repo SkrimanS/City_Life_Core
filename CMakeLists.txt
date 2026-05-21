@@ -109,6 +109,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_runtime_persistence_validation_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_persistence_validation_tests COMMAND clc_runtime_persistence_validation_tests)
 
+    add_executable(clc_runtime_replay_persistence_tests tests/runtime_replay_persistence_tests.cpp)
+    target_link_libraries(clc_runtime_replay_persistence_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_runtime_replay_persistence_tests COMMAND clc_runtime_replay_persistence_tests)
+
     add_executable(clc_runtime_corrupted_save_tests tests/runtime_corrupted_save_tests.cpp)
     target_link_libraries(clc_runtime_corrupted_save_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_runtime_corrupted_save_tests COMMAND clc_runtime_corrupted_save_tests)
