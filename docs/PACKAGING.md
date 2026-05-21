@@ -1,6 +1,6 @@
 # City Life Core Packaging / Упаковка
 
-Version: **0.9.2**
+Version: **0.9.3**
 
 This document describes the current source-package installation flow for City Life Core.
 
@@ -43,6 +43,13 @@ cmake --install build
       CityLifeCoreConfig.cmake
       CityLifeCoreConfigVersion.cmake
       CityLifeCoreTargets.cmake
+  share/
+    doc/CityLifeCore/
+      README.md
+      CHANGELOG.md
+      PACKAGING.md
+      examples/
+    CityLifeCore/data/
 ```
 
 На Windows путь библиотеки и расширения будут зависеть от генератора и toolchain.
@@ -86,7 +93,7 @@ CityLifeCore::core
 - ABI compatibility policy;
 - C ABI;
 - package manager recipes;
-- installed examples/tools policy.
+- installed tools policy.
 
 ---
 
@@ -125,6 +132,13 @@ Expected installed layout:
       CityLifeCoreConfig.cmake
       CityLifeCoreConfigVersion.cmake
       CityLifeCoreTargets.cmake
+  share/
+    doc/CityLifeCore/
+      README.md
+      CHANGELOG.md
+      PACKAGING.md
+      examples/
+    CityLifeCore/data/
 ```
 
 On Windows, library paths and extensions depend on the generator and toolchain.
@@ -168,4 +182,4 @@ Still not finalized:
 - ABI compatibility policy;
 - C ABI;
 - package manager recipes;
-- installed examples/tools policy.
+- installed tools policy.
