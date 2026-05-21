@@ -1,6 +1,7 @@
 # City Life Core SDK Structure / Структура SDK
 
-Version: **0.9.3**
+Version: **0.9.9**  
+Status: **pre-1.0 audit build / сборка для аудита перед 1.0**
 
 This document describes the intended SDK and release structure for City Life Core before 1.0.0. The project is currently a source-first C++ SDK. Binary packages and C ABI are not finalized yet.
 
@@ -18,6 +19,8 @@ SDK должен позволять внешнему проекту подклю
 - без клиентского UI;
 - без зависимости от конкретного игрового движка;
 - с понятной C++ API поверх runtime workflows;
+- с day-based и tick-based runtime;
+- с поддержкой real-time/MMO сценариев через секунды, минуты и часы;
 - с тестируемым persistence/replay поведением;
 - с будущей возможностью server-authoritative backend integration.
 
@@ -49,10 +52,10 @@ CHANGELOG.md
 
 ### Целевая release SDK layout
 
-Для source release:
+Для source/audit release:
 
 ```text
-city-life-core-sdk-0.9.3/
+city-life-core-sdk-0.9.9/
   include/
     clc/
       core/
@@ -71,7 +74,8 @@ city-life-core-sdk-0.9.3/
     PUBLIC_API.md
     SDK_STRUCTURE.md
     PACKAGING.md
-  tests/                       # optional, for integrators
+    RELEASE_NOTES_0.9.9.md
+  tests/                       # optional, for integrators and auditors
   CMakeLists.txt
   README.md
   CHANGELOG.md
@@ -111,10 +115,13 @@ city-life-core-sdk-1.0.0/
 
 ```cpp
 #include "clc/core/Version.hpp"
+#include "clc/core/Time.hpp"
 #include "clc/data/DataRegistry.hpp"
 #include "clc/data/Definitions.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
+#include "clc/sim/SimulationRuntimeTick.hpp"
+#include "clc/sim/SimulationRuntimeEvents.hpp"
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 ```
 
@@ -124,6 +131,36 @@ city-life-core-sdk-1.0.0/
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
 auto& runtime = bootstrap.runtime;
 ```
+
+### C++ SDK boundary в 0.9.9
+
+В C++ SDK входят:
+
+- definitions and registry;
+- validation reports;
+- resource storage;
+- simulation engine;
+- settlement day and partial tick simulation;
+- settlement routes with day/tick travel;
+- caravans with day/tick progress;
+- factions and ownership;
+- contracts, `due_day`, `due_ticks`, rewards, and ledger integration;
+- economy ledger;
+- runtime workflows;
+- tick-based runtime helpers;
+- day/tick runtime event diagnostics;
+- runtime save/load;
+- semantic runtime validation;
+- legacy save compatibility for missing `time` and missing `due_ticks`.
+
+Пока не считать стабильным:
+
+- окончательные имена всех workflow helpers;
+- binary package layout;
+- C ABI;
+- binary compatibility;
+- plugin/data-pack ABI;
+- network/server action protocol.
 
 ### SDK examples
 
@@ -141,79 +178,6 @@ cmake --build build
 ./build/clc_example_replay_persistence
 ```
 
-### C++ SDK boundary
-
-В C++ SDK входят:
-
-- definitions and registry;
-- validation reports;
-- resource storage;
-- simulation engine;
-- settlement routes;
-- caravans;
-- factions and ownership;
-- contracts and rewards;
-- economy ledger;
-- runtime workflows;
-- runtime save/load;
-- semantic runtime validation.
-
-Пока не считать стабильным:
-
-- окончательные имена всех workflow helpers;
-- packaging layout;
-- C ABI;
-- binary compatibility;
-- plugin/data-pack ABI;
-- network/server action protocol.
-
-### Future C ABI
-
-C ABI пока не готов. Его стоит начинать только после стабилизации C++ SDK surface.
-
-Предполагаемая цель C ABI:
-
-- использовать ядро из C, C#, Rust, Python bindings, game engines;
-- скрыть C++ ABI;
-- дать opaque handles для runtime/registry/reports;
-- вернуть validation errors через plain C structs или callback buffers.
-
-Потенциальная будущая структура:
-
-```text
-include/
-  clc/
-    c_api/
-      clc_api.h
-      clc_runtime.h
-      clc_registry.h
-      clc_persistence.h
-```
-
-C ABI не должен появляться раньше, чем будут закрыты:
-
-- Public SDK API naming;
-- runtime tick consequences;
-- persistence/replay stability;
-- release package layout;
-- external docs.
-
-### Release readiness checklist
-
-Перед каждым release block:
-
-- version updated in `CMakeLists.txt`;
-- version updated in `include/clc/core/Version.hpp`;
-- README reflects current phase;
-- CHANGELOG has release notes;
-- PUBLIC_API is up to date;
-- SDK_STRUCTURE is up to date;
-- SDK examples build registration is up to date;
-- new tests are registered in CMake;
-- `main` receives only completed blocks by fast-forward;
-- no force push;
-- no accidental PR/CI run unless explicitly requested.
-
 ### Recommended integration modes
 
 #### 1. CMake subdirectory
@@ -225,7 +189,7 @@ target_link_libraries(my_game PRIVATE CityLifeCore::core)
 
 #### 2. Source vendoring
 
-Copy `include/`, `src/`, `examples/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
+Copy `include/`, `src/`, `examples/`, `data/`, `docs/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
 
 #### 3. Package mode
 
@@ -233,6 +197,44 @@ Copy `include/`, `src/`, `examples/`, and `CMakeLists.txt` into your vendor tree
 find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_game PRIVATE CityLifeCore::core)
 ```
+
+### Future C ABI
+
+C ABI пока не готов. Его стоит начинать только после стабилизации C++ SDK surface.
+
+Цели будущего C ABI:
+
+- использовать ядро из C, C#, Rust, Python bindings, game engines;
+- скрыть C++ ABI;
+- дать opaque handles для runtime/registry/reports;
+- вернуть validation errors через plain C structs или callback buffers.
+
+C ABI не должен появляться раньше, чем будут закрыты:
+
+- Public SDK API naming;
+- runtime tick consequences;
+- persistence/replay stability;
+- release package layout;
+- external docs.
+
+### Release readiness checklist
+
+Перед merge/release block:
+
+- version updated in `CMakeLists.txt`;
+- version updated in `include/clc/core/Version.hpp`;
+- smoke test expects the same version;
+- README reflects current phase;
+- CHANGELOG has release notes;
+- PUBLIC_API is up to date;
+- SDK_STRUCTURE is up to date;
+- PACKAGING is up to date;
+- release notes exist for the target version;
+- SDK examples build registration is up to date;
+- new tests are registered in CMake;
+- `main` receives only completed blocks;
+- no force push;
+- no accidental PR/CI run unless explicitly requested.
 
 ---
 
@@ -246,6 +248,8 @@ The SDK should let external projects integrate City Life Core as an independent 
 - no client UI dependency;
 - no game-engine lock-in;
 - clear C++ API around runtime workflows;
+- day-based and tick-based runtime;
+- real-time/MMO scenarios measured in seconds, minutes, and hours;
 - testable persistence/replay behavior;
 - future server-authoritative backend integration.
 
@@ -277,10 +281,10 @@ CHANGELOG.md
 
 ### Target release SDK layout
 
-Source release:
+Source/audit release:
 
 ```text
-city-life-core-sdk-0.9.3/
+city-life-core-sdk-0.9.9/
   include/
     clc/
       core/
@@ -299,7 +303,8 @@ city-life-core-sdk-0.9.3/
     PUBLIC_API.md
     SDK_STRUCTURE.md
     PACKAGING.md
-  tests/                       # optional for integrators
+    RELEASE_NOTES_0.9.9.md
+  tests/                       # optional for integrators and auditors
   CMakeLists.txt
   README.md
   CHANGELOG.md
@@ -339,10 +344,13 @@ Recommended entry points:
 
 ```cpp
 #include "clc/core/Version.hpp"
+#include "clc/core/Time.hpp"
 #include "clc/data/DataRegistry.hpp"
 #include "clc/data/Definitions.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
+#include "clc/sim/SimulationRuntimeTick.hpp"
+#include "clc/sim/SimulationRuntimeEvents.hpp"
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 ```
 
@@ -352,6 +360,36 @@ External code should prefer runtime-level APIs over manually wiring every subsys
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
 auto& runtime = bootstrap.runtime;
 ```
+
+### C++ SDK boundary in 0.9.9
+
+The C++ SDK currently includes:
+
+- definitions and registry;
+- validation reports;
+- resource storage;
+- simulation engine;
+- settlement day and partial tick simulation;
+- settlement routes with day/tick travel;
+- caravans with day/tick progress;
+- factions and ownership;
+- contracts, `due_day`, `due_ticks`, rewards, and ledger integration;
+- economy ledger;
+- runtime workflows;
+- tick-based runtime helpers;
+- day/tick runtime event diagnostics;
+- runtime save/load;
+- semantic runtime validation;
+- legacy save compatibility for missing `time` and missing `due_ticks`.
+
+Still not fully stable:
+
+- final workflow helper naming;
+- binary package layout;
+- C ABI;
+- binary compatibility;
+- plugin/data-pack ABI;
+- network/server action protocol.
 
 ### SDK examples
 
@@ -369,31 +407,25 @@ cmake --build build
 ./build/clc_example_replay_persistence
 ```
 
-### C++ SDK boundary
+### Recommended integration modes
 
-The C++ SDK currently includes:
+#### 1. CMake subdirectory
 
-- definitions and registry;
-- validation reports;
-- resource storage;
-- simulation engine;
-- settlement routes;
-- caravans;
-- factions and ownership;
-- contracts and rewards;
-- economy ledger;
-- runtime workflows;
-- runtime save/load;
-- semantic runtime validation.
+```cmake
+add_subdirectory(external/City_Life_Core)
+target_link_libraries(my_game PRIVATE CityLifeCore::core)
+```
 
-Still not fully stable:
+#### 2. Source vendoring
 
-- final workflow helper naming;
-- packaging layout;
-- C ABI;
-- binary compatibility;
-- plugin/data-pack ABI;
-- network/server action protocol.
+Copy `include/`, `src/`, `examples/`, `data/`, `docs/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
+
+#### 3. Package mode
+
+```cmake
+find_package(CityLifeCore CONFIG REQUIRED)
+target_link_libraries(my_game PRIVATE CityLifeCore::core)
+```
 
 ### Future C ABI
 
@@ -406,18 +438,6 @@ Expected C ABI goals:
 - provide opaque handles for runtime/registry/reports;
 - expose validation errors through plain C structs or callback buffers.
 
-Potential future structure:
-
-```text
-include/
-  clc/
-    c_api/
-      clc_api.h
-      clc_runtime.h
-      clc_registry.h
-      clc_persistence.h
-```
-
 C ABI should not begin before:
 
 - Public SDK API naming is stable;
@@ -428,36 +448,19 @@ C ABI should not begin before:
 
 ### Release readiness checklist
 
-Before each release block:
+Before each merge/release block:
 
 - version updated in `CMakeLists.txt`;
 - version updated in `include/clc/core/Version.hpp`;
+- smoke test expects the same version;
 - README reflects current phase;
 - CHANGELOG has release notes;
 - PUBLIC_API is up to date;
 - SDK_STRUCTURE is up to date;
+- PACKAGING is up to date;
+- release notes exist for the target version;
 - SDK examples build registration is up to date;
 - new tests are registered in CMake;
-- `main` receives only completed blocks by fast-forward;
+- `main` receives only completed blocks;
 - no force push;
 - no accidental PR/CI run unless explicitly requested.
-
-### Recommended integration modes
-
-#### 1. CMake subdirectory
-
-```cmake
-add_subdirectory(external/City_Life_Core)
-target_link_libraries(my_game PRIVATE CityLifeCore::core)
-```
-
-#### 2. Source vendoring
-
-Copy `include/`, `src/`, `examples/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
-
-#### 3. Package mode
-
-```cmake
-find_package(CityLifeCore CONFIG REQUIRED)
-target_link_libraries(my_game PRIVATE CityLifeCore::core)
-```
