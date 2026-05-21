@@ -140,6 +140,13 @@ int main() {
         return 1;
     }
 
+    const auto payloads = clc::sim::validate_runtime_event_log_payloads(log);
+
+    if (!payloads.ok()) {
+        std::cerr << "payload validator unexpectedly invalid\n";
+        return 1;
+    }
+
     const auto combined = clc::sim::validate_runtime_event_log(log);
 
     if (!combined.ok()) {
@@ -171,6 +178,45 @@ int main() {
 
     if (unknown.ok()) {
         std::cerr << "unknown event unexpectedly accepted\n";
+        return 1;
+    }
+
+    clc::EventLog bad_day_payload{};
+    bad_day_payload.append(1, "runtime.day.completed", "1");
+    if (clc::sim::validate_runtime_event_log_payloads(bad_day_payload).ok()) {
+        std::cerr << "bad day payload unexpectedly accepted\n";
+        return 1;
+    }
+    if (clc::sim::validate_runtime_event_log(bad_day_payload).ok()) {
+        std::cerr << "combined validator unexpectedly accepted bad day payload\n";
+        return 1;
+    }
+
+    clc::EventLog empty_caravan_payload{};
+    empty_caravan_payload.append(1, "runtime.caravan.progress", "");
+    if (clc::sim::validate_runtime_event_log_payloads(empty_caravan_payload).ok()) {
+        std::cerr << "empty caravan payload unexpectedly accepted\n";
+        return 1;
+    }
+
+    clc::EventLog bad_cargo_payload{};
+    bad_cargo_payload.append(1, "runtime.caravan.cargo_delivered", "caravan_a->hillford:total=0");
+    if (clc::sim::validate_runtime_event_log_payloads(bad_cargo_payload).ok()) {
+        std::cerr << "zero cargo payload unexpectedly accepted\n";
+        return 1;
+    }
+
+    clc::EventLog malformed_cargo_payload{};
+    malformed_cargo_payload.append(1, "runtime.caravan.cargo_delivered", "caravan_a:hillford:total=10");
+    if (clc::sim::validate_runtime_event_log_payloads(malformed_cargo_payload).ok()) {
+        std::cerr << "malformed cargo payload unexpectedly accepted\n";
+        return 1;
+    }
+
+    clc::EventLog bad_contract_payload{};
+    bad_contract_payload.append(1, "runtime.contract.failed", "");
+    if (clc::sim::validate_runtime_event_log_payloads(bad_contract_payload).ok()) {
+        std::cerr << "empty contract payload unexpectedly accepted\n";
         return 1;
     }
 
