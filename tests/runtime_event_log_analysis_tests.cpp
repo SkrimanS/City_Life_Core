@@ -12,10 +12,11 @@ int main() {
     log.append(2, "runtime.day.completed", "day=2");
     log.append(2, "runtime.caravan.arrived", "caravan_a");
     log.append(2, "runtime.contract.fulfilled", "contract_a");
+    log.append(3, "runtime.contract.failed", "contract_b");
 
     const auto analysis = clc::sim::analyze_runtime_event_log(log);
 
-    if (analysis.total_events != 5) {
+    if (analysis.total_events != 6) {
         std::cerr << "unexpected total_events\n";
         return 1;
     }
@@ -36,7 +37,12 @@ int main() {
     }
 
     if (analysis.contract_fulfilled_events != 1) {
-        std::cerr << "unexpected contract events\n";
+        std::cerr << "unexpected fulfilled contract events\n";
+        return 1;
+    }
+
+    if (analysis.contract_failed_events != 1) {
+        std::cerr << "unexpected failed contract events\n";
         return 1;
     }
 
@@ -45,19 +51,19 @@ int main() {
         return 1;
     }
 
-    if (analysis.first_tick != 1 || analysis.last_tick != 2) {
+    if (analysis.first_tick != 1 || analysis.last_tick != 3) {
         std::cerr << "unexpected tick range\n";
         return 1;
     }
 
     const auto checksum = clc::sim::calculate_runtime_event_log_checksum(log);
 
-    if (checksum.event_count != 5) {
+    if (checksum.event_count != 6) {
         std::cerr << "unexpected checksum event count\n";
         return 1;
     }
 
-    if (checksum.first_tick != 1 || checksum.last_tick != 2) {
+    if (checksum.first_tick != 1 || checksum.last_tick != 3) {
         std::cerr << "unexpected checksum tick range\n";
         return 1;
     }
@@ -90,7 +96,7 @@ int main() {
     }
 
     clc::EventLog modified = log;
-    modified.append(3, "runtime.day.completed", "day=3");
+    modified.append(4, "runtime.day.completed", "day=4");
 
     const auto modified_checksum = clc::sim::calculate_runtime_event_log_checksum(modified);
     const auto mismatch = clc::sim::compare_runtime_event_log_checksums(checksum, modified_checksum);
