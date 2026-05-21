@@ -1,6 +1,7 @@
 # City Life Core Packaging / Упаковка
 
-Version: **0.9.3**
+Version: **0.9.9**  
+Status: **pre-1.0 audit build / сборка для аудита перед 1.0**
 
 This document describes the current source-package installation flow for City Life Core.
 
@@ -12,16 +13,17 @@ This document describes the current source-package installation flow for City Li
 
 ### Статус
 
-City Life Core теперь поддерживает базовый CMake install/export package flow:
+City Life Core поддерживает базовый CMake install/export package flow:
 
 - установка публичных headers из `include/`;
 - установка `city_life_core` library target;
 - экспорт CMake target namespace `CityLifeCore::`;
 - генерация `CityLifeCoreConfig.cmake`;
 - генерация `CityLifeCoreConfigVersion.cmake`;
-- подключение внешним проектом через `find_package(CityLifeCore CONFIG REQUIRED)`.
+- подключение внешним проектом через `find_package(CityLifeCore CONFIG REQUIRED)`;
+- установка README, CHANGELOG, docs, examples и demo data.
 
-Это ещё не финальный binary SDK release, но уже практический шаг к release-ready SDK structure.
+Это ещё не финальный binary SDK release, но уже practical source-first SDK package для аудита `0.9.9` перед `1.0.0`.
 
 ### Source install
 
@@ -47,7 +49,10 @@ cmake --install build
     doc/CityLifeCore/
       README.md
       CHANGELOG.md
+      PUBLIC_API.md
+      SDK_STRUCTURE.md
       PACKAGING.md
+      RELEASE_NOTES_0.9.9.md
       examples/
     CityLifeCore/data/
 ```
@@ -101,16 +106,17 @@ CityLifeCore::core
 
 ### Status
 
-City Life Core now supports a basic CMake install/export package flow:
+City Life Core supports a basic CMake install/export package flow:
 
 - installs public headers from `include/`;
 - installs the `city_life_core` library target;
 - exports the `CityLifeCore::` CMake target namespace;
 - generates `CityLifeCoreConfig.cmake`;
 - generates `CityLifeCoreConfigVersion.cmake`;
-- allows external projects to use `find_package(CityLifeCore CONFIG REQUIRED)`.
+- allows external projects to use `find_package(CityLifeCore CONFIG REQUIRED)`;
+- installs README, CHANGELOG, docs, examples, and demo data.
 
-This is not the final binary SDK release yet, but it is a practical step toward a release-ready SDK structure.
+This is not the final binary SDK release yet, but it is a practical source-first SDK package for the `0.9.9` audit before `1.0.0`.
 
 ### Source install
 
@@ -136,7 +142,10 @@ Expected installed layout:
     doc/CityLifeCore/
       README.md
       CHANGELOG.md
+      PUBLIC_API.md
+      SDK_STRUCTURE.md
       PACKAGING.md
+      RELEASE_NOTES_0.9.9.md
       examples/
     CityLifeCore/data/
 ```
