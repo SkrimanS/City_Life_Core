@@ -240,6 +240,39 @@ int main() {
     require(repeated_bulk_delivery.total_amount == 0, "repeated bulk delivery should total zero amount");
     require(runtime.engine.settlement_resource_amount("hillford", "grain") == 45, "repeated bulk delivery should not mutate destination storage");
 
+    auto invalid_bulk = clc::sim::create_runtime_caravan_for_route(
+        runtime,
+        "riverwatch_to_hillford",
+        "invalid_bulk_caravan",
+        "Invalid Bulk Caravan"
+    );
+    require(invalid_bulk.ok(), "invalid bulk caravan should create before corruption");
+    require(clc::sim::load_runtime_caravan_at_origin(runtime, "invalid_bulk_caravan", "grain", 10).ok(), "invalid bulk caravan should load grain");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "invalid_bulk_caravan").ok(), "invalid bulk caravan first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "invalid_bulk_caravan").ok(), "invalid bulk caravan second advance should succeed");
+    runtime.caravans.caravans.back().destination_settlement_id = "missing_destination";
+
+    auto valid_after_invalid_setup = clc::sim::create_runtime_caravan_for_route(
+        runtime,
+        "riverwatch_to_hillford",
+        "valid_after_invalid_setup",
+        "Valid After Invalid Setup"
+    );
+    require(valid_after_invalid_setup.ok(), "valid after invalid setup caravan should create");
+    require(clc::sim::load_runtime_caravan_at_origin(runtime, "valid_after_invalid_setup", "grain", 10).ok(), "valid after invalid setup caravan should load grain");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "valid_after_invalid_setup").ok(), "valid after invalid setup first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "valid_after_invalid_setup").ok(), "valid after invalid setup second advance should succeed");
+
+    const auto destination_before_invalid_bulk = runtime.engine.settlement_resource_amount("hillford", "grain");
+    const auto invalid_bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(runtime);
+    require(!invalid_bulk_delivery.ok(), "bulk delivery should reject invalid arrived caravan destination");
+    require(invalid_bulk_delivery.deliveries.empty(), "invalid bulk delivery should not report partial deliveries");
+    require(invalid_bulk_delivery.delivered_caravans == 0, "invalid bulk delivery should not count partial caravans");
+    require(invalid_bulk_delivery.total_amount == 0, "invalid bulk delivery should not count partial amount");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == destination_before_invalid_bulk, "invalid bulk delivery should not mutate valid destination storage");
+    require(runtime.caravans.caravans[4].cargo.amount("grain") == 10, "invalid bulk delivery should not mutate invalid caravan cargo");
+    require(runtime.caravans.caravans[5].cargo.amount("grain") == 10, "invalid bulk delivery should not mutate later valid caravan cargo");
+
     const auto missing_caravan = clc::sim::advance_runtime_caravan_day(runtime, "missing_caravan");
     require(!missing_caravan.ok(), "runtime caravan advance should reject unknown caravan");
 
