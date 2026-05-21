@@ -211,6 +211,9 @@ std::string serialize_simulation_world_state(const SimulationWorldState& state) 
         for (const auto& building : settlement.buildings) {
             append_line(output, {"settlement_building", escape_field(settlement.id), escape_field(building.definition_id), std::to_string(building.assigned_workers)});
         }
+        for (const auto& remainder : settlement.tick_remainders) {
+            append_line(output, {"settlement_tick_remainder", escape_field(settlement.id), escape_field(remainder.key), std::to_string(remainder.numerator)});
+        }
     }
 
     for (const auto& demand : state.engine.market_demands) {
@@ -220,10 +223,29 @@ std::string serialize_simulation_world_state(const SimulationWorldState& state) 
         append_line(output, {"event", std::to_string(event.day), escape_field(event.type), escape_field(event.message)});
     }
     for (const auto& route : state.routes.routes) {
-        append_line(output, {"route", escape_field(route.id), escape_field(route.display_name), escape_field(route.origin_settlement_id), escape_field(route.destination_settlement_id), std::to_string(route.travel_days)});
+        append_line(output, {
+            "route",
+            escape_field(route.id),
+            escape_field(route.display_name),
+            escape_field(route.origin_settlement_id),
+            escape_field(route.destination_settlement_id),
+            std::to_string(route.travel_days),
+            std::to_string(settlement_route_travel_ticks(route))
+        });
     }
     for (const auto& caravan : state.caravans.caravans) {
-        append_line(output, {"caravan", escape_field(caravan.id), escape_field(caravan.display_name), escape_field(caravan.route_id), escape_field(caravan.origin_settlement_id), escape_field(caravan.destination_settlement_id), std::to_string(caravan.total_travel_days), std::to_string(caravan.days_remaining)});
+        append_line(output, {
+            "caravan",
+            escape_field(caravan.id),
+            escape_field(caravan.display_name),
+            escape_field(caravan.route_id),
+            escape_field(caravan.origin_settlement_id),
+            escape_field(caravan.destination_settlement_id),
+            std::to_string(caravan.total_travel_days),
+            std::to_string(caravan.days_remaining),
+            std::to_string(caravan_total_travel_ticks(caravan)),
+            std::to_string(caravan_ticks_remaining(caravan))
+        });
         for (const auto& entry : caravan.cargo.entries()) {
             append_line(output, {"caravan_cargo", escape_field(caravan.id), escape_field(entry.first), std::to_string(entry.second)});
         }
@@ -285,6 +307,10 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
                 if (fields.size() != 4) result.validation.add_error(path, "settlement_building row must have 4 fields");
                 else if (auto* settlement = settlement_by_id(result.state.engine.settlements, unescape_field(fields[1], result.validation, path + ".settlement_id")); settlement != nullptr) settlement->buildings.push_back(BuildingInstance{.definition_id = unescape_field(fields[2], result.validation, path + ".definition_id"), .assigned_workers = parse_required_uint32(fields[3], result.validation, path + ".assigned_workers")});
                 else result.validation.add_error(path, "settlement_building references unknown settlement");
+            } else if (fields[0] == "settlement_tick_remainder") {
+                if (fields.size() != 4) result.validation.add_error(path, "settlement_tick_remainder row must have 4 fields");
+                else if (auto* settlement = settlement_by_id(result.state.engine.settlements, unescape_field(fields[1], result.validation, path + ".settlement_id")); settlement != nullptr) settlement->tick_remainders.push_back(SettlementTickRemainder{.key = unescape_field(fields[2], result.validation, path + ".key"), .numerator = parse_required_uint64(fields[3], result.validation, path + ".numerator")});
+                else result.validation.add_error(path, "settlement_tick_remainder references unknown settlement");
             } else if (fields[0] == "market_demand") {
                 if (fields.size() != 3) result.validation.add_error(path, "market_demand row must have 3 fields");
                 else result.state.engine.market_demands.push_back(SimulationMarketDemand{.resource_id = unescape_field(fields[1], result.validation, path + ".resource_id"), .demand = parse_required_uint64(fields[2], result.validation, path + ".demand")});
@@ -292,11 +318,27 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
                 if (fields.size() != 4) result.validation.add_error(path, "event row must have 4 fields");
                 else result.state.engine.events.push_back(SimulationEvent{.day = parse_required_uint64(fields[1], result.validation, path + ".day"), .type = unescape_field(fields[2], result.validation, path + ".type"), .message = unescape_field(fields[3], result.validation, path + ".message")});
             } else if (fields[0] == "route") {
-                if (fields.size() != 6) result.validation.add_error(path, "route row must have 6 fields");
-                else result.state.routes.routes.push_back(SettlementRoute{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .origin_settlement_id = unescape_field(fields[3], result.validation, path + ".origin"), .destination_settlement_id = unescape_field(fields[4], result.validation, path + ".destination"), .travel_days = parse_required_uint64(fields[5], result.validation, path + ".travel_days")});
+                if (fields.size() != 6 && fields.size() != 7) result.validation.add_error(path, "route row must have 6 or 7 fields");
+                else {
+                    const auto travel_days = parse_required_uint64(fields[5], result.validation, path + ".travel_days");
+                    const auto travel_ticks = fields.size() == 7
+                        ? parse_required_uint64(fields[6], result.validation, path + ".travel_ticks")
+                        : clc::days_to_ticks(travel_days);
+                    result.state.routes.routes.push_back(SettlementRoute{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .origin_settlement_id = unescape_field(fields[3], result.validation, path + ".origin"), .destination_settlement_id = unescape_field(fields[4], result.validation, path + ".destination"), .travel_days = travel_days, .travel_ticks = travel_ticks});
+                }
             } else if (fields[0] == "caravan") {
-                if (fields.size() != 8) result.validation.add_error(path, "caravan row must have 8 fields");
-                else result.state.caravans.caravans.push_back(CaravanState{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .route_id = unescape_field(fields[3], result.validation, path + ".route_id"), .origin_settlement_id = unescape_field(fields[4], result.validation, path + ".origin"), .destination_settlement_id = unescape_field(fields[5], result.validation, path + ".destination"), .total_travel_days = parse_required_uint64(fields[6], result.validation, path + ".total_travel_days"), .days_remaining = parse_required_uint64(fields[7], result.validation, path + ".days_remaining")});
+                if (fields.size() != 8 && fields.size() != 10) result.validation.add_error(path, "caravan row must have 8 or 10 fields");
+                else {
+                    const auto total_travel_days = parse_required_uint64(fields[6], result.validation, path + ".total_travel_days");
+                    const auto days_remaining = parse_required_uint64(fields[7], result.validation, path + ".days_remaining");
+                    const auto total_travel_ticks = fields.size() == 10
+                        ? parse_required_uint64(fields[8], result.validation, path + ".total_travel_ticks")
+                        : clc::days_to_ticks(total_travel_days);
+                    const auto ticks_remaining = fields.size() == 10
+                        ? parse_required_uint64(fields[9], result.validation, path + ".ticks_remaining")
+                        : clc::days_to_ticks(days_remaining);
+                    result.state.caravans.caravans.push_back(CaravanState{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .route_id = unescape_field(fields[3], result.validation, path + ".route_id"), .origin_settlement_id = unescape_field(fields[4], result.validation, path + ".origin"), .destination_settlement_id = unescape_field(fields[5], result.validation, path + ".destination"), .total_travel_days = total_travel_days, .days_remaining = days_remaining, .total_travel_ticks = total_travel_ticks, .ticks_remaining = ticks_remaining});
+                }
             } else if (fields[0] == "caravan_cargo") {
                 if (fields.size() != 4) result.validation.add_error(path, "caravan_cargo row must have 4 fields");
                 else if (auto* cargo = caravan_cargo_by_id(result.state.caravans, unescape_field(fields[1], result.validation, path + ".caravan_id")); cargo != nullptr) cargo->add(unescape_field(fields[2], result.validation, path + ".resource_id"), parse_required_uint64(fields[3], result.validation, path + ".amount"));
