@@ -74,6 +74,16 @@ int main() {
         return 1;
     }
 
+    auto market_demand_drifted = loaded;
+    market_demand_drifted.engine.market().set_demand("grain", 100);
+
+    const auto market_demand_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, market_demand_drifted);
+
+    if (market_demand_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted engine market demand drift\n";
+        return 1;
+    }
+
     auto drifted = loaded;
     ++drifted.wallet.coins;
 
