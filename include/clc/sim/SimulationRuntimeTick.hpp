@@ -22,6 +22,8 @@ struct RuntimeCaravanTickReport final {
 struct SimulationRuntimeDayReport final {
     SimulationDayReport engine{};
     std::vector<RuntimeCaravanTickReport> caravans{};
+    std::vector<std::string> arrived_caravan_ids{};
+    ContractDeadlineReport contracts{};
     data::ValidationReport validation{};
 
     [[nodiscard]] bool ok() const noexcept {
@@ -35,6 +37,7 @@ struct SimulationRuntimeRunSummary final {
     std::uint64_t last_day{0};
     std::uint64_t caravan_ticks{0};
     std::uint64_t caravan_arrivals{0};
+    std::uint64_t contract_failures{0};
     std::uint64_t warnings{0};
 };
 
