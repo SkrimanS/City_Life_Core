@@ -17,8 +17,18 @@ void append_event(
     ++summary.events_appended;
 }
 
+void merge_summary(RuntimeEventLogSummary& target, const RuntimeEventLogSummary& source) noexcept {
+    target.events_appended += source.events_appended;
+    target.day_events += source.day_events;
+    target.tick_events += source.tick_events;
+    target.caravan_events += source.caravan_events;
+    target.cargo_events += source.cargo_events;
+    target.contract_events += source.contract_events;
+}
+
 bool is_known_runtime_event_type(const std::string& type) {
     return type == "runtime.day.completed"
+        || type == "runtime.tick.completed"
         || type == "runtime.caravan.progress"
         || type == "runtime.caravan.arrived"
         || type == "runtime.caravan.cargo_delivered"
@@ -50,6 +60,11 @@ bool positive_decimal_digits(std::string_view value) noexcept {
     return false;
 }
 
+bool valid_tick_completed_payload(std::string_view payload) noexcept {
+    constexpr std::string_view prefix = "elapsed=";
+    return payload.rfind(prefix, 0) == 0 && positive_decimal_digits(payload.substr(prefix.size()));
+}
+
 bool valid_cargo_delivery_payload(std::string_view payload) noexcept {
     const auto arrow = payload.find("->");
     if (arrow == std::string_view::npos || arrow == 0) {
@@ -75,6 +90,13 @@ std::uint64_t fulfilled_contract_event_tick(const SimulationRuntimeArrivalContra
         return result.arrival.run.reports.back().ticks.tick_after;
     }
     return result.arrival.arrival_elapsed_ticks;
+}
+
+std::uint64_t fulfilled_contract_event_tick(const SimulationRuntimeTickArrivalContractResult& result) noexcept {
+    if (!result.arrival.run.reports.empty()) {
+        return result.arrival.run.reports.back().tick_after;
+    }
+    return result.arrival.arrival_tick;
 }
 
 std::string cargo_delivery_payload(const RuntimeCaravanCargoDeliveryResult& result) {
@@ -136,11 +158,7 @@ RuntimeEventLogSummary append_runtime_run_events(
 
     for (const auto& report : run.reports) {
         const auto partial = append_runtime_day_report_events(log, report);
-        summary.events_appended += partial.events_appended;
-        summary.day_events += partial.day_events;
-        summary.caravan_events += partial.caravan_events;
-        summary.cargo_events += partial.cargo_events;
-        summary.contract_events += partial.contract_events;
+        merge_summary(summary, partial);
     }
 
     return summary;
@@ -151,6 +169,80 @@ RuntimeEventLogSummary append_runtime_arrival_contract_events(
     const SimulationRuntimeArrivalContractResult& result
 ) {
     auto summary = append_runtime_run_events(log, result.arrival.run);
+
+    if (result.fulfillment.ok()) {
+        append_event(
+            log,
+            summary,
+            fulfilled_contract_event_tick(result),
+            "runtime.contract.fulfilled",
+            result.fulfillment.contract_id
+        );
+        ++summary.contract_events;
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_tick_report_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickReport& report
+) {
+    RuntimeEventLogSummary summary{};
+
+    append_event(
+        log,
+        summary,
+        report.tick_after,
+        "runtime.tick.completed",
+        "elapsed=" + std::to_string(report.elapsed_ticks)
+    );
+    ++summary.tick_events;
+
+    for (const auto& caravan : report.caravans) {
+        append_event(
+            log,
+            summary,
+            report.tick_after,
+            caravan.advance.arrived ? "runtime.caravan.arrived" : "runtime.caravan.progress",
+            caravan.caravan_id
+        );
+        ++summary.caravan_events;
+    }
+
+    for (const auto& contract_id : report.contracts.failed_contract_ids) {
+        append_event(
+            log,
+            summary,
+            report.contracts.current_tick,
+            "runtime.contract.failed",
+            contract_id
+        );
+        ++summary.contract_events;
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_tick_run_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickRunResult& run
+) {
+    RuntimeEventLogSummary summary{};
+
+    for (const auto& report : run.reports) {
+        const auto partial = append_runtime_tick_report_events(log, report);
+        merge_summary(summary, partial);
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_tick_arrival_contract_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickArrivalContractResult& result
+) {
+    auto summary = append_runtime_tick_run_events(log, result.arrival.run);
 
     if (result.fulfillment.ok()) {
         append_event(
@@ -218,11 +310,7 @@ RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
 
     for (const auto& delivery : result.deliveries) {
         const auto partial = append_runtime_caravan_cargo_delivery_event(log, tick, delivery);
-        summary.events_appended += partial.events_appended;
-        summary.day_events += partial.day_events;
-        summary.caravan_events += partial.caravan_events;
-        summary.cargo_events += partial.cargo_events;
-        summary.contract_events += partial.contract_events;
+        merge_summary(summary, partial);
     }
 
     return summary;
@@ -250,6 +338,8 @@ RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
     for (const auto& event : events) {
         if (event.type == "runtime.day.completed") {
             ++analysis.day_events;
+        } else if (event.type == "runtime.tick.completed") {
+            ++analysis.tick_events;
         } else if (event.type == "runtime.caravan.progress") {
             ++analysis.caravan_progress_events;
         } else if (event.type == "runtime.caravan.arrived") {
@@ -304,6 +394,11 @@ data::ValidationReport validate_runtime_event_log_payloads(const clc::EventLog& 
             constexpr std::string_view prefix = "day=";
             if (event.payload.rfind(prefix, 0) != 0 || !decimal_digits_only(std::string_view{event.payload}.substr(prefix.size()))) {
                 report.add_error("runtime.event_log.payload", "day event payload must be day=N");
+                return report;
+            }
+        } else if (event.type == "runtime.tick.completed") {
+            if (!valid_tick_completed_payload(event.payload)) {
+                report.add_error("runtime.event_log.payload", "tick event payload must be elapsed=N with N greater than zero");
                 return report;
             }
         } else if (event.type == "runtime.caravan.progress"
