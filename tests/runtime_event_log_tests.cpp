@@ -78,6 +78,14 @@ int main() {
     require(log.events().back().payload == "event_log_caravan->hillford:total=10", "runtime event log should record cargo delivery payload");
     require(clc::sim::validate_runtime_event_log(log).ok(), "runtime event log with cargo delivery should validate");
 
+    auto invalid_delivery_result = delivery;
+    invalid_delivery_result.total_amount = 11;
+    const auto size_before_invalid_delivery_append = log.size();
+    const auto invalid_delivery_summary = clc::sim::append_runtime_caravan_cargo_delivery_event(log, orchestration.arrival.arrival_day, invalid_delivery_result);
+    require(invalid_delivery_summary.events_appended == 0, "runtime event log should reject structurally invalid cargo delivery result");
+    require(invalid_delivery_summary.cargo_events == 0, "runtime event log should not count invalid cargo delivery result");
+    require(log.size() == size_before_invalid_delivery_append, "runtime event log should not mutate for invalid cargo delivery result");
+
     const auto delivery_analysis = clc::sim::analyze_runtime_event_log(log);
     require(delivery_analysis.caravan_cargo_delivered_events == 1, "runtime event analysis should count cargo delivery events");
 
@@ -125,6 +133,14 @@ int main() {
     require(bulk_log.events()[0].payload == "event_bulk_a->hillford:total=15", "runtime bulk event log first payload should be deterministic");
     require(bulk_log.events()[1].payload == "event_bulk_b->hillford:total=20", "runtime bulk event log second payload should be deterministic");
     require(clc::sim::validate_runtime_event_log(bulk_log).ok(), "runtime bulk event log should validate");
+
+    auto invalid_bulk_delivery = bulk_delivery;
+    invalid_bulk_delivery.delivered_caravans = 3;
+    const auto bulk_size_before_invalid_append = bulk_log.size();
+    const auto invalid_bulk_summary = clc::sim::append_runtime_bulk_caravan_cargo_delivery_events(bulk_log, 2, invalid_bulk_delivery);
+    require(invalid_bulk_summary.events_appended == 0, "runtime bulk event log should reject structurally invalid bulk delivery result");
+    require(invalid_bulk_summary.cargo_events == 0, "runtime bulk event log should not count invalid bulk delivery result");
+    require(bulk_log.size() == bulk_size_before_invalid_append, "runtime bulk event log should not mutate for invalid bulk delivery result");
 
     const auto bulk_analysis = clc::sim::analyze_runtime_event_log(bulk_log);
     require(bulk_analysis.caravan_cargo_delivered_events == 2, "runtime bulk event analysis should count cargo delivery events");
