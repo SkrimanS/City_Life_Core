@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clc/core/Time.hpp"
 #include "clc/data/DataRegistry.hpp"
 #include "clc/economy/Ledger.hpp"
 #include "clc/economy/Trade.hpp"
@@ -16,6 +17,7 @@ struct SimulationRuntime final {
         : engine(std::move(registry)) {}
 
     SimulationEngine engine;
+    clc::GameTime time{};
     SettlementRouteCatalog routes{};
     CaravanFleet caravans{};
     FactionCatalog factions{};
