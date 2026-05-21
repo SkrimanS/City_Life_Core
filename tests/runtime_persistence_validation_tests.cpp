@@ -54,6 +54,16 @@ int main() {
         return 1;
     }
 
+    auto drifted = loaded;
+    ++drifted.wallet.coins;
+
+    const auto drift_match = clc::sim::validate_simulation_runtimes_match(runtime, drifted);
+
+    if (drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted wallet drift\n";
+        return 1;
+    }
+
     clc::sim::SimulationRuntime failed_target{clc::sim::make_basic_runtime_scenario_registry()};
     const auto invalid_path = directory / "missing" / "runtime_validation.clcs";
 
