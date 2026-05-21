@@ -28,6 +28,21 @@ void validate_unique_id(data::ValidationReport& report, std::unordered_set<std::
     }
 }
 
+void validate_settlement_tick_remainders(data::ValidationReport& report, const SettlementState& settlement) {
+    std::unordered_set<std::string> remainder_keys;
+    for (const auto& remainder : settlement.tick_remainders) {
+        const auto path = "simulation.world_state.settlement." + settlement.id + ".tick_remainder." + remainder.key;
+        if (remainder.key.empty()) {
+            report.add_error(path, "settlement tick remainder key must not be empty");
+            continue;
+        }
+        validate_unique_id(report, remainder_keys, remainder.key, path, "duplicate settlement tick remainder key");
+        if (remainder.numerator >= clc::ticks_per_day()) {
+            report.add_error(path, "settlement tick remainder numerator must be less than ticks_per_day");
+        }
+    }
+}
+
 } // namespace
 
 data::ValidationReport validate_simulation_world_state(const SimulationWorldState& state) {
@@ -36,6 +51,7 @@ data::ValidationReport validate_simulation_world_state(const SimulationWorldStat
     std::unordered_set<std::string> settlement_ids;
     for (const auto& settlement : state.engine.settlements) {
         validate_unique_id(report, settlement_ids, settlement.id, "simulation.world_state.settlement." + settlement.id, "duplicate settlement id");
+        validate_settlement_tick_remainders(report, settlement);
     }
 
     std::unordered_set<std::string> route_ids;
