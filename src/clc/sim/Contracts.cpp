@@ -56,6 +56,13 @@ bool contract_is_terminal(const ResourceDeliveryContract& contract) noexcept {
     return !contract_is_open(contract);
 }
 
+clc::GameTime::Tick contract_due_ticks(const ResourceDeliveryContract& contract) noexcept {
+    if (contract.due_ticks > 0) {
+        return contract.due_ticks;
+    }
+    return clc::days_to_ticks(contract.due_day);
+}
+
 data::ValidationReport validate_resource_delivery_contract(const ResourceDeliveryContract& contract) {
     data::ValidationReport report;
     if (contract.id.empty()) {
@@ -84,8 +91,11 @@ data::ValidationReport validate_resource_delivery_contract(const ResourceDeliver
     if (contract.reward_coins == 0) {
         report.add_error("simulation.contract." + contract.id, "reward_coins must be greater than zero");
     }
-    if (contract.due_day == 0) {
-        report.add_error("simulation.contract." + contract.id, "due_day must be greater than zero");
+    if (contract_due_ticks(contract) == 0) {
+        report.add_error("simulation.contract." + contract.id, "due_ticks must be greater than zero");
+    }
+    if (contract.due_day > 0 && contract.due_ticks > 0 && contract.due_ticks != clc::days_to_ticks(contract.due_day)) {
+        report.add_error("simulation.contract." + contract.id, "due_day and due_ticks must be equivalent when both are set");
     }
     return report;
 }
@@ -109,6 +119,10 @@ data::ValidationReport validate_resource_delivery_contract_for_factions(
 }
 
 data::ValidationReport add_contract(ContractCatalog& catalog, ResourceDeliveryContract contract) {
+    if (contract.due_ticks == 0 && contract.due_day > 0) {
+        contract.due_ticks = clc::days_to_ticks(contract.due_day);
+    }
+
     auto report = validate_resource_delivery_contract(contract);
     if (!report.ok()) {
         return report;
@@ -311,15 +325,21 @@ ContractFulfillmentResult fulfill_contract_from_owned_arrived_caravan_with_rewar
     return fulfill_contract_from_arrived_caravan_with_reward(catalog, contract_id, caravan, reward_wallet);
 }
 
-ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day) {
-    ContractDeadlineReport report{.current_day = current_day};
+ContractDeadlineReport fail_overdue_open_contracts_at_tick(ContractCatalog& catalog, clc::GameTime::Tick current_tick) {
+    ContractDeadlineReport report{.current_day = current_tick / clc::ticks_per_day(), .current_tick = current_tick};
     for (auto& contract : catalog.contracts) {
-        if (contract_is_open(contract) && current_day > contract.due_day) {
+        if (contract_is_open(contract) && current_tick > contract_due_ticks(contract)) {
             contract.status = ContractStatus::failed;
             report.failed_contract_ids.push_back(contract.id);
         }
     }
     report.failed_count = report.failed_contract_ids.size();
+    return report;
+}
+
+ContractDeadlineReport fail_overdue_open_contracts(ContractCatalog& catalog, std::uint64_t current_day) {
+    auto report = fail_overdue_open_contracts_at_tick(catalog, clc::days_to_ticks(current_day));
+    report.current_day = current_day;
     return report;
 }
 
@@ -365,14 +385,18 @@ std::vector<ResourceDeliveryContract> contracts_for_faction(const ContractCatalo
     return contracts;
 }
 
-std::vector<ResourceDeliveryContract> overdue_open_contracts(const ContractCatalog& catalog, std::uint64_t current_day) {
+std::vector<ResourceDeliveryContract> overdue_open_contracts_at_tick(const ContractCatalog& catalog, clc::GameTime::Tick current_tick) {
     std::vector<ResourceDeliveryContract> contracts;
     for (const auto& contract : catalog.contracts) {
-        if (contract_is_open(contract) && current_day > contract.due_day) {
+        if (contract_is_open(contract) && current_tick > contract_due_ticks(contract)) {
             contracts.push_back(contract);
         }
     }
     return contracts;
+}
+
+std::vector<ResourceDeliveryContract> overdue_open_contracts(const ContractCatalog& catalog, std::uint64_t current_day) {
+    return overdue_open_contracts_at_tick(catalog, clc::days_to_ticks(current_day));
 }
 
 } // namespace clc::sim
