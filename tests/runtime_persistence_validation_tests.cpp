@@ -84,6 +84,16 @@ int main() {
         return 1;
     }
 
+    auto population_drifted = loaded;
+    ++population_drifted.engine.settlements()[0].population;
+
+    const auto population_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, population_drifted);
+
+    if (population_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted engine settlement population drift\n";
+        return 1;
+    }
+
     auto drifted = loaded;
     ++drifted.wallet.coins;
 
