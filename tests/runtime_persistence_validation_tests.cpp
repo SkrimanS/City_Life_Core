@@ -74,6 +74,16 @@ int main() {
         return 1;
     }
 
+    auto contract_drifted = loaded;
+    contract_drifted.contracts.contracts[0].id = "drifted_contract";
+
+    const auto contract_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, contract_drifted);
+
+    if (contract_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted contract id drift\n";
+        return 1;
+    }
+
     clc::sim::SimulationRuntime failed_target{clc::sim::make_basic_runtime_scenario_registry()};
     const auto invalid_path = directory / "missing" / "runtime_validation.clcs";
 
