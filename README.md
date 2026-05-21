@@ -4,7 +4,7 @@
 
 **City Life Core / Ядро** — это headless-ядро симуляции на C++20 для живых поселений, ресурсов, экономики, маршрутов, караванов, фракций, владения, контрактов, сохранений, детерминированного replay и будущих server-authoritative игровых серверов.
 
-Current version: **0.9.3**
+Current version: **0.9.4**
 
 ---
 
@@ -33,6 +33,7 @@ City Life Core полезен, если нужно:
 - добавлять фракции, репутацию, владение поселениями/караванами;
 - создавать контракты на доставку ресурсов и вознаграждения;
 - автоматически отмечать прибытия караванов и просроченные контракты во время runtime tick;
+- явно доставлять оставшийся cargo прибывшего каравана в destination settlement storage;
 - сохранять и загружать runtime state;
 - проверять, что загруженный мир семантически равен исходному;
 - продолжать симуляцию после загрузки без расхождения состояния;
@@ -51,12 +52,12 @@ City Life Core полезен, если нужно:
 | Settlement/Storage | рабочая симуляция поселений и складов |
 | Basic Economy/Market | базовая экономика, рынок, trade, ledger |
 | Routes | маршруты между поселениями |
-| Caravans | караваны, cargo, movement, arrival state, arrival tick reports |
+| Caravans | караваны, cargo, movement, arrival state, arrival tick reports, explicit cargo delivery |
 | Factions/Ownership | фракции, reputation, ownership |
 | Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
 | Persistence | world/runtime save/load, corrupted-load coverage |
 | Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
-| Runtime Events/Diagnostics | event log, caravan arrival events, contract fulfilled/failed events, diagnostics |
+| Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | в процессе стабилизации |
 | C ABI | ещё не готово |
 | Packaging/Release | CMake install/export package flow добавлен, binary release ещё впереди |
@@ -164,7 +165,7 @@ int main() {
 
 ### Ближайшие цели до 1.0.0
 
-- расширить arrival consequences до более глубоких settlement-side effects;
+- расширить arrival consequences до более широких settlement-side effects;
 - стабилизировать Public SDK/API;
 - довести release SDK layout до binary/package artifacts;
 - расширить external documentation;
@@ -198,6 +199,7 @@ City Life Core is useful when you need to:
 - model factions, reputation, and ownership;
 - create delivery contracts and reward flows;
 - automatically report caravan arrivals and overdue contract failures during runtime ticks;
+- explicitly deliver remaining arrived caravan cargo into destination settlement storage;
 - save and load complete runtime state;
 - validate that loaded runtime state is semantically equivalent;
 - continue simulation after load without deterministic drift;
@@ -216,12 +218,12 @@ Implemented and actively hardened areas:
 | Settlement/Storage | working settlement and storage simulation |
 | Basic Economy/Market | basic economy, market, trade, ledger |
 | Routes | settlement routes |
-| Caravans | caravans, cargo, movement, arrival state, arrival tick reports |
+| Caravans | caravans, cargo, movement, arrival state, arrival tick reports, explicit cargo delivery |
 | Factions/Ownership | factions, reputation, ownership |
 | Contracts | delivery contracts, fulfillment, reward ledger, overdue failure tick consequences |
 | Persistence | world/runtime save-load, corrupted-load coverage |
 | Runtime/World Integration | runtime bundle, scenario bootstrap, workflows, deterministic tick consequences |
-| Runtime Events/Diagnostics | event log, caravan arrival events, contract fulfilled/failed events, diagnostics |
+| Runtime Events/Diagnostics | event log, caravan arrival/cargo delivery events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | being stabilized |
 | C ABI | not ready yet |
 | Packaging/Release | CMake install/export package flow added, binary release still pending |
@@ -329,7 +331,7 @@ int main() {
 
 ### Near-term goals before 1.0.0
 
-- extend arrival consequences into deeper settlement-side effects;
+- extend arrival consequences into broader settlement-side effects;
 - stabilize the Public SDK/API surface;
 - finish release SDK layout into binary/package artifacts;
 - expand external user documentation;
