@@ -21,8 +21,17 @@ bool is_known_runtime_event_type(const std::string& type) {
     return type == "runtime.day.completed"
         || type == "runtime.caravan.progress"
         || type == "runtime.caravan.arrived"
+        || type == "runtime.caravan.cargo_delivered"
         || type == "runtime.contract.fulfilled"
         || type == "runtime.contract.failed";
+}
+
+std::string cargo_delivery_payload(const RuntimeCaravanCargoDeliveryResult& result) {
+    return result.caravan_id
+        + "->"
+        + result.destination_settlement_id
+        + ":total="
+        + std::to_string(result.total_amount);
 }
 
 } // namespace
@@ -78,6 +87,7 @@ RuntimeEventLogSummary append_runtime_run_events(
         summary.events_appended += partial.events_appended;
         summary.day_events += partial.day_events;
         summary.caravan_events += partial.caravan_events;
+        summary.cargo_events += partial.cargo_events;
         summary.contract_events += partial.contract_events;
     }
 
@@ -104,6 +114,29 @@ RuntimeEventLogSummary append_runtime_arrival_contract_events(
     return summary;
 }
 
+RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
+    clc::EventLog& log,
+    std::uint64_t tick,
+    const RuntimeCaravanCargoDeliveryResult& result
+) {
+    RuntimeEventLogSummary summary{};
+
+    if (!result.ok()) {
+        return summary;
+    }
+
+    append_event(
+        log,
+        summary,
+        tick,
+        "runtime.caravan.cargo_delivered",
+        cargo_delivery_payload(result)
+    );
+    ++summary.cargo_events;
+
+    return summary;
+}
+
 RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
     RuntimeEventLogAnalysis analysis{};
 
@@ -122,6 +155,8 @@ RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
             ++analysis.caravan_progress_events;
         } else if (event.type == "runtime.caravan.arrived") {
             ++analysis.caravan_arrival_events;
+        } else if (event.type == "runtime.caravan.cargo_delivered") {
+            ++analysis.caravan_cargo_delivered_events;
         } else if (event.type == "runtime.contract.fulfilled") {
             ++analysis.contract_fulfilled_events;
         } else if (event.type == "runtime.contract.failed") {
