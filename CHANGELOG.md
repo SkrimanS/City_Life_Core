@@ -4,6 +4,41 @@ All notable changes to City Life Core are tracked here.
 
 Все заметные изменения City Life Core фиксируются здесь.
 
+## 0.9.9 - Unreleased
+
+### Added
+
+- Added tick-based runtime clock persistence through `SimulationRuntime::time` and `SimulationWorldState::time`.
+- Added tick-based route, caravan, and contract deadline support for real-time, MMO, and non-turn-based games.
+- Added high-level tick runtime helpers:
+  - `run_runtime_ticks(...)`;
+  - `run_runtime_until_first_caravan_arrival_by_ticks(...)`;
+  - `run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(...)`.
+- Added tick-based contract deadline APIs and tests for `due_ticks` without daily engine advancement.
+- Added runtime save/load coverage for `runtime.time`, `due_ticks`, caravan tick progress, and settlement tick remainders.
+- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit `time` is missing.
+- Added tick-based runtime diagnostics and event-log helpers:
+  - `runtime.tick.completed`;
+  - tick-run event-log append helpers;
+  - absolute tick checks for fulfilled and failed contract events.
+- Added safer cargo event-log overloads that read timestamps from `SimulationRuntime::time` instead of requiring callers to pass a raw tick.
+- Added regression tests for absolute event ticks, runtime clock drift, tick-only caravan loading, tick-run arrival, tick-run fulfillment, and tick event logs.
+
+### Changed
+
+- Bumped project version from `0.9.7` to `0.9.9` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Updated smoke tests to expect `0.9.9`.
+- Changed runtime event log timestamps from day numbers to absolute runtime ticks.
+- Changed runtime save/load overloads to preserve `SimulationRuntime::time` through the runtime-specific world-state bridge.
+- Changed runtime caravan loading checks to use tick progress instead of day-only progress, preventing cargo loading after tick-based departure.
+- Kept day-based APIs as compatibility wrappers while making tick-based APIs the preferred path for real-time games.
+
+### Compatibility
+
+- Existing day-based route, caravan, and contract APIs remain available.
+- Older world-state saves without explicit runtime `time` are still accepted and synchronize runtime clock from `current_day`.
+- Older contract rows without `due_ticks` are still accepted and derive `due_ticks` from `due_day`.
+
 ## 0.9.6 - Unreleased
 
 ### Added
