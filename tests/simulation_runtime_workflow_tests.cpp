@@ -111,6 +111,11 @@ int main() {
     require(runtime.engine.settlement_resource_amount("hillford", "grain") == 0, "early unload should not credit destination");
     require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "early unload should not debit cargo");
 
+    const auto early_delivery = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, "caravan_runtime");
+    require(!early_delivery.ok(), "runtime delivery should require arrival");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 0, "early delivery should not credit destination");
+    require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "early delivery should not debit cargo");
+
     const auto early_fulfillment = clc::sim::fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger(
         runtime,
         "grain_delivery_runtime",
@@ -155,9 +160,23 @@ int main() {
     require(runtime.contracts.contracts[0].status == clc::sim::ContractStatus::fulfilled, "contract should be fulfilled");
 
     require(!clc::sim::unload_runtime_caravan_at_destination(runtime, "caravan_runtime", "grain", 20).ok(), "runtime unload should reject insufficient cargo");
-    require(clc::sim::unload_runtime_caravan_at_destination(runtime, "caravan_runtime", "grain", 10).ok(), "runtime unload should move remaining cargo to destination");
-    require(runtime.caravans.caravans[0].cargo.empty(), "runtime unload should empty remaining cargo");
-    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 10, "runtime unload should credit destination storage");
+
+    const auto delivered = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, "caravan_runtime");
+    require(delivered.ok(), "runtime delivery should move all remaining arrived cargo to destination");
+    require(delivered.caravan_id == "caravan_runtime", "delivery result should expose caravan id");
+    require(delivered.destination_settlement_id == "hillford", "delivery result should expose destination settlement id");
+    require(delivered.delivered.size() == 1, "delivery result should expose delivered resource entry");
+    require(delivered.delivered[0].resource_id == "grain", "delivery result should expose delivered resource id");
+    require(delivered.delivered[0].amount == 10, "delivery result should expose delivered amount");
+    require(delivered.total_amount == 10, "delivery result should expose total delivered amount");
+    require(runtime.caravans.caravans[0].cargo.empty(), "runtime delivery should empty remaining cargo");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 10, "runtime delivery should credit destination storage");
+
+    const auto repeated_delivery = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, "caravan_runtime");
+    require(repeated_delivery.ok(), "empty repeated delivery should be accepted");
+    require(repeated_delivery.delivered.empty(), "empty repeated delivery should not report resource entries");
+    require(repeated_delivery.total_amount == 0, "empty repeated delivery should report zero total");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 10, "empty repeated delivery should not mutate destination storage");
 
     const auto missing_caravan = clc::sim::advance_runtime_caravan_day(runtime, "missing_caravan");
     require(!missing_caravan.ok(), "runtime caravan advance should reject unknown caravan");
@@ -168,6 +187,9 @@ int main() {
         "missing_caravan"
     );
     require(!missing_contract_caravan.ok(), "runtime fulfillment should reject unknown caravan");
+
+    const auto missing_delivery_caravan = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, "missing_caravan");
+    require(!missing_delivery_caravan.ok(), "runtime delivery should reject unknown caravan");
 
     return 0;
 }
