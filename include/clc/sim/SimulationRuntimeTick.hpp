@@ -21,9 +21,12 @@ struct RuntimeCaravanTickReport final {
 };
 
 struct SimulationRuntimeTickReport final {
+    clc::GameTime::Tick tick_before{0};
+    clc::GameTime::Tick tick_after{0};
     clc::GameTime::Tick elapsed_ticks{0};
     std::vector<RuntimeCaravanTickReport> caravans{};
     std::vector<std::string> arrived_caravan_ids{};
+    ContractDeadlineReport contracts{};
     data::ValidationReport validation{};
 
     [[nodiscard]] bool ok() const noexcept {
