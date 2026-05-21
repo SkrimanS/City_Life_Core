@@ -15,6 +15,15 @@ CaravanState* mutable_caravan_by_id(CaravanFleet& fleet, std::string_view carava
     return nullptr;
 }
 
+const CaravanState* caravan_by_id(const CaravanFleet& fleet, std::string_view caravan_id) noexcept {
+    for (const auto& caravan : fleet.caravans) {
+        if (caravan.id == caravan_id) {
+            return &caravan;
+        }
+    }
+    return nullptr;
+}
+
 bool invalid_resource_request(data::ValidationReport& report, std::string_view path, std::string_view resource_id, std::uint64_t amount) {
     bool invalid = false;
     if (resource_id.empty()) {
@@ -46,6 +55,16 @@ void rollback_delivered_cargo(SimulationRuntime& runtime, CaravanState& caravan,
 
         const auto restored = caravan.cargo.add(delivered_it->resource_id, delivered_it->amount);
         (void)restored;
+    }
+}
+
+void append_validation_messages(data::ValidationReport& target, const data::ValidationReport& source) {
+    for (const auto& message : source.messages()) {
+        if (message.severity == data::ValidationSeverity::warning) {
+            target.add_warning(message.path, message.message);
+        } else {
+            target.add_error(message.path, message.message);
+        }
     }
 }
 
@@ -344,7 +363,7 @@ RuntimeBulkCargoDeliveryResult deliver_all_runtime_arrived_caravan_cargo_to_dest
         }
     }
 
-    const auto validation = validate_runtime_bulk_cargo_delivery_result(result);
+    const auto validation = validate_runtime_bulk_cargo_delivery_result_for_runtime(runtime, result);
     if (!validation.ok()) {
         result.validation = validation;
     }
@@ -358,13 +377,7 @@ data::ValidationReport validate_runtime_caravan_cargo_delivery_result(
     data::ValidationReport report{};
 
     if (!result.validation.ok()) {
-        for (const auto& message : result.validation.messages()) {
-            if (message.severity == data::ValidationSeverity::warning) {
-                report.add_warning(message.path, message.message);
-            } else {
-                report.add_error(message.path, message.message);
-            }
-        }
+        append_validation_messages(report, result.validation);
         return report;
     }
 
@@ -404,13 +417,7 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
     data::ValidationReport report{};
 
     if (!result.validation.ok()) {
-        for (const auto& message : result.validation.messages()) {
-            if (message.severity == data::ValidationSeverity::warning) {
-                report.add_warning(message.path, message.message);
-            } else {
-                report.add_error(message.path, message.message);
-            }
-        }
+        append_validation_messages(report, result.validation);
         return report;
     }
 
@@ -418,13 +425,7 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
     for (const auto& delivery : result.deliveries) {
         auto delivery_report = validate_runtime_caravan_cargo_delivery_result(delivery);
         if (!delivery_report.ok()) {
-            for (const auto& message : delivery_report.messages()) {
-                if (message.severity == data::ValidationSeverity::warning) {
-                    report.add_warning(message.path, message.message);
-                } else {
-                    report.add_error(message.path, message.message);
-                }
-            }
+            append_validation_messages(report, delivery_report);
         }
         calculated_total += delivery.total_amount;
     }
@@ -443,6 +444,65 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
 
     if (result.deliveries.empty() && result.delivered_caravans != 0) {
         report.add_error("runtime.bulk_cargo_delivery.delivered_caravans", "delivered_caravans must be zero when no deliveries were recorded");
+    }
+
+    return report;
+}
+
+data::ValidationReport validate_runtime_caravan_cargo_delivery_result_for_runtime(
+    const SimulationRuntime& runtime,
+    const RuntimeCaravanCargoDeliveryResult& result
+) {
+    auto report = validate_runtime_caravan_cargo_delivery_result(result);
+    if (!report.ok()) {
+        return report;
+    }
+
+    const auto* caravan = caravan_by_id(runtime.caravans, result.caravan_id);
+    if (caravan == nullptr) {
+        report.add_error("runtime.cargo_delivery.caravan_id", "caravan_id must reference an existing caravan");
+        return report;
+    }
+
+    if (caravan->destination_settlement_id != result.destination_settlement_id) {
+        report.add_error("runtime.cargo_delivery.destination_settlement_id", "destination_settlement_id must match caravan destination");
+    }
+
+    if (!runtime.engine.has_settlement(result.destination_settlement_id)) {
+        report.add_error("runtime.cargo_delivery.destination_settlement_id", "destination_settlement_id must reference an existing settlement");
+    }
+
+    if (!caravan_arrived(*caravan)) {
+        report.add_error("runtime.cargo_delivery.caravan_id", "caravan must be arrived after delivery");
+    }
+
+    if (!result.delivered.empty() && !caravan->cargo.empty()) {
+        report.add_error("runtime.cargo_delivery.caravan_id", "delivered caravan cargo must be empty after delivery");
+    }
+
+    for (const auto& entry : result.delivered) {
+        if (runtime.engine.settlement_resource_amount(result.destination_settlement_id, entry.resource_id) < entry.amount) {
+            report.add_error("runtime.cargo_delivery.delivered.amount", "destination settlement must contain at least delivered amount");
+        }
+    }
+
+    return report;
+}
+
+data::ValidationReport validate_runtime_bulk_cargo_delivery_result_for_runtime(
+    const SimulationRuntime& runtime,
+    const RuntimeBulkCargoDeliveryResult& result
+) {
+    auto report = validate_runtime_bulk_cargo_delivery_result(result);
+    if (!report.ok()) {
+        return report;
+    }
+
+    for (const auto& delivery : result.deliveries) {
+        auto delivery_report = validate_runtime_caravan_cargo_delivery_result_for_runtime(runtime, delivery);
+        if (!delivery_report.ok()) {
+            append_validation_messages(report, delivery_report);
+        }
     }
 
     return report;
