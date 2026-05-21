@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <string_view>
+#include <utility>
 
 namespace {
 
@@ -33,6 +34,64 @@ void restore_engine_state(
 ) {
     const auto restore_report = runtime.engine.restore_state(state);
     require(restore_report.ok(), message);
+}
+
+clc::sim::SimulationRuntime make_runtime_with_registry(
+    const clc::sim::SimulationRuntime& source,
+    clc::data::DataRegistry registry
+) {
+    clc::sim::SimulationRuntime runtime{std::move(registry)};
+    restore_engine_state(runtime, source.engine.export_state(), "registry drift runtime engine restore failed");
+    runtime.routes = source.routes;
+    runtime.caravans = source.caravans;
+    runtime.factions = source.factions;
+    runtime.ownership = source.ownership;
+    runtime.contracts = source.contracts;
+    runtime.wallet = source.wallet;
+    runtime.ledger = source.ledger;
+    return runtime;
+}
+
+clc::data::DataRegistry make_resource_semantic_drift_registry() {
+    clc::data::DataRegistry registry;
+    require(registry.add(clc::data::ResourceDefinition{
+        .id = "grain",
+        .display_name = "Drifted Grain",
+        .category = "food",
+        .base_value = 11,
+    }).ok(), "resource semantic drift registry resource setup failed");
+    require(registry.add(clc::data::SettlementDefinition{
+        .id = "riverwatch",
+        .display_name = "Riverwatch",
+        .starting_population = 120,
+    }).ok(), "resource semantic drift registry riverwatch setup failed");
+    require(registry.add(clc::data::SettlementDefinition{
+        .id = "hillford",
+        .display_name = "Hillford",
+        .starting_population = 80,
+    }).ok(), "resource semantic drift registry hillford setup failed");
+    return registry;
+}
+
+clc::data::DataRegistry make_settlement_semantic_drift_registry() {
+    clc::data::DataRegistry registry;
+    require(registry.add(clc::data::ResourceDefinition{
+        .id = "grain",
+        .display_name = "Grain",
+        .category = "food",
+        .base_value = 10,
+    }).ok(), "settlement semantic drift registry resource setup failed");
+    require(registry.add(clc::data::SettlementDefinition{
+        .id = "riverwatch",
+        .display_name = "Drifted Riverwatch",
+        .starting_population = 121,
+    }).ok(), "settlement semantic drift registry riverwatch setup failed");
+    require(registry.add(clc::data::SettlementDefinition{
+        .id = "hillford",
+        .display_name = "Hillford",
+        .starting_population = 80,
+    }).ok(), "settlement semantic drift registry hillford setup failed");
+    return registry;
 }
 
 } // namespace
@@ -125,6 +184,12 @@ int main() {
         "registry settlement drift setup failed"
     );
     expect_runtime_drift_detected(runtime, registry_settlement_drifted, "runtime match unexpectedly accepted registry settlement drift");
+
+    const auto registry_resource_semantic_drifted = make_runtime_with_registry(loaded, make_resource_semantic_drift_registry());
+    expect_runtime_drift_detected(runtime, registry_resource_semantic_drifted, "runtime match unexpectedly accepted registry resource semantic drift");
+
+    const auto registry_settlement_semantic_drifted = make_runtime_with_registry(loaded, make_settlement_semantic_drift_registry());
+    expect_runtime_drift_detected(runtime, registry_settlement_semantic_drifted, "runtime match unexpectedly accepted registry settlement semantic drift");
 
     auto current_day_drifted = loaded;
     auto current_day_state = current_day_drifted.engine.export_state();
