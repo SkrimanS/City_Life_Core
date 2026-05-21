@@ -48,6 +48,7 @@ int main() {
     require(summary.events_appended == 5, "runtime event log should append expected number of events");
     require(summary.day_events == 2, "runtime event log should append two day events");
     require(summary.caravan_events == 2, "runtime event log should append two caravan events");
+    require(summary.cargo_events == 0, "runtime event log should not append cargo events without explicit delivery");
     require(summary.contract_events == 1, "runtime event log should append one contract event");
 
     require(log.size() == 5, "runtime event log should contain five events");
@@ -65,6 +66,20 @@ int main() {
 
     require(events[4].type == "runtime.contract.fulfilled", "runtime event log should record contract event");
     require(events[4].payload == "grain_delivery_runtime", "runtime event log contract payload should use contract id");
+
+    auto delivery = clc::sim::deliver_runtime_arrived_caravan_cargo_to_destination(runtime, "event_log_caravan");
+    require(delivery.ok(), "runtime event log cargo delivery should succeed after fulfillment");
+    require(delivery.total_amount == 10, "runtime event log cargo delivery should move remaining cargo");
+
+    auto delivery_summary = clc::sim::append_runtime_caravan_cargo_delivery_event(log, orchestration.arrival.arrival_day, delivery);
+    require(delivery_summary.events_appended == 1, "runtime event log should append cargo delivery event");
+    require(delivery_summary.cargo_events == 1, "runtime event log should count cargo delivery event");
+    require(log.events().back().type == "runtime.caravan.cargo_delivered", "runtime event log should record cargo delivery event");
+    require(log.events().back().payload == "event_log_caravan->hillford:total=10", "runtime event log should record cargo delivery payload");
+    require(clc::sim::validate_runtime_event_log(log).ok(), "runtime event log with cargo delivery should validate");
+
+    const auto delivery_analysis = clc::sim::analyze_runtime_event_log(log);
+    require(delivery_analysis.caravan_cargo_delivered_events == 1, "runtime event analysis should count cargo delivery events");
 
     clc::sim::RuntimeScenarioBootstrapConfig overdue_config{};
     overdue_config.contract_due_day = 1;
