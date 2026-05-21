@@ -1,5 +1,81 @@
 # Changelog
 
+All notable changes to City Life Core are tracked here.
+
+Все заметные изменения City Life Core фиксируются здесь.
+
+## 0.9.2 - Unreleased
+
+### Added
+
+- Added bilingual public-facing `README.md` for the current 0.9.x runtime/persistence and SDK-readiness phase.
+- Added `docs/PUBLIC_API.md` with a bilingual overview of the current public C++ API surface, subsystem headers, runtime workflow APIs, and persistence validation APIs.
+- Added `docs/SDK_STRUCTURE.md` with bilingual SDK layout, release package structure, public include policy, C++ SDK boundary, future C ABI direction, and release readiness checklist.
+- Added deterministic runtime replay persistence coverage with midpoint save/load, post-load replay continuation, contract fulfillment, reward flow, ledger validation, and negative replay drift detection.
+- Added corrupted runtime save/load coverage for unknown rows, invalid contract status, orphan settlement storage, orphan caravan cargo, and invalid escape sequences.
+- Added failed-load mutation guard coverage proving corrupted runtime loads do not mutate the target runtime.
+
+### Changed
+
+- Bumped project version from `0.9.0` to `0.9.2` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Registered `clc_runtime_replay_persistence_tests` and `clc_runtime_corrupted_save_tests` in CMake.
+- Added explicit compile-safety include coverage for replay persistence tests.
+
+## 0.9.1 - Unreleased
+
+### Added
+
+- Added semantic runtime persistence validation hardening.
+- Added deterministic post-load continuation validation for runtime save/load roundtrips.
+- Added runtime registry count equivalence validation for resources, currencies, buildings, professions, and settlements.
+- Added referenced registry semantic validation for resource and settlement definitions actually used by runtime state.
+- Added broad negative drift coverage for runtime state:
+  - engine current day, settlements, storage, buildings, events, and market demand;
+  - routes and route identity;
+  - caravans, travel state, route endpoints, ownership, and cargo;
+  - factions, faction identity, display names, and reputation;
+  - ownership records;
+  - contracts, contract identity, parties, resource, quantity, reward, due day, and status;
+  - wallet and ledger state.
+
+### Changed
+
+- Refactored runtime persistence validation tests with helper functions for clearer drift assertions.
+- Strengthened runtime equivalence validation from shallow persistence roundtrip checks toward semantic runtime comparison.
+
+## 0.9.0 - Unreleased
+
+### Added
+
+- Runtime/world integration layer around `SimulationRuntime`.
+- Runtime scenario bootstrap helpers for building a deterministic basic world.
+- Runtime workflow helpers for settlements, routes, factions, ownership, contracts, caravans, cargo movement, and contract fulfillment.
+- Runtime persistence support for saving and loading complete runtime state.
+- Runtime full-roundtrip tests covering integrated world state persistence.
+- Runtime tick, run-days, run-until-arrival, auto-contract, arrival-contract, event-log, and diagnostics test coverage.
+- Runtime event log roundtrip and event analysis coverage.
+
+### Changed
+
+- Persistence moved from isolated snapshot/world-state coverage toward integrated runtime save/load workflows.
+- Runtime systems became the preferred integration surface for game/server code instead of manually wiring every subsystem.
+
+## 0.8.0 - Unreleased
+
+### Added
+
+- Routes between settlements.
+- Caravan state, cargo storage, route-based travel, arrival checks, and caravan catalog operations.
+- Faction catalog, faction reputation, and ownership primitives for settlements and caravans.
+- Resource delivery contracts with issuer/receiver factions, required resource, quantity, reward coins, due day, and status.
+- Contract reward and ledger integration.
+- Runtime-oriented tests for routes, caravans, factions, ownership, contracts, and reward ledger behavior.
+
+### Changed
+
+- The project expanded from single-engine settlement simulation into multi-system world simulation.
+- Economy, logistics, ownership, and obligations became connected through routes, caravans, contracts, and ledger entries.
+
 ## 0.7.5 - Unreleased
 
 ### Changed
@@ -51,304 +127,51 @@
 - `SimulationEngine::run_scenario_preset()` for running validated scenario presets through the existing scenario pipeline.
 - Scenario preset test coverage for validation failures, valid execution, invalid no-op behavior, and digest compatibility.
 
-## 0.6.9 - Unreleased
+## 0.6.x - Unreleased
 
 ### Added
 
-- `scenario_result_digest()` for compact scenario result summaries in CLI, logs, and UI surfaces.
-- Digest output includes duration days, start day, end day, event count, warning count, and status.
-- Dedicated scenario digest test binary covering empty, success, warning, and defensive duration cases.
+- Multi-day simulation runs through `SimulationEngine::run_days()`.
+- `SimulationScenarioSummary` and `SimulationScenarioResult`.
+- Initial/final scenario snapshots.
+- Scenario event and warning deltas.
+- Scenario helper APIs for duration, success, warning/event checks, and digest output.
+- Scenario preset support and catalog helpers.
 
-## 0.6.8 - Unreleased
-
-### Added
-
-- Scenario duration helper functions for summaries and full scenario results.
-- `scenario_summary_start_day()`, `scenario_summary_end_day()`, and `scenario_summary_duration_days()` for report-range inspection.
-- `scenario_result_start_day()`, `scenario_result_end_day()`, and `scenario_result_duration_days()` for snapshot-range inspection.
-- Simulation test coverage for empty scenario duration helpers and non-empty report/snapshot ranges.
-
-## 0.6.7 - Unreleased
+## 0.5.x - Unreleased
 
 ### Added
 
-- Scenario result helper functions for API/UI consumers.
-- `scenario_has_events()` for checking scenario event deltas.
-- `scenario_has_warnings()` for checking scenario warning deltas.
-- `scenario_succeeded()` for treating warning-free scenario results as successful.
-- Simulation test coverage for helpers on empty and warning-producing scenarios.
+- `SimulationEngine` for coordinating settlements and economy reporting.
+- Engine day reports, events, snapshots, command APIs, lookup helpers, command results, cumulative event log, event filters, and scenario runs.
+- Engine command validation for settlement, building, resource, and transfer operations.
 
-## 0.6.6 - Unreleased
+## 0.4.x - Unreleased
 
 ### Added
 
-- `SimulationScenarioResult::warnings_delta` for exposing top-level warnings emitted during scenario execution.
-- `SimulationEngine::run_scenario()` now collects scenario warnings from returned day reports.
-- Simulation test coverage for empty and non-empty warning deltas, settlement ID prefixes, and summary warning relationships.
+- Market demand and deterministic integer-only price reports.
+- Basic wallet and trade transactions.
+- Economy ledger and ledger aggregation helpers.
+- Market order API and deterministic order matching.
 
-## 0.6.5 - Unreleased
-
-### Added
-
-- `SimulationScenarioResult::events_delta` for exposing only the events emitted during scenario execution.
-- `SimulationEngine::run_scenario()` now derives scenario event deltas from the cumulative engine event log.
-- Simulation test coverage for empty and non-empty scenario event deltas, event ordering, day ranges, and snapshot bridge behavior.
-
-## 0.6.4 - Unreleased
+## 0.3.x - Unreleased
 
 ### Added
 
-- `SimulationScenarioResult::initial_snapshot` for returning the simulation state before scenario execution.
-- `SimulationEngine::run_scenario()` now captures both initial and final snapshots around scenario execution.
-- Simulation test coverage proving scenario snapshots bracket emitted events and state changes.
+- Settlement simulation primitives.
+- `ResourceStorage` with controlled add/remove/transfer operations.
+- Building input consumption and output production.
+- Settlement reports with deterministic ordering.
 
-## 0.6.3 - Unreleased
-
-### Added
-
-- `SimulationScenarioResult::final_snapshot` for returning the final simulation state alongside scenario reports and summary.
-- `SimulationEngine::run_scenario()` now captures a final snapshot after running the requested days.
-- Simulation test coverage for zero-day and multi-day scenario final snapshots.
-
-## 0.6.2 - Unreleased
+## 0.2.x - Unreleased
 
 ### Added
 
-- `SimulationScenarioResult` for returning scenario reports and their summary together.
-- `SimulationEngine::run_scenario()` convenience API over `run_days()` plus `summarize_day_reports()`.
-- Simulation test coverage for zero-day and multi-day scenario results.
-
-## 0.6.1 - Unreleased
-
-### Added
-
-- `SimulationScenarioSummary` for aggregated multi-day simulation reporting.
-- `summarize_day_reports()` helper for summarizing existing `SimulationDayReport` batches.
-- Summary fields for days, first/last day, settlement ticks, consumed resources, production, active/skipped building ticks, events, and warnings.
-- Simulation test coverage for empty and non-empty scenario summaries.
-
-## 0.6.0 - Unreleased
-
-### Added
-
-- `SimulationEngine::run_days()` for running multiple simulation days in sequence.
-- Multi-day scenario runner reports that preserve the same side effects as repeated `advance_day()` calls.
-- Simulation test coverage for zero-day runs, sequential day reports, current day advancement, warning propagation, and cumulative day events.
-
-## 0.5.9 - Unreleased
-
-### Added
-
-- `SimulationEngine::clear_events()` for clearing the cumulative engine event log.
-- Event clearing test coverage proving event filters, recent events, and snapshot events are empty after clearing.
-- Regression coverage that event clearing does not mutate current day or settlement resources.
-
-## 0.5.8 - Unreleased
-
-### Added
-
-- Engine event filtering helpers for activity log consumers.
-- `SimulationEngine::recent_events()` for retrieving the latest events while preserving chronological order.
-- `SimulationEngine::events_by_type()` for filtering cumulative events by exact event type.
-- Test coverage for empty logs, missing event types, success/failure filters, recent event limits, and latest day events.
-
-## 0.5.7 - Unreleased
-
-### Added
-
-- Cumulative engine event log for command and day events.
-- `SimulationEngine::events()` for read-only access to accumulated events.
-- `SimulationSnapshot::events` for exposing activity log entries alongside state snapshots.
-- Command wrapper events for succeeded and failed structured commands.
-- Cumulative storage of day events emitted by `advance_day()`.
-- Test coverage for command events and snapshot event exposure.
-
-## 0.5.6 - Unreleased
-
-### Added
-
-- `SimulationCommandResult` for structured engine command outcomes.
-- Structured command wrappers for settlement, building, resource, and transfer commands.
-- Command result fields for command name, success flag, subject ID, target ID, resource ID, amount, and validation details.
-- Dedicated engine command result test binary and CTest entry.
-
-## 0.5.5 - Unreleased
-
-### Added
-
-- Engine-level read-only lookup APIs for settlements and settlement resource amounts.
-- `SimulationEngine::has_settlement()` for fast presence checks.
-- `SimulationEngine::settlement()` for const settlement lookup by ID.
-- `SimulationEngine::settlement_resource_amount()` for resource amount lookup without exposing mutable storage.
-- Dedicated engine lookup test binary and CTest entry.
-
-## 0.5.4 - Unreleased
-
-### Added
-
-- Engine-level command API for removing resources from settlements by settlement ID.
-- Engine-level command API for transferring resources between settlements.
-- Validation coverage for empty IDs, same source/target settlements, unknown settlements, zero amounts, and insufficient resources.
-- Dedicated resource command test binary and CTest entry.
-
-## 0.5.3 - Unreleased
-
-### Added
-
-- Engine-level command API for creating settlements from registered settlement definitions.
-- Engine-level command API for adding buildings to settlements by settlement ID.
-- Engine-level command API for adding resources to settlements by settlement ID.
-- Validation coverage for empty, unknown, and duplicate settlement/building/resource command paths.
-- Simulation test coverage for command-driven setup.
-
-## 0.5.2 - Unreleased
-
-### Added
-
-- `SimulationSnapshot` for read-only engine state inspection without advancing the simulation.
-- `SimulationEngine::snapshot()` for current day, settlement snapshots, and aggregate market report.
-- Simulation test coverage proving snapshots do not mutate `current_day`.
-
-## 0.5.1 - Unreleased
-
-### Added
-
-- Engine-level `SimulationEvent` entries for day start, settlement advancement, and day completion.
-- Engine-level warning aggregation from settlement tick reports.
-- Simulation test coverage for engine events and warning collection.
-
-## 0.5.0 - Unreleased
-
-### Added
-
-- Initial `SimulationEngine` for coordinating settlement simulation and economy reporting.
-- `SimulationDayReport` with day number, settlement tick reports, settlement snapshots, and market summary.
-- Engine-owned registry, market state, settlement list, and current day tracking.
-- Duplicate settlement ID validation when adding settlements to the engine.
-- Dedicated simulation test binary and CTest entry.
-
-## 0.4.4 - Unreleased
-
-### Added
-
-- Market order API for buy/sell limit orders.
-- `MarketOrder`, `TradeExecution`, and `OrderMatchResult` structures.
-- Market order validation for empty resources, zero quantities, zero prices, and total value overflow.
-- Deterministic order matching by resource and limit price.
-- Economy test coverage for matching, no-match, and invalid-order scenarios.
-
-## 0.4.3 - Unreleased
-
-### Added
-
-- `EconomyLedger` for recording successful trade transactions.
-- `LedgerEntry` and `LedgerEntryType` structures.
-- Sequential immutable ledger entries with trade resource, quantity, unit price, total price, and notes.
-- Ledger aggregation helpers for total bought and sold quantities per resource.
-- Economy test coverage for recording successful trades and rejecting failed trades.
-
-## 0.4.2 - Unreleased
-
-### Added
-
-- Basic trade transaction API for buying and selling resources.
-- `Wallet` and `TradeResult` structures.
-- Safe buy/sell operations with checks for empty resource IDs, zero quantities, zero prices, price overflow, insufficient coins, insufficient resources, and wallet overflow.
-- Economy test coverage for successful and failed trade transactions.
-
-## 0.4.1 - Unreleased
-
-### Added
-
-- `MarketReport` aggregate snapshot for market state inspection.
-- `make_market_report()` for sorted price rows and market summary totals.
-- Market report fields for total supply, total demand, average price, min price, and max price.
-- Economy test coverage for non-empty and empty market reports.
-
-## 0.4.0 - Unreleased
-
-### Added
-
-- Initial economy market pricing module.
-- `MarketState` for resource demand tracking.
-- `MarketPrice` reports with supply, demand, price, and reason fields.
-- Deterministic integer-only price calculation from base value, supply, and demand.
-- Market price calculation for registered resources present in storage.
-- Dedicated economy test binary and CTest entry.
-
-## 0.3.3 - Unreleased
-
-### Added
-
-- Settlement report snapshot API for read-only state inspection.
-- `ResourceAmount`, `BuildingReport`, and `SettlementReport` structures.
-- Deterministic storage and building ordering in settlement reports.
-- Smoke test coverage for settlement report generation.
-
-## 0.3.2 - Unreleased
-
-### Added
-
-- Building input resource consumption during settlement ticks.
-- Settlement tick reporting for consumed inputs, active buildings, and skipped buildings.
-- Production now skips buildings when required input resources are missing.
-- Smoke test coverage for successful production and missing-input production skips.
-
-## 0.3.1 - Unreleased
-
-### Added
-
-- `ResourceStorage` for controlled resource storage operations.
-- Safe add, try-remove, remove-up-to, amount lookup, and transfer operations.
-- Settlement simulation now uses `ResourceStorage` instead of raw resource maps.
-- Smoke test coverage for storage operations and settlement storage integration.
-
-## 0.3.0 - Unreleased
-
-### Added
-
-- Initial single settlement simulation module.
-- `SettlementState`, `BuildingInstance`, and `SettlementTickReport`.
-- Settlement creation from data definitions.
-- Building instance validation against registered building definitions.
-- One-day settlement tick with basic food consumption and building output production.
-- Smoke test coverage for a settlement consuming and producing resources without negative storage.
-
-## 0.2.3 - Unreleased
-
-### Added
-
-- `DataPackLoader::load_directory()` for loading all `.clcd` files from a data pack folder.
-- Deterministic lexicographic file ordering for folder loads.
-- Smoke test coverage for multi-file data pack loading.
-
-## 0.2.2 - Unreleased
-
-### Added
-
+- Data definitions for resources, currencies, buildings, professions, and settlements.
+- `ValidationReport` and `DataRegistry`.
+- `.clcd` data pack loading and folder loading.
 - Cross-reference validation for building definitions.
-- Building references for required professions, input resources, and output resources.
-- Data pack support for `required_profession_id`, `input_resource_ids`, and `output_resource_ids`.
-- Smoke tests for valid and invalid cross-references.
-
-## 0.2.1 - Unreleased
-
-### Added
-
-- `DataPackLoader` for loading simple schema-versioned data pack files into `DataRegistry`.
-- INI-like `.clcd` data pack format with repeatable `[resource]`, `[currency]`, `[building]`, `[profession]`, and `[settlement]` sections.
-- Demo fantasy core data pack at `data/demo_fantasy/core.clcd`.
-- Smoke tests for valid data pack loading and unsupported schema versions.
-
-## 0.2.0 - Unreleased
-
-### Added
-
-- Data definition types for resources, currencies, buildings, professions, and settlements.
-- `ValidationReport` for schema/data validation messages.
-- `DataRegistry` for registering and looking up validated definitions.
-- Duplicate ID validation for registry inserts.
-- Smoke tests covering valid inserts, duplicate IDs, and invalid definitions.
 - Demo fantasy data pack placeholder.
 
 ## 0.1.0 - Unreleased
