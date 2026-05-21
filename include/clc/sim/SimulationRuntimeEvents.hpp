@@ -21,6 +21,7 @@ struct RuntimeEventLogAnalysis final {
     std::uint64_t caravan_progress_events{0};
     std::uint64_t caravan_arrival_events{0};
     std::uint64_t contract_fulfilled_events{0};
+    std::uint64_t contract_failed_events{0};
     std::uint64_t unknown_events{0};
     std::uint64_t first_tick{0};
     std::uint64_t last_tick{0};
