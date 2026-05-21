@@ -47,6 +47,39 @@ struct SimulationRuntimeDayReport final {
     }
 };
 
+struct SimulationRuntimeTickRunSummary final {
+    std::uint64_t tick_steps{0};
+    clc::GameTime::Tick first_tick{0};
+    clc::GameTime::Tick last_tick{0};
+    clc::GameTime::Tick ticks_elapsed{0};
+    std::uint64_t caravan_ticks{0};
+    std::uint64_t caravan_arrivals{0};
+    std::uint64_t contract_failures{0};
+    std::uint64_t warnings{0};
+};
+
+struct SimulationRuntimeTickRunResult final {
+    std::vector<SimulationRuntimeTickReport> reports{};
+    SimulationRuntimeTickRunSummary summary{};
+    data::ValidationReport validation{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return validation.ok();
+    }
+};
+
+struct SimulationRuntimeTickRunUntilArrivalResult final {
+    SimulationRuntimeTickRunResult run{};
+    bool arrival_reached{false};
+    std::string arrived_caravan_id{};
+    clc::GameTime::Tick arrival_tick{0};
+    clc::GameTime::Tick arrival_elapsed_ticks{0};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return run.ok();
+    }
+};
+
 struct SimulationRuntimeRunSummary final {
     std::uint64_t days_run{0};
     std::uint64_t first_day{0};
@@ -91,6 +124,17 @@ struct SimulationRuntimeArrivalContractResult final {
 
 [[nodiscard]] SimulationRuntimeTickReport advance_runtime_ticks(SimulationRuntime& runtime, clc::GameTime::Tick ticks);
 [[nodiscard]] SimulationRuntimeDayReport advance_runtime_day(SimulationRuntime& runtime);
+[[nodiscard]] SimulationRuntimeTickRunSummary summarize_runtime_tick_reports(const std::vector<SimulationRuntimeTickReport>& reports);
+[[nodiscard]] SimulationRuntimeTickRunResult run_runtime_ticks(
+    SimulationRuntime& runtime,
+    clc::GameTime::Tick total_ticks,
+    clc::GameTime::Tick step_ticks
+);
+[[nodiscard]] SimulationRuntimeTickRunUntilArrivalResult run_runtime_until_first_caravan_arrival_by_ticks(
+    SimulationRuntime& runtime,
+    clc::GameTime::Tick max_ticks,
+    clc::GameTime::Tick step_ticks
+);
 [[nodiscard]] SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports);
 [[nodiscard]] SimulationRuntimeRunResult run_runtime_days(SimulationRuntime& runtime, std::uint64_t day_count);
 [[nodiscard]] SimulationRuntimeRunUntilArrivalResult run_runtime_until_first_caravan_arrival(
