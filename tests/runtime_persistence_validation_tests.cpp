@@ -54,6 +54,26 @@ int main() {
         return 1;
     }
 
+    auto engine_storage_drifted = loaded;
+    engine_storage_drifted.engine.add_resource_to_settlement("riverwatch", "grain", 1);
+
+    const auto engine_storage_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, engine_storage_drifted);
+
+    if (engine_storage_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted engine settlement storage drift\n";
+        return 1;
+    }
+
+    auto engine_event_drifted = loaded;
+    engine_event_drifted.engine.add_resource_to_settlement_command("riverwatch", "grain", 1);
+
+    const auto engine_event_drift_match = clc::sim::validate_simulation_runtimes_match(runtime, engine_event_drifted);
+
+    if (engine_event_drift_match.ok()) {
+        std::cerr << "runtime match unexpectedly accepted engine event drift\n";
+        return 1;
+    }
+
     auto drifted = loaded;
     ++drifted.wallet.coins;
 
