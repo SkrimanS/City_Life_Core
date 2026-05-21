@@ -37,6 +37,7 @@ int main() {
     require(clc::sim::advance_runtime_caravan_day(runtime, "roundtrip_caravan").ok(), "roundtrip caravan should advance before save");
     require(runtime.caravans.caravans[0].days_remaining == 1, "caravan progress should be partially advanced before save");
     require(runtime.caravans.caravans[0].ticks_remaining == clc::ticks_per_day(), "caravan tick progress should be partially advanced before save");
+    runtime.time.advance(clc::hours_to_ticks(2));
 
     require(runtime.engine.state().settlements[0].storage.add("wood", 20).ok(), "roundtrip settlement should receive wood for tick economy");
     runtime.engine.state().settlements[0].buildings.push_back(clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4});
@@ -56,7 +57,12 @@ int main() {
     clc::sim::SimulationRuntime loaded{clc::sim::make_basic_runtime_scenario_registry()};
     const auto loaded_result = clc::sim::load_simulation_runtime_from_file(file_path, loaded);
     require(loaded_result.ok(), "runtime should load mid-scenario");
+    require(loaded.time.current_tick() == clc::hours_to_ticks(2), "loaded runtime should preserve runtime clock");
     require(clc::sim::validate_simulation_runtimes_match(uninterrupted, loaded).ok(), "loaded runtime should match uninterrupted replay baseline after load");
+
+    auto clock_drift = loaded;
+    clock_drift.time.advance(1);
+    require(!clc::sim::validate_simulation_runtimes_match(uninterrupted, clock_drift).ok(), "runtime matcher should reject runtime clock drift");
 
     auto tick_drift = loaded;
     tick_drift.caravans.caravans[0].ticks_remaining += 1;
