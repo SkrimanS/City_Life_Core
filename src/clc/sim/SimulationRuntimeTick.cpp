@@ -149,6 +149,33 @@ SimulationRuntimeTickRunUntilArrivalResult run_runtime_until_first_caravan_arriv
     return result;
 }
 
+SimulationRuntimeTickArrivalContractResult run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(
+    SimulationRuntime& runtime,
+    clc::GameTime::Tick max_ticks,
+    clc::GameTime::Tick step_ticks,
+    std::string_view expected_faction_id
+) {
+    SimulationRuntimeTickArrivalContractResult result{};
+
+    result.arrival = run_runtime_until_first_caravan_arrival_by_ticks(runtime, max_ticks, step_ticks);
+
+    if (!result.arrival.arrival_reached) {
+        result.fulfillment.validation.add_error(
+            "simulation.contract.auto_fulfill",
+            "no caravan arrival reached before fulfillment"
+        );
+        return result;
+    }
+
+    result.fulfillment = fulfill_first_runtime_contract_for_owned_arrived_caravan_with_reward_and_ledger(
+        runtime,
+        result.arrival.arrived_caravan_id,
+        expected_faction_id
+    );
+
+    return result;
+}
+
 SimulationRuntimeRunSummary summarize_runtime_day_reports(const std::vector<SimulationRuntimeDayReport>& reports) {
     SimulationRuntimeRunSummary summary{};
 
