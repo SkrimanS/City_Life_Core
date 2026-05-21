@@ -46,6 +46,17 @@ struct RuntimeCaravanCargoDeliveryResult final {
     }
 };
 
+struct RuntimeBulkCargoDeliveryResult final {
+    std::vector<RuntimeCaravanCargoDeliveryResult> deliveries{};
+    std::uint64_t delivered_caravans{0};
+    std::uint64_t total_amount{0};
+    data::ValidationReport validation{};
+
+    [[nodiscard]] bool ok() const noexcept {
+        return validation.ok();
+    }
+};
+
 [[nodiscard]] data::ValidationReport create_runtime_settlement(
     SimulationRuntime& runtime,
     std::string settlement_definition_id
@@ -115,6 +126,10 @@ struct RuntimeCaravanCargoDeliveryResult final {
 [[nodiscard]] RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_destination(
     SimulationRuntime& runtime,
     std::string_view caravan_id
+);
+
+[[nodiscard]] RuntimeBulkCargoDeliveryResult deliver_all_runtime_arrived_caravan_cargo_to_destinations(
+    SimulationRuntime& runtime
 );
 
 [[nodiscard]] ContractFulfillmentResult fulfill_runtime_contract_from_arrived_caravan_with_reward_and_ledger(
