@@ -27,7 +27,7 @@ SimulationWorldState capture_simulation_world_state(
 }
 
 SimulationWorldState capture_simulation_world_state(const SimulationRuntime& runtime) {
-    return capture_simulation_world_state(
+    auto state = capture_simulation_world_state(
         runtime.engine,
         runtime.routes,
         runtime.caravans,
@@ -37,6 +37,8 @@ SimulationWorldState capture_simulation_world_state(const SimulationRuntime& run
         runtime.wallet,
         runtime.ledger
     );
+    state.time = runtime.time;
+    return state;
 }
 
 data::ValidationReport restore_simulation_runtime_from_world_state(
@@ -80,7 +82,7 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
     const SimulationWorldState& state,
     SimulationRuntime& runtime
 ) {
-    return restore_simulation_runtime_from_world_state(
+    auto report = restore_simulation_runtime_from_world_state(
         state,
         runtime.engine,
         runtime.routes,
@@ -91,6 +93,11 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
         runtime.wallet,
         runtime.ledger
     );
+    if (!report.ok()) {
+        return report;
+    }
+    runtime.time = state.time;
+    return report;
 }
 
 } // namespace clc::sim
