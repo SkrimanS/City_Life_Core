@@ -34,7 +34,7 @@ int main() {
         .destination_settlement_id = "missing_settlement",
         .travel_days = 2,
     }).ok(), "runtime route should reject unknown settlement references");
-    require(runtime.engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "origin settlement should receive grain");
+    require(runtime.engine.add_resource_to_settlement("riverwatch", "grain", 150).ok(), "origin settlement should receive grain");
     require(clc::sim::add_runtime_route(runtime, clc::sim::SettlementRoute{
         .id = "riverwatch_to_hillford",
         .display_name = "Riverwatch to Hillford",
@@ -96,12 +96,12 @@ int main() {
     require(clc::sim::set_runtime_caravan_owner(runtime, "caravan_runtime", "riverwatch").ok(), "runtime caravan owner should set");
 
     require(!clc::sim::load_runtime_caravan_at_origin(runtime, "missing_caravan", "grain", 1).ok(), "runtime load should reject unknown caravan");
-    require(!clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 60).ok(), "runtime load should reject insufficient origin storage");
-    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 50, "failed runtime load should not debit origin storage");
+    require(!clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 151).ok(), "runtime load should reject insufficient origin storage");
+    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 150, "failed runtime load should not debit origin storage");
     require(runtime.caravans.caravans[0].cargo.empty(), "failed runtime load should not credit cargo");
 
     require(clc::sim::load_runtime_caravan_at_origin(runtime, "caravan_runtime", "grain", 40).ok(), "runtime load should move grain from origin into cargo");
-    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 10, "runtime load should debit origin storage");
+    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 110, "runtime load should debit origin storage");
     require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "runtime load should credit caravan cargo");
 
     runtime.wallet.coins = 10;
@@ -115,6 +115,14 @@ int main() {
     require(!early_delivery.ok(), "runtime delivery should require arrival");
     require(runtime.engine.settlement_resource_amount("hillford", "grain") == 0, "early delivery should not credit destination");
     require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "early delivery should not debit cargo");
+
+    const auto early_bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(runtime);
+    require(early_bulk_delivery.ok(), "early bulk delivery should ignore non-arrived caravans");
+    require(early_bulk_delivery.deliveries.empty(), "early bulk delivery should not report deliveries");
+    require(early_bulk_delivery.delivered_caravans == 0, "early bulk delivery should report zero caravans");
+    require(early_bulk_delivery.total_amount == 0, "early bulk delivery should report zero total amount");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 0, "early bulk delivery should not credit destination");
+    require(runtime.caravans.caravans[0].cargo.amount("grain") == 40, "early bulk delivery should not debit cargo");
 
     const auto early_fulfillment = clc::sim::fulfill_runtime_contract_from_owned_arrived_caravan_with_reward_and_ledger(
         runtime,
@@ -177,6 +185,60 @@ int main() {
     require(repeated_delivery.delivered.empty(), "empty repeated delivery should not report resource entries");
     require(repeated_delivery.total_amount == 0, "empty repeated delivery should report zero total");
     require(runtime.engine.settlement_resource_amount("hillford", "grain") == 10, "empty repeated delivery should not mutate destination storage");
+
+    auto bulk_a = clc::sim::create_runtime_caravan_for_route(
+        runtime,
+        "riverwatch_to_hillford",
+        "bulk_caravan_a",
+        "Bulk Caravan A"
+    );
+    require(bulk_a.ok(), "bulk caravan a should create");
+    auto bulk_b = clc::sim::create_runtime_caravan_for_route(
+        runtime,
+        "riverwatch_to_hillford",
+        "bulk_caravan_b",
+        "Bulk Caravan B"
+    );
+    require(bulk_b.ok(), "bulk caravan b should create");
+    auto bulk_pending = clc::sim::create_runtime_caravan_for_route(
+        runtime,
+        "riverwatch_to_hillford",
+        "bulk_pending_caravan",
+        "Bulk Pending Caravan"
+    );
+    require(bulk_pending.ok(), "bulk pending caravan should create");
+
+    require(clc::sim::load_runtime_caravan_at_origin(runtime, "bulk_caravan_a", "grain", 15).ok(), "bulk caravan a should load grain");
+    require(clc::sim::load_runtime_caravan_at_origin(runtime, "bulk_caravan_b", "grain", 20).ok(), "bulk caravan b should load grain");
+    require(clc::sim::load_runtime_caravan_at_origin(runtime, "bulk_pending_caravan", "grain", 5).ok(), "bulk pending caravan should load grain");
+    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 70, "bulk loads should debit origin storage");
+
+    require(clc::sim::advance_runtime_caravan_day(runtime, "bulk_caravan_a").ok(), "bulk caravan a first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "bulk_caravan_a").ok(), "bulk caravan a second advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "bulk_caravan_b").ok(), "bulk caravan b first advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "bulk_caravan_b").ok(), "bulk caravan b second advance should succeed");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "bulk_pending_caravan").ok(), "bulk pending caravan first advance should succeed");
+
+    const auto bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(runtime);
+    require(bulk_delivery.ok(), "bulk delivery should succeed for arrived caravans");
+    require(bulk_delivery.delivered_caravans == 2, "bulk delivery should count delivered caravans");
+    require(bulk_delivery.total_amount == 35, "bulk delivery should total delivered cargo");
+    require(bulk_delivery.deliveries.size() == 2, "bulk delivery should expose two delivery results");
+    require(bulk_delivery.deliveries[0].caravan_id == "bulk_caravan_a", "bulk delivery should preserve deterministic fleet order for first caravan");
+    require(bulk_delivery.deliveries[0].total_amount == 15, "bulk delivery first amount should match cargo");
+    require(bulk_delivery.deliveries[1].caravan_id == "bulk_caravan_b", "bulk delivery should preserve deterministic fleet order for second caravan");
+    require(bulk_delivery.deliveries[1].total_amount == 20, "bulk delivery second amount should match cargo");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 45, "bulk delivery should credit destination storage");
+    require(runtime.caravans.caravans[1].cargo.empty(), "bulk delivery should empty first bulk caravan cargo");
+    require(runtime.caravans.caravans[2].cargo.empty(), "bulk delivery should empty second bulk caravan cargo");
+    require(runtime.caravans.caravans[3].cargo.amount("grain") == 5, "bulk delivery should not deliver non-arrived cargo");
+
+    const auto repeated_bulk_delivery = clc::sim::deliver_all_runtime_arrived_caravan_cargo_to_destinations(runtime);
+    require(repeated_bulk_delivery.ok(), "repeated bulk delivery should succeed when there is no arrived cargo");
+    require(repeated_bulk_delivery.deliveries.empty(), "repeated bulk delivery should not report deliveries");
+    require(repeated_bulk_delivery.delivered_caravans == 0, "repeated bulk delivery should count zero caravans");
+    require(repeated_bulk_delivery.total_amount == 0, "repeated bulk delivery should total zero amount");
+    require(runtime.engine.settlement_resource_amount("hillford", "grain") == 45, "repeated bulk delivery should not mutate destination storage");
 
     const auto missing_caravan = clc::sim::advance_runtime_caravan_day(runtime, "missing_caravan");
     require(!missing_caravan.ok(), "runtime caravan advance should reject unknown caravan");
