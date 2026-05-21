@@ -24,7 +24,9 @@ void require(bool condition, std::string_view message) {
 
 int main() {
     require(clc::core_version().major == 0, "major version should be 0 during bootstrap");
-    require(clc::core_version_string() == std::string_view{"0.9.0"}, "version string should be 0.9.0");
+    require(clc::core_version().minor == 9, "minor version should be 9 before 1.0 audit");
+    require(clc::core_version().patch == 9, "patch version should be 9 before 1.0 audit");
+    require(clc::core_version_string() == std::string_view{"0.9.9"}, "version string should be 0.9.9");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");
