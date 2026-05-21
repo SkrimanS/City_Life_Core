@@ -59,7 +59,7 @@ City Life Core полезен, если нужно:
 | Runtime Events/Diagnostics | event log, caravan arrival events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | в процессе стабилизации |
 | C ABI | ещё не готово |
-| Packaging/Release | начальная подготовка |
+| Packaging/Release | CMake install/export package flow добавлен, binary release ещё впереди |
 | External Docs | активно оформляется |
 
 ### Быстрый старт
@@ -99,6 +99,23 @@ cmake --build build
 ./build/clc_example_save_load_roundtrip
 ./build/clc_example_replay_persistence
 ```
+
+### CMake install / find_package
+
+```bash
+cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
+cmake --build build
+cmake --install build
+```
+
+Внешний CMake-проект может подключать установленное ядро так:
+
+```cmake
+find_package(CityLifeCore CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE CityLifeCore::core)
+```
+
+Подробнее: [Packaging / Упаковка](docs/PACKAGING.md).
 
 ### Минимальный runtime-сценарий
 
@@ -142,13 +159,14 @@ int main() {
 
 - [Public API / Публичный API](docs/PUBLIC_API.md)
 - [SDK Structure / Структура SDK](docs/SDK_STRUCTURE.md)
+- [Packaging / Упаковка](docs/PACKAGING.md)
 - [Changelog](CHANGELOG.md)
 
 ### Ближайшие цели до 1.0.0
 
 - расширить arrival consequences до более глубоких settlement-side effects;
 - стабилизировать Public SDK/API;
-- подготовить release SDK layout;
+- довести release SDK layout до binary/package artifacts;
 - расширить external documentation;
 - начать C ABI только после стабилизации C++ SDK surface;
 - держать `main` стабильным и вливать блоки через fast-forward.
@@ -206,7 +224,7 @@ Implemented and actively hardened areas:
 | Runtime Events/Diagnostics | event log, caravan arrival events, contract fulfilled/failed events, diagnostics |
 | Public SDK/API | being stabilized |
 | C ABI | not ready yet |
-| Packaging/Release | early preparation |
+| Packaging/Release | CMake install/export package flow added, binary release still pending |
 | External Docs | being actively written |
 
 ### Quick start
@@ -246,6 +264,23 @@ cmake --build build
 ./build/clc_example_save_load_roundtrip
 ./build/clc_example_replay_persistence
 ```
+
+### CMake install / find_package
+
+```bash
+cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
+cmake --build build
+cmake --install build
+```
+
+External CMake projects can consume the installed package with:
+
+```cmake
+find_package(CityLifeCore CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE CityLifeCore::core)
+```
+
+Details: [Packaging](docs/PACKAGING.md).
 
 ### Minimal runtime scenario
 
@@ -289,13 +324,14 @@ int main() {
 
 - [Public API](docs/PUBLIC_API.md)
 - [SDK Structure](docs/SDK_STRUCTURE.md)
+- [Packaging](docs/PACKAGING.md)
 - [Changelog](CHANGELOG.md)
 
 ### Near-term goals before 1.0.0
 
 - extend arrival consequences into deeper settlement-side effects;
 - stabilize the Public SDK/API surface;
-- prepare release SDK layout;
+- finish release SDK layout into binary/package artifacts;
 - expand external user documentation;
 - start C ABI only after the C++ SDK surface is stable;
 - keep `main` stable and merge completed blocks by fast-forward only.
