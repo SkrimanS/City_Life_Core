@@ -12,6 +12,7 @@ All notable changes to City Life Core are tracked here.
 - Added `docs/PUBLIC_API.md` with a bilingual overview of the current public C++ API surface, subsystem headers, runtime workflow APIs, and persistence validation APIs.
 - Added `docs/SDK_STRUCTURE.md` with bilingual SDK layout, release package structure, public include policy, C++ SDK boundary, future C ABI direction, and release readiness checklist.
 - Added SDK examples for basic runtime ticks, save/load roundtrip validation, and deterministic replay persistence.
+- Added `examples/README.md` with bilingual build and usage guidance for SDK examples.
 - Added deterministic runtime replay persistence coverage with midpoint save/load, post-load replay continuation, contract fulfillment, reward flow, ledger validation, and negative replay drift detection.
 - Added corrupted runtime save/load coverage for unknown rows, invalid contract status, orphan settlement storage, orphan caravan cargo, and invalid escape sequences.
 - Added failed-load mutation guard coverage proving corrupted runtime loads do not mutate the target runtime.
@@ -23,7 +24,7 @@ All notable changes to City Life Core are tracked here.
 - Bumped project version from `0.9.0` to `0.9.2` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
 - Registered `clc_runtime_replay_persistence_tests` and `clc_runtime_corrupted_save_tests` in CMake.
 - Registered SDK examples in CMake behind `CLC_BUILD_EXAMPLES`.
-- Added explicit compile-safety include coverage for replay persistence tests.
+- Added explicit compile-safety include coverage for replay persistence tests and SDK examples.
 - Extended runtime tick tests to cover arrival consequences, overdue contract status transitions, and contract failure summaries.
 - Extended runtime event log tests to cover failed contract event emission and analysis.
 
