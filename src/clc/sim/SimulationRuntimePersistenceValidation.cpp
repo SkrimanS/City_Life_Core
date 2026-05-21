@@ -12,6 +12,28 @@ void add_mismatch(data::ValidationReport& report, bool condition, const char* me
     }
 }
 
+void add_registry_count_mismatches(
+    data::ValidationReport& report,
+    const data::DataRegistry& expected,
+    const data::DataRegistry& actual
+) {
+    add_mismatch(report,
+        expected.resource_count() == actual.resource_count(),
+        "runtime registry resource count mismatch");
+    add_mismatch(report,
+        expected.currency_count() == actual.currency_count(),
+        "runtime registry currency count mismatch");
+    add_mismatch(report,
+        expected.building_count() == actual.building_count(),
+        "runtime registry building count mismatch");
+    add_mismatch(report,
+        expected.profession_count() == actual.profession_count(),
+        "runtime registry profession count mismatch");
+    add_mismatch(report,
+        expected.settlement_count() == actual.settlement_count(),
+        "runtime registry settlement count mismatch");
+}
+
 void add_storage_mismatch(
     data::ValidationReport& report,
     const ResourceStorage& expected,
@@ -50,6 +72,8 @@ data::ValidationReport validate_simulation_runtimes_match(
     const SimulationRuntime& actual
 ) {
     data::ValidationReport report{};
+
+    add_registry_count_mismatches(report, expected.engine.registry(), actual.engine.registry());
 
     add_mismatch(report,
         expected.engine.current_day() == actual.engine.current_day(),
