@@ -12,6 +12,7 @@ namespace clc::sim {
 struct RuntimeEventLogSummary final {
     std::uint64_t events_appended{0};
     std::uint64_t day_events{0};
+    std::uint64_t tick_events{0};
     std::uint64_t caravan_events{0};
     std::uint64_t cargo_events{0};
     std::uint64_t contract_events{0};
@@ -20,6 +21,7 @@ struct RuntimeEventLogSummary final {
 struct RuntimeEventLogAnalysis final {
     std::uint64_t total_events{0};
     std::uint64_t day_events{0};
+    std::uint64_t tick_events{0};
     std::uint64_t caravan_progress_events{0};
     std::uint64_t caravan_arrival_events{0};
     std::uint64_t caravan_cargo_delivered_events{0};
@@ -63,6 +65,21 @@ struct RuntimeEventLogChecksumComparison final {
 [[nodiscard]] RuntimeEventLogSummary append_runtime_arrival_contract_events(
     clc::EventLog& log,
     const SimulationRuntimeArrivalContractResult& result
+);
+
+[[nodiscard]] RuntimeEventLogSummary append_runtime_tick_report_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickReport& report
+);
+
+[[nodiscard]] RuntimeEventLogSummary append_runtime_tick_run_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickRunResult& run
+);
+
+[[nodiscard]] RuntimeEventLogSummary append_runtime_tick_arrival_contract_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickArrivalContractResult& result
 );
 
 [[nodiscard]] RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
