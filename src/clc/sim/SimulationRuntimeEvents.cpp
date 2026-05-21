@@ -70,6 +70,13 @@ bool valid_cargo_delivery_payload(std::string_view payload) noexcept {
     return positive_decimal_digits(payload.substr(amount_start));
 }
 
+std::uint64_t fulfilled_contract_event_tick(const SimulationRuntimeArrivalContractResult& result) noexcept {
+    if (!result.arrival.run.reports.empty()) {
+        return result.arrival.run.reports.back().ticks.tick_after;
+    }
+    return result.arrival.arrival_elapsed_ticks;
+}
+
 std::string cargo_delivery_payload(const RuntimeCaravanCargoDeliveryResult& result) {
     return result.caravan_id
         + "->"
@@ -149,7 +156,7 @@ RuntimeEventLogSummary append_runtime_arrival_contract_events(
         append_event(
             log,
             summary,
-            result.arrival.arrival_elapsed_ticks,
+            fulfilled_contract_event_tick(result),
             "runtime.contract.fulfilled",
             result.fulfillment.contract_id
         );
