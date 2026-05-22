@@ -132,17 +132,20 @@ uint64_t two_hours = clc_hours_to_ticks_c(2);      // 7200
 
 ## CMake consumer
 
-External C project:
+External C consumer project:
 
 ```cmake
 cmake_minimum_required(VERSION 3.22)
-project(MyCityLifeCoreCConsumer LANGUAGES C)
+project(MyCityLifeCoreCConsumer LANGUAGES C CXX)
 
 find_package(CityLifeCore CONFIG REQUIRED)
 
 add_executable(my_consumer main.c)
+set_target_properties(my_consumer PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(my_consumer PRIVATE CityLifeCore::core)
 ```
+
+`main.c` is still compiled as C. `LINKER_LANGUAGE CXX` is recommended because `CityLifeCore::core` is implemented as a C++ library and may need the C++ linker/runtime.
 
 Configure with an installed SDK:
 
