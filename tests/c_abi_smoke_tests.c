@@ -26,6 +26,9 @@ int main(void) {
     if (require_int(strcmp(clc_core_version_string_c(), "0.9.9") == 0, "version string should match")) {
         return 1;
     }
+    if (require_int(clc_c_interface_version_c() == 1u, "C interface version should be 1")) {
+        return 1;
+    }
 
     if (require_int(clc_ticks_per_second_c() == 1, "ticks per second should be 1")) {
         return 1;
