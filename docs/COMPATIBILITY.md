@@ -56,12 +56,24 @@ The tick model must be frozen before 1.0.0:
 - `minutes_to_ticks(...)`;
 - `hours_to_ticks(...)`;
 - `days_to_ticks(...)`;
+- `can_convert_seconds_to_ticks(...)`;
+- `can_convert_minutes_to_ticks(...)`;
+- `can_convert_hours_to_ticks(...)`;
+- `can_convert_days_to_ticks(...)`;
+- `GameTime::can_advance(...)`;
 - `SimulationRuntime::time` semantics;
 - `SettlementRoute::travel_ticks` semantics;
 - `CaravanState::total_travel_ticks` and `ticks_remaining` semantics;
 - `ResourceDeliveryContract::due_ticks` semantics.
 
 Changing this scale after 1.0.0 is a breaking change.
+
+Overflow policy:
+
+- conversion helpers use saturating arithmetic and return `UINT64_MAX` on overflow;
+- `can_convert_*_to_ticks(...)` helpers let callers reject overflowing values before conversion;
+- `GameTime::advance(...)` saturates at `UINT64_MAX` instead of wrapping;
+- `GameTime::can_advance(...)` lets callers detect whether an advance would overflow.
 
 ### Day/tick dual fields
 
@@ -172,12 +184,24 @@ The tick model must be frozen before 1.0.0:
 - `minutes_to_ticks(...)`;
 - `hours_to_ticks(...)`;
 - `days_to_ticks(...)`;
+- `can_convert_seconds_to_ticks(...)`;
+- `can_convert_minutes_to_ticks(...)`;
+- `can_convert_hours_to_ticks(...)`;
+- `can_convert_days_to_ticks(...)`;
+- `GameTime::can_advance(...)`;
 - `SimulationRuntime::time` semantics;
 - `SettlementRoute::travel_ticks` semantics;
 - `CaravanState::total_travel_ticks` and `ticks_remaining` semantics;
 - `ResourceDeliveryContract::due_ticks` semantics.
 
 Changing this scale after 1.0.0 is a breaking change.
+
+Overflow policy:
+
+- conversion helpers use saturating arithmetic and return `UINT64_MAX` on overflow;
+- `can_convert_*_to_ticks(...)` helpers let callers reject overflowing values before conversion;
+- `GameTime::advance(...)` saturates at `UINT64_MAX` instead of wrapping;
+- `GameTime::can_advance(...)` lets callers detect whether an advance would overflow.
 
 ### Day/tick dual fields
 
