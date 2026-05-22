@@ -88,6 +88,27 @@ Run:
 ./build/clc_example_full_runtime_flow
 ```
 
+### `clc_example_custom_data_registry`
+
+Source: `examples/custom_data_registry.cpp`
+
+Shows how to define game data without using built-in demo scenarios:
+
+- create an inline `.clcd` data pack string;
+- load it with `DataPackLoader::load_string(...)`;
+- validate resources, professions, buildings and settlements;
+- create a `SimulationRuntime` from the loaded registry;
+- add a building using custom definitions;
+- advance settlement simulation and inspect produced resources.
+
+This is the best example for editor/tool integrations and games that want to provide their own resources/buildings/settlement definitions.
+
+Run:
+
+```bash
+./build/clc_example_custom_data_registry
+```
+
 ### `clc_example_save_load_roundtrip`
 
 Source: `examples/save_load_roundtrip.cpp`
@@ -155,7 +176,13 @@ Recommended include:
 #include "clc/CityLifeCore.hpp"
 ```
 
-Start with the explicit flow if you want to integrate your own game data:
+Start with custom game data if you want to define your own resources/buildings/settlements:
+
+```text
+examples/custom_data_registry.cpp
+```
+
+Start with the explicit flow if you want to integrate your own runtime world:
 
 ```text
 examples/full_runtime_flow.cpp
