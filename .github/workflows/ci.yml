@@ -8,6 +8,7 @@ on:
       - develop
       - 'bootstrap/**'
       - 'feature/**'
+      - 'v/**'
 
 jobs:
   build-and-test:
@@ -36,3 +37,21 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
+
+      - name: Install SDK
+        run: cmake --install build --config Release --prefix install-prefix
+
+      - name: Configure installed SDK consumer
+        run: cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install-prefix
+
+      - name: Build installed SDK consumer
+        run: cmake --build build-consumer --config Release
+
+      - name: Run installed SDK consumer
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./build-consumer/Release/city_life_core_consumer.exe
+          else
+            ./build-consumer/city_life_core_consumer
+          fi
+        shell: bash
