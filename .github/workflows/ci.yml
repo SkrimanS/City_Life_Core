@@ -58,3 +58,10 @@ jobs:
 
       - name: Build SDK ZIP package
         run: cpack --config build/CPackConfig.cmake -G ZIP -C Release
+
+      - name: Upload SDK ZIP package
+        uses: actions/upload-artifact@v4
+        with:
+          name: city-life-core-sdk-${{ matrix.os }}-${{ matrix.compiler }}
+          path: city-life-core-sdk-*.zip
+          if-no-files-found: error
