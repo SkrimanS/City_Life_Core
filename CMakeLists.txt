@@ -168,6 +168,10 @@ if(CLC_BUILD_TESTS)
     target_link_libraries(clc_smoke_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_smoke_tests COMMAND clc_smoke_tests)
 
+    add_executable(clc_time_hardening_tests tests/time_hardening_tests.cpp)
+    target_link_libraries(clc_time_hardening_tests PRIVATE CityLifeCore::core)
+    add_test(NAME clc_time_hardening_tests COMMAND clc_time_hardening_tests)
+
     add_executable(clc_storage_hardening_tests tests/storage_hardening_tests.cpp)
     target_link_libraries(clc_storage_hardening_tests PRIVATE CityLifeCore::core)
     add_test(NAME clc_storage_hardening_tests COMMAND clc_storage_hardening_tests)
