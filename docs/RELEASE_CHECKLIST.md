@@ -22,6 +22,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] `docs/CORE_CONCEPTS.md` shows the same version/status.
 - [ ] `docs/C_ABI.md` shows the same version/status.
 - [ ] `docs/CMAKE_PACKAGE.md` shows the same version/status.
+- [ ] `docs/BUILD_AND_LINKING_POLICY.md` shows the same version/status.
 - [ ] `docs/SDK_STRUCTURE.md` shows the same version/status.
 - [ ] `docs/PACKAGING.md` shows the same version/status.
 - [ ] `docs/SDK_ZIP_PACKAGE.md` shows the same version/status.
@@ -80,6 +81,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Data-pack schema compatibility policy is documented.
 - [ ] Migration guide from 0.9.x to target release exists.
 - [ ] C interface version policy is documented.
+- [ ] C++ source/binary compatibility position is documented in `docs/BUILD_AND_LINKING_POLICY.md`.
 
 ## 6. Code hardening / Укрепление кода
 
@@ -142,8 +144,8 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Examples source is included.
 - [ ] Demo data is included.
 - [ ] Docs are included.
-- [ ] Static/shared policy is documented.
-- [ ] Source-only vs binary release policy is documented.
+- [ ] Static/shared policy is documented in `docs/BUILD_AND_LINKING_POLICY.md`.
+- [ ] Source-only vs binary release policy is documented in `docs/BUILD_AND_LINKING_POLICY.md`.
 
 ## 10. Release execution / Выполнение релиза
 
