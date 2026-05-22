@@ -109,6 +109,30 @@ Run:
 ./build/clc_example_custom_data_registry
 ```
 
+### `clc_example_faction_ownership_contracts`
+
+Source: `examples/faction_ownership_contracts.cpp`
+
+Shows how factions and ownership affect gameplay permissions:
+
+- create two factions;
+- assign settlement ownership;
+- assign caravan ownership;
+- set faction reputation;
+- create a delivery contract;
+- reject contract fulfillment when the caravan owner does not match the expected faction;
+- reassign the caravan to the correct faction;
+- fulfill the contract and write the reward ledger entry;
+- query owner and owned-caravan helpers.
+
+This example is useful for strategy games, faction-based economies and server-side permission checks.
+
+Run:
+
+```bash
+./build/clc_example_faction_ownership_contracts
+```
+
 ### `clc_example_save_load_roundtrip`
 
 Source: `examples/save_load_roundtrip.cpp`
@@ -186,6 +210,12 @@ Start with the explicit flow if you want to integrate your own runtime world:
 
 ```text
 examples/full_runtime_flow.cpp
+```
+
+Start with faction and ownership permissions if your game has faction-owned settlements/caravans:
+
+```text
+examples/faction_ownership_contracts.cpp
 ```
 
 Start with the basic bootstrap if you want a minimal smoke test:
