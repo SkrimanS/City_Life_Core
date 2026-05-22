@@ -21,6 +21,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] `docs/PUBLIC_API_STATUS.md` shows the same version/status.
 - [ ] `docs/CORE_CONCEPTS.md` shows the same version/status.
 - [ ] `docs/C_ABI.md` shows the same version/status.
+- [ ] `docs/CMAKE_PACKAGE.md` shows the same version/status.
 - [ ] `docs/SDK_STRUCTURE.md` shows the same version/status.
 - [ ] `docs/PACKAGING.md` shows the same version/status.
 - [ ] `docs/SDK_ZIP_PACKAGE.md` shows the same version/status.
