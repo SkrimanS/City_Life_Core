@@ -22,6 +22,7 @@ set(CLC_DEFAULT_BUILD_TOOLS ${CLC_IS_TOP_LEVEL})
 option(CLC_BUILD_TESTS "Build City Life Core tests" ${CLC_DEFAULT_BUILD_TESTS})
 option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ${CLC_DEFAULT_BUILD_EXAMPLES})
 option(CLC_BUILD_TOOLS "Build City Life Core command line tools" ${CLC_DEFAULT_BUILD_TOOLS})
+option(CLC_BUILD_BENCHMARKS "Build City Life Core benchmark executables" OFF)
 
 set(CLC_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore" CACHE STRING "City Life Core CMake package install directory")
 
@@ -98,6 +99,11 @@ if(CLC_BUILD_EXAMPLES)
 
     add_executable(clc_example_replay_persistence examples/replay_persistence.cpp)
     target_link_libraries(clc_example_replay_persistence PRIVATE CityLifeCore::core)
+endif()
+
+if(CLC_BUILD_BENCHMARKS)
+    add_executable(clc_core_benchmarks benchmarks/core_benchmarks.cpp)
+    target_link_libraries(clc_core_benchmarks PRIVATE CityLifeCore::core)
 endif()
 
 install(
