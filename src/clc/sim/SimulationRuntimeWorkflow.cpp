@@ -1,6 +1,7 @@
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <string>
 #include <utility>
 
@@ -44,6 +45,18 @@ bool invalid_resource_request(data::ValidationReport& report, std::string_view p
     return invalid;
 }
 
+bool can_add_u64(std::uint64_t current, std::uint64_t amount) noexcept {
+    return amount <= std::numeric_limits<std::uint64_t>::max() - current;
+}
+
+bool checked_add_u64(std::uint64_t& current, std::uint64_t amount) noexcept {
+    if (!can_add_u64(current, amount)) {
+        return false;
+    }
+    current += amount;
+    return true;
+}
+
 ContractFulfillmentResult missing_caravan_contract_result(std::string_view contract_id, std::string_view caravan_id) {
     ContractFulfillmentResult result;
     result.contract_id = std::string{contract_id};
@@ -75,16 +88,20 @@ void append_validation_messages(data::ValidationReport& target, const data::Vali
     }
 }
 
-void add_delivery_aggregate(
+bool add_delivery_aggregate(
     std::vector<DeliveryResourceAggregate>& aggregates,
     std::string_view destination_settlement_id,
     std::string_view resource_id,
-    std::uint64_t amount
+    std::uint64_t amount,
+    data::ValidationReport& report
 ) {
     for (auto& aggregate : aggregates) {
         if (aggregate.destination_settlement_id == destination_settlement_id && aggregate.resource_id == resource_id) {
-            aggregate.amount += amount;
-            return;
+            if (!checked_add_u64(aggregate.amount, amount)) {
+                report.add_error("runtime.bulk_cargo_delivery.delivered.amount", "aggregate delivered amount overflow");
+                return false;
+            }
+            return true;
         }
     }
 
@@ -93,6 +110,7 @@ void add_delivery_aggregate(
         .resource_id = std::string{resource_id},
         .amount = amount,
     });
+    return true;
 }
 
 } // namespace
@@ -222,6 +240,10 @@ data::ValidationReport load_runtime_caravan_at_origin(
         report.add_error("simulation.caravan." + caravan->id + ".load", "origin settlement does not have enough resource");
         return report;
     }
+    if (!can_add_u64(caravan->cargo.amount(resource_id), amount)) {
+        report.add_error("simulation.caravan." + caravan->id + ".load", "caravan cargo amount overflow");
+        return report;
+    }
 
     auto remove_report = runtime.engine.remove_resource_from_settlement(caravan->origin_settlement_id, std::string{resource_id}, amount);
     if (!remove_report.ok()) {
@@ -279,6 +301,10 @@ data::ValidationReport unload_runtime_caravan_at_destination(
         report.add_error("simulation.caravan." + caravan->id + ".unload", "caravan cargo does not have enough resource");
         return report;
     }
+    if (!can_add_u64(runtime.engine.settlement_resource_amount(caravan->destination_settlement_id, resource_id), amount)) {
+        report.add_error("simulation.caravan." + caravan->id + ".unload", "destination settlement resource amount overflow");
+        return report;
+    }
 
     if (!caravan->cargo.try_remove(resource_id, amount)) {
         report.add_error("simulation.caravan." + caravan->id + ".unload", "caravan cargo does not have enough resource");
@@ -321,9 +347,18 @@ RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_desti
 
     std::vector<RuntimeCargoDeliveryEntry> entries{};
     entries.reserve(caravan->cargo.entries().size());
+    std::uint64_t total_amount = 0;
     for (const auto& [resource_id, amount] : caravan->cargo.entries()) {
         if (amount == 0) {
             continue;
+        }
+        if (!checked_add_u64(total_amount, amount)) {
+            result.validation.add_error("simulation.caravan." + caravan->id + ".deliver", "delivered cargo total overflow");
+            return result;
+        }
+        if (!can_add_u64(runtime.engine.settlement_resource_amount(caravan->destination_settlement_id, resource_id), amount)) {
+            result.validation.add_error("simulation.caravan." + caravan->id + ".deliver", "destination settlement resource amount overflow");
+            return result;
         }
         entries.push_back(RuntimeCargoDeliveryEntry{.resource_id = resource_id, .amount = amount});
     }
@@ -331,6 +366,8 @@ RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_desti
         return lhs.resource_id < rhs.resource_id;
     });
 
+    result.delivered.reserve(entries.size());
+    result.total_amount = total_amount;
     for (const auto& entry : entries) {
         if (!caravan->cargo.try_remove(entry.resource_id, entry.amount)) {
             rollback_delivered_cargo(runtime, *caravan, result.delivered);
@@ -352,7 +389,6 @@ RuntimeCaravanCargoDeliveryResult deliver_runtime_arrived_caravan_cargo_to_desti
         }
 
         result.delivered.push_back(entry);
-        result.total_amount += entry.amount;
     }
 
     return result;
@@ -384,8 +420,15 @@ RuntimeBulkCargoDeliveryResult deliver_all_runtime_arrived_caravan_cargo_to_dest
         }
 
         if (delivery.total_amount > 0) {
+            if (!can_add_u64(result.delivered_caravans, 1)) {
+                result.validation.add_error("runtime.bulk_cargo_delivery.delivered_caravans", "delivered caravan count overflow");
+                return result;
+            }
+            if (!checked_add_u64(result.total_amount, delivery.total_amount)) {
+                result.validation.add_error("runtime.bulk_cargo_delivery.total_amount", "bulk delivered total overflow");
+                return result;
+            }
             ++result.delivered_caravans;
-            result.total_amount += delivery.total_amount;
             result.deliveries.push_back(std::move(delivery));
         }
     }
@@ -424,7 +467,9 @@ data::ValidationReport validate_runtime_caravan_cargo_delivery_result(
         if (entry.amount == 0) {
             report.add_error("runtime.cargo_delivery.delivered.amount", "amount must be greater than zero");
         }
-        calculated_total += entry.amount;
+        if (!checked_add_u64(calculated_total, entry.amount)) {
+            report.add_error("runtime.cargo_delivery.total_amount", "delivered entry sum overflow");
+        }
     }
 
     if (calculated_total != result.total_amount) {
@@ -462,7 +507,9 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result(
             delivery_caravan_ids.push_back(delivery.caravan_id);
         }
 
-        calculated_total += delivery.total_amount;
+        if (!checked_add_u64(calculated_total, delivery.total_amount)) {
+            report.add_error("runtime.bulk_cargo_delivery.total_amount", "delivery total sum overflow");
+        }
     }
 
     if (calculated_total != result.total_amount) {
@@ -541,11 +588,12 @@ data::ValidationReport validate_runtime_bulk_cargo_delivery_result_for_runtime(
         }
 
         for (const auto& entry : delivery.delivered) {
-            add_delivery_aggregate(
+            (void)add_delivery_aggregate(
                 aggregates,
                 delivery.destination_settlement_id,
                 entry.resource_id,
-                entry.amount
+                entry.amount,
+                report
             );
         }
     }
