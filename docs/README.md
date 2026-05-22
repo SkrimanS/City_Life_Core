@@ -16,6 +16,7 @@ This directory contains developer-facing documentation for integrating City Life
 | `PUBLIC_API.md` | Public SDK API, recommended include, validation model, workflows and usage rules. |
 | `SDK_STRUCTURE.md` | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | `PACKAGING.md` | Build, install and consume the SDK through CMake. |
+| `CMAKE_PACKAGE.md` | Exported CMake target and installed package directory variables. |
 | `SDK_ZIP_PACKAGE.md` | Build and consume a CPack ZIP SDK archive. |
 
 ---
