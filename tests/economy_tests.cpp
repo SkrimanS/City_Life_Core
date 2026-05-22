@@ -94,6 +94,13 @@ int main() {
     require(report.average_price >= report.min_price, "market report average price should be >= min price");
     require(report.average_price <= report.max_price, "market report average price should be <= max price");
 
+    const auto* grain_price = clc::economy::market_price_by_resource(report, "grain");
+    require(grain_price != nullptr, "market report lookup should find grain");
+    require(grain_price->resource_id == "grain", "market report lookup should return matching resource");
+    require(clc::economy::market_price_or(report, "grain", 12345) == grain_price->price, "market price_or should return real price");
+    require(clc::economy::market_price_by_resource(report, "missing") == nullptr, "market report lookup should return nullptr for missing resource");
+    require(clc::economy::market_price_or(report, "missing", 12345) == 12345, "market price_or should return fallback for missing resource");
+
     clc::sim::ResourceStorage empty_storage;
     const auto empty_report = clc::economy::make_market_report(registry, empty_storage, market);
     require(empty_report.prices.size() == 3, "empty storage with registered demand should still report demand-only prices");
