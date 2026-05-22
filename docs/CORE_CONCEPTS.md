@@ -252,6 +252,14 @@ clc::sim::run_runtime_days(runtime, 3);
 
 ## 10. Economy and ledger
 
+Market reports provide prices for registered supplied resources and registered demand-only resources.
+
+```cpp
+auto report = clc::economy::make_market_report(registry, storage, market);
+const auto* grain_price = clc::economy::market_price_by_resource(report, "grain");
+auto fallback_price = clc::economy::market_price_or(report, "missing", 10);
+```
+
 Recommended trade path:
 
 ```cpp
