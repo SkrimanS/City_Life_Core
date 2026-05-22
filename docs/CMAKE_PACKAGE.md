@@ -68,7 +68,12 @@ foreach(required_dir IN ITEMS
 endforeach()
 ```
 
-`examples/find_package_consumer/` performs this check.
+Both standalone consumers perform this check:
+
+```text
+examples/find_package_consumer/
+examples/c_abi_consumer/
+```
 
 ---
 
@@ -120,7 +125,7 @@ Recommended C include:
 
 The CI workflow checks the package in three ways:
 
-1. `cmake --install` prefix consumer.
+1. `cmake --install` prefix consumers.
 2. Unpacked SDK ZIP C++ consumer.
 3. Unpacked SDK ZIP C consumer for the minimal C interface.
 
