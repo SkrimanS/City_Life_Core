@@ -43,7 +43,7 @@ This checklist must be completed before publishing a public SDK release or relea
 
 - [ ] License model is chosen: proprietary/source-available/open-source/dual-license.
 - [ ] External contribution policy is chosen.
-- [ ] `CONTRIBUTING.md` exists or contributions are explicitly closed for now.
+- [ ] `CONTRIBUTING.md` exists and documents restricted contributions until final license/contribution policy is chosen.
 - [ ] DCO/CLA policy is chosen if external contributions are accepted.
 - [ ] `main` branch is protected.
 - [ ] Force push is disabled for protected branches.
