@@ -9,6 +9,20 @@ This document describes the intended SDK and release structure for City Life Cor
 
 ---
 
+## Release governance documents / Документы управления релизом
+
+Before the 1.0.0 API freeze, SDK users and auditors should also read:
+
+Перед freeze API для 1.0.0 пользователям SDK и аудиторам также нужно смотреть:
+
+- [Public API Status / Статус публичного API](PUBLIC_API_STATUS.md)
+- [Versioning Policy / Политика версионирования](VERSIONING.md)
+- [Compatibility Policy / Политика совместимости](COMPATIBILITY.md)
+- [Migration Guide / Руководство по миграции](MIGRATION.md)
+- [Release Checklist / Чеклист релиза](RELEASE_CHECKLIST.md)
+
+---
+
 ## Русский
 
 ### Цель SDK
@@ -72,13 +86,19 @@ city-life-core-sdk-0.9.9/
     demo_fantasy/
   docs/
     PUBLIC_API.md
+    PUBLIC_API_STATUS.md
     SDK_STRUCTURE.md
+    VERSIONING.md
+    COMPATIBILITY.md
+    MIGRATION.md
     PACKAGING.md
+    RELEASE_CHECKLIST.md
     RELEASE_NOTES_0.9.9.md
   tests/                       # optional, for integrators and auditors
   CMakeLists.txt
   README.md
   CHANGELOG.md
+  LICENSE                      # required before public release
 ```
 
 Для будущего binary release:
@@ -99,8 +119,13 @@ city-life-core-sdk-1.0.0/
     demo_fantasy/
   docs/
     PUBLIC_API.md
+    PUBLIC_API_STATUS.md
     SDK_STRUCTURE.md
+    VERSIONING.md
+    COMPATIBILITY.md
+    MIGRATION.md
     PACKAGING.md
+    RELEASE_CHECKLIST.md
   examples/
     basic_runtime.cpp
     save_load_roundtrip.cpp
@@ -109,7 +134,7 @@ city-life-core-sdk-1.0.0/
 
 ### Public include policy
 
-Публичными считаются headers внутри `include/clc/`.
+Headers inside `include/clc/` are installed, but their stability level is defined in [PUBLIC_API_STATUS.md](PUBLIC_API_STATUS.md). До 1.0.0 нельзя считать все installed headers одинаково stable.
 
 Рекомендуемые точки входа:
 
@@ -219,22 +244,7 @@ C ABI не должен появляться раньше, чем будут з�
 
 ### Release readiness checklist
 
-Перед merge/release block:
-
-- version updated in `CMakeLists.txt`;
-- version updated in `include/clc/core/Version.hpp`;
-- smoke test expects the same version;
-- README reflects current phase;
-- CHANGELOG has release notes;
-- PUBLIC_API is up to date;
-- SDK_STRUCTURE is up to date;
-- PACKAGING is up to date;
-- release notes exist for the target version;
-- SDK examples build registration is up to date;
-- new tests are registered in CMake;
-- `main` receives only completed blocks;
-- no force push;
-- no accidental PR/CI run unless explicitly requested.
+Полный чеклист вынесен в [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ---
 
@@ -301,13 +311,19 @@ city-life-core-sdk-0.9.9/
     demo_fantasy/
   docs/
     PUBLIC_API.md
+    PUBLIC_API_STATUS.md
     SDK_STRUCTURE.md
+    VERSIONING.md
+    COMPATIBILITY.md
+    MIGRATION.md
     PACKAGING.md
+    RELEASE_CHECKLIST.md
     RELEASE_NOTES_0.9.9.md
   tests/                       # optional for integrators and auditors
   CMakeLists.txt
   README.md
   CHANGELOG.md
+  LICENSE                      # required before public release
 ```
 
 Future binary release:
@@ -328,8 +344,13 @@ city-life-core-sdk-1.0.0/
     demo_fantasy/
   docs/
     PUBLIC_API.md
+    PUBLIC_API_STATUS.md
     SDK_STRUCTURE.md
+    VERSIONING.md
+    COMPATIBILITY.md
+    MIGRATION.md
     PACKAGING.md
+    RELEASE_CHECKLIST.md
   examples/
     basic_runtime.cpp
     save_load_roundtrip.cpp
@@ -338,7 +359,7 @@ city-life-core-sdk-1.0.0/
 
 ### Public include policy
 
-Headers under `include/clc/` are the public include surface.
+Headers under `include/clc/` are installed, but their stability level is defined in [PUBLIC_API_STATUS.md](PUBLIC_API_STATUS.md). Before 1.0.0, not every installed header should be treated as equally stable.
 
 Recommended entry points:
 
@@ -448,19 +469,4 @@ C ABI should not begin before:
 
 ### Release readiness checklist
 
-Before each merge/release block:
-
-- version updated in `CMakeLists.txt`;
-- version updated in `include/clc/core/Version.hpp`;
-- smoke test expects the same version;
-- README reflects current phase;
-- CHANGELOG has release notes;
-- PUBLIC_API is up to date;
-- SDK_STRUCTURE is up to date;
-- PACKAGING is up to date;
-- release notes exist for the target version;
-- SDK examples build registration is up to date;
-- new tests are registered in CMake;
-- `main` receives only completed blocks;
-- no force push;
-- no accidental PR/CI run unless explicitly requested.
+The full release checklist lives in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
