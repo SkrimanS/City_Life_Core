@@ -177,6 +177,7 @@ if(CLC_BUILD_TESTS)
     endfunction()
 
     clc_add_test(clc_smoke_tests tests/smoke_tests.cpp)
+    clc_add_test(clc_umbrella_header_tests tests/umbrella_header_tests.cpp)
     clc_add_test(clc_time_hardening_tests tests/time_hardening_tests.cpp)
     clc_add_test(clc_storage_hardening_tests tests/storage_hardening_tests.cpp)
     clc_add_test(clc_economy_tests tests/economy_tests.cpp)
