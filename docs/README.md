@@ -16,6 +16,7 @@ This directory contains developer-facing documentation for integrating City Life
 | `PUBLIC_API.md` | Public SDK API, recommended include, validation model, workflows and usage rules. |
 | `SDK_STRUCTURE.md` | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | `PACKAGING.md` | Build, install and consume the SDK through CMake. |
+| `SDK_ZIP_PACKAGE.md` | Build and consume a CPack ZIP SDK archive. |
 
 ---
 
@@ -24,6 +25,7 @@ This directory contains developer-facing documentation for integrating City Life
 | Document | Purpose |
 | --- | --- |
 | `PUBLIC_API_STATUS.md` | Header-by-header usage classification. |
+| `C_ABI.md` | Minimal C interface for version and time utilities. |
 | `COMPATIBILITY.md` | Time, events, save/load, validation and source/binary compatibility rules. |
 | `MIGRATION.md` | Instructions for updating older integrations. |
 
@@ -50,10 +52,16 @@ find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
 
-Recommended include:
+Recommended C++ include:
 
 ```cpp
 #include "clc/CityLifeCore.hpp"
+```
+
+Minimal C interface include:
+
+```c
+#include "clc/c/CityLifeCoreC.h"
 ```
 
 ---
