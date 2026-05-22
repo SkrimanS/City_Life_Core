@@ -18,6 +18,7 @@ This directory contains developer-facing documentation for integrating City Life
 | `PACKAGING.md` | Build, install and consume the SDK through CMake. |
 | `CMAKE_PACKAGE.md` | Exported CMake target and installed package directory variables. |
 | `SDK_ZIP_PACKAGE.md` | Build and consume a CPack ZIP SDK archive. |
+| `BUILD_AND_LINKING_POLICY.md` | Static/shared, source-first and binary compatibility policy. |
 
 ---
 
