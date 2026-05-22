@@ -1,472 +1,557 @@
 # City Life Core SDK Structure / Структура SDK
 
-Version: **0.9.9**  
-Status: **pre-1.0 audit build / сборка для аудита перед 1.0**
+Version: **0.9.9**
 
-This document describes the intended SDK and release structure for City Life Core before 1.0.0. The project is currently a source-first C++ SDK. Binary packages and C ABI are not finalized yet.
+This document explains how the City Life Core SDK is organized and how external C++ projects should consume it.
 
-Этот документ описывает целевую структуру SDK и релиза City Life Core перед 1.0.0. Сейчас проект является source-first C++ SDK. Бинарные пакеты и C ABI ещё не финализированы.
-
----
-
-## Release governance documents / Документы управления релизом
-
-Before the 1.0.0 API freeze, SDK users and auditors should also read:
-
-Перед freeze API для 1.0.0 пользователям SDK и аудиторам также нужно смотреть:
-
-- [Public API Status / Статус публичного API](PUBLIC_API_STATUS.md)
-- [Versioning Policy / Политика версионирования](VERSIONING.md)
-- [Compatibility Policy / Политика совместимости](COMPATIBILITY.md)
-- [Migration Guide / Руководство по миграции](MIGRATION.md)
-- [Release Checklist / Чеклист релиза](RELEASE_CHECKLIST.md)
+Этот документ объясняет, как устроен SDK City Life Core и как внешним C++ проектам его подключать.
 
 ---
 
 ## Русский
 
-### Цель SDK
+### Назначение SDK
 
-SDK должен позволять внешнему проекту подключить City Life Core как независимое headless-ядро симуляции:
+City Life Core SDK предоставляет headless C++20 simulation core, который можно встроить в игру, сервер, редактор мира, backend-сервис или MMO runtime слой.
 
-- без графики;
-- без клиентского UI;
-- без зависимости от конкретного игрового движка;
-- с понятной C++ API поверх runtime workflows;
-- с day-based и tick-based runtime;
-- с поддержкой real-time/MMO сценариев через секунды, минуты и часы;
-- с тестируемым persistence/replay поведением;
-- с будущей возможностью server-authoritative backend integration.
+SDK содержит:
 
-### Текущая структура репозитория
+- public headers;
+- C++ implementation;
+- CMake target `CityLifeCore::core`;
+- examples;
+- demo data;
+- developer documentation;
+- tests and benchmarks for integrators who build from source.
+
+### Рекомендуемый include
+
+Для большинства пользователей:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Этот umbrella header подключает основной SDK surface: core, data registry, economy, storage, settlements, runtime workflows, routes, caravans, factions, ownership, contracts, diagnostics и tick runtime.
+
+Для крупных проектов можно подключать headers точечно:
+
+```cpp
+#include "clc/core/Time.hpp"
+#include "clc/data/DataRegistry.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
+#include "clc/economy/Trade.hpp"
+```
+
+### Repository layout
 
 ```text
 apps/
-  clc_runner/                  # минимальный CLI/bootstrap runner
+  clc_runner/                  # minimal CLI/bootstrap runner
+benchmarks/                    # optional coarse benchmark runner
+cmake/                         # CMake package config template
 examples/                      # SDK examples for external users
   basic_runtime.cpp
+  tick_runtime.cpp
   save_load_roundtrip.cpp
   replay_persistence.cpp
+  find_package_consumer/
 include/
   clc/
-    core/                      # version, time, world, event log
+    CityLifeCore.hpp           # recommended SDK umbrella header
+    core/                      # version, ids, result, time, event log, world
     data/                      # definitions, registry, validation, data packs
     economy/                   # market, trade, ledger, orders
-    sim/                       # simulation, runtime, persistence, workflows
+    sim/                       # storage, settlements, runtime, routes, caravans, contracts, persistence
 src/
   clc/                         # implementation files
 tests/                         # executable tests registered through CMake
 data/
   demo_fantasy/                # demo data pack material
-docs/                          # public documentation
+docs/                          # developer documentation
 CMakeLists.txt
 README.md
 CHANGELOG.md
 ```
 
-### Целевая release SDK layout
+### Installed SDK layout
 
-Для source/audit release:
+A CMake install produces a layout based on GNUInstallDirs:
 
 ```text
-city-life-core-sdk-0.9.9/
+<prefix>/
   include/
     clc/
+      CityLifeCore.hpp
       core/
       data/
       economy/
       sim/
-  src/
-    clc/
-  examples/
-    basic_runtime.cpp
-    save_load_roundtrip.cpp
-    replay_persistence.cpp
-  data/
-    demo_fantasy/
-  docs/
-    PUBLIC_API.md
-    PUBLIC_API_STATUS.md
-    SDK_STRUCTURE.md
-    VERSIONING.md
-    COMPATIBILITY.md
-    MIGRATION.md
-    PACKAGING.md
-    RELEASE_CHECKLIST.md
-    RELEASE_NOTES_0.9.9.md
-  tests/                       # optional, for integrators and auditors
-  CMakeLists.txt
-  README.md
-  CHANGELOG.md
-  LICENSE                      # required before public release
-```
-
-Для будущего binary release:
-
-```text
-city-life-core-sdk-1.0.0/
-  include/
-    clc/
   lib/
+    libcity_life_core.*
     cmake/CityLifeCore/
-    <platform libraries>
-  bin/
-    clc_runner                 # optional tools
-    clc_example_basic_runtime
-    clc_example_save_load_roundtrip
-    clc_example_replay_persistence
-  data/
+      CityLifeCoreConfig.cmake
+      CityLifeCoreConfigVersion.cmake
+      CityLifeCoreTargets.cmake
+  share/doc/CityLifeCore/
+    README.md
+    CHANGELOG.md
+    *.md
+    examples/
+  share/CityLifeCore/data/
     demo_fantasy/
-  docs/
-    PUBLIC_API.md
-    PUBLIC_API_STATUS.md
-    SDK_STRUCTURE.md
-    VERSIONING.md
-    COMPATIBILITY.md
-    MIGRATION.md
-    PACKAGING.md
-    RELEASE_CHECKLIST.md
-  examples/
-    basic_runtime.cpp
-    save_load_roundtrip.cpp
-    replay_persistence.cpp
 ```
 
-### Public include policy
+On platforms/generators with different `CMAKE_INSTALL_LIBDIR`, `lib/` may be `lib64/` or another configured library directory.
 
-Headers inside `include/clc/` are installed, but their stability level is defined in [PUBLIC_API_STATUS.md](PUBLIC_API_STATUS.md). До 1.0.0 нельзя считать все installed headers одинаково stable.
+### CMake integration modes
 
-Рекомендуемые точки входа:
-
-```cpp
-#include "clc/core/Version.hpp"
-#include "clc/core/Time.hpp"
-#include "clc/data/DataRegistry.hpp"
-#include "clc/data/Definitions.hpp"
-#include "clc/sim/SimulationRuntimeScenario.hpp"
-#include "clc/sim/SimulationRuntimeWorkflow.hpp"
-#include "clc/sim/SimulationRuntimeTick.hpp"
-#include "clc/sim/SimulationRuntimeEvents.hpp"
-#include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
-```
-
-Внешнему коду лучше начинать с runtime-level API, а не собирать все подсистемы вручную:
-
-```cpp
-auto bootstrap = clc::sim::make_basic_runtime_scenario();
-auto& runtime = bootstrap.runtime;
-```
-
-### C++ SDK boundary в 0.9.9
-
-В C++ SDK входят:
-
-- definitions and registry;
-- validation reports;
-- resource storage;
-- simulation engine;
-- settlement day and partial tick simulation;
-- settlement routes with day/tick travel;
-- caravans with day/tick progress;
-- factions and ownership;
-- contracts, `due_day`, `due_ticks`, rewards, and ledger integration;
-- economy ledger;
-- runtime workflows;
-- tick-based runtime helpers;
-- day/tick runtime event diagnostics;
-- runtime save/load;
-- semantic runtime validation;
-- legacy save compatibility for missing `time` and missing `due_ticks`.
-
-Пока не считать стабильным:
-
-- окончательные имена всех workflow helpers;
-- binary package layout;
-- C ABI;
-- binary compatibility;
-- plugin/data-pack ABI;
-- network/server action protocol.
-
-### SDK examples
-
-При `CLC_BUILD_EXAMPLES=ON` CMake собирает:
-
-- `clc_example_basic_runtime` — bootstrap runtime, ticks, summary;
-- `clc_example_save_load_roundtrip` — save/load roundtrip validation;
-- `clc_example_replay_persistence` — midpoint persistence and deterministic replay continuation.
-
-```bash
-cmake -S . -B build -DCLC_BUILD_EXAMPLES=ON
-cmake --build build
-./build/clc_example_basic_runtime
-./build/clc_example_save_load_roundtrip
-./build/clc_example_replay_persistence
-```
-
-### Recommended integration modes
-
-#### 1. CMake subdirectory
-
-```cmake
-add_subdirectory(external/City_Life_Core)
-target_link_libraries(my_game PRIVATE CityLifeCore::core)
-```
-
-#### 2. Source vendoring
-
-Copy `include/`, `src/`, `examples/`, `data/`, `docs/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
-
-#### 3. Package mode
+#### 1. Installed package
 
 ```cmake
 find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_game PRIVATE CityLifeCore::core)
 ```
 
-### Future C ABI
+Configure with the install prefix:
 
-C ABI пока не готов. Его стоит начинать только после стабилизации C++ SDK surface.
+```bash
+cmake -S my_game -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
+```
 
-Цели будущего C ABI:
+#### 2. Subdirectory
 
-- использовать ядро из C, C#, Rust, Python bindings, game engines;
-- скрыть C++ ABI;
-- дать opaque handles для runtime/registry/reports;
-- вернуть validation errors через plain C structs или callback buffers.
+```cmake
+add_subdirectory(external/City_Life_Core)
+target_link_libraries(my_game PRIVATE CityLifeCore::core)
+```
 
-C ABI не должен появляться раньше, чем будут закрыты:
+When used as a subdirectory, tests/examples/tools are not enabled by default unless explicitly requested.
 
-- Public SDK API naming;
-- runtime tick consequences;
-- persistence/replay stability;
-- release package layout;
-- external docs.
+#### 3. Source vendoring
 
-### Release readiness checklist
+A project may vendor the source tree and build `city_life_core` as part of its normal build. The recommended target remains:
 
-Полный чеклист вынесен в [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+```cmake
+CityLifeCore::core
+```
+
+### CMake options
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `CLC_BUILD_TESTS` | `ON` only for top-level project | Build tests |
+| `CLC_BUILD_EXAMPLES` | `ON` only for top-level project | Build examples |
+| `CLC_BUILD_TOOLS` | `ON` only for top-level project | Build CLI tools |
+| `CLC_BUILD_BENCHMARKS` | `OFF` | Build coarse benchmark executables |
+
+### SDK modules
+
+#### Core
+
+Headers:
+
+```text
+include/clc/core/
+```
+
+Main concepts:
+
+- version information;
+- IDs/result helpers;
+- `GameTime`;
+- ticks per second/minute/hour/day;
+- event log;
+- world lifecycle basics.
+
+#### Data
+
+Headers:
+
+```text
+include/clc/data/
+```
+
+Main concepts:
+
+- `ResourceDefinition`;
+- `BuildingDefinition`;
+- `ProfessionDefinition`;
+- `SettlementDefinition`;
+- `DataRegistry`;
+- validation reports;
+- optional data-pack loading.
+
+#### Simulation
+
+Headers:
+
+```text
+include/clc/sim/
+```
+
+Main concepts:
+
+- `ResourceStorage`;
+- `SettlementState`;
+- `SimulationEngine`;
+- `SimulationRuntime`;
+- routes and caravans;
+- factions and ownership;
+- delivery contracts;
+- runtime workflows;
+- tick/day runtime execution;
+- persistence and diagnostics.
+
+#### Economy
+
+Headers:
+
+```text
+include/clc/economy/
+```
+
+Main concepts:
+
+- market prices;
+- wallet;
+- buy/sell trade;
+- ledger entries;
+- trade+ledger wrapper helpers;
+- experimental orders layer.
+
+### Runtime workflow layer
+
+For external users, the runtime workflow layer is usually the best entry point:
+
+```cpp
+auto bootstrap = clc::sim::make_basic_runtime_scenario();
+if (!bootstrap.ok()) {
+    return;
+}
+
+auto& runtime = bootstrap.runtime;
+clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
+```
+
+Workflow helpers preserve more invariants than direct mutation of runtime fields.
+
+### Public header stability
+
+All headers under `include/clc/` are installed. Stability and recommended usage are documented in:
+
+```text
+docs/PUBLIC_API_STATUS.md
+```
+
+General rule:
+
+- prefer `clc/CityLifeCore.hpp` or stable-candidate headers;
+- use experimental headers deliberately;
+- treat raw persistence bridge and demo/helper layers as specialized APIs, not the default SDK entry point.
+
+### Examples
+
+When `CLC_BUILD_EXAMPLES=ON`, CMake builds:
+
+- `clc_example_basic_runtime`;
+- `clc_example_tick_runtime`;
+- `clc_example_save_load_roundtrip`;
+- `clc_example_replay_persistence`.
+
+External package consumer example:
+
+```text
+examples/find_package_consumer/
+```
+
+### Benchmarks
+
+Optional benchmark target:
+
+```bash
+cmake -S . -B build-bench -DCLC_BUILD_BENCHMARKS=ON -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake --build build-bench --target clc_core_benchmarks
+./build-bench/clc_core_benchmarks
+```
+
+Benchmarks print baseline metrics and are not a substitute for game-specific profiling.
+
+### C ABI
+
+This SDK currently exposes a C++ API. A C ABI is not part of the current public interface. Integrations should use the C++ SDK target unless a future release documents a separate C ABI.
 
 ---
 
 ## English
 
-### SDK goal
+### SDK purpose
 
-The SDK should let external projects integrate City Life Core as an independent headless simulation core:
+City Life Core SDK provides a headless C++20 simulation core that can be embedded into a game, server, world editor, backend service, or MMO runtime layer.
 
-- no rendering dependency;
-- no client UI dependency;
-- no game-engine lock-in;
-- clear C++ API around runtime workflows;
-- day-based and tick-based runtime;
-- real-time/MMO scenarios measured in seconds, minutes, and hours;
-- testable persistence/replay behavior;
-- future server-authoritative backend integration.
+The SDK contains:
 
-### Current repository structure
+- public headers;
+- C++ implementation;
+- CMake target `CityLifeCore::core`;
+- examples;
+- demo data;
+- developer documentation;
+- tests and benchmarks for source integrators.
+
+### Recommended include
+
+For most users:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+This umbrella header includes the main SDK surface: core, data registry, economy, storage, settlements, runtime workflows, routes, caravans, factions, ownership, contracts, diagnostics and tick runtime.
+
+Large projects may include headers more selectively:
+
+```cpp
+#include "clc/core/Time.hpp"
+#include "clc/data/DataRegistry.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
+#include "clc/economy/Trade.hpp"
+```
+
+### Repository layout
 
 ```text
 apps/
   clc_runner/                  # minimal CLI/bootstrap runner
+benchmarks/                    # optional coarse benchmark runner
+cmake/                         # CMake package config template
 examples/                      # SDK examples for external users
   basic_runtime.cpp
+  tick_runtime.cpp
   save_load_roundtrip.cpp
   replay_persistence.cpp
+  find_package_consumer/
 include/
   clc/
-    core/                      # version, time, world, event log
+    CityLifeCore.hpp           # recommended SDK umbrella header
+    core/                      # version, ids, result, time, event log, world
     data/                      # definitions, registry, validation, data packs
     economy/                   # market, trade, ledger, orders
-    sim/                       # simulation, runtime, persistence, workflows
+    sim/                       # storage, settlements, runtime, routes, caravans, contracts, persistence
 src/
   clc/                         # implementation files
 tests/                         # executable tests registered through CMake
 data/
   demo_fantasy/                # demo data pack material
-docs/                          # public documentation
+docs/                          # developer documentation
 CMakeLists.txt
 README.md
 CHANGELOG.md
 ```
 
-### Target release SDK layout
+### Installed SDK layout
 
-Source/audit release:
+A CMake install produces a layout based on GNUInstallDirs:
 
 ```text
-city-life-core-sdk-0.9.9/
+<prefix>/
   include/
     clc/
+      CityLifeCore.hpp
       core/
       data/
       economy/
       sim/
-  src/
-    clc/
-  examples/
-    basic_runtime.cpp
-    save_load_roundtrip.cpp
-    replay_persistence.cpp
-  data/
-    demo_fantasy/
-  docs/
-    PUBLIC_API.md
-    PUBLIC_API_STATUS.md
-    SDK_STRUCTURE.md
-    VERSIONING.md
-    COMPATIBILITY.md
-    MIGRATION.md
-    PACKAGING.md
-    RELEASE_CHECKLIST.md
-    RELEASE_NOTES_0.9.9.md
-  tests/                       # optional for integrators and auditors
-  CMakeLists.txt
-  README.md
-  CHANGELOG.md
-  LICENSE                      # required before public release
-```
-
-Future binary release:
-
-```text
-city-life-core-sdk-1.0.0/
-  include/
-    clc/
   lib/
+    libcity_life_core.*
     cmake/CityLifeCore/
-    <platform libraries>
-  bin/
-    clc_runner                 # optional tools
-    clc_example_basic_runtime
-    clc_example_save_load_roundtrip
-    clc_example_replay_persistence
-  data/
+      CityLifeCoreConfig.cmake
+      CityLifeCoreConfigVersion.cmake
+      CityLifeCoreTargets.cmake
+  share/doc/CityLifeCore/
+    README.md
+    CHANGELOG.md
+    *.md
+    examples/
+  share/CityLifeCore/data/
     demo_fantasy/
-  docs/
-    PUBLIC_API.md
-    PUBLIC_API_STATUS.md
-    SDK_STRUCTURE.md
-    VERSIONING.md
-    COMPATIBILITY.md
-    MIGRATION.md
-    PACKAGING.md
-    RELEASE_CHECKLIST.md
-  examples/
-    basic_runtime.cpp
-    save_load_roundtrip.cpp
-    replay_persistence.cpp
 ```
 
-### Public include policy
+On platforms/generators with different `CMAKE_INSTALL_LIBDIR`, `lib/` may be `lib64/` or another configured library directory.
 
-Headers under `include/clc/` are installed, but their stability level is defined in [PUBLIC_API_STATUS.md](PUBLIC_API_STATUS.md). Before 1.0.0, not every installed header should be treated as equally stable.
+### CMake integration modes
 
-Recommended entry points:
-
-```cpp
-#include "clc/core/Version.hpp"
-#include "clc/core/Time.hpp"
-#include "clc/data/DataRegistry.hpp"
-#include "clc/data/Definitions.hpp"
-#include "clc/sim/SimulationRuntimeScenario.hpp"
-#include "clc/sim/SimulationRuntimeWorkflow.hpp"
-#include "clc/sim/SimulationRuntimeTick.hpp"
-#include "clc/sim/SimulationRuntimeEvents.hpp"
-#include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
-```
-
-External code should prefer runtime-level APIs over manually wiring every subsystem:
-
-```cpp
-auto bootstrap = clc::sim::make_basic_runtime_scenario();
-auto& runtime = bootstrap.runtime;
-```
-
-### C++ SDK boundary in 0.9.9
-
-The C++ SDK currently includes:
-
-- definitions and registry;
-- validation reports;
-- resource storage;
-- simulation engine;
-- settlement day and partial tick simulation;
-- settlement routes with day/tick travel;
-- caravans with day/tick progress;
-- factions and ownership;
-- contracts, `due_day`, `due_ticks`, rewards, and ledger integration;
-- economy ledger;
-- runtime workflows;
-- tick-based runtime helpers;
-- day/tick runtime event diagnostics;
-- runtime save/load;
-- semantic runtime validation;
-- legacy save compatibility for missing `time` and missing `due_ticks`.
-
-Still not fully stable:
-
-- final workflow helper naming;
-- binary package layout;
-- C ABI;
-- binary compatibility;
-- plugin/data-pack ABI;
-- network/server action protocol.
-
-### SDK examples
-
-When `CLC_BUILD_EXAMPLES=ON`, CMake builds:
-
-- `clc_example_basic_runtime` — runtime bootstrap, ticks, and summary;
-- `clc_example_save_load_roundtrip` — save/load roundtrip validation;
-- `clc_example_replay_persistence` — midpoint persistence and deterministic replay continuation.
-
-```bash
-cmake -S . -B build -DCLC_BUILD_EXAMPLES=ON
-cmake --build build
-./build/clc_example_basic_runtime
-./build/clc_example_save_load_roundtrip
-./build/clc_example_replay_persistence
-```
-
-### Recommended integration modes
-
-#### 1. CMake subdirectory
-
-```cmake
-add_subdirectory(external/City_Life_Core)
-target_link_libraries(my_game PRIVATE CityLifeCore::core)
-```
-
-#### 2. Source vendoring
-
-Copy `include/`, `src/`, `examples/`, `data/`, `docs/`, and `CMakeLists.txt` into your vendor tree and link `CityLifeCore::core`.
-
-#### 3. Package mode
+#### 1. Installed package
 
 ```cmake
 find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_game PRIVATE CityLifeCore::core)
 ```
 
-### Future C ABI
+Configure with the install prefix:
 
-C ABI is not ready yet. It should start only after the C++ SDK surface is stable.
+```bash
+cmake -S my_game -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
+```
 
-Expected C ABI goals:
+#### 2. Subdirectory
 
-- use the core from C, C#, Rust, Python bindings, and game engines;
-- hide C++ ABI details;
-- provide opaque handles for runtime/registry/reports;
-- expose validation errors through plain C structs or callback buffers.
+```cmake
+add_subdirectory(external/City_Life_Core)
+target_link_libraries(my_game PRIVATE CityLifeCore::core)
+```
 
-C ABI should not begin before:
+When used as a subdirectory, tests/examples/tools are not enabled by default unless explicitly requested.
 
-- Public SDK API naming is stable;
-- runtime tick consequences are complete;
-- persistence/replay stability is strong;
-- release package layout is defined;
-- external docs exist.
+#### 3. Source vendoring
 
-### Release readiness checklist
+A project may vendor the source tree and build `city_life_core` as part of its normal build. The recommended target remains:
 
-The full release checklist lives in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+```cmake
+CityLifeCore::core
+```
+
+### CMake options
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `CLC_BUILD_TESTS` | `ON` only for top-level project | Build tests |
+| `CLC_BUILD_EXAMPLES` | `ON` only for top-level project | Build examples |
+| `CLC_BUILD_TOOLS` | `ON` only for top-level project | Build CLI tools |
+| `CLC_BUILD_BENCHMARKS` | `OFF` | Build coarse benchmark executables |
+
+### SDK modules
+
+#### Core
+
+Headers:
+
+```text
+include/clc/core/
+```
+
+Main concepts:
+
+- version information;
+- IDs/result helpers;
+- `GameTime`;
+- ticks per second/minute/hour/day;
+- event log;
+- world lifecycle basics.
+
+#### Data
+
+Headers:
+
+```text
+include/clc/data/
+```
+
+Main concepts:
+
+- `ResourceDefinition`;
+- `BuildingDefinition`;
+- `ProfessionDefinition`;
+- `SettlementDefinition`;
+- `DataRegistry`;
+- validation reports;
+- optional data-pack loading.
+
+#### Simulation
+
+Headers:
+
+```text
+include/clc/sim/
+```
+
+Main concepts:
+
+- `ResourceStorage`;
+- `SettlementState`;
+- `SimulationEngine`;
+- `SimulationRuntime`;
+- routes and caravans;
+- factions and ownership;
+- delivery contracts;
+- runtime workflows;
+- tick/day runtime execution;
+- persistence and diagnostics.
+
+#### Economy
+
+Headers:
+
+```text
+include/clc/economy/
+```
+
+Main concepts:
+
+- market prices;
+- wallet;
+- buy/sell trade;
+- ledger entries;
+- trade+ledger wrapper helpers;
+- experimental orders layer.
+
+### Runtime workflow layer
+
+For external users, the runtime workflow layer is usually the best entry point:
+
+```cpp
+auto bootstrap = clc::sim::make_basic_runtime_scenario();
+if (!bootstrap.ok()) {
+    return;
+}
+
+auto& runtime = bootstrap.runtime;
+clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
+```
+
+Workflow helpers preserve more invariants than direct mutation of runtime fields.
+
+### Public header stability
+
+All headers under `include/clc/` are installed. Stability and recommended usage are documented in:
+
+```text
+docs/PUBLIC_API_STATUS.md
+```
+
+General rule:
+
+- prefer `clc/CityLifeCore.hpp` or stable-candidate headers;
+- use experimental headers deliberately;
+- treat raw persistence bridge and demo/helper layers as specialized APIs, not the default SDK entry point.
+
+### Examples
+
+When `CLC_BUILD_EXAMPLES=ON`, CMake builds:
+
+- `clc_example_basic_runtime`;
+- `clc_example_tick_runtime`;
+- `clc_example_save_load_roundtrip`;
+- `clc_example_replay_persistence`.
+
+External package consumer example:
+
+```text
+examples/find_package_consumer/
+```
+
+### Benchmarks
+
+Optional benchmark target:
+
+```bash
+cmake -S . -B build-bench -DCLC_BUILD_BENCHMARKS=ON -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake --build build-bench --target clc_core_benchmarks
+./build-bench/clc_core_benchmarks
+```
+
+Benchmarks print baseline metrics and are not a substitute for game-specific profiling.
+
+### C ABI
+
+This SDK currently exposes a C++ API. A C ABI is not part of the current public interface. Integrations should use the C++ SDK target unless a future release documents a separate C ABI.
