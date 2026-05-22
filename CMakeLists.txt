@@ -9,8 +9,19 @@ project(CityLifeCore
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-option(CLC_BUILD_TESTS "Build City Life Core tests" ON)
-option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ON)
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(CLC_IS_TOP_LEVEL ON)
+else()
+    set(CLC_IS_TOP_LEVEL OFF)
+endif()
+
+set(CLC_DEFAULT_BUILD_TESTS ${CLC_IS_TOP_LEVEL})
+set(CLC_DEFAULT_BUILD_EXAMPLES ${CLC_IS_TOP_LEVEL})
+set(CLC_DEFAULT_BUILD_TOOLS ${CLC_IS_TOP_LEVEL})
+
+option(CLC_BUILD_TESTS "Build City Life Core tests" ${CLC_DEFAULT_BUILD_TESTS})
+option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ${CLC_DEFAULT_BUILD_EXAMPLES})
+option(CLC_BUILD_TOOLS "Build City Life Core command line tools" ${CLC_DEFAULT_BUILD_TOOLS})
 
 set(CLC_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore" CACHE STRING "City Life Core CMake package install directory")
 
@@ -70,12 +81,17 @@ else()
     target_compile_options(city_life_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(clc_runner apps/clc_runner/main.cpp)
-target_link_libraries(clc_runner PRIVATE CityLifeCore::core)
+if(CLC_BUILD_TOOLS)
+    add_executable(clc_runner apps/clc_runner/main.cpp)
+    target_link_libraries(clc_runner PRIVATE CityLifeCore::core)
+endif()
 
 if(CLC_BUILD_EXAMPLES)
     add_executable(clc_example_basic_runtime examples/basic_runtime.cpp)
     target_link_libraries(clc_example_basic_runtime PRIVATE CityLifeCore::core)
+
+    add_executable(clc_example_tick_runtime examples/tick_runtime.cpp)
+    target_link_libraries(clc_example_tick_runtime PRIVATE CityLifeCore::core)
 
     add_executable(clc_example_save_load_roundtrip examples/save_load_roundtrip.cpp)
     target_link_libraries(clc_example_save_load_roundtrip PRIVATE CityLifeCore::core)
