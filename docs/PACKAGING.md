@@ -25,10 +25,20 @@ City Life Core поддерживает базовый CMake install/export pack
 
 Это ещё не финальный binary SDK release, но уже practical source-first SDK package для аудита `0.9.9` перед `1.0.0`.
 
+### CMake options
+
+Когда City Life Core собирается как top-level project, tests/examples/tools по умолчанию включены. Когда проект подключается через `add_subdirectory(...)`, они по умолчанию выключены, чтобы внешний build не получал лишние targets.
+
+| Option | Top-level default | Subdirectory default | Purpose |
+| --- | --- | --- | --- |
+| `CLC_BUILD_TESTS` | `ON` | `OFF` | Build unit/integration tests. |
+| `CLC_BUILD_EXAMPLES` | `ON` | `OFF` | Build SDK examples. |
+| `CLC_BUILD_TOOLS` | `ON` | `OFF` | Build command-line tools such as `clc_runner`. |
+
 ### Source install
 
 ```bash
-cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
+cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
 cmake --build build
 cmake --install build
 ```
@@ -88,7 +98,7 @@ cmake --build build
 Перед `1.0.0-rc1` package flow должен проверяться отдельным external consumer project:
 
 ```bash
-cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
 cmake --build build-sdk
 cmake --install build-sdk --prefix /tmp/city-life-core-sdk
 
@@ -144,10 +154,20 @@ City Life Core supports a basic CMake install/export package flow:
 
 This is not the final binary SDK release yet, but it is a practical source-first SDK package for the `0.9.9` audit before `1.0.0`.
 
+### CMake options
+
+When City Life Core is built as the top-level project, tests/examples/tools default to `ON`. When it is consumed through `add_subdirectory(...)`, they default to `OFF` so the parent build does not receive extra targets by default.
+
+| Option | Top-level default | Subdirectory default | Purpose |
+| --- | --- | --- | --- |
+| `CLC_BUILD_TESTS` | `ON` | `OFF` | Build unit/integration tests. |
+| `CLC_BUILD_EXAMPLES` | `ON` | `OFF` | Build SDK examples. |
+| `CLC_BUILD_TOOLS` | `ON` | `OFF` | Build command-line tools such as `clc_runner`. |
+
 ### Source install
 
 ```bash
-cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
+cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
 cmake --build build
 cmake --install build
 ```
@@ -207,7 +227,7 @@ cmake --build build
 Before `1.0.0-rc1`, package flow should be verified through a standalone external consumer project:
 
 ```bash
-cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
 cmake --build build-sdk
 cmake --install build-sdk --prefix /tmp/city-life-core-sdk
 
