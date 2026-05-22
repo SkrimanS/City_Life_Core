@@ -1,0 +1,42 @@
+# City Life Core critical ownership rules
+#
+# GitHub uses this file with branch protection rules to request review from
+# listed owners before changes to matching paths are merged.
+#
+# Replace or extend @SkrimanS if the project later adds trusted maintainers.
+
+* @SkrimanS
+
+# Public SDK/API surface
+/include/clc/** @SkrimanS
+
+# Core implementation
+/src/clc/** @SkrimanS
+
+# Build, package and CI surface
+/CMakeLists.txt @SkrimanS
+/cmake/** @SkrimanS
+/.github/** @SkrimanS
+
+# Official docs, release governance and security policy
+/README.md @SkrimanS
+/CHANGELOG.md @SkrimanS
+/SECURITY.md @SkrimanS
+/LICENSE @SkrimanS
+/docs/PUBLIC_API.md @SkrimanS
+/docs/PUBLIC_API_STATUS.md @SkrimanS
+/docs/SDK_STRUCTURE.md @SkrimanS
+/docs/PACKAGING.md @SkrimanS
+/docs/VERSIONING.md @SkrimanS
+/docs/COMPATIBILITY.md @SkrimanS
+/docs/MIGRATION.md @SkrimanS
+/docs/RELEASE_CHECKLIST.md @SkrimanS
+/docs/PROTECTION_STRATEGY.md @SkrimanS
+/docs/VERIFYING_RELEASES.md @SkrimanS
+/docs/RELEASE_MANIFEST_TEMPLATE.md @SkrimanS
+
+# Release examples and external consumer validation
+/examples/** @SkrimanS
+
+# Tests that protect release invariants
+/tests/** @SkrimanS
