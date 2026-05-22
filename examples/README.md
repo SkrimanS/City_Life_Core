@@ -1,8 +1,8 @@
 # City Life Core SDK Examples / Примеры SDK
 
-These examples are intentionally small. They demonstrate the recommended public C++ API entry points without introducing a separate framework, renderer, or game client.
+These examples demonstrate the recommended public C++ API entry points without introducing a separate framework, renderer, or game client.
 
-Эти примеры намеренно небольшие. Они показывают рекомендуемые точки входа публичного C++ API без отдельного фреймворка, рендера или игрового клиента.
+Эти примеры показывают рекомендуемые точки входа публичного C++ API без отдельного фреймворка, рендера или игрового клиента.
 
 ---
 
@@ -36,13 +36,6 @@ Shows:
 - running runtime ticks in fixed tick chunks;
 - reading tick-run summary values.
 
-Показывает:
-
-- создание базового runtime-сценария;
-- создание каравана на маршруте;
-- запуск runtime tick'ов фиксированными чанками;
-- чтение tick-run summary по результатам симуляции.
-
 Run:
 
 ```bash
@@ -53,7 +46,7 @@ Run:
 
 Source: `examples/tick_runtime.cpp`
 
-Shows the preferred real-time/MMO-style 0.9.9 flow:
+Shows the preferred real-time/MMO-style flow:
 
 - create a tick-based route;
 - create and own a caravan;
@@ -63,20 +56,36 @@ Shows the preferred real-time/MMO-style 0.9.9 flow:
 - record reward ledger entry;
 - explicitly deliver remaining cargo into destination storage.
 
-Показывает предпочтительный real-time/MMO-style flow версии 0.9.9:
-
-- создание tick-based маршрута;
-- создание каравана и назначение владельца;
-- загрузку cargo в origin;
-- ожидание прибытия по ticks;
-- выполнение resource delivery contract;
-- запись reward ledger entry;
-- явную доставку оставшегося cargo в destination storage.
-
 Run:
 
 ```bash
 ./build/clc_example_tick_runtime
+```
+
+### `clc_example_full_runtime_flow`
+
+Source: `examples/full_runtime_flow.cpp`
+
+Shows a complete explicit integration without `make_basic_runtime_scenario()`:
+
+- create a custom `DataRegistry`;
+- create origin and destination settlements;
+- add factions and ownership;
+- add a tick-based route;
+- add a delivery contract with `due_ticks`;
+- create and own a caravan;
+- load cargo at origin;
+- run runtime ticks until arrival;
+- fulfill the contract from the arrived caravan;
+- record reward ledger entry;
+- inspect wallet, ledger and remaining cargo.
+
+This is the best example to start from when integrating City Life Core into a real game/server because every important runtime object is created explicitly.
+
+Run:
+
+```bash
+./build/clc_example_full_runtime_flow
 ```
 
 ### `clc_example_save_load_roundtrip`
@@ -89,13 +98,6 @@ Shows:
 - saving runtime state;
 - loading runtime state;
 - validating semantic save/load equivalence.
-
-Показывает:
-
-- создание runtime-сценария;
-- сохранение runtime state;
-- загрузку runtime state;
-- проверку semantic save/load equivalence.
 
 Run:
 
@@ -115,14 +117,6 @@ Shows:
 - continuing control and loaded runtime with the same actions;
 - validating deterministic replay equivalence.
 
-Показывает:
-
-- подготовку двух детерминированных runtime;
-- сохранение midpoint runtime state;
-- загрузку midpoint;
-- продолжение control и loaded runtime одинаковыми действиями;
-- проверку deterministic replay equivalence.
-
 Run:
 
 ```bash
@@ -134,8 +128,6 @@ Run:
 ## Installed SDK consumer example / Пример внешнего consumer-проекта
 
 `examples/find_package_consumer/` is a standalone consumer project. It is meant to be built outside the repository after City Life Core has been installed.
-
-`examples/find_package_consumer/` — это отдельный consumer-проект. Его нужно собирать вне репозитория после установки City Life Core.
 
 Install City Life Core:
 
@@ -157,22 +149,23 @@ cmake --build build-consumer
 
 ## Integration direction / Как использовать в интеграции
 
-Prefer runtime-level APIs first:
+Recommended include:
 
 ```cpp
-#include "clc/sim/SimulationRuntimeScenario.hpp"
-#include "clc/sim/SimulationRuntimeWorkflow.hpp"
-#include "clc/sim/SimulationRuntimeTick.hpp"
-#include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
+#include "clc/CityLifeCore.hpp"
 ```
 
-Start with:
+Start with the explicit flow if you want to integrate your own game data:
+
+```text
+examples/full_runtime_flow.cpp
+```
+
+Start with the basic bootstrap if you want a minimal smoke test:
 
 ```cpp
 auto bootstrap = clc::sim::make_basic_runtime_scenario();
 auto& runtime = bootstrap.runtime;
 ```
 
-Then add routes, caravans, contracts, ticks, persistence, and validation through the runtime workflow APIs.
-
-Для интеграции начинайте с runtime-level API, а не с ручной сборки всех подсистем. Затем добавляйте маршруты, караваны, контракты, tick'и, persistence и validation через runtime workflow APIs.
+Then add routes, caravans, contracts, ticks, persistence and validation through the runtime workflow APIs.
