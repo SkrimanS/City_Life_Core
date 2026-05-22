@@ -112,6 +112,8 @@ target_link_libraries(my_consumer PRIVATE CityLifeCore::core)
 
 `main.c` is compiled as C. `LINKER_LANGUAGE CXX` is recommended because `CityLifeCore::core` is implemented in C++.
 
+The package config also exposes installed directory variables such as `CityLifeCore_DATA_DIR` and `CityLifeCore_EXAMPLES_DIR`. See `docs/CMAKE_PACKAGE.md`.
+
 ---
 
 ## Build from source / Сборка из исходников
@@ -400,6 +402,7 @@ Start here:
 - [Public API Status](docs/PUBLIC_API_STATUS.md)
 - [C Interface](docs/C_ABI.md)
 - [SDK Structure](docs/SDK_STRUCTURE.md)
+- [CMake Package](docs/CMAKE_PACKAGE.md)
 - [Packaging](docs/PACKAGING.md)
 - [SDK ZIP Package](docs/SDK_ZIP_PACKAGE.md)
 - [Compatibility](docs/COMPATIBILITY.md)
