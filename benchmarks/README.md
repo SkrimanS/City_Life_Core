@@ -48,6 +48,26 @@ engine_advance_day_100_settlements_365_days,elapsed_ms,12,events,37230
 
 ---
 
+## CI output
+
+The CI workflow builds and runs `clc_core_benchmarks` on each configured OS/compiler matrix entry.
+
+Each run uploads:
+
+```text
+benchmark-output.txt
+```
+
+Artifact naming pattern:
+
+```text
+city-life-core-benchmarks-<os>-<compiler>
+```
+
+The benchmark artifact is a baseline signal. It is not a strict performance threshold gate.
+
+---
+
 ## Release use
 
 Before 1.0.0-rc1, run the benchmark binary on the release branch and record results in release notes or a separate benchmark report.
