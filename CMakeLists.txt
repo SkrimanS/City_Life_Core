@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(CityLifeCore
     VERSION 0.9.9
     DESCRIPTION "Universal headless simulation core for living settlements"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 include(GNUInstallDirs)
@@ -31,6 +31,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(city_life_core
+    src/clc/c/CityLifeCoreC.cpp
     src/clc/core/Version.cpp
     src/clc/core/World.cpp
     src/clc/core/Time.cpp
@@ -186,6 +187,7 @@ if(CLC_BUILD_TESTS)
     endfunction()
 
     clc_add_test(clc_smoke_tests tests/smoke_tests.cpp)
+    clc_add_test(clc_c_abi_smoke_tests tests/c_abi_smoke_tests.c)
     clc_add_test(clc_umbrella_header_tests tests/umbrella_header_tests.cpp)
     clc_add_test(clc_time_hardening_tests tests/time_hardening_tests.cpp)
     clc_add_test(clc_storage_hardening_tests tests/storage_hardening_tests.cpp)
