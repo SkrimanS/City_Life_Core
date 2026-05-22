@@ -50,8 +50,13 @@ cmake --install build
       README.md
       CHANGELOG.md
       PUBLIC_API.md
+      PUBLIC_API_STATUS.md
       SDK_STRUCTURE.md
+      VERSIONING.md
+      COMPATIBILITY.md
+      MIGRATION.md
       PACKAGING.md
+      RELEASE_CHECKLIST.md
       RELEASE_NOTES_0.9.9.md
       examples/
     CityLifeCore/data/
@@ -77,6 +82,27 @@ Configure example:
 cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
 cmake --build build
 ```
+
+### Installed SDK smoke test
+
+Перед `1.0.0-rc1` package flow должен проверяться отдельным external consumer project:
+
+```bash
+cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake --build build-sdk
+cmake --install build-sdk --prefix /tmp/city-life-core-sdk
+
+cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
+cmake --build build-consumer
+./build-consumer/city_life_core_consumer
+```
+
+Этот flow проверяет:
+
+- установленный `CityLifeCoreConfig.cmake`;
+- exported target `CityLifeCore::core`;
+- public include paths из install prefix;
+- минимальный runtime tick сценарий во внешнем проекте.
 
 ### Target names
 
@@ -143,8 +169,13 @@ Expected installed layout:
       README.md
       CHANGELOG.md
       PUBLIC_API.md
+      PUBLIC_API_STATUS.md
       SDK_STRUCTURE.md
+      VERSIONING.md
+      COMPATIBILITY.md
+      MIGRATION.md
       PACKAGING.md
+      RELEASE_CHECKLIST.md
       RELEASE_NOTES_0.9.9.md
       examples/
     CityLifeCore/data/
@@ -170,6 +201,27 @@ Configure example:
 cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
 cmake --build build
 ```
+
+### Installed SDK smoke test
+
+Before `1.0.0-rc1`, package flow should be verified through a standalone external consumer project:
+
+```bash
+cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake --build build-sdk
+cmake --install build-sdk --prefix /tmp/city-life-core-sdk
+
+cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
+cmake --build build-consumer
+./build-consumer/city_life_core_consumer
+```
+
+This flow verifies:
+
+- installed `CityLifeCoreConfig.cmake`;
+- exported target `CityLifeCore::core`;
+- public include paths from the install prefix;
+- a minimal runtime tick scenario in an external project.
 
 ### Target names
 
