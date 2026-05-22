@@ -74,17 +74,26 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
         return report;
     }
 
-    report = engine.restore_state(state.engine);
+    SimulationEngine restored_engine{engine.registry()};
+    report = restored_engine.restore_state(state.engine);
     if (!report.ok()) {
         return report;
     }
 
-    routes = state.routes;
-    caravans = state.caravans;
-    factions = state.factions;
-    ownership = state.ownership;
-    contracts = state.contracts;
-    wallet = state.wallet;
+    auto restored_routes = state.routes;
+    auto restored_caravans = state.caravans;
+    auto restored_factions = state.factions;
+    auto restored_ownership = state.ownership;
+    auto restored_contracts = state.contracts;
+    auto restored_wallet = state.wallet;
+
+    engine = std::move(restored_engine);
+    routes = std::move(restored_routes);
+    caravans = std::move(restored_caravans);
+    factions = std::move(restored_factions);
+    ownership = std::move(restored_ownership);
+    contracts = std::move(restored_contracts);
+    wallet = restored_wallet;
     ledger = std::move(restored_ledger);
     return report;
 }
@@ -93,21 +102,24 @@ data::ValidationReport restore_simulation_runtime_from_world_state(
     const SimulationWorldState& state,
     SimulationRuntime& runtime
 ) {
+    SimulationRuntime restored_runtime{runtime.engine.registry()};
     auto report = restore_simulation_runtime_from_world_state(
         state,
-        runtime.engine,
-        runtime.routes,
-        runtime.caravans,
-        runtime.factions,
-        runtime.ownership,
-        runtime.contracts,
-        runtime.wallet,
-        runtime.ledger
+        restored_runtime.engine,
+        restored_runtime.routes,
+        restored_runtime.caravans,
+        restored_runtime.factions,
+        restored_runtime.ownership,
+        restored_runtime.contracts,
+        restored_runtime.wallet,
+        restored_runtime.ledger
     );
     if (!report.ok()) {
         return report;
     }
-    runtime.time = restored_runtime_time(state);
+
+    restored_runtime.time = restored_runtime_time(state);
+    runtime = std::move(restored_runtime);
     return report;
 }
 
