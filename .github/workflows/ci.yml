@@ -94,6 +94,21 @@ jobs:
         run: cmake -E sha256sum city-life-core-sdk-*.zip > SHA256SUMS.txt
         shell: bash
 
+      - name: Validate unpacked SDK ZIP consumer
+        run: |
+          mkdir extracted-sdk
+          cmake -E chdir extracted-sdk cmake -E tar xf ../city-life-core-sdk-*.zip
+          sdk_prefix="$(find extracted-sdk -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+          test -n "${sdk_prefix}"
+          cmake -S examples/find_package_consumer -B build-zip-consumer -DCMAKE_PREFIX_PATH="${PWD}/${sdk_prefix}"
+          cmake --build build-zip-consumer --config Release
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./build-zip-consumer/Release/city_life_core_consumer.exe
+          else
+            ./build-zip-consumer/city_life_core_consumer
+          fi
+        shell: bash
+
       - name: Upload SDK ZIP package
         uses: actions/upload-artifact@v4
         with:
