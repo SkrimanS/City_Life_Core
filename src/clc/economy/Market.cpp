@@ -138,4 +138,21 @@ MarketReport make_market_report(const data::DataRegistry& registry, const sim::R
     return report;
 }
 
+const MarketPrice* market_price_by_resource(const MarketReport& report, std::string_view resource_id) noexcept {
+    for (const auto& price : report.prices) {
+        if (price.resource_id == resource_id) {
+            return &price;
+        }
+    }
+    return nullptr;
+}
+
+std::uint64_t market_price_or(const MarketReport& report, std::string_view resource_id, std::uint64_t fallback_price) noexcept {
+    const auto* price = market_price_by_resource(report, resource_id);
+    if (price == nullptr) {
+        return fallback_price;
+    }
+    return price->price;
+}
+
 } // namespace clc::economy
