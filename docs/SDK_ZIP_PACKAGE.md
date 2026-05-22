@@ -110,9 +110,9 @@ The hash printed for the ZIP should match the hash in `SHA256SUMS.txt`.
 
 ---
 
-## Verify ZIP package with bundled consumer
+## Verify ZIP package with bundled C++ consumer
 
-After unpacking, build the standalone consumer example against the installed package:
+After unpacking, build the standalone C++ consumer example against the installed package:
 
 ```bash
 cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-0.9.9-Linux-x86_64
@@ -122,10 +122,29 @@ cmake --build build-consumer
 
 This checks:
 
-- installed public headers;
+- installed public C++ headers;
 - exported CMake target `CityLifeCore::core`;
 - package config files;
-- minimal runtime tick execution from an external project.
+- minimal runtime tick execution from an external C++ project.
+
+---
+
+## Verify ZIP package with bundled C ABI consumer
+
+After unpacking, build the standalone C ABI consumer example against the installed package:
+
+```bash
+cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-0.9.9-Linux-x86_64
+cmake --build build-c-abi-consumer
+./build-c-abi-consumer/city_life_core_c_abi_consumer
+```
+
+This checks:
+
+- installed C ABI header `clc/c/CityLifeCoreC.h`;
+- C compiler consumption of the installed package;
+- version/time C ABI functions;
+- linking through exported target `CityLifeCore::core`.
 
 ---
 
@@ -138,7 +157,7 @@ city-life-core-sdk-*.zip
 SHA256SUMS.txt
 ```
 
-CI also unpacks the generated ZIP and builds `examples/find_package_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory.
+CI also unpacks the generated ZIP and builds both `examples/find_package_consumer` and `examples/c_abi_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory.
 
 ---
 
