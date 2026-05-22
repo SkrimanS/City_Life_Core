@@ -18,11 +18,18 @@ This document classifies the installed City Life Core headers by intended SDK us
 | `experimental` | Public API that may change more easily. |
 | `legacy` | Kept for compatibility; not preferred for new code. |
 | `specialized` | Public but low-level or broad; use deliberately. |
+| `c-abi-minimal` | C-facing ABI for small stable utility functions, not the full runtime API. |
 
-Recommended first include:
+Recommended first include for C++:
 
 ```cpp
 #include "clc/CityLifeCore.hpp"
+```
+
+Recommended first include for C ABI users:
+
+```c
+#include "clc/c/CityLifeCoreC.h"
 ```
 
 ---
@@ -31,7 +38,8 @@ Recommended first include:
 
 | Header | Status | Intended users | Recommendation |
 | --- | --- | --- | --- |
-| `clc/CityLifeCore.hpp` | `recommended` | all SDK users | Start here for most game/server integrations. |
+| `clc/CityLifeCore.hpp` | `recommended` | all C++ SDK users | Start here for most game/server integrations. |
+| `clc/c/CityLifeCoreC.h` | `c-abi-minimal` | C consumers and FFI bindings | Use for version/time utility access from C. Full runtime C ABI is not exposed. |
 | `clc/core/Version.hpp` | `stable-candidate` | all SDK users | Use for version checks and diagnostics. |
 | `clc/core/Ids.hpp` | `stable-candidate` | SDK users needing typed IDs | Use when integrating ID-heavy systems. |
 | `clc/core/Result.hpp` | `stable-candidate` | low-level SDK users | Use for result/error-style helpers. |
@@ -84,6 +92,16 @@ auto& runtime = bootstrap.runtime;
 clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
 ```
 
+### C consumers and FFI bindings
+
+Use:
+
+```c
+#include "clc/c/CityLifeCoreC.h"
+```
+
+The current C ABI exposes only version and time utility functions. It does not expose runtime state, containers, ownership, allocation, save/load, or callbacks.
+
 ### Data/model tooling
 
 Use:
@@ -126,7 +144,8 @@ Raw persistence APIs are intentionally powerful. Treat them as specialized integ
 
 ## Usage rules for SDK users
 
-- Prefer `clc/CityLifeCore.hpp` for general integration.
+- Prefer `clc/CityLifeCore.hpp` for general C++ integration.
+- Prefer `clc/c/CityLifeCoreC.h` only for minimal C/FFI version and time access.
 - Prefer runtime workflow helpers over direct mutation of runtime fields.
 - Store IDs instead of long-lived pointers/references into registries, catalogs or runtime containers.
 - Use tick-based APIs for real-time, MMO and server-authoritative systems.
