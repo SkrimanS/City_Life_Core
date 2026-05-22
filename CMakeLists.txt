@@ -25,6 +25,8 @@ option(CLC_BUILD_TOOLS "Build City Life Core command line tools" ${CLC_DEFAULT_B
 option(CLC_BUILD_BENCHMARKS "Build City Life Core benchmark executables" OFF)
 
 set(CLC_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore" CACHE STRING "City Life Core CMake package install directory")
+set(CLC_INSTALL_DATA_DIR "${CMAKE_INSTALL_DATADIR}/CityLifeCore/data" CACHE STRING "City Life Core data install directory")
+set(CLC_INSTALL_EXAMPLES_DIR "${CMAKE_INSTALL_DOCDIR}/examples" CACHE STRING "City Life Core examples install directory")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -140,15 +142,17 @@ install(
 
 install(
     DIRECTORY examples/
-    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples
+    DESTINATION ${CLC_INSTALL_EXAMPLES_DIR}
     FILES_MATCHING
         PATTERN "*.cpp"
+        PATTERN "*.c"
+        PATTERN "*.txt"
         PATTERN "*.md"
 )
 
 install(
     DIRECTORY data/
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/CityLifeCore/data
+    DESTINATION ${CLC_INSTALL_DATA_DIR}
 )
 
 install(
@@ -162,6 +166,11 @@ configure_package_config_file(
     cmake/CityLifeCoreConfig.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake"
     INSTALL_DESTINATION ${CLC_INSTALL_CMAKEDIR}
+    PATH_VARS
+        CMAKE_INSTALL_INCLUDEDIR
+        CMAKE_INSTALL_DOCDIR
+        CLC_INSTALL_DATA_DIR
+        CLC_INSTALL_EXAMPLES_DIR
 )
 
 write_basic_package_version_file(
