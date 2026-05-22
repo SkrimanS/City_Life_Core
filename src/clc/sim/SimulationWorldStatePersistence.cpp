@@ -1,12 +1,14 @@
 #include "clc/sim/SimulationPersistence.hpp"
 
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <initializer_list>
 #include <limits>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 namespace clc::sim {
@@ -174,6 +176,35 @@ void append_line(std::string& output, std::initializer_list<std::string> fields)
     output.push_back('\n');
 }
 
+void merge_validation(data::ValidationReport& target, const data::ValidationReport& source) {
+    for (const auto& message : source.messages()) {
+        if (message.severity == data::ValidationSeverity::error) {
+            target.add_error(message.path, message.message);
+        } else {
+            target.add_warning(message.path, message.message);
+        }
+    }
+}
+
+void add_storage_row(ResourceStorage& storage, std::string resource_id, std::uint64_t amount, data::ValidationReport& report, const std::string& path) {
+    auto add_report = storage.add(std::move(resource_id), amount);
+    if (!add_report.ok()) {
+        merge_validation(report, add_report);
+        report.add_error(path, "storage amount row failed validation");
+    }
+}
+
+std::filesystem::path temporary_save_path_for(const std::filesystem::path& path) {
+    auto temporary_path = path;
+    temporary_path += ".tmp";
+    return temporary_path;
+}
+
+void remove_file_noexcept(const std::filesystem::path& path) noexcept {
+    std::error_code ignored;
+    std::filesystem::remove(path, ignored);
+}
+
 ResourceStorage* caravan_cargo_by_id(CaravanFleet& fleet, std::string_view caravan_id) {
     for (auto& caravan : fleet.caravans) {
         if (caravan.id == caravan_id) return &caravan.cargo;
@@ -317,7 +348,7 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
                 else result.state.engine.settlements.push_back(SettlementState{.id = unescape_field(fields[1], result.validation, path + ".id"), .display_name = unescape_field(fields[2], result.validation, path + ".display_name"), .population = parse_required_uint64(fields[3], result.validation, path + ".population")});
             } else if (fields[0] == "settlement_storage") {
                 if (fields.size() != 4) result.validation.add_error(path, "settlement_storage row must have 4 fields");
-                else if (auto* storage = settlement_storage_by_id(result.state.engine.settlements, unescape_field(fields[1], result.validation, path + ".settlement_id")); storage != nullptr) storage->add(unescape_field(fields[2], result.validation, path + ".resource_id"), parse_required_uint64(fields[3], result.validation, path + ".amount"));
+                else if (auto* storage = settlement_storage_by_id(result.state.engine.settlements, unescape_field(fields[1], result.validation, path + ".settlement_id")); storage != nullptr) add_storage_row(*storage, unescape_field(fields[2], result.validation, path + ".resource_id"), parse_required_uint64(fields[3], result.validation, path + ".amount"), result.validation, path);
                 else result.validation.add_error(path, "settlement_storage references unknown settlement");
             } else if (fields[0] == "settlement_building") {
                 if (fields.size() != 4) result.validation.add_error(path, "settlement_building row must have 4 fields");
@@ -357,7 +388,7 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
                 }
             } else if (fields[0] == "caravan_cargo") {
                 if (fields.size() != 4) result.validation.add_error(path, "caravan_cargo row must have 4 fields");
-                else if (auto* cargo = caravan_cargo_by_id(result.state.caravans, unescape_field(fields[1], result.validation, path + ".caravan_id")); cargo != nullptr) cargo->add(unescape_field(fields[2], result.validation, path + ".resource_id"), parse_required_uint64(fields[3], result.validation, path + ".amount"));
+                else if (auto* cargo = caravan_cargo_by_id(result.state.caravans, unescape_field(fields[1], result.validation, path + ".caravan_id")); cargo != nullptr) add_storage_row(*cargo, unescape_field(fields[2], result.validation, path + ".resource_id"), parse_required_uint64(fields[3], result.validation, path + ".amount"), result.validation, path);
                 else result.validation.add_error(path, "caravan_cargo references unknown caravan");
             } else if (fields[0] == "faction") {
                 if (fields.size() != 3) result.validation.add_error(path, "faction row must have 3 fields");
@@ -399,13 +430,36 @@ SimulationWorldStateLoadResult deserialize_simulation_world_state(std::string_vi
 
 data::ValidationReport save_simulation_world_state_to_file(const SimulationWorldState& state, const std::filesystem::path& path) {
     data::ValidationReport report;
-    std::ofstream output{path};
-    if (!output) {
-        report.add_error("simulation.world_state.file", "failed to open world state file for writing");
-        return report;
+    const auto temporary_path = temporary_save_path_for(path);
+    remove_file_noexcept(temporary_path);
+
+    {
+        std::ofstream output{temporary_path, std::ios::binary | std::ios::trunc};
+        if (!output) {
+            report.add_error("simulation.world_state.file", "failed to open temporary world state file for writing");
+            return report;
+        }
+
+        output << serialize_simulation_world_state(state);
+        output.flush();
+        if (!output) {
+            report.add_error("simulation.world_state.file", "failed to write temporary world state file");
+            remove_file_noexcept(temporary_path);
+            return report;
+        }
     }
-    output << serialize_simulation_world_state(state);
-    if (!output) report.add_error("simulation.world_state.file", "failed to write world state file");
+
+    std::error_code rename_error;
+    std::filesystem::rename(temporary_path, path, rename_error);
+    if (rename_error) {
+        std::error_code copy_error;
+        std::filesystem::copy_file(temporary_path, path, std::filesystem::copy_options::overwrite_existing, copy_error);
+        remove_file_noexcept(temporary_path);
+        if (copy_error) {
+            report.add_error("simulation.world_state.file", "failed to commit temporary world state file");
+        }
+    }
+
     return report;
 }
 
