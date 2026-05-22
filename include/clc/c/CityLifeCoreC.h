@@ -15,6 +15,8 @@ typedef struct clc_version {
 clc_version clc_core_version_c(void);
 const char* clc_core_version_string_c(void);
 
+uint32_t clc_c_interface_version_c(void);
+
 uint64_t clc_ticks_per_second_c(void);
 uint64_t clc_ticks_per_minute_c(void);
 uint64_t clc_ticks_per_hour_c(void);
