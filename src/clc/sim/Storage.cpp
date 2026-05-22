@@ -17,13 +17,18 @@ data::ValidationReport ResourceStorage::add(std::string resource_id, std::uint64
         return report;
     }
 
-    auto& current = entries_[resource_id];
-    if (amount > std::numeric_limits<std::uint64_t>::max() - current) {
-        report.add_error("storage." + resource_id, "amount overflow");
+    const auto it = entries_.find(resource_id);
+    if (it != entries_.end()) {
+        if (amount > std::numeric_limits<std::uint64_t>::max() - it->second) {
+            report.add_error("storage." + resource_id, "amount overflow");
+            return report;
+        }
+
+        it->second += amount;
         return report;
     }
 
-    current += amount;
+    entries_.emplace(std::move(resource_id), amount);
     return report;
 }
 
@@ -85,18 +90,28 @@ data::ValidationReport transfer(ResourceStorage& from, ResourceStorage& to, std:
         return report;
     }
 
-    if (!from.try_remove(resource_id, amount)) {
+    if (&from == &to) {
+        if (from.amount(resource_id) < amount) {
+            report.add_error("storage.transfer." + std::string{resource_id}, "not enough resources to transfer");
+        }
+        return report;
+    }
+
+    auto from_copy = from;
+    auto to_copy = to;
+
+    if (!from_copy.try_remove(resource_id, amount)) {
         report.add_error("storage.transfer." + std::string{resource_id}, "not enough resources to transfer");
         return report;
     }
 
-    auto add_report = to.add(std::string{resource_id}, amount);
+    auto add_report = to_copy.add(std::string{resource_id}, amount);
     if (!add_report.ok()) {
-        const auto rollback_report = from.add(std::string{resource_id}, amount);
-        (void)rollback_report;
         return add_report;
     }
 
+    from = std::move(from_copy);
+    to = std::move(to_copy);
     return report;
 }
 
