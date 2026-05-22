@@ -109,6 +109,19 @@ jobs:
           fi
         shell: bash
 
+      - name: Validate unpacked SDK ZIP C ABI consumer
+        run: |
+          sdk_prefix="$(find extracted-sdk -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+          test -n "${sdk_prefix}"
+          cmake -S examples/c_abi_consumer -B build-zip-c-abi-consumer -DCMAKE_PREFIX_PATH="${PWD}/${sdk_prefix}"
+          cmake --build build-zip-c-abi-consumer --config Release
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./build-zip-c-abi-consumer/Release/city_life_core_c_abi_consumer.exe
+          else
+            ./build-zip-c-abi-consumer/city_life_core_c_abi_consumer
+          fi
+        shell: bash
+
       - name: Upload SDK ZIP package
         uses: actions/upload-artifact@v4
         with:
