@@ -1,5 +1,7 @@
 #include "clc/sim/Contracts.hpp"
 
+#include <utility>
+
 namespace clc::sim {
 
 ContractFulfillmentResult fulfill_contract_from_storage_with_reward_and_ledger(
@@ -9,14 +11,30 @@ ContractFulfillmentResult fulfill_contract_from_storage_with_reward_and_ledger(
     economy::Wallet& reward_wallet,
     economy::EconomyLedger& ledger
 ) {
-    auto result = fulfill_contract_from_storage_with_reward(catalog, contract_id, delivered_resources, reward_wallet);
+    auto catalog_copy = catalog;
+    auto delivered_resources_copy = delivered_resources;
+    auto reward_wallet_copy = reward_wallet;
+    auto ledger_copy = ledger;
+
+    auto result = fulfill_contract_from_storage_with_reward(
+        catalog_copy,
+        contract_id,
+        delivered_resources_copy,
+        reward_wallet_copy
+    );
     if (!result.ok()) {
         return result;
     }
 
-    if (!ledger.record_contract_reward(result.contract_id, result.resource_id, result.quantity, result.reward_coins, "contract reward payout")) {
+    if (!ledger_copy.record_contract_reward(result.contract_id, result.resource_id, result.quantity, result.reward_coins, "contract reward payout")) {
         result.validation.add_error("simulation.contract." + result.contract_id, "failed to record contract reward ledger entry");
+        return result;
     }
+
+    catalog = std::move(catalog_copy);
+    delivered_resources = std::move(delivered_resources_copy);
+    reward_wallet = reward_wallet_copy;
+    ledger = std::move(ledger_copy);
     return result;
 }
 
