@@ -9,6 +9,8 @@
 
 namespace clc::economy {
 
+class EconomyLedger;
+
 struct Wallet final {
     std::uint64_t coins{0};
 };
@@ -34,6 +36,24 @@ struct TradeResult final {
     sim::ResourceStorage& storage,
     const MarketPrice& price,
     std::uint64_t quantity
+);
+
+[[nodiscard]] TradeResult buy_resource_with_ledger(
+    Wallet& wallet,
+    sim::ResourceStorage& storage,
+    const MarketPrice& price,
+    std::uint64_t quantity,
+    EconomyLedger& ledger,
+    std::string note = {}
+);
+
+[[nodiscard]] TradeResult sell_resource_with_ledger(
+    Wallet& wallet,
+    sim::ResourceStorage& storage,
+    const MarketPrice& price,
+    std::uint64_t quantity,
+    EconomyLedger& ledger,
+    std::string note = {}
 );
 
 } // namespace clc::economy
