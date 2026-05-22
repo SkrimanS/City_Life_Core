@@ -94,6 +94,9 @@ if(CLC_BUILD_EXAMPLES)
     add_executable(clc_example_tick_runtime examples/tick_runtime.cpp)
     target_link_libraries(clc_example_tick_runtime PRIVATE CityLifeCore::core)
 
+    add_executable(clc_example_full_runtime_flow examples/full_runtime_flow.cpp)
+    target_link_libraries(clc_example_full_runtime_flow PRIVATE CityLifeCore::core)
+
     add_executable(clc_example_save_load_roundtrip examples/save_load_roundtrip.cpp)
     target_link_libraries(clc_example_save_load_roundtrip PRIVATE CityLifeCore::core)
 
