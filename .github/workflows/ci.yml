@@ -30,13 +30,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure
-        run: cmake -S . -B build -DCLC_BUILD_TESTS=ON -DCLC_BUILD_EXAMPLES=ON
+        run: cmake -S . -B build -DCLC_BUILD_TESTS=ON -DCLC_BUILD_EXAMPLES=ON -DCLC_BUILD_BENCHMARKS=ON
 
       - name: Build
         run: cmake --build build --config Release
 
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
+
+      - name: Run core benchmarks
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./build/Release/clc_core_benchmarks.exe | tee benchmark-output.txt
+          else
+            ./build/clc_core_benchmarks | tee benchmark-output.txt
+          fi
+        shell: bash
+
+      - name: Upload benchmark output
+        uses: actions/upload-artifact@v4
+        with:
+          name: city-life-core-benchmarks-${{ matrix.os }}-${{ matrix.compiler }}
+          path: benchmark-output.txt
+          if-no-files-found: error
 
       - name: Install SDK
         run: cmake --install build --config Release --prefix install-prefix
