@@ -46,6 +46,7 @@ city-life-core-sdk-0.9.9-<system>-<processor>/
   include/
     clc/
       CityLifeCore.hpp
+      c/
       core/
       data/
       economy/
@@ -82,10 +83,16 @@ find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_game PRIVATE CityLifeCore::core)
 ```
 
-Recommended include:
+Recommended C++ include:
 
 ```cpp
 #include "clc/CityLifeCore.hpp"
+```
+
+Recommended C ABI include:
+
+```c
+#include "clc/c/CityLifeCoreC.h"
 ```
 
 ---
@@ -122,7 +129,7 @@ This checks:
 
 ---
 
-## CI artifact
+## CI artifact and validation
 
 The CI workflow builds the ZIP package and uploads both:
 
@@ -130,6 +137,8 @@ The CI workflow builds the ZIP package and uploads both:
 city-life-core-sdk-*.zip
 SHA256SUMS.txt
 ```
+
+CI also unpacks the generated ZIP and builds `examples/find_package_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory.
 
 ---
 
