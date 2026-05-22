@@ -1,91 +1,162 @@
 # Migration Guide / Руководство по миграции
 
-Status: **draft for 1.0.0-rc1 / черновик для 1.0.0-rc1**
+Version: **0.9.9**
 
-This guide tracks migration-sensitive changes from the 0.9.x audit series toward the 1.0.0 SDK line.
+This guide explains how to update existing City Life Core integrations to the current SDK surface.
 
-Этот документ фиксирует migration-sensitive изменения от серии аудита 0.9.x к SDK-линейке 1.0.0.
+Этот документ объясняет, как обновлять существующие интеграции City Life Core до текущего SDK surface.
 
 ---
 
 ## Русский
 
-### 0.9.x → 1.0.0-rc1: основные темы
+### Кому нужен этот документ
 
-Главные области, которые нужно проверить интеграторам:
+Используйте это руководство, если ваш проект уже использовал ранние `0.9.x` версии City Life Core и вам нужно перейти на текущий SDK layout, tick runtime, runtime events, persistence и recommended headers.
 
-- public header status;
-- tick-based runtime semantics;
-- day/tick dual fields;
-- runtime event timestamps;
-- persistence compatibility;
-- examples and recommended integration flow;
-- package/install consumer flow.
+Новые проекты могут начинать с:
 
-### Public headers
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
-В 0.9.x все headers внутри `include/clc/` устанавливались и фактически могли использоваться как public surface.
+и документации:
 
-Перед 1.0.0 headers классифицируются в `docs/PUBLIC_API_STATUS.md`:
+```text
+README.md
+docs/PUBLIC_API.md
+docs/SDK_STRUCTURE.md
+```
 
-- `stable-candidate`;
-- `experimental`;
-- `diagnostics`;
-- `legacy`;
-- `internal-risk`.
+### Краткий checklist миграции
 
-Migration action:
+- [ ] Перейти на recommended include `clc/CityLifeCore.hpp` или stable-candidate headers.
+- [ ] Проверить usage headers по `docs/PUBLIC_API_STATUS.md`.
+- [ ] Для real-time/MMO перейти с day-only APIs на tick-based APIs.
+- [ ] Проверить route/caravan/contract day+tick fields.
+- [ ] Обновить обработчики runtime events на absolute runtime ticks.
+- [ ] Использовать `buy_resource_with_ledger(...)` / `sell_resource_with_ledger(...)` вместо ручного trade+ledger.
+- [ ] Использовать reward+ledger helpers для contract rewards.
+- [ ] Пересохранить старые save files после загрузки, чтобы materialize explicit time/tick fields.
+- [ ] Проверить pointer/reference lifetime assumptions.
+- [ ] Проверить external build через `find_package(CityLifeCore CONFIG REQUIRED)`.
 
-- external projects should depend primarily on stable-candidate runtime-level headers;
-- avoid depending on `internal-risk` headers unless you accept pre-1.0 churn;
-- treat `experimental` APIs as subject to change.
+### Includes
 
-### Tick runtime
+Рекомендуемый путь для большинства интеграций:
 
-0.9.9 introduced first-class tick runtime:
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
-- `SimulationRuntime::time`;
-- `travel_ticks`;
-- `ticks_remaining`;
-- `due_ticks`;
-- `advance_runtime_ticks(...)`;
-- `run_runtime_ticks(...)`;
-- tick-based arrival helpers.
+Точечные includes остаются поддерживаемыми:
 
-Migration action:
+```cpp
+#include "clc/core/Time.hpp"
+#include "clc/data/DataRegistry.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
+#include "clc/economy/Trade.hpp"
+```
 
-- for real-time/MMO games, prefer tick-based APIs over day-only APIs;
-- for turn/day games, day APIs remain available;
-- if both day and tick fields are set, ensure they are equivalent according to the documented tick scale.
+Не используйте low-level/internal-risk headers как основной entry point, если вам не нужен конкретный низкоуровневый функционал.
+
+### Time model: days → ticks
+
+Ядро поддерживает и day-based, и tick-based flows.
+
+Базовая шкала:
+
+```cpp
+clc::ticks_per_second() == 1;
+clc::ticks_per_minute() == 60;
+clc::ticks_per_hour()   == 3600;
+clc::ticks_per_day()    == 86400;
+```
+
+Для real-time или server runtime используйте ticks:
+
+```cpp
+auto five_minutes = clc::minutes_to_ticks(5);
+auto two_hours = clc::hours_to_ticks(2);
+```
+
+Fields, которые стоит проверить:
+
+- `SimulationRuntime::time`
+- `SettlementRoute::travel_ticks`
+- `CaravanState::total_travel_ticks`
+- `CaravanState::ticks_remaining`
+- `ResourceDeliveryContract::due_ticks`
+
+Day fields сохраняются для turn/day games и legacy data.
+
+### Routes
+
+Старый day-style route:
+
+```cpp
+auto route = clc::sim::make_settlement_route_days(
+    "riverwatch_to_hillford",
+    "Riverwatch to Hillford",
+    "riverwatch",
+    "hillford",
+    2
+);
+```
+
+Tick-style route:
+
+```cpp
+auto route = clc::sim::make_settlement_route_ticks(
+    "riverwatch_to_hillford_3h",
+    "Riverwatch to Hillford 3h",
+    "riverwatch",
+    "hillford",
+    clc::hours_to_ticks(3)
+);
+```
+
+### Runtime execution
+
+Day-based execution remains available:
+
+```cpp
+clc::sim::run_runtime_days(runtime, 2);
+```
+
+Recommended tick-based execution:
+
+```cpp
+clc::sim::run_runtime_ticks(
+    runtime,
+    clc::hours_to_ticks(2),
+    clc::minutes_to_ticks(30)
+);
+```
 
 ### Caravan arrival semantics
 
-`CaravanAdvanceReport::arrived` means the caravan is arrived after the advance call.
+`CaravanAdvanceReport::arrived` означает “караван находится в arrived state после advance”.
 
-A new arrival event should be interpreted as:
+Для события “прибыл именно на этом advance” используйте:
 
 ```cpp
 report.arrived && report.ticks_elapsed > 0
 ```
 
-Migration action:
-
-- direct users of `advance_caravan_ticks(...)` or `advance_caravan_day(...)` should not treat `arrived == true` alone as a new-arrival event;
-- runtime orchestration already filters repeated arrivals by `ticks_elapsed > 0`.
-
-### Runtime event timestamps
-
-0.9.9 moves runtime event timestamps to absolute runtime ticks.
-
-Migration action:
-
-- do not interpret event `tick` as a day number;
-- use `ticks_per_day()` or conversion helpers if you need day-level display;
-- event replay/backends should store absolute ticks.
+Это важно, если вы напрямую используете `advance_caravan_ticks(...)` или `advance_caravan_day(...)` и сами генерируете события.
 
 ### Runtime events
 
-Current event names:
+Runtime event timestamps используют absolute runtime ticks.
+
+Не трактуйте event tick как номер дня. Для отображения дней используйте:
+
+```cpp
+auto day = event.tick / clc::ticks_per_day();
+```
+
+Documented runtime event names:
 
 - `runtime.day.completed`
 - `runtime.tick.completed`
@@ -95,128 +166,234 @@ Current event names:
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
 
-Migration action:
+Event consumers should ignore unknown event types unless the game requires strict schemas.
 
-- update consumers to accept `runtime.tick.completed`;
-- update consumers to validate payload schemas once frozen before 1.0.0.
+### Economy: manual trade → trade+ledger wrappers
+
+Если раньше код делал trade и отдельно писал ledger, замените на wrapper:
+
+```cpp
+clc::economy::buy_resource_with_ledger(wallet, storage, price, quantity, ledger);
+clc::economy::sell_resource_with_ledger(wallet, storage, price, quantity, ledger);
+```
+
+Wrappers use staged mutation: wallet/storage/ledger are committed only when the whole operation succeeds.
+
+### Contracts: reward+ledger helpers
+
+Recommended reward path:
+
+```cpp
+clc::sim::fulfill_contract_from_storage_with_reward_and_ledger(
+    contracts,
+    contract_id,
+    delivered_storage,
+    wallet,
+    ledger
+);
+```
+
+`clc/sim/ContractRewards.hpp` exists as a public forwarding header. Including either `Contracts.hpp` or `ContractRewards.hpp` is acceptable for reward helpers.
 
 ### Persistence
 
-0.9.9 persists runtime time and tick fields.
+Current save/load behavior:
 
-Compatibility behavior:
+- saves with explicit runtime `time` restore exact runtime clock;
+- legacy saves without `time` derive runtime clock from `current_day`;
+- contracts with explicit `due_ticks` restore exact tick deadline;
+- legacy contracts without `due_ticks` derive tick deadline from `due_day`;
+- failed runtime restore should not intentionally leave partial runtime mutation.
 
-- old saves without explicit `time` derive runtime clock from `current_day`;
-- old contracts without `due_ticks` derive tick deadline from `due_day`.
+Recommended migration for old saves:
 
-Migration action:
+1. Load the old save.
+2. Validate runtime state.
+3. Re-save with current SDK.
+4. Use the new file going forward.
 
-- after loading old saves, re-save them with 0.9.9+ to materialize explicit `time` and tick fields;
-- treat `.clcs` as compatibility-sensitive before 1.0.0 format policy is frozen.
+### Pointer/reference invalidation
 
-### Contract rewards header
+If your integration stores pointers/references/views returned by registry/catalog/runtime APIs, update it to store IDs instead.
 
-0.9.x docs referenced `clc/sim/ContractRewards.hpp`. The implementation existed, and declarations were in `Contracts.hpp`.
+General rule:
 
-Migration action:
+- mutating an owner invalidates pointers/references/views into that owner;
+- lookup again by ID after mutation;
+- copied reports/snapshots are safe to keep.
 
-- `ContractRewards.hpp` now exists as a forwarding public header;
-- including either `Contracts.hpp` or `ContractRewards.hpp` is acceptable for reward+ledger helpers.
+### CMake integration
 
-### Recommended integration path
+Installed SDK path:
 
-For new integrations, prefer:
-
-```cpp
-#include "clc/sim/SimulationRuntimeScenario.hpp"
-#include "clc/sim/SimulationRuntimeWorkflow.hpp"
-#include "clc/sim/SimulationRuntimeTick.hpp"
-#include "clc/sim/SimulationRuntimeEvents.hpp"
-#include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
+```cmake
+find_package(CityLifeCore CONFIG REQUIRED)
+target_link_libraries(my_game PRIVATE CityLifeCore::core)
 ```
 
-Avoid wiring all low-level subsystem catalogs manually unless you are building tools or tests.
+Configure external project:
+
+```bash
+cmake -S my_game -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
+```
+
+Example consumer:
+
+```text
+examples/find_package_consumer/
+```
 
 ---
 
 ## English
 
-### 0.9.x → 1.0.0-rc1: main topics
+### Who should use this guide
 
-Integrator-sensitive areas:
+Use this guide if your project already used early `0.9.x` versions of City Life Core and needs to move to the current SDK layout, tick runtime, runtime events, persistence and recommended headers.
 
-- public header status;
-- tick-based runtime semantics;
-- day/tick dual fields;
-- runtime event timestamps;
-- persistence compatibility;
-- examples and recommended integration flow;
-- package/install consumer flow.
+New projects can start with:
 
-### Public headers
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
-In 0.9.x, all headers under `include/clc/` were installed and could effectively be used as public surface.
+and the documentation:
 
-Before 1.0.0, headers are classified in `docs/PUBLIC_API_STATUS.md`:
+```text
+README.md
+docs/PUBLIC_API.md
+docs/SDK_STRUCTURE.md
+```
 
-- `stable-candidate`;
-- `experimental`;
-- `diagnostics`;
-- `legacy`;
-- `internal-risk`.
+### Migration checklist
 
-Migration action:
+- [ ] Move to the recommended include `clc/CityLifeCore.hpp` or stable-candidate headers.
+- [ ] Check header usage against `docs/PUBLIC_API_STATUS.md`.
+- [ ] For real-time/MMO integrations, prefer tick-based APIs over day-only APIs.
+- [ ] Check route/caravan/contract day+tick fields.
+- [ ] Update runtime event consumers for absolute runtime ticks.
+- [ ] Use `buy_resource_with_ledger(...)` / `sell_resource_with_ledger(...)` instead of manual trade+ledger calls.
+- [ ] Use reward+ledger helpers for contract rewards.
+- [ ] Re-save older save files after loading to materialize explicit time/tick fields.
+- [ ] Check pointer/reference lifetime assumptions.
+- [ ] Verify external build through `find_package(CityLifeCore CONFIG REQUIRED)`.
 
-- external projects should depend primarily on stable-candidate runtime-level headers;
-- avoid depending on `internal-risk` headers unless you accept pre-1.0 churn;
-- treat `experimental` APIs as subject to change.
+### Includes
 
-### Tick runtime
+Recommended path for most integrations:
 
-0.9.9 introduced first-class tick runtime:
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
-- `SimulationRuntime::time`;
-- `travel_ticks`;
-- `ticks_remaining`;
-- `due_ticks`;
-- `advance_runtime_ticks(...)`;
-- `run_runtime_ticks(...)`;
-- tick-based arrival helpers.
+Selective includes are still supported:
 
-Migration action:
+```cpp
+#include "clc/core/Time.hpp"
+#include "clc/data/DataRegistry.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
+#include "clc/economy/Trade.hpp"
+```
 
-- for real-time/MMO games, prefer tick-based APIs over day-only APIs;
-- for turn/day games, day APIs remain available;
-- if both day and tick fields are set, ensure they are equivalent according to the documented tick scale.
+Do not use low-level/internal-risk headers as your main entry point unless you need a specific low-level feature.
+
+### Time model: days → ticks
+
+The core supports both day-based and tick-based flows.
+
+Base scale:
+
+```cpp
+clc::ticks_per_second() == 1;
+clc::ticks_per_minute() == 60;
+clc::ticks_per_hour()   == 3600;
+clc::ticks_per_day()    == 86400;
+```
+
+For real-time or server runtime flows, use ticks:
+
+```cpp
+auto five_minutes = clc::minutes_to_ticks(5);
+auto two_hours = clc::hours_to_ticks(2);
+```
+
+Fields to check:
+
+- `SimulationRuntime::time`
+- `SettlementRoute::travel_ticks`
+- `CaravanState::total_travel_ticks`
+- `CaravanState::ticks_remaining`
+- `ResourceDeliveryContract::due_ticks`
+
+Day fields remain available for turn/day games and legacy data.
+
+### Routes
+
+Old day-style route:
+
+```cpp
+auto route = clc::sim::make_settlement_route_days(
+    "riverwatch_to_hillford",
+    "Riverwatch to Hillford",
+    "riverwatch",
+    "hillford",
+    2
+);
+```
+
+Tick-style route:
+
+```cpp
+auto route = clc::sim::make_settlement_route_ticks(
+    "riverwatch_to_hillford_3h",
+    "Riverwatch to Hillford 3h",
+    "riverwatch",
+    "hillford",
+    clc::hours_to_ticks(3)
+);
+```
+
+### Runtime execution
+
+Day-based execution remains available:
+
+```cpp
+clc::sim::run_runtime_days(runtime, 2);
+```
+
+Recommended tick-based execution:
+
+```cpp
+clc::sim::run_runtime_ticks(
+    runtime,
+    clc::hours_to_ticks(2),
+    clc::minutes_to_ticks(30)
+);
+```
 
 ### Caravan arrival semantics
 
-`CaravanAdvanceReport::arrived` means the caravan is arrived after the advance call.
+`CaravanAdvanceReport::arrived` means “the caravan is in arrived state after advance”.
 
-A new arrival event should be interpreted as:
+For “arrived during this advance” event semantics, use:
 
 ```cpp
 report.arrived && report.ticks_elapsed > 0
 ```
 
-Migration action:
-
-- direct users of `advance_caravan_ticks(...)` or `advance_caravan_day(...)` should not treat `arrived == true` alone as a new-arrival event;
-- runtime orchestration already filters repeated arrivals by `ticks_elapsed > 0`.
-
-### Runtime event timestamps
-
-0.9.9 moves runtime event timestamps to absolute runtime ticks.
-
-Migration action:
-
-- do not interpret event `tick` as a day number;
-- use `ticks_per_day()` or conversion helpers if you need day-level display;
-- event replay/backends should store absolute ticks.
+This matters if you call `advance_caravan_ticks(...)` or `advance_caravan_day(...)` directly and generate your own events.
 
 ### Runtime events
 
-Current event names:
+Runtime event timestamps use absolute runtime ticks.
+
+Do not interpret event tick as a day number. For day display, use:
+
+```cpp
+auto day = event.tick / clc::ticks_per_day();
+```
+
+Documented runtime event names:
 
 - `runtime.day.completed`
 - `runtime.tick.completed`
@@ -226,44 +403,79 @@ Current event names:
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
 
-Migration action:
+Event consumers should ignore unknown event types unless the game requires strict schemas.
 
-- update consumers to accept `runtime.tick.completed`;
-- update consumers to validate payload schemas once frozen before 1.0.0.
+### Economy: manual trade → trade+ledger wrappers
+
+If your code previously did trade and then wrote the ledger separately, replace it with wrappers:
+
+```cpp
+clc::economy::buy_resource_with_ledger(wallet, storage, price, quantity, ledger);
+clc::economy::sell_resource_with_ledger(wallet, storage, price, quantity, ledger);
+```
+
+Wrappers use staged mutation: wallet/storage/ledger are committed only when the whole operation succeeds.
+
+### Contracts: reward+ledger helpers
+
+Recommended reward path:
+
+```cpp
+clc::sim::fulfill_contract_from_storage_with_reward_and_ledger(
+    contracts,
+    contract_id,
+    delivered_storage,
+    wallet,
+    ledger
+);
+```
+
+`clc/sim/ContractRewards.hpp` exists as a public forwarding header. Including either `Contracts.hpp` or `ContractRewards.hpp` is acceptable for reward helpers.
 
 ### Persistence
 
-0.9.9 persists runtime time and tick fields.
+Current save/load behavior:
 
-Compatibility behavior:
+- saves with explicit runtime `time` restore exact runtime clock;
+- legacy saves without `time` derive runtime clock from `current_day`;
+- contracts with explicit `due_ticks` restore exact tick deadline;
+- legacy contracts without `due_ticks` derive tick deadline from `due_day`;
+- failed runtime restore should not intentionally leave partial runtime mutation.
 
-- old saves without explicit `time` derive runtime clock from `current_day`;
-- old contracts without `due_ticks` derive tick deadline from `due_day`.
+Recommended migration for old saves:
 
-Migration action:
+1. Load the old save.
+2. Validate runtime state.
+3. Re-save with the current SDK.
+4. Use the new file going forward.
 
-- after loading old saves, re-save them with 0.9.9+ to materialize explicit `time` and tick fields;
-- treat `.clcs` as compatibility-sensitive before 1.0.0 format policy is frozen.
+### Pointer/reference invalidation
 
-### Contract rewards header
+If your integration stores pointers/references/views returned by registry/catalog/runtime APIs, update it to store IDs instead.
 
-0.9.x docs referenced `clc/sim/ContractRewards.hpp`. The implementation existed, and declarations were in `Contracts.hpp`.
+General rule:
 
-Migration action:
+- mutating an owner invalidates pointers/references/views into that owner;
+- look up again by ID after mutation;
+- copied reports/snapshots are safe to keep.
 
-- `ContractRewards.hpp` now exists as a forwarding public header;
-- including either `Contracts.hpp` or `ContractRewards.hpp` is acceptable for reward+ledger helpers.
+### CMake integration
 
-### Recommended integration path
+Installed SDK path:
 
-For new integrations, prefer runtime-level headers:
-
-```cpp
-#include "clc/sim/SimulationRuntimeScenario.hpp"
-#include "clc/sim/SimulationRuntimeWorkflow.hpp"
-#include "clc/sim/SimulationRuntimeTick.hpp"
-#include "clc/sim/SimulationRuntimeEvents.hpp"
-#include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
+```cmake
+find_package(CityLifeCore CONFIG REQUIRED)
+target_link_libraries(my_game PRIVATE CityLifeCore::core)
 ```
 
-Avoid wiring every low-level subsystem catalog manually unless you are building tools or tests.
+Configure external project:
+
+```bash
+cmake -S my_game -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
+```
+
+Example consumer:
+
+```text
+examples/find_package_consumer/
+```
