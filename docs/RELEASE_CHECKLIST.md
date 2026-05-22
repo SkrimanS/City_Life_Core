@@ -27,6 +27,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Package docs name the license.
 - [ ] Third-party dependency/license notes are documented if dependencies are added.
 - [ ] `docs/PROTECTION_STRATEGY.md` is reviewed by the owner.
+- [ ] `SECURITY.md` is present and reviewed by the owner.
 - [ ] Official release channel is documented.
 - [ ] Policy for unofficial forks/builds is documented.
 
@@ -41,8 +42,11 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] CI is required before merge.
 - [ ] Release tags are signed or release signing policy is documented.
 - [ ] Release checksums are generated.
-- [ ] Release manifest is generated.
-- [ ] CODEOWNERS or equivalent ownership review policy is added for critical files.
+- [ ] Release manifest is generated from `docs/RELEASE_MANIFEST_TEMPLATE.md`.
+- [ ] `docs/VERIFYING_RELEASES.md` is included in release docs.
+- [ ] `.github/CODEOWNERS` or equivalent ownership review policy is added for critical files.
+- [ ] Official artifacts are linked only from official release notes/channels.
+- [ ] Unofficial forks/builds are explicitly forbidden from claiming official status.
 
 ## 4. Public API freeze / Freeze публичного API
 
@@ -123,4 +127,5 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release notes are final.
 - [ ] Tag naming follows `docs/VERSIONING.md`.
 - [ ] Release artifacts are attached or documented.
+- [ ] Release manifest/checksums are attached or linked.
 - [ ] Post-release compare confirms target branch/tag state.
