@@ -1,6 +1,7 @@
 #include "clc/sim/Settlement.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <utility>
 
 namespace clc::sim {
@@ -10,8 +11,25 @@ constexpr std::uint64_t k_people_per_food_unit = 10;
 constexpr std::uint64_t k_output_per_worker_per_day = 1;
 constexpr std::uint64_t k_input_per_worker_per_day = 1;
 
+std::uint64_t saturating_add(std::uint64_t lhs, std::uint64_t rhs) noexcept {
+    if (rhs > std::numeric_limits<std::uint64_t>::max() - lhs) {
+        return std::numeric_limits<std::uint64_t>::max();
+    }
+    return lhs + rhs;
+}
+
+std::uint64_t saturating_multiply(std::uint64_t lhs, std::uint64_t rhs) noexcept {
+    if (lhs != 0 && rhs > std::numeric_limits<std::uint64_t>::max() / lhs) {
+        return std::numeric_limits<std::uint64_t>::max();
+    }
+    return lhs * rhs;
+}
+
 std::uint64_t food_needed_for_population(std::uint64_t population) {
-    return (population + k_people_per_food_unit - 1) / k_people_per_food_unit;
+    if (population == 0) {
+        return 0;
+    }
+    return (population - 1) / k_people_per_food_unit + 1;
 }
 
 SettlementTickRemainder* remainder_by_key(SettlementState& settlement, std::string_view key) noexcept {
@@ -40,7 +58,8 @@ std::uint64_t consume_scaled_units(
     }
 
     const auto denominator = clc::ticks_per_day();
-    const auto numerator = remainder->numerator + (units_per_day * ticks);
+    const auto scaled_ticks = saturating_multiply(units_per_day, ticks);
+    const auto numerator = saturating_add(remainder->numerator, scaled_ticks);
     const auto whole_units = numerator / denominator;
     remainder->numerator = numerator % denominator;
     return whole_units;
@@ -67,7 +86,7 @@ std::uint64_t consume_inputs(
     std::uint64_t consumed{};
     for (const auto& input_resource_id : building_definition.input_resource_ids) {
         if (required_per_input > 0 && storage.try_remove(input_resource_id, required_per_input)) {
-            consumed += required_per_input;
+            consumed = saturating_add(consumed, required_per_input);
         }
     }
     return consumed;
@@ -138,14 +157,14 @@ SettlementTickReport advance_settlement_ticks(
         const auto input_required_per_resource = consume_scaled_units(
             settlement,
             "input:" + building.definition_id,
-            static_cast<std::uint64_t>(workers) * k_input_per_worker_per_day,
+            saturating_multiply(static_cast<std::uint64_t>(workers), k_input_per_worker_per_day),
             ticks
         );
 
         const auto produced_per_output = consume_scaled_units(
             settlement,
             "output:" + building.definition_id,
-            static_cast<std::uint64_t>(workers) * k_output_per_worker_per_day,
+            saturating_multiply(static_cast<std::uint64_t>(workers), k_output_per_worker_per_day),
             ticks
         );
 
@@ -159,7 +178,10 @@ SettlementTickReport advance_settlement_ticks(
             continue;
         }
 
-        report.consumed_inputs += consume_inputs(settlement.storage, *building_definition, input_required_per_resource);
+        report.consumed_inputs = saturating_add(
+            report.consumed_inputs,
+            consume_inputs(settlement.storage, *building_definition, input_required_per_resource)
+        );
         ++report.active_buildings;
 
         for (const auto& output_resource_id : building_definition->output_resource_ids) {
@@ -171,7 +193,7 @@ SettlementTickReport advance_settlement_ticks(
                 report.warnings.push_back("failed to store produced resource: " + output_resource_id);
                 continue;
             }
-            report.produced_resources += produced_per_output;
+            report.produced_resources = saturating_add(report.produced_resources, produced_per_output);
         }
     }
 
@@ -192,7 +214,7 @@ SettlementReport make_settlement_report(const SettlementState& settlement, const
     report.storage.reserve(settlement.storage.entries().size());
     for (const auto& [resource_id, amount] : settlement.storage.entries()) {
         report.storage.push_back(ResourceAmount{.resource_id = resource_id, .amount = amount});
-        report.total_stored_resources += amount;
+        report.total_stored_resources = saturating_add(report.total_stored_resources, amount);
     }
 
     std::sort(report.storage.begin(), report.storage.end(), [](const ResourceAmount& lhs, const ResourceAmount& rhs) {
