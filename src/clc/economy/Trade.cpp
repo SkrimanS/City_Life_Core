@@ -1,7 +1,10 @@
 #include "clc/economy/Trade.hpp"
 
+#include "clc/economy/Ledger.hpp"
+
 #include <limits>
 #include <string>
+#include <utility>
 
 namespace clc::economy {
 namespace {
@@ -19,6 +22,36 @@ TradeResult failed(std::string resource_id, std::uint64_t quantity, std::uint64_
         .total_price = 0,
         .message = std::move(message),
     };
+}
+
+TradeResult trade_with_ledger(
+    Wallet& wallet,
+    sim::ResourceStorage& storage,
+    const MarketPrice& price,
+    std::uint64_t quantity,
+    EconomyLedger& ledger,
+    LedgerEntryType type,
+    std::string note
+) {
+    auto wallet_copy = wallet;
+    auto storage_copy = storage;
+    auto ledger_copy = ledger;
+
+    auto result = type == LedgerEntryType::buy
+        ? buy_resource(wallet_copy, storage_copy, price, quantity)
+        : sell_resource(wallet_copy, storage_copy, price, quantity);
+    if (!result.ok) {
+        return result;
+    }
+
+    if (!ledger_copy.record(type, result, std::move(note))) {
+        return failed(result.resource_id, result.quantity, result.unit_price, "failed to record trade ledger entry");
+    }
+
+    wallet = wallet_copy;
+    storage = std::move(storage_copy);
+    ledger = std::move(ledger_copy);
+    return result;
 }
 
 } // namespace
@@ -90,6 +123,28 @@ TradeResult sell_resource(Wallet& wallet, sim::ResourceStorage& storage, const M
         .total_price = total_price,
         .message = "sold resource",
     };
+}
+
+TradeResult buy_resource_with_ledger(
+    Wallet& wallet,
+    sim::ResourceStorage& storage,
+    const MarketPrice& price,
+    std::uint64_t quantity,
+    EconomyLedger& ledger,
+    std::string note
+) {
+    return trade_with_ledger(wallet, storage, price, quantity, ledger, LedgerEntryType::buy, std::move(note));
+}
+
+TradeResult sell_resource_with_ledger(
+    Wallet& wallet,
+    sim::ResourceStorage& storage,
+    const MarketPrice& price,
+    std::uint64_t quantity,
+    EconomyLedger& ledger,
+    std::string note
+) {
+    return trade_with_ledger(wallet, storage, price, quantity, ledger, LedgerEntryType::sell, std::move(note));
 }
 
 } // namespace clc::economy
