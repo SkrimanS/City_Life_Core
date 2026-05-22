@@ -35,11 +35,19 @@ int main() {
         .category = "construction",
         .base_value = 6,
     }).ok(), "wood resource should register");
+    require(registry.add(clc::data::ResourceDefinition{
+        .id = "stone",
+        .display_name = "Stone",
+        .category = "construction",
+        .base_value = 8,
+    }).ok(), "stone resource should register");
 
     const auto* grain = registry.resource("grain");
     const auto* wood = registry.resource("wood");
+    const auto* stone = registry.resource("stone");
     require(grain != nullptr, "grain should exist");
     require(wood != nullptr, "wood should exist");
+    require(stone != nullptr, "stone should exist");
 
     const auto shortage = clc::economy::calculate_price(*grain, 16, 32);
     require(shortage.price > shortage.base_value, "shortage should raise price above base");
@@ -56,6 +64,8 @@ int main() {
     clc::economy::MarketState market;
     require(market.set_demand("grain", 32).ok(), "market should accept grain demand");
     require(market.set_demand("wood", 6).ok(), "market should accept wood demand");
+    require(market.set_demand("stone", 12).ok(), "market should accept demand-only stone");
+    require(market.set_demand("unknown_resource", 99).ok(), "market may store demand for unknown resources but reports should ignore it");
     require(market.demand("grain") == 32, "market should report grain demand");
     require(market.set_demand("wood", 0).ok(), "zero demand should clear demand entry");
     require(market.demand("wood") == 0, "cleared demand should be zero");
@@ -66,14 +76,19 @@ int main() {
     require(storage.add("wood", 24).ok(), "storage should accept wood supply");
 
     const auto prices = clc::economy::calculate_market_prices(registry, storage, market);
-    require(prices.size() == 2, "market should price registered resources present in storage");
+    require(prices.size() == 3, "market should price storage resources and registered demand-only resources");
     require(prices[0].resource_id == "grain", "market prices should be sorted by resource id");
-    require(prices[1].resource_id == "wood", "market prices should include wood");
+    require(prices[1].resource_id == "stone", "market prices should include demand-only stone");
+    require(prices[1].supply == 0, "demand-only resource should report zero supply");
+    require(prices[1].demand == 12, "demand-only resource should report configured demand");
+    require(prices[1].price > prices[1].base_value, "demand-only resource should get shortage premium");
+    require(prices[1].reason == "demand exceeds supply", "demand-only resource should explain shortage");
+    require(prices[2].resource_id == "wood", "market prices should include wood");
 
     const auto report = clc::economy::make_market_report(registry, storage, market);
-    require(report.prices.size() == 2, "market report should include price rows");
+    require(report.prices.size() == 3, "market report should include demand-only price rows");
     require(report.total_supply == 40, "market report should aggregate total supply");
-    require(report.total_demand == 38, "market report should aggregate total demand");
+    require(report.total_demand == 50, "market report should aggregate total demand including demand-only resources");
     require(report.min_price >= 1, "market report min price should stay positive");
     require(report.max_price >= report.min_price, "market report max price should be >= min price");
     require(report.average_price >= report.min_price, "market report average price should be >= min price");
@@ -81,12 +96,12 @@ int main() {
 
     clc::sim::ResourceStorage empty_storage;
     const auto empty_report = clc::economy::make_market_report(registry, empty_storage, market);
-    require(empty_report.prices.empty(), "empty market report should have no price rows");
-    require(empty_report.total_supply == 0, "empty market report should have zero supply");
-    require(empty_report.total_demand == 0, "empty market report should have zero demand");
-    require(empty_report.average_price == 0, "empty market report should have zero average price");
-    require(empty_report.min_price == 0, "empty market report should have zero min price");
-    require(empty_report.max_price == 0, "empty market report should have zero max price");
+    require(empty_report.prices.size() == 3, "empty storage with registered demand should still report demand-only prices");
+    require(empty_report.total_supply == 0, "empty storage demand-only report should have zero supply");
+    require(empty_report.total_demand == 50, "empty storage demand-only report should aggregate demand");
+    require(empty_report.average_price >= 1, "demand-only market report should have positive average price");
+    require(empty_report.min_price >= 1, "demand-only market report should have positive min price");
+    require(empty_report.max_price >= empty_report.min_price, "demand-only market report max price should be >= min price");
 
     clc::economy::Wallet wallet{.coins = 100};
     clc::sim::ResourceStorage trade_storage;
