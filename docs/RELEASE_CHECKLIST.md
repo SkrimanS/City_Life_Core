@@ -129,6 +129,7 @@ This checklist must be completed before publishing a public SDK release or relea
 
 - [ ] `cmake --install` works.
 - [ ] CMake package config works from install prefix.
+- [ ] CMake package variables exist: `CityLifeCore_INCLUDE_DIR`, `CityLifeCore_DOCS_DIR`, `CityLifeCore_DATA_DIR`, `CityLifeCore_EXAMPLES_DIR`.
 - [ ] Installed C++ consumer builds and runs.
 - [ ] Installed C ABI consumer builds and runs.
 - [ ] CPack ZIP package builds.
