@@ -26,8 +26,25 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] README names the license.
 - [ ] Package docs name the license.
 - [ ] Third-party dependency/license notes are documented if dependencies are added.
+- [ ] `docs/PROTECTION_STRATEGY.md` is reviewed by the owner.
+- [ ] Official release channel is documented.
+- [ ] Policy for unofficial forks/builds is documented.
 
-## 3. Public API freeze / Freeze публичного API
+## 3. Project protection / Защита проекта
+
+- [ ] License model is chosen: proprietary/source-available/open-source/dual-license.
+- [ ] External contribution policy is chosen.
+- [ ] `CONTRIBUTING.md` exists or contributions are explicitly closed for now.
+- [ ] DCO/CLA policy is chosen if external contributions are accepted.
+- [ ] `main` branch is protected.
+- [ ] Force push is disabled for protected branches.
+- [ ] CI is required before merge.
+- [ ] Release tags are signed or release signing policy is documented.
+- [ ] Release checksums are generated.
+- [ ] Release manifest is generated.
+- [ ] CODEOWNERS or equivalent ownership review policy is added for critical files.
+
+## 4. Public API freeze / Freeze публичного API
 
 - [ ] `docs/PUBLIC_API_STATUS.md` lists every installed public header.
 - [ ] Every header is classified as stable/experimental/diagnostics/legacy/internal-risk.
@@ -38,7 +55,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Pointer/reference invalidation rules are documented in `PUBLIC_API.md`.
 - [ ] Missing documented headers are fixed or removed from docs.
 
-## 4. Compatibility / Совместимость
+## 5. Compatibility / Совместимость
 
 - [ ] Tick/time model is frozen.
 - [ ] Day/tick dual-field policy is frozen.
@@ -49,7 +66,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Data-pack schema compatibility policy is documented.
 - [ ] Migration guide from 0.9.x to target release exists.
 
-## 5. Code hardening / Укрепление кода
+## 6. Code hardening / Укрепление кода
 
 - [ ] `ResourceStorage::transfer` rollback/exception safety is hardened.
 - [ ] Runtime cargo load/unload/delivery rollback is hardened.
@@ -62,7 +79,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Market demand-only resources are represented in market reports.
 - [ ] Recommended trade+ledger wrapper exists or docs warn users explicitly.
 
-## 6. Tests / Тесты
+## 7. Tests / Тесты
 
 - [ ] Unit tests pass on supported platforms.
 - [ ] Runtime tick tests pass.
@@ -74,7 +91,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] External `find_package(CityLifeCore CONFIG REQUIRED)` example builds.
 - [ ] CI covers tests and examples.
 
-## 7. Benchmarks / Бенчмарки
+## 8. Benchmarks / Бенчмарки
 
 - [ ] `CLC_BUILD_BENCHMARKS` or equivalent benchmark flow exists.
 - [ ] 10/100 settlement × 365-day baseline is recorded.
@@ -86,7 +103,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Ledger 1k/100k/1M baseline is recorded.
 - [ ] Bulk cargo delivery baseline is recorded.
 
-## 8. Packaging / Упаковка
+## 9. Packaging / Упаковка
 
 - [ ] `cmake --install` works.
 - [ ] CMake package config works from install prefix.
@@ -98,7 +115,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Static/shared policy is documented.
 - [ ] Source-only vs binary release policy is documented.
 
-## 9. Release execution / Выполнение релиза
+## 10. Release execution / Выполнение релиза
 
 - [ ] Release branch is created from current `main`.
 - [ ] No force push is used unless explicitly approved.
