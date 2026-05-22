@@ -59,4 +59,15 @@ private:
     const MarketState& market
 );
 
+[[nodiscard]] const MarketPrice* market_price_by_resource(
+    const MarketReport& report,
+    std::string_view resource_id
+) noexcept;
+
+[[nodiscard]] std::uint64_t market_price_or(
+    const MarketReport& report,
+    std::string_view resource_id,
+    std::uint64_t fallback_price = 0
+) noexcept;
+
 } // namespace clc::economy
