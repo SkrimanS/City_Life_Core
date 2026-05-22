@@ -1,10 +1,10 @@
 # Public API Status / Статус публичного API
 
-Status: **draft for 1.0.0-rc1 / черновик для 1.0.0-rc1**
+Version: **0.9.9**
 
-All headers under `include/clc/` are installed, but they are not all equally stable. This table classifies the current 0.9.9 public header surface before the 1.0.0 API freeze.
+This document classifies the installed City Life Core headers by intended SDK usage.
 
-Все headers внутри `include/clc/` устанавливаются, но не все имеют одинаковый уровень стабильности. Эта таблица классифицирует текущую public header surface версии 0.9.9 перед freeze API для 1.0.0.
+Этот документ классифицирует установленные headers City Life Core по назначению для SDK users.
 
 ---
 
@@ -12,77 +12,124 @@ All headers under `include/clc/` are installed, but they are not all equally sta
 
 | Status | Meaning |
 | --- | --- |
-| `stable-candidate` | Expected to be stable for 1.0.0 after final audit. |
-| `experimental` | Public but may change before/after 1.0 unless explicitly promoted. |
-| `diagnostics` | Public observability/testing/validation API. Compatibility is narrower and schema-driven. |
+| `recommended` | Preferred SDK surface for most integrations. |
+| `stable-candidate` | Public SDK surface intended for direct use. |
+| `diagnostics` | Public observability, validation, replay or tooling API. |
+| `experimental` | Public API that may change more easily. |
 | `legacy` | Kept for compatibility; not preferred for new code. |
-| `internal-risk` | Installed today, but should not be treated as stable SDK surface until reviewed. |
+| `specialized` | Public but low-level or broad; use deliberately. |
+
+Recommended first include:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
 ---
 
 ## Header table / Таблица headers
 
-| Header | Status | Intended users | Notes |
+| Header | Status | Intended users | Recommendation |
 | --- | --- | --- | --- |
-| `clc/core/Version.hpp` | `stable-candidate` | all SDK users | Version API must stay small and stable. |
-| `clc/core/Ids.hpp` | `stable-candidate` | SDK users needing typed IDs | Freeze naming before 1.0. |
-| `clc/core/Result.hpp` | `stable-candidate` | low-level SDK users | Error/result conventions should be stable. |
-| `clc/core/Time.hpp` | `stable-candidate` | runtime/game/server code | Tick scale must be frozen before 1.0. |
-| `clc/core/EventLog.hpp` | `stable-candidate` | diagnostics/runtime users | Event storage API stable candidate; event schemas documented separately. |
-| `clc/core/World.hpp` | `legacy` | simple bootstrap users | Lower-level than runtime; not preferred for full simulation integration. |
-| `clc/data/Definitions.hpp` | `stable-candidate` | data/model authors | Data schema compatibility still needs final policy. |
-| `clc/data/Validation.hpp` | `stable-candidate` | all SDK users | Validation report convention should be stable. |
-| `clc/data/DataRegistry.hpp` | `stable-candidate` | data/runtime users | Registry lookup should remain stable. |
-| `clc/data/DataPackLoader.hpp` | `experimental` | tool/data-pack users | Data pack schema is not frozen yet. |
-| `clc/economy/Market.hpp` | `stable-candidate` | economy users | Demand-only resources and semantics still need hardening. |
-| `clc/economy/Trade.hpp` | `stable-candidate` | economy users | Abstract-market model should be documented as non-conservation by default. |
-| `clc/economy/Ledger.hpp` | `stable-candidate` | economy/runtime users | Sequence/restore validation needs hardening before 1.0. |
-| `clc/economy/Orders.hpp` | `experimental` | market/order users | Decide whether order matching is part of 1.0 MVP. |
-| `clc/sim/Storage.hpp` | `stable-candidate` | simulation/runtime users | Transfer rollback/exception safety needs hardening. |
-| `clc/sim/Settlement.hpp` | `stable-candidate` | simulation/runtime users | Tick scaling overflow checks needed before final. |
-| `clc/sim/SimulationEngine.hpp` | `stable-candidate` | advanced simulation users | Runtime is preferred integration layer. |
-| `clc/sim/ScenarioCatalog.hpp` | `experimental` | test/demo/scenario users | Looks like helper/demo layer, not core 1.0 surface. |
-| `clc/sim/Routes.hpp` | `stable-candidate` | runtime/world users | Day/tick dual fields must be frozen. |
-| `clc/sim/Caravans.hpp` | `stable-candidate` | runtime/world users | `arrived` means arrived after advance; event arrival requires elapsed ticks > 0. |
-| `clc/sim/Factions.hpp` | `stable-candidate` | runtime/world users | Stable candidate. |
-| `clc/sim/Ownership.hpp` | `stable-candidate` | runtime/world users | Stable candidate; pointer lifetime rules apply. |
-| `clc/sim/Contracts.hpp` | `stable-candidate` | runtime/world users | `due_ticks` model must be frozen. |
-| `clc/sim/SimulationRuntime.hpp` | `stable-candidate` | primary runtime integrators | Mutable data-bag decision must be accepted or facade introduced. |
-| `clc/sim/SimulationRuntimeScenario.hpp` | `stable-candidate` | SDK examples/tests/quickstart | Basic bootstrap API useful but should not be the only integration path. |
-| `clc/sim/SimulationRuntimeWorkflow.hpp` | `stable-candidate` | primary runtime integrators | Rollback/transaction safety needs hardening before final. |
-| `clc/sim/SimulationRuntimeTick.hpp` | `experimental` | real-time/MMO runtime users | New in 0.9.9; either freeze for 1.0 or keep experimental. |
-| `clc/sim/SimulationRuntimeEvents.hpp` | `diagnostics` | diagnostics/replay/backend users | Event names/payload schemas must be frozen separately. |
-| `clc/sim/SimulationPersistence.hpp` | `internal-risk` | persistence/tooling users | Raw world-state bridge is powerful but too broad for stable SDK until reviewed. |
-| `clc/sim/SimulationRuntimePersistenceValidation.hpp` | `diagnostics` | tests/auditors/backend users | Useful for save/load/replay validation; stable behavior should be documented. |
+| `clc/CityLifeCore.hpp` | `recommended` | all SDK users | Start here for most game/server integrations. |
+| `clc/core/Version.hpp` | `stable-candidate` | all SDK users | Use for version checks and diagnostics. |
+| `clc/core/Ids.hpp` | `stable-candidate` | SDK users needing typed IDs | Use when integrating ID-heavy systems. |
+| `clc/core/Result.hpp` | `stable-candidate` | low-level SDK users | Use for result/error-style helpers. |
+| `clc/core/Time.hpp` | `stable-candidate` | runtime/game/server code | Use for ticks, runtime clocks and conversions. |
+| `clc/core/EventLog.hpp` | `stable-candidate` | diagnostics/runtime users | Use for in-memory event logs. |
+| `clc/core/World.hpp` | `legacy` | simple bootstrap users | Prefer runtime APIs for full simulation integration. |
+| `clc/data/Definitions.hpp` | `stable-candidate` | data/model authors | Use to define resources, settlements, buildings and professions. |
+| `clc/data/Validation.hpp` | `stable-candidate` | all SDK users | Use to inspect validation errors and warnings. |
+| `clc/data/DataRegistry.hpp` | `stable-candidate` | data/runtime users | Use to store and validate definitions. |
+| `clc/data/DataPackLoader.hpp` | `experimental` | tool/data-pack users | Use when loading `.clcd` data packs directly. |
+| `clc/economy/Market.hpp` | `stable-candidate` | economy users | Use for market prices and demand/supply reporting. |
+| `clc/economy/Trade.hpp` | `stable-candidate` | economy users | Prefer trade+ledger wrappers for game flows. |
+| `clc/economy/Ledger.hpp` | `stable-candidate` | economy/runtime users | Use to record buy/sell/contract reward history. |
+| `clc/economy/Orders.hpp` | `experimental` | market/order users | Use only if you need the order layer. |
+| `clc/sim/Storage.hpp` | `stable-candidate` | simulation/runtime users | Use for resource storage and transfer operations. |
+| `clc/sim/Settlement.hpp` | `stable-candidate` | simulation/runtime users | Use for settlement state, ticks, reports and buildings. |
+| `clc/sim/SimulationEngine.hpp` | `stable-candidate` | advanced simulation users | Use when you need engine-level day simulation. |
+| `clc/sim/ScenarioCatalog.hpp` | `experimental` | test/demo/scenario users | Prefer explicit registries for production integrations. |
+| `clc/sim/Routes.hpp` | `stable-candidate` | runtime/world users | Use for day/tick settlement routes. |
+| `clc/sim/Caravans.hpp` | `stable-candidate` | runtime/world users | Use for caravan state, cargo and travel progress. |
+| `clc/sim/Factions.hpp` | `stable-candidate` | runtime/world users | Use for factions and reputation. |
+| `clc/sim/Ownership.hpp` | `stable-candidate` | runtime/world users | Use for settlement/caravan ownership. |
+| `clc/sim/Contracts.hpp` | `stable-candidate` | runtime/world users | Use for delivery contracts and deadlines. |
+| `clc/sim/ContractRewards.hpp` | `stable-candidate` | runtime/economy users | Include reward+ledger helpers explicitly if desired. |
+| `clc/sim/SimulationRuntime.hpp` | `stable-candidate` | primary runtime integrators | Use as the runtime state container. Prefer workflow helpers for mutation. |
+| `clc/sim/SimulationRuntimeScenario.hpp` | `stable-candidate` | SDK examples/quickstart | Use for quick bootstrap scenarios and examples. |
+| `clc/sim/SimulationRuntimeWorkflow.hpp` | `stable-candidate` | primary runtime integrators | Use for invariant-preserving runtime operations. |
+| `clc/sim/SimulationRuntimeTick.hpp` | `stable-candidate` | real-time/MMO runtime users | Use for tick/day runtime advancement. |
+| `clc/sim/SimulationRuntimeEvents.hpp` | `diagnostics` | diagnostics/replay/backend users | Use for runtime event append, analysis and validation. |
+| `clc/sim/SimulationPersistence.hpp` | `specialized` | persistence/tooling users | Use deliberately for raw world-state save/load and bridge APIs. |
+| `clc/sim/SimulationRuntimePersistenceValidation.hpp` | `diagnostics` | tests/backend/tooling users | Use for save/load roundtrip and replay validation. |
 
 ---
 
-## Required decisions before 1.0.0
+## Recommended integration layers
 
-- Promote or keep experimental: `SimulationRuntimeTick.hpp`.
-- Decide whether `SimulationPersistence.hpp` remains installed stable API or moves to diagnostics/internal-risk documentation.
-- Decide whether `ScenarioCatalog.hpp` is part of 1.0 SDK.
-- Decide whether `Orders.hpp` is part of 1.0 economy MVP.
-- Accept public mutable `SimulationRuntime` as stable or introduce a facade.
-- Document pointer/reference invalidation rules in `PUBLIC_API.md`.
-- Freeze event payload schemas.
-- Freeze persistence compatibility policy.
-- Fix documented-but-missing `ContractRewards.hpp` mismatch before release docs freeze.
+### Most games and servers
 
----
-
-## Notes for SDK users / Заметки для пользователей SDK
-
-For 0.9.9 audit, prefer these headers:
+Use:
 
 ```cpp
-#include "clc/core/Time.hpp"
+#include "clc/CityLifeCore.hpp"
+```
+
+and start from runtime workflows:
+
+```cpp
+auto bootstrap = clc::sim::make_basic_runtime_scenario();
+auto& runtime = bootstrap.runtime;
+clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
+```
+
+### Data/model tooling
+
+Use:
+
+```cpp
+#include "clc/data/Definitions.hpp"
 #include "clc/data/DataRegistry.hpp"
-#include "clc/sim/SimulationRuntimeScenario.hpp"
-#include "clc/sim/SimulationRuntimeWorkflow.hpp"
-#include "clc/sim/SimulationRuntimeTick.hpp"
-#include "clc/sim/SimulationRuntimeEvents.hpp"
+#include "clc/data/Validation.hpp"
+```
+
+### Economy integrations
+
+Use:
+
+```cpp
+#include "clc/economy/Market.hpp"
+#include "clc/economy/Trade.hpp"
+#include "clc/economy/Ledger.hpp"
+```
+
+Prefer:
+
+```cpp
+clc::economy::buy_resource_with_ledger(wallet, storage, price, quantity, ledger);
+clc::economy::sell_resource_with_ledger(wallet, storage, price, quantity, ledger);
+```
+
+### Save/load and replay tooling
+
+Use:
+
+```cpp
+#include "clc/sim/SimulationPersistence.hpp"
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 ```
 
-Для 0.9.9 audit лучше начинать с runtime-level API и не завязываться на raw persistence bridge без необходимости.
+Raw persistence APIs are intentionally powerful. Treat them as specialized integration APIs, not the first API surface for gameplay code.
+
+---
+
+## Usage rules for SDK users
+
+- Prefer `clc/CityLifeCore.hpp` for general integration.
+- Prefer runtime workflow helpers over direct mutation of runtime fields.
+- Store IDs instead of long-lived pointers/references into registries, catalogs or runtime containers.
+- Use tick-based APIs for real-time, MMO and server-authoritative systems.
+- Use day-based APIs for daily/turn-based games.
+- Use diagnostics APIs for validation, replay, tooling and backend checks.
+- Use experimental APIs only when you accept easier future changes.
