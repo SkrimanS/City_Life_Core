@@ -28,14 +28,19 @@ int main() {
         return 1;
     }
 
-    const auto run = clc::sim::run_runtime_days(runtime, 2);
+    const auto run = clc::sim::run_runtime_ticks(
+        runtime,
+        clc::days_to_ticks(2),
+        clc::hours_to_ticks(6)
+    );
 
     if (!run.ok()) {
-        std::cerr << "runtime run failed\n";
+        std::cerr << "runtime tick run failed\n";
         return 1;
     }
 
-    std::cout << "Days run: " << run.summary.days_run << "\n";
+    std::cout << "Tick steps: " << run.summary.tick_steps << "\n";
+    std::cout << "Ticks elapsed: " << run.summary.ticks_elapsed << "\n";
     std::cout << "Caravan ticks: " << run.summary.caravan_ticks << "\n";
     std::cout << "Caravan arrivals: " << run.summary.caravan_arrivals << "\n";
     std::cout << "Contract failures: " << run.summary.contract_failures << "\n";
