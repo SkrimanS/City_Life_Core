@@ -13,7 +13,11 @@ clc_version clc_core_version_c(void) {
 }
 
 const char* clc_core_version_string_c(void) {
-    return clc::core_version_string().data();
+    return "0.9.9";
+}
+
+uint32_t clc_c_interface_version_c(void) {
+    return 1u;
 }
 
 uint64_t clc_ticks_per_second_c(void) {
