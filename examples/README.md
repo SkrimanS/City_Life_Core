@@ -33,20 +33,50 @@ Shows:
 
 - creating a basic runtime scenario;
 - creating a caravan on a route;
-- running runtime ticks;
-- reading run summary values.
+- running runtime ticks in fixed tick chunks;
+- reading tick-run summary values.
 
 Показывает:
 
 - создание базового runtime-сценария;
 - создание каравана на маршруте;
-- запуск runtime tick'ов;
-- чтение summary по результатам симуляции.
+- запуск runtime tick'ов фиксированными чанками;
+- чтение tick-run summary по результатам симуляции.
 
 Run:
 
 ```bash
 ./build/clc_example_basic_runtime
+```
+
+### `clc_example_tick_runtime`
+
+Source: `examples/tick_runtime.cpp`
+
+Shows the preferred real-time/MMO-style 0.9.9 flow:
+
+- create a tick-based route;
+- create and own a caravan;
+- load cargo at origin;
+- wait for arrival by ticks;
+- fulfill a resource delivery contract;
+- record reward ledger entry;
+- explicitly deliver remaining cargo into destination storage.
+
+Показывает предпочтительный real-time/MMO-style flow версии 0.9.9:
+
+- создание tick-based маршрута;
+- создание каравана и назначение владельца;
+- загрузку cargo в origin;
+- ожидание прибытия по ticks;
+- выполнение resource delivery contract;
+- запись reward ledger entry;
+- явную доставку оставшегося cargo в destination storage.
+
+Run:
+
+```bash
+./build/clc_example_tick_runtime
 ```
 
 ### `clc_example_save_load_roundtrip`
@@ -97,6 +127,30 @@ Run:
 
 ```bash
 ./build/clc_example_replay_persistence
+```
+
+---
+
+## Installed SDK consumer example / Пример внешнего consumer-проекта
+
+`examples/find_package_consumer/` is a standalone consumer project. It is meant to be built outside the repository after City Life Core has been installed.
+
+`examples/find_package_consumer/` — это отдельный consumer-проект. Его нужно собирать вне репозитория после установки City Life Core.
+
+Install City Life Core:
+
+```bash
+cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF
+cmake --build build-sdk
+cmake --install build-sdk --prefix /tmp/city-life-core-sdk
+```
+
+Build the consumer against the installed SDK:
+
+```bash
+cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
+cmake --build build-consumer
+./build-consumer/city_life_core_consumer
 ```
 
 ---
