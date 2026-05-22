@@ -14,6 +14,7 @@ City Life Core может собрать SDK архив с install-layout чер
 cmake -S . -B build-sdk-zip -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
 cmake --build build-sdk-zip --config Release
 cpack --config build-sdk-zip/CPackConfig.cmake -G ZIP
+cmake -E sha256sum city-life-core-sdk-*.zip > SHA256SUMS.txt
 ```
 
 The generated archive name follows this pattern:
@@ -26,6 +27,12 @@ Example:
 
 ```text
 city-life-core-sdk-0.9.9-Linux-x86_64.zip
+```
+
+Checksum file:
+
+```text
+SHA256SUMS.txt
 ```
 
 ---
@@ -83,6 +90,19 @@ Recommended include:
 
 ---
 
+## Verify ZIP package checksum
+
+After downloading or copying the archive, verify the checksum:
+
+```bash
+cmake -E sha256sum city-life-core-sdk-0.9.9-Linux-x86_64.zip
+cat SHA256SUMS.txt
+```
+
+The hash printed for the ZIP should match the hash in `SHA256SUMS.txt`.
+
+---
+
 ## Verify ZIP package with bundled consumer
 
 After unpacking, build the standalone consumer example against the installed package:
@@ -99,6 +119,17 @@ This checks:
 - exported CMake target `CityLifeCore::core`;
 - package config files;
 - minimal runtime tick execution from an external project.
+
+---
+
+## CI artifact
+
+The CI workflow builds the ZIP package and uploads both:
+
+```text
+city-life-core-sdk-*.zip
+SHA256SUMS.txt
+```
 
 ---
 
