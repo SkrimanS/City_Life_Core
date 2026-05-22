@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <limits>
+#include <string>
+#include <unordered_set>
 #include <utility>
 
 namespace clc::economy {
@@ -80,7 +82,9 @@ MarketPrice calculate_price(const data::ResourceDefinition& resource, std::uint6
 
 std::vector<MarketPrice> calculate_market_prices(const data::DataRegistry& registry, const sim::ResourceStorage& storage, const MarketState& market) {
     std::vector<MarketPrice> prices;
-    prices.reserve(storage.entries().size());
+    prices.reserve(storage.entries().size() + market.demands().size());
+    std::unordered_set<std::string> included_resource_ids;
+    included_resource_ids.reserve(storage.entries().size() + market.demands().size());
 
     for (const auto& [resource_id, supply] : storage.entries()) {
         const auto* resource = registry.resource(resource_id);
@@ -88,6 +92,20 @@ std::vector<MarketPrice> calculate_market_prices(const data::DataRegistry& regis
             continue;
         }
         prices.push_back(calculate_price(*resource, supply, market.demand(resource_id)));
+        included_resource_ids.insert(resource_id);
+    }
+
+    for (const auto& [resource_id, demand] : market.demands()) {
+        if (included_resource_ids.find(resource_id) != included_resource_ids.end()) {
+            continue;
+        }
+
+        const auto* resource = registry.resource(resource_id);
+        if (resource == nullptr) {
+            continue;
+        }
+
+        prices.push_back(calculate_price(*resource, 0, demand));
     }
 
     std::sort(prices.begin(), prices.end(), [](const MarketPrice& lhs, const MarketPrice& rhs) {
