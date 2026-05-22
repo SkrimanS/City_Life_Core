@@ -19,7 +19,8 @@ No technical measure can fully prevent someone from copying code they can read. 
 3. **Trademark/name protection / Защита имени** — who can use the project name and brand.
 4. **Release provenance / Происхождение релизов** — how users verify official builds.
 5. **Contributor policy / Политика вкладов** — how external code enters the project.
-6. **Closed assets or dual licensing / Закрытые активы или dual licensing** — optional commercial protection.
+6. **Closed core, source-available core, or dual licensing / Закрытое ядро, source-available ядро или dual licensing** — optional commercial protection.
+7. **Official extension points / Официальные точки расширения** — how users modify behavior without replacing the official core.
 
 ---
 
@@ -143,7 +144,36 @@ Protection measures:
 
 ---
 
-## 7. Anti-copy expectations
+## 7. Future 3.x+ closed-core or source-available model
+
+For 1.x and 2.x, City Life Core can remain a source-first SDK while the public API stabilizes and real integrations are validated.
+
+For 3.x and later, the owner may switch to a more protected model without blocking legitimate customization. Possible direction:
+
+- keep the **official core** closed or source-available under restricted redistribution terms;
+- publish public headers, SDK docs, and binary packages;
+- expose official extension points for mods/plugins/data packs;
+- keep data definitions, scenario packs, and runtime configuration modifiable;
+- allow game developers to extend behavior through documented APIs instead of modifying core internals;
+- sign official SDK packages;
+- reject the claim that modified core forks are official unless explicitly approved.
+
+This model protects the identity and integrity of the core while still allowing modification through supported boundaries.
+
+Для 3.x+ можно перейти к модели: закрытое или source-available ядро, но с официальными точками расширения. Цель — не запретить моддинг, а не дать людям выдавать изменённое ядро за официальное.
+
+Recommended architecture work before that transition:
+
+- define plugin/mod API boundaries;
+- separate stable public SDK from internal engine internals;
+- document data-pack schemas;
+- add signed package/release manifest workflow;
+- define what modifications are allowed without calling the build official;
+- define what modifications require a separate fork name.
+
+---
+
+## 8. Anti-copy expectations
 
 What is realistic:
 
@@ -151,6 +181,7 @@ What is realistic:
 - You can protect the official name and official release channel.
 - You can prove what the official version is through signed tags/checksums.
 - You can require modifications to be published if using a suitable copyleft license.
+- You can forbid modified third-party builds from claiming official status.
 
 What is not realistic:
 
@@ -161,7 +192,7 @@ What is not realistic:
 
 ---
 
-## 8. Minimum protection checklist before 1.0.0-rc1
+## 9. Minimum protection checklist before 1.0.0-rc1
 
 - [ ] Choose license model.
 - [ ] Add root `LICENSE`.
@@ -177,6 +208,7 @@ What is not realistic:
 - [ ] Add release manifest.
 - [ ] Define official release channel.
 - [ ] Document that unofficial forks/builds are not official City Life Core releases.
+- [ ] Document future 3.x+ closed-core/source-available direction if the owner chooses it.
 
 ---
 
@@ -187,5 +219,6 @@ For the current pre-1.0 phase, the safest non-final policy is:
 - do not publish 1.0 until a license is chosen;
 - do not accept outside code unless contribution terms are clear;
 - treat `v/1.0-rc-prep` as internal stabilization work;
-- release `1.0.0-rc1` only with LICENSE, checksums, release notes, and public API status;
+- release `1.0.0-rc1` only with LICENSE, checksums, release notes, security policy, verification guide, and public API status;
+- for 3.x+, evaluate closed-core/source-available distribution with official extension points;
 - decide later whether to add commercial licensing or trademark policy.
