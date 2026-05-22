@@ -1,53 +1,77 @@
 # Compatibility Policy / Политика совместимости
 
-Status: **draft for 1.0.0-rc1 / черновик для 1.0.0-rc1**
+Version: **0.9.9**
 
-This document defines what City Life Core intends to keep compatible after the 1.0.0 SDK release.
+This document explains what City Life Core treats as compatibility-sensitive API and behavior.
 
-Этот документ фиксирует, что City Life Core планирует сохранять совместимым после SDK-релиза 1.0.0.
+Этот документ объясняет, какие части API и поведения City Life Core считаются важными для совместимости.
 
 ---
 
 ## Русский
 
-### Области совместимости
+### Что покрывает совместимость
 
-После 1.0.0 compatibility policy покрывает:
+Compatibility policy покрывает:
 
-- stable public C++ headers;
-- stable public C++ types/functions/fields;
+- documented public C++ headers;
+- documented public C++ types/functions/fields;
 - CMake package target `CityLifeCore::core`;
 - tick/time model;
-- documented runtime event names and payload schemas;
-- documented save/load compatibility behavior;
-- documented data-pack schema behavior.
+- documented runtime event names and payload conventions;
+- documented save/load behavior;
+- documented data-pack behavior;
+- documented validation behavior.
 
-Не покрывает, пока не будет явно объявлено stable:
+### Что не считается стабильным API
+
+Не следует считать стабильным API, если это явно не документировано:
 
 - C ABI;
 - binary ABI;
 - internal implementation details;
 - exact memory layout of C++ structs across compilers;
-- experimental headers and helpers;
-- benchmark thresholds;
-- unfinished network/server protocols.
+- private helper functions inside `.cpp` files;
+- benchmark timings;
+- unfinished network/server protocols;
+- third-party package-manager recipes not published by the official project.
 
-### Public header policy
+### Public header classes
 
-All headers under `include/clc/` are installed. However, installed does not automatically mean stable.
+Headers under `include/clc/` are installed. Their intended use is documented in:
 
-Each public header must be classified in `docs/PUBLIC_API_STATUS.md` as one of:
+```text
+docs/PUBLIC_API_STATUS.md
+```
 
-- `stable` — compatibility protected after 1.0.0;
-- `experimental` — public but may change;
-- `diagnostics` — public tooling/observability API, compatibility protected only where documented;
-- `legacy` — kept for compatibility, not recommended for new code;
-- `internal-risk` — currently installed but should not be treated as stable until reviewed.
+Header classes:
+
+- `stable-candidate` — recommended public SDK surface;
+- `experimental` — public but may change more easily;
+- `diagnostics` — public observability/testing/replay/validation APIs;
+- `legacy` — kept for compatibility, not preferred for new code;
+- `internal-risk` — installed but broader/lower-level than the recommended SDK surface.
+
+Recommended first include:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
 ### Tick/time compatibility
 
-The tick model must be frozen before 1.0.0:
+City Life Core uses one tick scale:
 
+```cpp
+ticks_per_second() == 1
+ticks_per_minute() == 60
+ticks_per_hour()   == 3600
+ticks_per_day()    == 86400
+```
+
+The following API is compatibility-sensitive:
+
+- `clc::GameTime`;
 - `ticks_per_second()`;
 - `ticks_per_minute()`;
 - `ticks_per_hour()`;
@@ -61,23 +85,22 @@ The tick model must be frozen before 1.0.0:
 - `can_convert_hours_to_ticks(...)`;
 - `can_convert_days_to_ticks(...)`;
 - `GameTime::can_advance(...)`;
-- `SimulationRuntime::time` semantics;
-- `SettlementRoute::travel_ticks` semantics;
-- `CaravanState::total_travel_ticks` and `ticks_remaining` semantics;
-- `ResourceDeliveryContract::due_ticks` semantics.
-
-Changing this scale after 1.0.0 is a breaking change.
+- `SimulationRuntime::time`;
+- `SettlementRoute::travel_ticks`;
+- `CaravanState::total_travel_ticks`;
+- `CaravanState::ticks_remaining`;
+- `ResourceDeliveryContract::due_ticks`.
 
 Overflow policy:
 
 - conversion helpers use saturating arithmetic and return `UINT64_MAX` on overflow;
-- `can_convert_*_to_ticks(...)` helpers let callers reject overflowing values before conversion;
+- `can_convert_*_to_ticks(...)` helpers allow callers to reject overflowing values before conversion;
 - `GameTime::advance(...)` saturates at `UINT64_MAX` instead of wrapping;
 - `GameTime::can_advance(...)` lets callers detect whether an advance would overflow.
 
 ### Day/tick dual fields
 
-Some structures keep both day and tick fields for compatibility:
+Some structures keep both day and tick fields:
 
 - route travel days/ticks;
 - caravan travel days/ticks;
@@ -86,9 +109,9 @@ Some structures keep both day and tick fields for compatibility:
 Policy:
 
 - tick fields are the preferred real-time representation;
-- day fields are retained for compatibility and daily/turn-based games;
-- when both are set, they must be equivalent according to the documented tick scale;
-- old saves without tick fields may derive tick fields from day fields.
+- day fields are retained for daily/turn-based games and legacy data;
+- when both are set, they should represent the same duration according to the documented tick scale;
+- loaders may derive missing tick fields from day fields for legacy saves.
 
 ### Runtime event compatibility
 
@@ -102,25 +125,40 @@ Documented runtime event names:
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
 
-Policy:
+Event policy:
 
-- event timestamps are absolute runtime ticks;
-- event names are stable after 1.0.0 unless a major version changes them;
-- payload schemas must be documented before 1.0.0;
-- new event names can be added in minor releases;
-- changing or removing existing stable event names/payload schemas is breaking.
+- runtime event timestamps use absolute runtime ticks;
+- new event names may be added;
+- existing documented event names should not change without a compatibility note;
+- event consumers should ignore unknown event types unless their game requires strict schemas.
 
 ### Save/load compatibility
 
-Current 0.9.9 compatibility behavior:
+Documented save/load behavior:
 
 - saves with explicit runtime `time` restore exact runtime clock;
 - legacy saves without `time` synchronize runtime clock from saved `current_day`;
 - contracts with explicit `due_ticks` restore exact tick deadline;
 - legacy contracts without `due_ticks` derive tick deadline from `due_day`;
-- corrupted save loads must fail validation and must not intentionally mutate target runtime.
+- corrupted save loads fail validation;
+- failed runtime restore should not intentionally leave partial runtime mutation.
 
-Before 1.0.0, the `.clcs` format needs a documented format/version policy. Until then, it is stable enough for audit but not final protocol documentation.
+Save/load files are intended for City Life Core runtime persistence and diagnostics. Games that expose save files as long-term public protocols should version their own game-level save format around the core data they use.
+
+### Validation compatibility
+
+Most mutating SDK operations report errors through:
+
+```cpp
+clc::data::ValidationReport
+```
+
+General convention:
+
+- `report.ok()` means no errors;
+- warnings do not make `ok()` false;
+- errors make `ok()` false;
+- failed operations should avoid intentional partial mutation when the API documents transactional behavior.
 
 ### Pointer/reference invalidation
 
@@ -130,52 +168,83 @@ General rule for SDK users:
 
 - treat returned pointers/references/views as invalidated after any mutating operation on the owning object;
 - do not store raw pointers returned from catalog/runtime lookup APIs across mutations;
-- prefer IDs and lookup again after mutation.
+- store IDs and look up again after mutation;
+- copied reports/snapshots can be stored independently.
 
-This rule must be repeated in public API docs before 1.0.0.
+### Source vs binary compatibility
+
+The current public SDK is source-first C++.
+
+Source compatibility means external projects can include headers and link against `CityLifeCore::core` when built with a compatible C++20 toolchain.
+
+Binary ABI compatibility is not promised by this document. Projects that need ABI boundaries should isolate City Life Core behind their own application/plugin ABI or wait for a documented C ABI/binary policy.
 
 ---
 
 ## English
 
-### Compatibility areas
+### What compatibility covers
 
-After 1.0.0, compatibility policy covers:
+Compatibility policy covers:
 
-- stable public C++ headers;
-- stable public C++ types/functions/fields;
+- documented public C++ headers;
+- documented public C++ types/functions/fields;
 - CMake package target `CityLifeCore::core`;
 - tick/time model;
-- documented runtime event names and payload schemas;
-- documented save/load compatibility behavior;
-- documented data-pack schema behavior.
+- documented runtime event names and payload conventions;
+- documented save/load behavior;
+- documented data-pack behavior;
+- documented validation behavior.
 
-Not covered until explicitly declared stable:
+### What is not stable API
+
+Do not treat these as stable API unless explicitly documented:
 
 - C ABI;
 - binary ABI;
 - internal implementation details;
 - exact memory layout of C++ structs across compilers;
-- experimental headers and helpers;
-- benchmark thresholds;
-- unfinished network/server protocols.
+- private helper functions inside `.cpp` files;
+- benchmark timings;
+- unfinished network/server protocols;
+- third-party package-manager recipes not published by the official project.
 
-### Public header policy
+### Public header classes
 
-All headers under `include/clc/` are installed. Installed does not automatically mean stable.
+Headers under `include/clc/` are installed. Their intended use is documented in:
 
-Each public header must be classified in `docs/PUBLIC_API_STATUS.md` as one of:
+```text
+docs/PUBLIC_API_STATUS.md
+```
 
-- `stable` — compatibility protected after 1.0.0;
-- `experimental` — public but may change;
-- `diagnostics` — public tooling/observability API, compatibility protected only where documented;
-- `legacy` — kept for compatibility, not recommended for new code;
-- `internal-risk` — currently installed but should not be treated as stable until reviewed.
+Header classes:
+
+- `stable-candidate` — recommended public SDK surface;
+- `experimental` — public but may change more easily;
+- `diagnostics` — public observability/testing/replay/validation APIs;
+- `legacy` — kept for compatibility, not preferred for new code;
+- `internal-risk` — installed but broader/lower-level than the recommended SDK surface.
+
+Recommended first include:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
 
 ### Tick/time compatibility
 
-The tick model must be frozen before 1.0.0:
+City Life Core uses one tick scale:
 
+```cpp
+ticks_per_second() == 1
+ticks_per_minute() == 60
+ticks_per_hour()   == 3600
+ticks_per_day()    == 86400
+```
+
+The following API is compatibility-sensitive:
+
+- `clc::GameTime`;
 - `ticks_per_second()`;
 - `ticks_per_minute()`;
 - `ticks_per_hour()`;
@@ -189,23 +258,22 @@ The tick model must be frozen before 1.0.0:
 - `can_convert_hours_to_ticks(...)`;
 - `can_convert_days_to_ticks(...)`;
 - `GameTime::can_advance(...)`;
-- `SimulationRuntime::time` semantics;
-- `SettlementRoute::travel_ticks` semantics;
-- `CaravanState::total_travel_ticks` and `ticks_remaining` semantics;
-- `ResourceDeliveryContract::due_ticks` semantics.
-
-Changing this scale after 1.0.0 is a breaking change.
+- `SimulationRuntime::time`;
+- `SettlementRoute::travel_ticks`;
+- `CaravanState::total_travel_ticks`;
+- `CaravanState::ticks_remaining`;
+- `ResourceDeliveryContract::due_ticks`.
 
 Overflow policy:
 
 - conversion helpers use saturating arithmetic and return `UINT64_MAX` on overflow;
-- `can_convert_*_to_ticks(...)` helpers let callers reject overflowing values before conversion;
+- `can_convert_*_to_ticks(...)` helpers allow callers to reject overflowing values before conversion;
 - `GameTime::advance(...)` saturates at `UINT64_MAX` instead of wrapping;
 - `GameTime::can_advance(...)` lets callers detect whether an advance would overflow.
 
 ### Day/tick dual fields
 
-Some structures keep both day and tick fields for compatibility:
+Some structures keep both day and tick fields:
 
 - route travel days/ticks;
 - caravan travel days/ticks;
@@ -214,9 +282,9 @@ Some structures keep both day and tick fields for compatibility:
 Policy:
 
 - tick fields are the preferred real-time representation;
-- day fields are retained for compatibility and daily/turn-based games;
-- when both are set, they must be equivalent according to the documented tick scale;
-- old saves without tick fields may derive tick fields from day fields.
+- day fields are retained for daily/turn-based games and legacy data;
+- when both are set, they should represent the same duration according to the documented tick scale;
+- loaders may derive missing tick fields from day fields for legacy saves.
 
 ### Runtime event compatibility
 
@@ -230,25 +298,40 @@ Documented runtime event names:
 - `runtime.contract.fulfilled`
 - `runtime.contract.failed`
 
-Policy:
+Event policy:
 
-- event timestamps are absolute runtime ticks;
-- event names are stable after 1.0.0 unless a major version changes them;
-- payload schemas must be documented before 1.0.0;
-- new event names can be added in minor releases;
-- changing or removing existing stable event names/payload schemas is breaking.
+- runtime event timestamps use absolute runtime ticks;
+- new event names may be added;
+- existing documented event names should not change without a compatibility note;
+- event consumers should ignore unknown event types unless their game requires strict schemas.
 
 ### Save/load compatibility
 
-Current 0.9.9 compatibility behavior:
+Documented save/load behavior:
 
 - saves with explicit runtime `time` restore exact runtime clock;
 - legacy saves without `time` synchronize runtime clock from saved `current_day`;
 - contracts with explicit `due_ticks` restore exact tick deadline;
 - legacy contracts without `due_ticks` derive tick deadline from `due_day`;
-- corrupted save loads must fail validation and must not intentionally mutate target runtime.
+- corrupted save loads fail validation;
+- failed runtime restore should not intentionally leave partial runtime mutation.
 
-Before 1.0.0, the `.clcs` format needs a documented format/version policy. Until then, it is stable enough for audit but not final protocol documentation.
+Save/load files are intended for City Life Core runtime persistence and diagnostics. Games that expose save files as long-term public protocols should version their own game-level save format around the core data they use.
+
+### Validation compatibility
+
+Most mutating SDK operations report errors through:
+
+```cpp
+clc::data::ValidationReport
+```
+
+General convention:
+
+- `report.ok()` means no errors;
+- warnings do not make `ok()` false;
+- errors make `ok()` false;
+- failed operations should avoid intentional partial mutation when the API documents transactional behavior.
 
 ### Pointer/reference invalidation
 
@@ -258,4 +341,13 @@ General rule for SDK users:
 
 - treat returned pointers/references/views as invalidated after any mutating operation on the owning object;
 - do not store raw pointers returned from catalog/runtime lookup APIs across mutations;
-- prefer IDs and lookup again after mutation.
+- store IDs and look up again after mutation;
+- copied reports/snapshots can be stored independently.
+
+### Source vs binary compatibility
+
+The current public SDK is source-first C++.
+
+Source compatibility means external projects can include headers and link against `CityLifeCore::core` when built with a compatible C++20 toolchain.
+
+Binary ABI compatibility is not promised by this document. Projects that need ABI boundaries should isolate City Life Core behind their own application/plugin ABI or wait for a documented C ABI/binary policy.
