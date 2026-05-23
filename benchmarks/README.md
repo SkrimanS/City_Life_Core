@@ -1,6 +1,6 @@
 # Benchmarks / Бенчмарки
 
-Status: **pre-1.0 baseline tooling / инструмент baseline перед 1.0**
+Status: **1.0.0 baseline tooling / инструмент baseline для 1.0.0**
 
 The benchmark runner is intentionally separate from normal tests. It prints baseline metrics and does not fail CI based on timing thresholds.
 
@@ -70,17 +70,22 @@ The benchmark artifact is a baseline signal. It is not a strict performance thre
 
 ## Release use
 
-Before 1.0.0-rc1, run the benchmark binary on the release branch and record results in release notes or a separate benchmark report.
+Before publishing 1.0.0, run the benchmark binary on the release branch and review the benchmark artifact according to:
 
-Перед 1.0.0-rc1 нужно запустить benchmark binary на release branch и записать результаты в release notes или отдельный benchmark report.
+```text
+docs/CI_ARTIFACT_REVIEW.md
+```
+
+Перед публикацией 1.0.0 нужно запустить benchmark binary на release branch и проверить benchmark artifact по правилам `docs/CI_ARTIFACT_REVIEW.md`.
 
 Recommended release checklist items:
 
 - run on at least one Linux machine;
 - run on at least one Windows/MSVC machine if possible;
 - save raw output;
-- compare with previous RC if one exists;
-- investigate large regressions before tagging final 1.0.0.
+- compare with previous reviewed baseline if one exists;
+- investigate large regressions before tagging 1.0.0;
+- record review status in `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` or the final manifest.
 
 ---
 
