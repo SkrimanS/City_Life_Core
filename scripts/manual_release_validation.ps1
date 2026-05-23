@@ -17,7 +17,7 @@ function Invoke-Step {
     Write-Host "+ $FilePath $($Arguments -join ' ')"
     & $FilePath @Arguments
     if ($LASTEXITCODE -ne 0) {
-        throw "Command failed with exit code $LASTEXITCODE: $FilePath $($Arguments -join ' ')"
+        throw "Command failed with exit code $($LASTEXITCODE): $FilePath $($Arguments -join ' ')"
     }
 }
 
@@ -68,7 +68,7 @@ Write-Host ""
 Write-Host "+ $BenchmarkExe"
 & $BenchmarkExe | Tee-Object -FilePath $BenchmarkOutput
 if ($LASTEXITCODE -ne 0) {
-    throw "Benchmark runner failed with exit code $LASTEXITCODE"
+    throw "Benchmark runner failed with exit code $($LASTEXITCODE)"
 }
 
 Invoke-Step cmake --install $BuildPath --config Release --prefix $InstallPrefix
