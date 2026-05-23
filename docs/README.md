@@ -27,7 +27,7 @@ This directory contains developer-facing documentation for integrating City Life
 | Document | Purpose |
 | --- | --- |
 | `PUBLIC_API_STATUS.md` | Header-by-header usage classification. |
-| `C_ABI.md` | Minimal C interface for version and time utilities. |
+| `C_ABI.md` | Minimal C interface for version/time utilities and an opaque world handle. |
 | `COMPATIBILITY.md` | Time, events, save/load, validation and source/binary compatibility rules. |
 | `MIGRATION.md` | Instructions for updating older integrations. |
 
