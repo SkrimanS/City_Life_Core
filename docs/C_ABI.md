@@ -1,11 +1,11 @@
 # C Interface / C ABI
 
 Version: **0.9.9**  
-C interface version: **1**
+C interface version: **2**
 
-City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, and for simple FFI smoke checks.
+City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, a minimal opaque world handle, and simple FFI smoke checks.
 
-City Life Core в первую очередь является C++20 SDK. Небольшой C-facing interface предоставлен для version/time utilities и простых FFI smoke checks.
+City Life Core в первую очередь является C++20 SDK. Небольшой C-facing interface предоставлен для version/time utilities, минимального opaque world handle и простых FFI smoke checks.
 
 ---
 
@@ -31,16 +31,20 @@ The current C interface exposes:
 - C interface version;
 - tick constants;
 - safe time conversion preflight helpers;
-- saturating time conversion helpers.
+- saturating time conversion helpers;
+- a minimal opaque `clc_world` handle;
+- world create/destroy;
+- world name/seed/current tick/event count accessors;
+- simple world tick advancement.
 
 The current C interface does **not** expose:
 
-- runtime state;
-- registries;
+- data registries;
 - containers;
 - strings with caller-owned allocation;
 - save/load APIs;
 - event callbacks;
+- event payload access;
 - caravans/contracts/economy workflows.
 
 Use the C++ API for full SDK integration.
@@ -130,6 +134,56 @@ uint64_t two_hours = clc_hours_to_ticks_c(2);      // 7200
 
 ---
 
+## Minimal world handle
+
+```c
+typedef struct clc_world clc_world;
+
+clc_world* clc_world_create_c(const char* name, uint64_t seed);
+void clc_world_destroy_c(clc_world* world);
+
+const char* clc_world_name_c(const clc_world* world);
+uint64_t clc_world_seed_c(const clc_world* world);
+uint64_t clc_world_current_tick_c(const clc_world* world);
+uint64_t clc_world_event_count_c(const clc_world* world);
+int clc_world_advance_c(clc_world* world, uint64_t ticks);
+```
+
+`clc_world` is an opaque handle. Callers create it with `clc_world_create_c()` and must release it with `clc_world_destroy_c()`.
+
+Ownership and lifetime rules:
+
+- `clc_world_create_c()` returns `NULL` if allocation or construction fails.
+- Passing `NULL` as `name` creates a world with the default name `City Life World`.
+- `clc_world_destroy_c(NULL)` is valid and does nothing.
+- `clc_world_name_c()` returns a pointer owned by the world handle. Do not free it and do not keep it after destroying the world.
+- null world accessors return empty string or zero values.
+- `clc_world_advance_c()` returns `1` on success and `0` on failure.
+- advancing by zero ticks fails and does not mutate the world.
+
+Example:
+
+```c
+clc_world* world = clc_world_create_c("C ABI World", 42);
+if (world == NULL) {
+    return 1;
+}
+
+if (clc_world_advance_c(world, 5) != 1) {
+    clc_world_destroy_c(world);
+    return 1;
+}
+
+printf("%s tick=%llu events=%llu\n",
+    clc_world_name_c(world),
+    (unsigned long long)clc_world_current_tick_c(world),
+    (unsigned long long)clc_world_event_count_c(world));
+
+clc_world_destroy_c(world);
+```
+
+---
+
 ## CMake consumer
 
 External C consumer project:
@@ -205,7 +259,7 @@ CI validates:
 For `0.9.9`, the C interface version is:
 
 ```text
-1
+2
 ```
 
 Future C interface expansion should preserve existing functions where possible and increase the C interface version when the C-facing surface changes meaningfully.
