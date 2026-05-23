@@ -1,75 +1,49 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.20)
 
-project(CityLifeCore
+project(
+    CityLifeCore
     VERSION 1.0.0
-    DESCRIPTION "Universal headless simulation core for living settlements"
-    LANGUAGES C CXX
+    DESCRIPTION "Headless simulation SDK for living settlements"
+    LANGUAGES CXX
 )
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
-    set(CLC_IS_TOP_LEVEL ON)
-else()
-    set(CLC_IS_TOP_LEVEL OFF)
-endif()
-
-set(CLC_DEFAULT_BUILD_TESTS ${CLC_IS_TOP_LEVEL})
-set(CLC_DEFAULT_BUILD_EXAMPLES ${CLC_IS_TOP_LEVEL})
-set(CLC_DEFAULT_BUILD_TOOLS ${CLC_IS_TOP_LEVEL})
-
-option(CLC_BUILD_TESTS "Build City Life Core tests" ${CLC_DEFAULT_BUILD_TESTS})
-option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ${CLC_DEFAULT_BUILD_EXAMPLES})
-option(CLC_BUILD_TOOLS "Build City Life Core command line tools" ${CLC_DEFAULT_BUILD_TOOLS})
-option(CLC_BUILD_BENCHMARKS "Build City Life Core benchmark executables" OFF)
-
-set(CLC_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore" CACHE STRING "City Life Core CMake package install directory")
-set(CLC_INSTALL_DATA_DIR "${CMAKE_INSTALL_DATADIR}/CityLifeCore/data" CACHE STRING "City Life Core data install directory")
-set(CLC_INSTALL_EXAMPLES_DIR "${CMAKE_INSTALL_DOCDIR}/examples" CACHE STRING "City Life Core examples install directory")
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+option(CLC_BUILD_TESTS "Build City Life Core tests" ON)
+option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ON)
+option(CLC_BUILD_BENCHMARKS "Build City Life Core benchmarks" OFF)
+option(CLC_BUILD_TOOLS "Build City Life Core tools" ON)
 
 add_library(city_life_core
-    src/clc/c/CityLifeCoreC.cpp
-    src/clc/core/Version.cpp
-    src/clc/core/World.cpp
-    src/clc/core/Time.cpp
-    src/clc/core/EventLog.cpp
-    src/clc/data/Validation.cpp
+    src/clc/Version.cpp
+    src/clc/Time.cpp
     src/clc/data/DataRegistry.cpp
+    src/clc/data/DataRegistryValidation.cpp
     src/clc/data/DataPackLoader.cpp
-    src/clc/sim/Storage.cpp
-    src/clc/sim/Settlement.cpp
-    src/clc/sim/SimulationEngine.cpp
-    src/clc/sim/SimulationPersistence.cpp
-    src/clc/sim/SimulationWorldStatePersistence.cpp
-    src/clc/sim/SimulationWorldStateLedgerRestore.cpp
-    src/clc/sim/SimulationWorldStateRuntimeBridge.cpp
-    src/clc/sim/SimulationWorldStateValidation.cpp
+    src/clc/sim/ResourceStorage.cpp
+    src/clc/sim/SettlementSimulation.cpp
+    src/clc/sim/SettlementReport.cpp
+    src/clc/sim/SettlementRoute.cpp
+    src/clc/sim/CaravanSimulation.cpp
+    src/clc/sim/FactionSystem.cpp
+    src/clc/sim/Contracts.cpp
+    src/clc/sim/SimulationRuntime.cpp
+    src/clc/sim/SimulationRuntimeValidation.cpp
     src/clc/sim/SimulationRuntimePersistence.cpp
     src/clc/sim/SimulationRuntimePersistenceValidation.cpp
-    src/clc/sim/SimulationRuntimeWorkflow.cpp
-    src/clc/sim/SimulationRuntimeScenario.cpp
-    src/clc/sim/SimulationRuntimeTick.cpp
-    src/clc/sim/SimulationRuntimeEvents.cpp
-    src/clc/sim/Routes.cpp
-    src/clc/sim/Caravans.cpp
-    src/clc/sim/Factions.cpp
-    src/clc/sim/Contracts.cpp
-    src/clc/sim/ContractRewards.cpp
-    src/clc/sim/Ownership.cpp
+    src/clc/sim/WorldEvent.cpp
+    src/clc/sim/WorldEventLog.cpp
     src/clc/economy/Market.cpp
+    src/clc/economy/Wallet.cpp
     src/clc/economy/Trade.cpp
     src/clc/economy/Ledger.cpp
-    src/clc/economy/Orders.cpp
+    src/clc/c/CityLifeCoreC.cpp
 )
 
 add_library(CityLifeCore::core ALIAS city_life_core)
 
-set_target_properties(city_life_core PROPERTIES EXPORT_NAME core)
+target_compile_features(city_life_core PUBLIC cxx_std_20)
 
 target_include_directories(city_life_core
     PUBLIC
@@ -77,46 +51,32 @@ target_include_directories(city_life_core
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_features(city_life_core PUBLIC cxx_std_20)
-
-if(MSVC)
-    target_compile_options(city_life_core PRIVATE /W4 /permissive-)
-else()
-    target_compile_options(city_life_core PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-if(CLC_BUILD_TOOLS)
-    add_executable(clc_runner apps/clc_runner/main.cpp)
-    target_link_libraries(clc_runner PRIVATE CityLifeCore::core)
-endif()
+set_target_properties(city_life_core PROPERTIES
+    OUTPUT_NAME city_life_core
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 if(CLC_BUILD_EXAMPLES)
-    add_executable(clc_example_basic_runtime examples/basic_runtime.cpp)
-    target_link_libraries(clc_example_basic_runtime PRIVATE CityLifeCore::core)
+    add_subdirectory(examples)
+endif()
 
-    add_executable(clc_example_tick_runtime examples/tick_runtime.cpp)
-    target_link_libraries(clc_example_tick_runtime PRIVATE CityLifeCore::core)
-
-    add_executable(clc_example_full_runtime_flow examples/full_runtime_flow.cpp)
-    target_link_libraries(clc_example_full_runtime_flow PRIVATE CityLifeCore::core)
-
-    add_executable(clc_example_custom_data_registry examples/custom_data_registry.cpp)
-    target_link_libraries(clc_example_custom_data_registry PRIVATE CityLifeCore::core)
-
-    add_executable(clc_example_faction_ownership_contracts examples/faction_ownership_contracts.cpp)
-    target_link_libraries(clc_example_faction_ownership_contracts PRIVATE CityLifeCore::core)
-
-    add_executable(clc_example_save_load_roundtrip examples/save_load_roundtrip.cpp)
-    target_link_libraries(clc_example_save_load_roundtrip PRIVATE CityLifeCore::core)
-
-    add_executable(clc_example_replay_persistence examples/replay_persistence.cpp)
-    target_link_libraries(clc_example_replay_persistence PRIVATE CityLifeCore::core)
+if(CLC_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
 endif()
 
 if(CLC_BUILD_BENCHMARKS)
-    add_executable(clc_core_benchmarks benchmarks/core_benchmarks.cpp)
-    target_link_libraries(clc_core_benchmarks PRIVATE CityLifeCore::core)
+    add_subdirectory(benchmarks)
 endif()
+
+if(CLC_BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()
+
+set(CLC_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore)
+set(CLC_INSTALL_DATA_DIR ${CMAKE_INSTALL_DATADIR}/city-life-core)
+set(CLC_INSTALL_EXAMPLES_DIR ${CMAKE_INSTALL_DOCDIR}/examples)
 
 install(
     TARGETS city_life_core
@@ -139,10 +99,10 @@ install(
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
     FILES_MATCHING
         PATTERN "*.md"
-        PATTERN "RELEASE_NOTES_0*.md" EXCLUDE
-        PATTERN "RELEASE_MANIFEST_DRAFT_*.md" EXCLUDE
-        PATTERN "RELEASE_BLOCKERS.md" EXCLUDE
-        PATTERN "RELEASE_CHECKLIST.md" EXCLUDE
+        PATTERN "release-notes-0*.md" EXCLUDE
+        PATTERN "release-manifest-draft-*.md" EXCLUDE
+        PATTERN "release-blockers.md" EXCLUDE
+        PATTERN "release-checklist.md" EXCLUDE
 )
 
 install(
@@ -158,117 +118,36 @@ install(
 install(
     DIRECTORY data/
     DESTINATION ${CLC_INSTALL_DATA_DIR}
+    FILES_MATCHING
+        PATTERN "*.clcd"
 )
 
 install(
     EXPORT CityLifeCoreTargets
     NAMESPACE CityLifeCore::
-    FILE CityLifeCoreTargets.cmake
     DESTINATION ${CLC_INSTALL_CMAKEDIR}
 )
 
 configure_package_config_file(
     cmake/CityLifeCoreConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake"
+    ${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake
     INSTALL_DESTINATION ${CLC_INSTALL_CMAKEDIR}
     PATH_VARS
-        CMAKE_INSTALL_INCLUDEDIR
-        CMAKE_INSTALL_DOCDIR
         CLC_INSTALL_DATA_DIR
         CLC_INSTALL_EXAMPLES_DIR
 )
 
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfigVersion.cmake"
+    ${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfigVersion.cmake
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 
 install(
     FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfigVersion.cmake"
+        ${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfigVersion.cmake
     DESTINATION ${CLC_INSTALL_CMAKEDIR}
 )
 
-if(CLC_BUILD_TESTS)
-    enable_testing()
-
-    function(clc_add_test target source)
-        add_executable(${target} ${source})
-        target_link_libraries(${target} PRIVATE CityLifeCore::core)
-        if(source MATCHES "\\.c$")
-            set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
-        endif()
-        add_test(NAME ${target} COMMAND ${target})
-    endfunction()
-
-    clc_add_test(clc_smoke_tests tests/smoke_tests.cpp)
-    clc_add_test(clc_c_abi_smoke_tests tests/c_abi_smoke_tests.c)
-    clc_add_test(clc_umbrella_header_tests tests/umbrella_header_tests.cpp)
-    clc_add_test(clc_data_registry_hardening_tests tests/data_registry_hardening_tests.cpp)
-    clc_add_test(clc_time_hardening_tests tests/time_hardening_tests.cpp)
-    clc_add_test(clc_storage_hardening_tests tests/storage_hardening_tests.cpp)
-    clc_add_test(clc_economy_tests tests/economy_tests.cpp)
-    clc_add_test(clc_market_hardening_tests tests/market_hardening_tests.cpp)
-    clc_add_test(clc_trade_ledger_wrapper_tests tests/trade_ledger_wrapper_tests.cpp)
-    clc_add_test(clc_ledger_hardening_tests tests/ledger_hardening_tests.cpp)
-    clc_add_test(clc_simulation_tests tests/simulation_tests.cpp)
-    clc_add_test(clc_settlement_tick_tests tests/settlement_tick_tests.cpp)
-    clc_add_test(clc_settlement_arithmetic_hardening_tests tests/settlement_arithmetic_hardening_tests.cpp)
-    clc_add_test(clc_settlement_tick_remainder_validation_tests tests/settlement_tick_remainder_validation_tests.cpp)
-    clc_add_test(clc_scenario_digest_tests tests/scenario_digest_tests.cpp)
-    clc_add_test(clc_resource_command_tests tests/resource_command_tests.cpp)
-    clc_add_test(clc_engine_lookup_tests tests/engine_lookup_tests.cpp)
-    clc_add_test(clc_engine_command_result_tests tests/engine_command_result_tests.cpp)
-    clc_add_test(clc_persistence_tests tests/persistence_tests.cpp)
-    clc_add_test(clc_world_state_persistence_tests tests/world_state_persistence_tests.cpp)
-    clc_add_test(clc_world_state_deserialization_hardening_tests tests/world_state_deserialization_hardening_tests.cpp)
-    clc_add_test(clc_runtime_persistence_tests tests/runtime_persistence_tests.cpp)
-    clc_add_test(clc_runtime_restore_transaction_tests tests/runtime_restore_transaction_tests.cpp)
-    clc_add_test(clc_runtime_persistence_validation_tests tests/runtime_persistence_validation_tests.cpp)
-    clc_add_test(clc_runtime_replay_persistence_tests tests/runtime_replay_persistence_tests.cpp)
-    clc_add_test(clc_runtime_cargo_delivery_persistence_tests tests/runtime_cargo_delivery_persistence_tests.cpp)
-    clc_add_test(clc_runtime_cargo_delivery_result_validation_tests tests/runtime_cargo_delivery_result_validation_tests.cpp)
-    clc_add_test(clc_runtime_workflow_hardening_tests tests/runtime_workflow_hardening_tests.cpp)
-    clc_add_test(clc_runtime_corrupted_save_tests tests/runtime_corrupted_save_tests.cpp)
-    clc_add_test(clc_simulation_runtime_bundle_tests tests/simulation_runtime_bundle_tests.cpp)
-    clc_add_test(clc_simulation_runtime_workflow_tests tests/simulation_runtime_workflow_tests.cpp)
-    clc_add_test(clc_simulation_runtime_scenario_tests tests/simulation_runtime_scenario_tests.cpp)
-    clc_add_test(clc_runtime_legacy_time_restore_tests tests/runtime_legacy_time_restore_tests.cpp)
-    clc_add_test(clc_runtime_full_roundtrip_tests tests/runtime_full_roundtrip_tests.cpp)
-    clc_add_test(clc_runtime_tick_tests tests/runtime_tick_tests.cpp)
-    clc_add_test(clc_runtime_tick_deadline_tests tests/runtime_tick_deadline_tests.cpp)
-    clc_add_test(clc_runtime_tick_deadline_persistence_tests tests/runtime_tick_deadline_persistence_tests.cpp)
-    clc_add_test(clc_runtime_run_ticks_tests tests/runtime_run_ticks_tests.cpp)
-    clc_add_test(clc_runtime_run_days_tests tests/runtime_run_days_tests.cpp)
-    clc_add_test(clc_runtime_run_until_arrival_tests tests/runtime_run_until_arrival_tests.cpp)
-    clc_add_test(clc_runtime_auto_contract_tests tests/runtime_auto_contract_tests.cpp)
-    clc_add_test(clc_runtime_arrival_contract_tests tests/runtime_arrival_contract_tests.cpp)
-    clc_add_test(clc_runtime_arrival_contract_roundtrip_tests tests/runtime_arrival_contract_roundtrip_tests.cpp)
-    clc_add_test(clc_runtime_event_log_tests tests/runtime_event_log_tests.cpp)
-    clc_add_test(clc_runtime_tick_event_log_tests tests/runtime_tick_event_log_tests.cpp)
-    clc_add_test(clc_runtime_event_log_absolute_tick_tests tests/runtime_event_log_absolute_tick_tests.cpp)
-    clc_add_test(clc_runtime_event_log_roundtrip_tests tests/runtime_event_log_roundtrip_tests.cpp)
-    clc_add_test(clc_runtime_event_log_analysis_tests tests/runtime_event_log_analysis_tests.cpp)
-    clc_add_test(clc_runtime_event_log_runtime_time_overload_tests tests/runtime_event_log_runtime_time_overload_tests.cpp)
-    clc_add_test(clc_routes_tests tests/routes_tests.cpp)
-    clc_add_test(clc_caravans_tests tests/caravans_tests.cpp)
-    clc_add_test(clc_factions_tests tests/factions_tests.cpp)
-    clc_add_test(clc_faction_ownership_hardening_tests tests/faction_ownership_hardening_tests.cpp)
-    clc_add_test(clc_contracts_tests tests/contracts_tests.cpp)
-    clc_add_test(clc_contract_tick_deadline_tests tests/contract_tick_deadline_tests.cpp)
-    clc_add_test(clc_contract_reward_ledger_tests tests/contract_reward_ledger_tests.cpp)
-    clc_add_test(clc_contract_reward_transaction_tests tests/contract_reward_transaction_tests.cpp)
-    clc_add_test(clc_ownership_tests tests/ownership_tests.cpp)
-endif()
-
-set(CPACK_PACKAGE_NAME "CityLifeCore")
-set(CPACK_PACKAGE_VENDOR "City Life Core")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal headless simulation core for living settlements")
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-set(CPACK_PACKAGE_FILE_NAME "city-life-core-sdk-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
-set(CPACK_GENERATOR "ZIP")
-set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY ON)
-set(CPACK_VERBATIM_VARIABLES ON)
 include(CPack)
