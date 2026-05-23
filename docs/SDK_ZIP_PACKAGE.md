@@ -144,6 +144,7 @@ This checks:
 - installed C ABI header `clc/c/CityLifeCoreC.h`;
 - C compiler consumption of the installed package;
 - version/time C ABI functions;
+- opaque `clc_world` create/destroy, state access and tick advancement;
 - linking through exported target `CityLifeCore::core`.
 
 ---
