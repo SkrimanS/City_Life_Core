@@ -11,6 +11,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
 - Added a custom GitHub issue template for general tasks, planning items, investigations, release/packaging work and maintenance notes.
+- Added GitHub issue template configuration to disable blank issues and point users to documentation, roadmap and release policy references.
 
 ### Changed
 
