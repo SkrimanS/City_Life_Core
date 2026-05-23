@@ -1,16 +1,14 @@
-# Scripts / Скрипты
+# Scripts
 
 This directory contains helper scripts for local validation and 1.0.0 release troubleshooting.
 
-Эта директория содержит helper scripts для локальной проверки и troubleshooting перед релизом 1.0.0.
+Russian documentation starts at [`../docs/ru/README.md`](../docs/ru/README.md).
 
 ---
 
 ## Manual release validation
 
 Use these scripts when GitHub Actions logs, metadata or artifacts are unavailable, or when you want to reproduce the release-validation flow locally before reviewing the 1.0.0 release.
-
-Используйте эти скрипты, когда GitHub Actions logs, metadata или artifacts недоступны, либо когда нужно локально воспроизвести release-validation flow перед review релиза 1.0.0.
 
 ### Unix-like shell
 
@@ -71,14 +69,14 @@ A successful local script run is useful for troubleshooting and preflight valida
 - supported CI matrix should pass, or failures should be explicitly accepted and documented;
 - benchmark artifacts should be reviewed;
 - SDK ZIP artifacts and checksums should be reviewed;
-- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` should be filled or superseded by a final manifest;
+- release manifest should be complete and reviewed;
 - LICENSE must be chosen by the owner;
-- do not merge to `main` until the owner explicitly approves release/merge.
+- do not merge release changes until the owner explicitly approves release/merge.
 
 See also:
 
 ```text
-docs/CI_ARTIFACT_REVIEW.md
-docs/RELEASE_CHECKLIST.md
-docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
+docs/ci-artifact-review.md
+docs/release-manifest-1.0.0.md
+docs/verifying-releases.md
 ```
