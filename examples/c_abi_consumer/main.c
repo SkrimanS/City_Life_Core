@@ -16,7 +16,7 @@ int main(void) {
         return 1;
     }
 
-    if (clc_c_interface_version_c() != 1u) {
+    if (clc_c_interface_version_c() != 2u) {
         fprintf(stderr, "Unexpected C interface version: %u\n", (unsigned)clc_c_interface_version_c());
         return 1;
     }
@@ -29,11 +29,28 @@ int main(void) {
         return 1;
     }
 
+    clc_world* world = clc_world_create_c("C ABI Consumer World", 42);
+    if (world == NULL) {
+        fprintf(stderr, "Failed to create C ABI world handle\n");
+        return 1;
+    }
+
+    if (clc_world_advance_c(world, 5) != 1) {
+        fprintf(stderr, "Failed to advance C ABI world handle\n");
+        clc_world_destroy_c(world);
+        return 1;
+    }
+
     printf("version=%s\n", clc_core_version_string_c());
     printf("c_interface_version=%u\n", (unsigned)clc_c_interface_version_c());
     printf("ticks_per_day=%llu\n", (unsigned long long)clc_ticks_per_day_c());
     printf("five_minutes=%llu\n", (unsigned long long)five_minutes);
     printf("two_hours=%llu\n", (unsigned long long)two_hours);
+    printf("world_name=%s\n", clc_world_name_c(world));
+    printf("world_seed=%llu\n", (unsigned long long)clc_world_seed_c(world));
+    printf("world_tick=%llu\n", (unsigned long long)clc_world_current_tick_c(world));
+    printf("world_events=%llu\n", (unsigned long long)clc_world_event_count_c(world));
 
+    clc_world_destroy_c(world);
     return 0;
 }
