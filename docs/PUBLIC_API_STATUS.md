@@ -18,7 +18,7 @@ This document classifies the installed City Life Core headers by intended SDK us
 | `experimental` | Public API that may change more easily. |
 | `legacy` | Kept for compatibility; not preferred for new code. |
 | `specialized` | Public but low-level or broad; use deliberately. |
-| `c-abi-minimal` | C-facing ABI for small stable utility functions, not the full runtime API. |
+| `c-abi-minimal` | C-facing ABI for stable utility functions and a minimal opaque world handle, not the full runtime API. |
 
 Recommended first include for C++:
 
@@ -39,7 +39,7 @@ Recommended first include for C ABI users:
 | Header | Status | Intended users | Recommendation |
 | --- | --- | --- | --- |
 | `clc/CityLifeCore.hpp` | `recommended` | all C++ SDK users | Start here for most game/server integrations. |
-| `clc/c/CityLifeCoreC.h` | `c-abi-minimal` | C consumers and FFI bindings | Use for version/time utility access from C. Full runtime C ABI is not exposed. |
+| `clc/c/CityLifeCoreC.h` | `c-abi-minimal` | C consumers and FFI bindings | Use for version/time utility access and minimal world-handle smoke integration from C. Full runtime C ABI is not exposed. |
 | `clc/core/Version.hpp` | `stable-candidate` | all SDK users | Use for version checks and diagnostics. |
 | `clc/core/Ids.hpp` | `stable-candidate` | SDK users needing typed IDs | Use when integrating ID-heavy systems. |
 | `clc/core/Result.hpp` | `stable-candidate` | low-level SDK users | Use for result/error-style helpers. |
@@ -100,7 +100,7 @@ Use:
 #include "clc/c/CityLifeCoreC.h"
 ```
 
-The current C ABI exposes only version and time utility functions. It does not expose runtime state, containers, ownership, allocation, save/load, or callbacks.
+The current C ABI exposes version utilities, time utilities, and a minimal opaque `clc_world` handle for create/destroy, basic state access, and simple tick advancement. It does not expose data registries, containers, ownership catalogs, save/load, callbacks, event payload access, caravans, contracts, or economy workflows.
 
 ### Data/model tooling
 
@@ -145,7 +145,7 @@ Raw persistence APIs are intentionally powerful. Treat them as specialized integ
 ## Usage rules for SDK users
 
 - Prefer `clc/CityLifeCore.hpp` for general C++ integration.
-- Prefer `clc/c/CityLifeCoreC.h` only for minimal C/FFI version and time access.
+- Prefer `clc/c/CityLifeCoreC.h` only for C/FFI version/time access or minimal opaque world-handle smoke integration.
 - Prefer runtime workflow helpers over direct mutation of runtime fields.
 - Store IDs instead of long-lived pointers/references into registries, catalogs or runtime containers.
 - Use tick-based APIs for real-time, MMO and server-authoritative systems.
