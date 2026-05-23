@@ -26,7 +26,7 @@ int main(void) {
     if (require_int(strcmp(clc_core_version_string_c(), "0.9.9") == 0, "version string should match")) {
         return 1;
     }
-    if (require_int(clc_c_interface_version_c() == 2u, "C interface version should be 2")) {
+    if (require_int(clc_c_interface_version_c() == 3u, "C interface version should be 3")) {
         return 1;
     }
 
@@ -72,6 +72,18 @@ int main(void) {
     if (require_int(clc_world_event_count_c(NULL) == 0, "null world event count should be zero")) {
         return 1;
     }
+    if (require_int(clc_world_event_id_c(NULL, 0) == 0, "null world event id should be zero")) {
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(NULL, 0) == 0, "null world event tick should be zero")) {
+        return 1;
+    }
+    if (require_int(clc_world_event_type_c(NULL, 0)[0] == '\0', "null world event type should be empty")) {
+        return 1;
+    }
+    if (require_int(clc_world_event_payload_c(NULL, 0)[0] == '\0', "null world event payload should be empty")) {
+        return 1;
+    }
     if (require_int(clc_world_advance_c(NULL, 1) == 0, "null world advance should fail")) {
         return 1;
     }
@@ -97,11 +109,47 @@ int main(void) {
         clc_world_destroy_c(world);
         return 1;
     }
+    if (require_int(clc_world_event_id_c(world, 0) == 1, "creation event id should be one")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(world, 0) == 0, "creation event tick should be zero")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(strcmp(clc_world_event_type_c(world, 0), "world.created") == 0, "creation event type should be exposed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(strcmp(clc_world_event_payload_c(world, 0), "C ABI World") == 0, "creation event payload should be exposed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_id_c(world, 1) == 0, "out-of-range event id should be zero")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(world, 1) == 0, "out-of-range event tick should be zero")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_type_c(world, 1)[0] == '\0', "out-of-range event type should be empty")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_payload_c(world, 1)[0] == '\0', "out-of-range event payload should be empty")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
     if (require_int(clc_world_advance_c(world, 0) == 0, "zero tick advance should fail")) {
         clc_world_destroy_c(world);
         return 1;
     }
     if (require_int(clc_world_current_tick_c(world) == 0, "failed advance should not change tick")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_count_c(world) == 1, "failed advance should not append event")) {
         clc_world_destroy_c(world);
         return 1;
     }
@@ -114,6 +162,22 @@ int main(void) {
         return 1;
     }
     if (require_int(clc_world_event_count_c(world) == 2, "successful advance should append event")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_id_c(world, 1) == 2, "advance event id should be two")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(world, 1) == 5, "advance event tick should be five")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(strcmp(clc_world_event_type_c(world, 1), "world.advanced") == 0, "advance event type should be exposed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_payload_c(world, 1)[0] == '\0', "advance event payload should be empty")) {
         clc_world_destroy_c(world);
         return 1;
     }
@@ -137,6 +201,14 @@ int main(void) {
         clc_world_destroy_c(world);
         return 1;
     }
+    if (require_int(clc_world_event_tick_c(world, 2) == UINT64_MAX, "saturating advance event tick should be max")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(world, 3) == UINT64_MAX, "post-saturation event tick should remain max")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
     clc_world_destroy_c(world);
 
     clc_world* default_world = clc_world_create_c(NULL, 7);
@@ -144,6 +216,10 @@ int main(void) {
         return 1;
     }
     if (require_int(strcmp(clc_world_name_c(default_world), "City Life World") == 0, "null name should use default world name")) {
+        clc_world_destroy_c(default_world);
+        return 1;
+    }
+    if (require_int(strcmp(clc_world_event_payload_c(default_world, 0), "City Life World") == 0, "default world creation payload should use default name")) {
         clc_world_destroy_c(default_world);
         return 1;
     }
@@ -158,6 +234,10 @@ int main(void) {
         return 1;
     }
     if (require_int(strcmp(clc_world_name_c(empty_name_world), "") == 0, "empty world name should be preserved")) {
+        clc_world_destroy_c(empty_name_world);
+        return 1;
+    }
+    if (require_int(clc_world_event_payload_c(empty_name_world, 0)[0] == '\0', "empty-name creation payload should be empty")) {
         clc_world_destroy_c(empty_name_world);
         return 1;
     }
