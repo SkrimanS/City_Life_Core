@@ -2,9 +2,9 @@
 
 Status: **blocked / local Windows validation passed / не готов к публикации**
 
-This is a draft manifest for the current `v/1.0-rc-prep` validation branch. It must not be used as an official release manifest until LICENSE, CI validation or owner-accepted local validation scope, artifact review and owner approval are complete.
+This is a draft manifest for the current `v/1.0-rc-prep` validation branch. It must not be used as an official release manifest until CI validation or owner-accepted local validation scope, artifact review, final release metadata and owner approval are complete.
 
-Это черновик manifest для текущей validation branch `v/1.0-rc-prep`. Его нельзя использовать как официальный release manifest, пока не закрыты LICENSE, CI validation или явно принятый owner local-validation scope, artifact review и owner approval.
+Это черновик manifest для текущей validation branch `v/1.0-rc-prep`. Его нельзя использовать как официальный release manifest, пока не закрыты CI validation или явно принятый owner local-validation scope, artifact review, final release metadata и owner approval.
 
 ---
 
@@ -19,7 +19,8 @@ tag: v1.0.0
 commit: TBD-final-release-commit
 release_date: TBD
 release_type: stable
-license: TBD-owner-decision-required
+license: Apache-2.0
+license_file: LICENSE
 status: blocked-local-windows-validation-passed
 
 artifacts:
@@ -71,6 +72,8 @@ release_gates:
   blocker_document: docs/RELEASE_BLOCKERS.md
   ci_artifact_review: docs/CI_ARTIFACT_REVIEW.md
   release_checklist: docs/RELEASE_CHECKLIST.md
+  license_decision_complete: true
+  root_license_present: true
   blockers_closed_or_accepted_by_owner: false
   owner_release_approval: false
 
@@ -116,9 +119,6 @@ C ABI consumer output: version=1.0.0
 
 Before this can become an official manifest:
 
-- owner chooses LICENSE/contribution model;
-- root `LICENSE` is added;
-- license is reflected in README/package/release docs;
 - CI matrix is green or failures are explicitly accepted and documented by owner;
 - Linux GCC and Linux Clang validation are reviewed or explicitly deferred/accepted by owner;
 - final tag, commit SHA, release date and artifact size are filled;
@@ -129,4 +129,4 @@ Before this can become an official manifest:
 
 ## Notes
 
-Use `docs/RELEASE_MANIFEST_TEMPLATE.md` for the canonical field format. This file is still a branch-local draft for the current validation state and remains blocked until the owner closes or accepts the remaining gates.
+The license decision is complete and the root `LICENSE` file is present. Use `docs/RELEASE_MANIFEST_TEMPLATE.md` for the canonical field format. This file is still a branch-local draft for the current validation state and remains blocked until the owner closes or accepts the remaining gates.
