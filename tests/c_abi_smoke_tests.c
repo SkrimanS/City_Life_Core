@@ -117,6 +117,26 @@ int main(void) {
         clc_world_destroy_c(world);
         return 1;
     }
+    if (require_int(clc_world_advance_c(world, UINT64_MAX) == 1, "huge tick advance should succeed with saturation")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_current_tick_c(world) == UINT64_MAX, "huge tick advance should saturate current tick")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_c(world, 1) == 1, "post-saturation positive advance should remain accepted")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_current_tick_c(world) == UINT64_MAX, "post-saturation advance should not wrap current tick")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_count_c(world) == 4, "saturating advances should append events without wrapping")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
     clc_world_destroy_c(world);
 
     clc_world* default_world = clc_world_create_c(NULL, 7);
@@ -132,6 +152,20 @@ int main(void) {
         return 1;
     }
     clc_world_destroy_c(default_world);
+
+    clc_world* empty_name_world = clc_world_create_c("", 9);
+    if (require_int(empty_name_world != NULL, "empty-name world handle should create")) {
+        return 1;
+    }
+    if (require_int(strcmp(clc_world_name_c(empty_name_world), "") == 0, "empty world name should be preserved")) {
+        clc_world_destroy_c(empty_name_world);
+        return 1;
+    }
+    if (require_int(clc_world_seed_c(empty_name_world) == 9, "empty-name world seed should be preserved")) {
+        clc_world_destroy_c(empty_name_world);
+        return 1;
+    }
+    clc_world_destroy_c(empty_name_world);
 
     return 0;
 }
