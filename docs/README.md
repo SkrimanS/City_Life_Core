@@ -1,56 +1,55 @@
-# City Life Core Documentation / Документация
+# City Life Core Documentation
 
-Version: **1.0.0**
-
+Version: **1.0.0**  
 Status: **released / v1.0.0**
 
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
-Эта папка содержит документацию для разработчиков, которые подключают City Life Core к C++ игре, серверу, backend-сервису, редактору или simulation tool.
+Russian documentation starts at [`ru/README.md`](ru/README.md).
 
 ---
 
-## Start here / С чего начать
+## Start here
 
 | Document | Purpose |
 | --- | --- |
-| `CORE_CONCEPTS.md` | Main systems: registry, runtime, ticks, settlements, caravans, economy, contracts, events and persistence. |
-| `PUBLIC_API.md` | Public SDK API, recommended include, validation model, workflows and usage rules. |
-| `SDK_STRUCTURE.md` | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
-| `PACKAGING.md` | Build, install and consume the SDK through CMake. |
-| `CMAKE_PACKAGE.md` | Exported CMake target and installed package directory variables. |
-| `SDK_ZIP_PACKAGE.md` | Build and consume a CPack ZIP SDK archive. |
-| `BUILD_AND_LINKING_POLICY.md` | Static/shared, source-first and binary compatibility policy. |
+| [`core-concepts.md`](core-concepts.md) | Main systems: registry, runtime, ticks, settlements, caravans, economy, contracts, events and persistence. |
+| [`public-api.md`](public-api.md) | Public SDK API, recommended include, validation model, workflows and usage rules. |
+| [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
+| [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
+| [`cmake-package.md`](cmake-package.md) | Exported CMake target and installed package directory variables. |
+| [`sdk-zip-package.md`](sdk-zip-package.md) | Build and consume a CPack ZIP SDK archive. |
+| [`build-and-linking-policy.md`](build-and-linking-policy.md) | Static/shared, source-first and binary compatibility policy. |
 
 ---
 
-## API and compatibility / API и совместимость
+## API and compatibility
 
 | Document | Purpose |
 | --- | --- |
-| `PUBLIC_API_STATUS.md` | Header-by-header usage classification. |
-| `C_ABI.md` | Minimal C interface for version/time utilities, an opaque world handle and read-only world event access. |
-| `COMPATIBILITY.md` | Time, events, save/load, validation and source/binary compatibility rules. |
-| `MIGRATION.md` | Instructions for updating older integrations. |
+| [`public-api-status.md`](public-api-status.md) | Header-by-header usage classification. |
+| [`c-abi.md`](c-abi.md) | Minimal C interface for version/time utilities, an opaque world handle and read-only world event access. |
+| [`compatibility.md`](compatibility.md) | Time, events, save/load, validation and source/binary compatibility rules. |
+| [`migration.md`](migration.md) | Instructions for updating older integrations. |
 
 ---
 
-## Release documents / Документы релиза
+## Release documents
 
 | Document | Purpose |
 | --- | --- |
-| `RELEASE_NOTES_1.0.0.md` | Final 1.0.0 release notes. |
-| `RELEASE_MANIFEST_1.0.0.md` | Final 1.0.0 release manifest and reviewed local validation data. |
-| `READINESS_STATUS.md` | Subsystem readiness estimate for the 1.0.0 line. |
-| `VERSIONING.md` | Versioning and tag rules. |
-| `VERIFYING_RELEASES.md` | Release verification guide. |
-| `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
-| `RELEASE_MANIFEST_TEMPLATE.md` | Template for future release manifests. |
-| `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
+| [`release-notes-1.0.0.md`](release-notes-1.0.0.md) | Final 1.0.0 release notes. |
+| [`release-manifest-1.0.0.md`](release-manifest-1.0.0.md) | Final 1.0.0 release manifest and reviewed local validation data. |
+| [`readiness-status.md`](readiness-status.md) | Subsystem readiness estimate for the 1.0.0 line. |
+| [`versioning.md`](versioning.md) | Versioning and tag rules. |
+| [`verifying-releases.md`](verifying-releases.md) | Release verification guide. |
+| [`ci-artifact-review.md`](ci-artifact-review.md) | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
+| [`release-manifest-template.md`](release-manifest-template.md) | Template for future release manifests. |
+| [`protection-strategy.md`](protection-strategy.md) | Project protection and distribution strategy. |
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
-Normal SDK users usually start with `CORE_CONCEPTS.md`, `PUBLIC_API.md`, `SDK_STRUCTURE.md` and `PACKAGING.md`.
+Normal SDK users usually start with `core-concepts.md`, `public-api.md`, `sdk-structure.md` and `packaging.md`.
 
 ---
 
