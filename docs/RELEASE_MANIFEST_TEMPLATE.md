@@ -38,6 +38,7 @@ verification:
   unpacked_zip_c_abi_consumer: pass-or-fail
   c_abi_version: <number>
   c_abi_world_handle_checked: true-or-false
+  c_abi_event_access_checked: true-or-false
 
 public_api:
   status_document: docs/PUBLIC_API_STATUS.md
@@ -80,8 +81,9 @@ verification:
   external_c_abi_consumer: pending
   unpacked_zip_find_package_consumer: pending
   unpacked_zip_c_abi_consumer: pending
-  c_abi_version: 2
+  c_abi_version: 3
   c_abi_world_handle_checked: false
+  c_abi_event_access_checked: false
 
 public_api:
   status_document: docs/PUBLIC_API_STATUS.md
@@ -103,7 +105,7 @@ For each release candidate or final release:
 1. Copy this template into a versioned manifest file.
 2. Fill exact tag, commit SHA, date, and artifact names.
 3. Generate SHA-256 checksums for all artifacts.
-4. Record installed and unpacked ZIP C++/C ABI consumer results.
+4. Record installed and unpacked ZIP C++/C ABI consumer results, including C ABI version, world-handle checks, and read-only event access checks.
 5. Attach manifest and checksums to the release.
 6. Link the manifest from release notes.
 7. Do not call artifacts official unless they match this manifest.
@@ -113,7 +115,7 @@ For each release candidate or final release:
 1. Скопировать шаблон в versioned manifest file.
 2. Заполнить точный tag, commit SHA, дату и названия artifacts.
 3. Сгенерировать SHA-256 checksums для всех artifacts.
-4. Записать результаты installed и unpacked ZIP C++/C ABI consumer checks.
+4. Записать результаты installed и unpacked ZIP C++/C ABI consumer checks, включая C ABI version, world-handle checks и read-only event access checks.
 5. Приложить manifest и checksums к релизу.
 6. Сослаться на manifest из release notes.
 7. Не называть artifacts официальными, если они не совпадают с manifest.
