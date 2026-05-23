@@ -27,7 +27,7 @@ This directory contains developer-facing documentation for integrating City Life
 | Document | Purpose |
 | --- | --- |
 | `PUBLIC_API_STATUS.md` | Header-by-header usage classification. |
-| `C_ABI.md` | Minimal C interface for version/time utilities and an opaque world handle. |
+| `C_ABI.md` | Minimal C interface for version/time utilities, an opaque world handle and read-only world event access. |
 | `COMPATIBILITY.md` | Time, events, save/load, validation and source/binary compatibility rules. |
 | `MIGRATION.md` | Instructions for updating older integrations. |
 
@@ -39,6 +39,7 @@ This directory contains developer-facing documentation for integrating City Life
 | --- | --- |
 | `VERSIONING.md` | Versioning and tag rules. |
 | `VERIFYING_RELEASES.md` | Release verification guide. |
+| `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
 | `RELEASE_MANIFEST_TEMPLATE.md` | Manifest template for release artifacts. |
 | `RELEASE_CHECKLIST.md` | Maintainer release checklist. |
 | `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
