@@ -2,7 +2,7 @@
 
 This is a standalone C project that consumes an installed City Life Core SDK through CMake.
 
-The current C ABI is intentionally minimal. It exposes version utilities, time utility functions, and a small opaque `clc_world` handle for create/destroy, basic state access, and simple tick advancement. Full runtime, containers, save/load, event payload and callback APIs remain C++ APIs.
+The current C ABI is intentionally minimal. It exposes version utilities, time utility functions, a small opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement, and read-only world event inspection. Full runtime, containers, save/load, mutable event payload and callback APIs remain C++ APIs.
 
 ---
 
@@ -58,3 +58,7 @@ On Windows/MSVC the executable may be under the configuration directory:
 - `clc_world_current_tick_c(...)`
 - `clc_world_event_count_c(...)`
 - `clc_world_advance_c(...)`
+- `clc_world_event_id_c(...)`
+- `clc_world_event_tick_c(...)`
+- `clc_world_event_type_c(...)`
+- `clc_world_event_payload_c(...)`
