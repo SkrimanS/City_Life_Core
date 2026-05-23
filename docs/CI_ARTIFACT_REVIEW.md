@@ -41,6 +41,44 @@ Each job should pass:
 
 ---
 
+## Local manual validation fallback
+
+If GitHub Actions logs, metadata or artifacts are unavailable, run the local validation helper from the repository root:
+
+```bash
+bash scripts/manual_release_validation.sh
+```
+
+Optional custom build directory:
+
+```bash
+bash scripts/manual_release_validation.sh build-local-rc-validation
+```
+
+The script runs the same release-validation shape as CI:
+
+- configure/build with tests, examples and benchmarks enabled;
+- `ctest`;
+- benchmark runner;
+- `cmake --install` into a local prefix;
+- installed C++ consumer;
+- installed C ABI consumer;
+- CPack ZIP package;
+- SHA256SUMS generation;
+- unpacked ZIP C++ consumer;
+- unpacked ZIP C ABI consumer.
+
+The script prints paths for:
+
+- benchmark output;
+- checksum file;
+- SDK ZIP;
+- unpacked SDK prefix.
+
+A successful local script run does not replace the final release CI requirement, but it is an acceptable troubleshooting fallback when GitHub UI/API data is unavailable.
+
+---
+
 ## Required artifacts
 
 For each successful matrix job, review these artifacts:
@@ -154,7 +192,7 @@ If CI fails, review:
 - CMake output/error logs when configure fails;
 - whether failure is platform-specific or common to all matrix jobs.
 
-If workflow logs or artifacts are unavailable through automation, inspect the GitHub Actions run manually in the GitHub UI.
+If workflow logs or artifacts are unavailable through automation, inspect the GitHub Actions run manually in the GitHub UI or use the local manual validation fallback above.
 
 ---
 
