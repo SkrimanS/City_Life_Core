@@ -16,14 +16,14 @@ official_repository: https://github.com/SkrimanS/City_Life_Core
 official_owner: SkrimanS
 version: 1.0.0
 tag: v1.0.0
-commit: TBD-current-validation-head
+commit: TBD-final-release-commit
 release_date: TBD
 release_type: stable
 license: TBD-owner-decision-required
 status: blocked
 
 artifacts:
-  - name: TBD-city-life-core-sdk-1.0.0-<system>-<processor>.zip
+  - name: city-life-core-sdk-1.0.0-SYSTEM-PROCESSOR.zip
     type: source-sdk-archive
     sha256: TBD
     size_bytes: TBD
@@ -52,6 +52,7 @@ public_api:
   readiness_status: docs/READINESS_STATUS.md
   status_document: docs/PUBLIC_API_STATUS.md
   c_abi_document: docs/C_ABI.md
+  release_notes: docs/RELEASE_NOTES_1.0.0.md
   stable_headers_reviewed: false
   experimental_headers_documented: true
 
@@ -93,4 +94,4 @@ Before this can become an official manifest:
 
 ## Notes
 
-Use `docs/RELEASE_MANIFEST_TEMPLATE.md` for the canonical field format. This file is only a branch-local draft for the current validation state.
+Use `docs/RELEASE_MANIFEST_TEMPLATE.md` for the canonical field format. Replace `SYSTEM-PROCESSOR` with the actual CPack artifact suffix from the reviewed build. This file is only a branch-local draft for the current validation state.
