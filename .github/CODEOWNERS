@@ -34,14 +34,14 @@
 /docs/COMPATIBILITY.md @SkrimanS
 /docs/MIGRATION.md @SkrimanS
 /docs/READINESS_STATUS.md @SkrimanS
-/docs/RELEASE_NOTES_0.9.9.md @SkrimanS
+/docs/RELEASE_NOTES_1.0.0.md @SkrimanS
 /docs/RELEASE_CHECKLIST.md @SkrimanS
 /docs/PROTECTION_STRATEGY.md @SkrimanS
 /docs/VERIFYING_RELEASES.md @SkrimanS
 /docs/CI_ARTIFACT_REVIEW.md @SkrimanS
 /docs/RELEASE_BLOCKERS.md @SkrimanS
 /docs/RELEASE_MANIFEST_TEMPLATE.md @SkrimanS
-/docs/RELEASE_MANIFEST_DRAFT_0.9.9.md @SkrimanS
+/docs/RELEASE_MANIFEST_DRAFT_1.0.0.md @SkrimanS
 
 # Release examples and external consumer validation
 /examples/** @SkrimanS
