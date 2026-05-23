@@ -16,7 +16,7 @@ int main(void) {
         return 1;
     }
 
-    if (clc_c_interface_version_c() != 2u) {
+    if (clc_c_interface_version_c() != 3u) {
         fprintf(stderr, "Unexpected C interface version: %u\n", (unsigned)clc_c_interface_version_c());
         return 1;
     }
@@ -35,8 +35,30 @@ int main(void) {
         return 1;
     }
 
+    if (clc_world_event_count_c(world) != 1) {
+        fprintf(stderr, "Unexpected initial event count\n");
+        clc_world_destroy_c(world);
+        return 1;
+    }
+
+    if (strcmp(clc_world_event_type_c(world, 0), "world.created") != 0 ||
+        strcmp(clc_world_event_payload_c(world, 0), "C ABI Consumer World") != 0) {
+        fprintf(stderr, "Unexpected creation event\n");
+        clc_world_destroy_c(world);
+        return 1;
+    }
+
     if (clc_world_advance_c(world, 5) != 1) {
         fprintf(stderr, "Failed to advance C ABI world handle\n");
+        clc_world_destroy_c(world);
+        return 1;
+    }
+
+    if (clc_world_event_count_c(world) != 2 ||
+        clc_world_event_id_c(world, 1) != 2 ||
+        clc_world_event_tick_c(world, 1) != 5 ||
+        strcmp(clc_world_event_type_c(world, 1), "world.advanced") != 0) {
+        fprintf(stderr, "Unexpected advance event\n");
         clc_world_destroy_c(world);
         return 1;
     }
@@ -50,6 +72,16 @@ int main(void) {
     printf("world_seed=%llu\n", (unsigned long long)clc_world_seed_c(world));
     printf("world_tick=%llu\n", (unsigned long long)clc_world_current_tick_c(world));
     printf("world_events=%llu\n", (unsigned long long)clc_world_event_count_c(world));
+    printf("event0=%llu:%llu:%s:%s\n",
+        (unsigned long long)clc_world_event_id_c(world, 0),
+        (unsigned long long)clc_world_event_tick_c(world, 0),
+        clc_world_event_type_c(world, 0),
+        clc_world_event_payload_c(world, 0));
+    printf("event1=%llu:%llu:%s:%s\n",
+        (unsigned long long)clc_world_event_id_c(world, 1),
+        (unsigned long long)clc_world_event_tick_c(world, 1),
+        clc_world_event_type_c(world, 1),
+        clc_world_event_payload_c(world, 1));
 
     clc_world_destroy_c(world);
     return 0;
