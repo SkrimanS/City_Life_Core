@@ -1,29 +1,40 @@
 # Release Notes 1.0.0 / Заметки релиза 1.0.0
 
-Status: **unreleased / blocked for official publication**
+Status: **release-ready / merged to main**
 
-These notes describe the current `1.0.0` SDK release preparation state on `v/1.0-rc-prep`.
+City Life Core `1.0.0` is the first stable SDK release line for the public C++20 headless simulation core.
 
-Эти заметки описывают текущее состояние подготовки SDK release `1.0.0` в ветке `v/1.0-rc-prep`.
+The `1.0.0` preparation branch was merged to `main` after accepted Windows/MSVC local release validation. GitHub Actions and Linux GCC/Clang validation were consciously deferred to post-merge verification and are tracked separately.
 
 ---
 
-## Release status
+## Release scope
 
-`1.0.0` is the target public SDK release. It is not an official public release until the remaining release gates are closed.
+Accepted release gate:
 
-Hard gates still apply:
+- Windows/MSVC local release validation passed and was accepted as the release gate for this candidate.
+- `ctest` passed: 58/58.
+- Benchmarks completed.
+- `cmake --install` completed.
+- Installed C++ `find_package` consumer passed.
+- Installed C ABI consumer passed.
+- CPack SDK ZIP was generated.
+- SHA256 checksum was generated and reviewed.
+- Unpacked ZIP C++ consumer passed.
+- Unpacked ZIP C ABI consumer passed.
 
-- owner must choose the final LICENSE/contribution model;
-- root `LICENSE` must be added;
-- CI matrix must be reviewed or failures must be explicitly accepted and documented by the owner;
-- benchmark artifacts must be reviewed;
-- SDK ZIP artifacts and `SHA256SUMS.txt` must be reviewed;
-- installed and unpacked ZIP C++/C ABI consumers must be confirmed;
-- draft release manifest must be filled from reviewed data or superseded by a final manifest;
-- owner must explicitly approve release/merge.
+Reviewed local artifact:
 
-Do not publish official artifacts or merge to `main` until the release gates are closed.
+```text
+city-life-core-sdk-1.0.0-Windows-AMD64.zip
+537c2fbd55d2a41cd6a09e24583a4f82a7f62f6e1818e382223c30f862d90230
+```
+
+License:
+
+```text
+Apache-2.0
+```
 
 ---
 
@@ -44,13 +55,14 @@ find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
 
-- Standalone C++ package consumer:
+- Standalone installed-package consumers:
 
 ```text
-examples/find_package_consumer/
+examples/find_package_consumer/   # C++ consumer
+examples/c_abi_consumer/          # C consumer for the minimal C interface
 ```
 
-- CPack ZIP SDK package flow with checksum generation.
+- CPack ZIP SDK package flow with checksum generation and unpacked ZIP consumer validation.
 
 ### Minimal C ABI v3
 
@@ -66,11 +78,11 @@ The C ABI currently covers:
 - C interface version `3`;
 - time constants and conversions;
 - opaque `clc_world` create/destroy;
-- world name/seed/current tick/event count;
+- world name, seed, current tick and event count;
 - tick advancement;
-- read-only world event id/tick/type/payload accessors.
+- read-only world event id, tick, type and payload accessors.
 
-The C ABI intentionally does not expose full runtime, registries, save/load, callbacks, caravans, contracts, economy workflows or mutable event payload APIs.
+The C ABI intentionally does not expose the full runtime, registries, save/load, callbacks, caravans, contracts, economy workflows or mutable event payload APIs.
 
 ### Runtime tick model
 
@@ -99,7 +111,7 @@ Day-based compatibility APIs remain available.
 
 ### Release governance
 
-Release-preparation documentation includes:
+Release documentation includes:
 
 ```text
 docs/READINESS_STATUS.md
@@ -112,7 +124,7 @@ docs/VERIFYING_RELEASES.md
 docs/PROTECTION_STRATEGY.md
 ```
 
-Documentation has been cleaned for the 1.0.0 release path: obsolete pre-1.0 and 0.9.x release-note files were removed, release-facing docs now point at 1.0.0, and the changelog is focused on the supported 1.0.0 SDK surface.
+Documentation was cleaned for the 1.0.0 release path. Obsolete pre-1.0 and 0.9.x release-note files are excluded from installed docs, release-facing docs point at 1.0.0, and the changelog is focused on the supported 1.0.0 SDK surface.
 
 Local troubleshooting helpers are available:
 
@@ -121,7 +133,7 @@ bash scripts/manual_release_validation.sh
 ```
 
 ```powershell
-pwsh -File scripts/manual_release_validation.ps1
+powershell -ExecutionPolicy Bypass -File scripts/manual_release_validation.ps1
 ```
 
 ---
@@ -136,35 +148,39 @@ pwsh -File scripts/manual_release_validation.ps1
 
 ---
 
-## Known limitations before official release
+## Known limitations and follow-up
 
-The current readiness snapshot is tracked in:
+Post-merge validation and hardening are tracked separately:
+
+- GitHub Actions status for `main`;
+- Linux GCC validation;
+- Linux Clang validation;
+- stronger Basic Economy/Market hardening;
+- more Data Registry data-pack coverage;
+- more Factions/Ownership scenario coverage;
+- broader C ABI surface if C/FFI users become a target audience;
+- performance baseline history across multiple CI runs.
+
+Primary follow-up issue:
 
 ```text
-docs/READINESS_STATUS.md
+#41 Post-merge CI and Linux validation for 1.0.0
 ```
-
-Areas still worth hardening before or after 1.0.0:
-
-- Basic Economy/Market;
-- Data Registry;
-- Factions/Ownership;
-- C ABI breadth;
-- benchmark baseline history;
-- final release governance after license decision.
 
 ---
 
 ## Verification path
 
-Before treating `1.0.0` as official:
+For local verification on Windows:
 
-1. Close or explicitly accept hard blockers in issue #40.
-2. Review `docs/RELEASE_BLOCKERS.md`.
-3. Review `docs/READINESS_STATUS.md`.
-4. Run CI or local fallback validation.
-5. Review benchmark artifacts.
-6. Review SDK ZIP artifacts and `SHA256SUMS.txt`.
-7. Confirm installed and unpacked ZIP consumers.
-8. Fill `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` or replace it with a final manifest.
-9. Receive explicit owner release/merge approval.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/manual_release_validation.ps1
+```
+
+For local verification on Linux/macOS-like shells:
+
+```bash
+bash scripts/manual_release_validation.sh
+```
+
+A successful full validation performs configure/build, tests, benchmarks, install, installed consumers, SDK ZIP creation, checksum generation and unpacked ZIP consumer checks.
