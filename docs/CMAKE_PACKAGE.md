@@ -1,6 +1,6 @@
 # CMake Package / CMake package
 
-Version: **0.9.9**
+Version: **1.0.0**
 
 City Life Core installs as a CMake package and exports both a target and install-directory variables.
 
@@ -123,14 +123,16 @@ Recommended C include:
 
 ## ZIP package validation
 
-The CI workflow checks the package in three ways:
+The release-validation flow checks the package in three ways:
 
 1. `cmake --install` prefix consumers.
 2. Unpacked SDK ZIP C++ consumer.
 3. Unpacked SDK ZIP C consumer for the minimal C interface.
 
-See also:
+For 1.0.0 release artifact review, see:
 
 ```text
 docs/SDK_ZIP_PACKAGE.md
+docs/CI_ARTIFACT_REVIEW.md
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
 ```
