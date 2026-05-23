@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/SkrimanS/City_Life_Core/blob/main/docs/README.md
+    about: Start with the documentation index before opening a support-style issue.
+  - name: Roadmap and release policy
+    url: https://github.com/SkrimanS/City_Life_Core/blob/main/docs/roadmap.md
+    about: Check the roadmap and versioning policy before opening planning or milestone issues.
