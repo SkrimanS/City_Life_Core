@@ -1,19 +1,44 @@
 ---
 name: Bug report
-about: Report a reproducible problem in City Life Core.
-title: "[Bug]"
-labels: bug, invalid
-assignees: SkrimanS
-
+about: Report a reproducible problem in City Life Core
+title: "bug: "
+labels: ["bug"]
+assignees: ""
 ---
 
 ## Summary
 
-<!-- What is the problem? -->
+Describe the bug clearly and briefly.
+
+## Affected area
+
+Select all that apply:
+
+- [ ] Core simulation
+- [ ] Runtime / ticks
+- [ ] Registry / validation
+- [ ] Settlements
+- [ ] Resources / storage
+- [ ] Routes / caravans
+- [ ] Economy / market / ledger
+- [ ] Factions / ownership
+- [ ] Contracts
+- [ ] Persistence / save-load
+- [ ] Replay / determinism
+- [ ] C ABI
+- [ ] CMake / packaging
+- [ ] Documentation
+- [ ] Other
+
+## Version / branch
+
+- Git ref, branch, or commit:
+- Public release tag, if applicable:
+- OS:
+- Compiler:
+- CMake version:
 
 ## Steps to reproduce
-
-<!-- Provide a minimal reproducible scenario. -->
 
 1.
 2.
@@ -21,27 +46,46 @@ assignees: SkrimanS
 
 ## Expected behavior
 
-<!-- What did you expect to happen? -->
+What should happen?
 
 ## Actual behavior
 
-<!-- What actually happened? Include logs, assertions, compiler errors or runtime output. -->
+What happens instead?
 
-## Affected area
+## Minimal reproduction
 
-<!-- Pick one or more: data registry, validation, settlement simulation, routes, caravans, factions, contracts, economy, runtime, ticks, events, persistence, replay, C ABI, CMake, packaging, documentation. -->
+Paste a minimal code sample, test case, save file excerpt, data definition, or command sequence.
 
-## City Life Core version
+```cpp
+// minimal reproduction here
+```
 
-<!-- Version, tag or commit SHA. Example: v1.0.0 -->
+## Logs / output
 
-## Environment
+```text
+paste relevant output here
+```
 
-- OS:
-- Compiler:
-- CMake version:
-- Build options:
+## Regression?
+
+- [ ] This worked before
+- [ ] This is new behavior
+- [ ] Unknown
+
+Last known good commit/ref, if known:
+
+## Impact
+
+Describe how serious this is:
+
+- [ ] Blocks build
+- [ ] Blocks tests
+- [ ] Breaks runtime behavior
+- [ ] Breaks public API usage
+- [ ] Breaks package/install flow
+- [ ] Documentation mismatch
+- [ ] Minor issue
 
 ## Additional context
 
-<!-- Logs, screenshots, related issues or possible causes. -->
+Add anything else that helps explain the problem.
