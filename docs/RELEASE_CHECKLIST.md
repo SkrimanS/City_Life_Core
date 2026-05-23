@@ -1,10 +1,10 @@
 # Release Checklist / Чеклист релиза
 
-Status: **1.0.0-rc readiness checklist / чеклист готовности к 1.0.0-rc**
+Status: **1.0.0 readiness checklist / чеклист готовности к 1.0.0**
 
-This checklist must be completed before publishing a public SDK release or release candidate.
+This checklist must be completed before publishing the public SDK release.
 
-Этот чеклист должен быть закрыт перед публикацией public SDK release или release candidate.
+Этот чеклист должен быть закрыт перед публикацией public SDK release.
 
 ---
 
@@ -26,7 +26,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] `docs/SDK_STRUCTURE.md` shows the same version/status.
 - [ ] `docs/PACKAGING.md` shows the same version/status.
 - [ ] `docs/SDK_ZIP_PACKAGE.md` shows the same version/status.
-- [ ] Version-specific release notes exist.
+- [ ] `docs/RELEASE_NOTES_1.0.0.md` exists and is final.
 
 ## 2. Legal / Юридический минимум
 
@@ -51,7 +51,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release tags are signed or release signing policy is documented.
 - [ ] Release checksums are generated.
 - [ ] Release manifest is generated from `docs/RELEASE_MANIFEST_TEMPLATE.md`.
-- [ ] `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md` is filled from reviewed data or consciously superseded by a final manifest.
+- [ ] `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` is filled from reviewed data or consciously superseded by a final manifest.
 - [ ] `docs/READINESS_STATUS.md` is reviewed and accepted as the current readiness snapshot.
 - [ ] `docs/VERIFYING_RELEASES.md` is included in release docs.
 - [ ] `docs/CI_ARTIFACT_REVIEW.md` is included in release docs and used for artifact review.
@@ -84,7 +84,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Persistence format/version policy is documented.
 - [ ] Save/load legacy compatibility behavior is documented.
 - [ ] Data-pack schema compatibility policy is documented.
-- [ ] Migration guide from 0.9.x to target release exists.
+- [ ] Migration guide from 0.9.x to 1.0.0 exists.
 - [ ] C interface version policy is documented.
 - [ ] C++ source/binary compatibility position is documented in `docs/BUILD_AND_LINKING_POLICY.md`.
 
@@ -172,7 +172,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Benchmark artifacts are reviewed.
 - [ ] SDK ZIP artifacts are reviewed.
 - [ ] `SHA256SUMS.txt` is reviewed.
-- [ ] `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md` is filled from reviewed CI/artifact data or consciously superseded by a final manifest.
+- [ ] `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` is filled from reviewed CI/artifact data or consciously superseded by a final manifest.
 - [ ] Release notes are final.
 - [ ] Tag naming follows `docs/VERSIONING.md`.
 - [ ] Release artifacts are attached or documented.
