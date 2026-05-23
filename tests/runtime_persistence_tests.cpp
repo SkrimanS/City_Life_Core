@@ -98,6 +98,8 @@ int main() {
     wallet.coins = 45;
     require(ledger.record_contract_reward("before_runtime_save", "grain", 2, 5, "before save"), "runtime ledger should record reward");
 
+    const auto expected_day_after_save = source_engine.current_day();
+
     const auto directory = std::filesystem::temp_directory_path() / "clc_runtime_persistence_tests";
     std::filesystem::remove_all(directory);
     std::filesystem::create_directories(directory);
@@ -143,7 +145,7 @@ int main() {
         print_report(load_result.validation);
     }
     require(load_result.ok(), "runtime should load from file");
-    require(target_engine.current_day() == 4, "runtime load should restore engine day");
+    require(target_engine.current_day() == expected_day_after_save, "runtime load should restore engine day");
     require(target_engine.settlement_resource_amount("riverwatch", "grain") == 80, "runtime load should restore settlement storage");
     require(target_engine.settlement_resource_amount("hillford", "grain") == 20, "runtime load should restore destination settlement storage");
     require(target_routes.routes.size() == 2, "runtime load should restore routes");
@@ -163,7 +165,7 @@ int main() {
     require(target_ledger.next_sequence() == 2, "runtime load should restore live ledger sequence");
     require(target_ledger.record_contract_reward("after_runtime_load", "grain", 1, 2, "after load"), "runtime-loaded ledger should continue recording");
     require(target_ledger.entries()[1].sequence == 2, "runtime-loaded ledger should continue sequence");
-    require(target_engine.advance_day().day == 5, "runtime-loaded engine should continue simulation");
+    require(target_engine.advance_day().day == expected_day_after_save + 1, "runtime-loaded engine should continue simulation");
 
     const auto serialized = clc::sim::serialize_simulation_world_state(load_result.state);
     require(serialized.find("settlement_tick_remainder") != std::string::npos, "serialized runtime should include settlement tick remainders");
