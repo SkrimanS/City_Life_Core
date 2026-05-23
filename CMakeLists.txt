@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(CityLifeCore
-    VERSION 0.9.9
+    VERSION 1.0.0
     DESCRIPTION "Universal headless simulation core for living settlements"
     LANGUAGES C CXX
 )
