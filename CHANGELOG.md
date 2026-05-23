@@ -9,9 +9,9 @@ All notable changes to City Life Core are tracked here.
 ### Added
 
 - Added C++ SDK umbrella header `clc/CityLifeCore.hpp` as the recommended first include for C++ consumers.
-- Added C ABI header `clc/c/CityLifeCoreC.h` with version/time utilities and minimal opaque `clc_world` world-handle functions.
-- Added C ABI bridge implementation and bumped the C interface version to `2` for the new `clc_world` surface.
-- Added C ABI smoke coverage for version/time utilities, null-safe `clc_world` access, create/destroy, state access, and tick advancement.
+- Added C ABI header `clc/c/CityLifeCoreC.h` with version/time utilities, minimal opaque `clc_world` world-handle functions and read-only world event accessors.
+- Added C ABI bridge implementation and bumped the C interface version to `3` for the `clc_world` and read-only event accessor surface.
+- Added C ABI smoke coverage for version/time utilities, null-safe `clc_world` access, create/destroy, state access, tick advancement, event ids, event ticks, event types and event payloads.
 - Added standalone installed-package C ABI consumer coverage through `examples/c_abi_consumer/`.
 - Added standalone installed-package C++ `find_package(CityLifeCore CONFIG REQUIRED)` consumer coverage through `examples/find_package_consumer/`.
 - Added CPack ZIP SDK package generation with `SHA256SUMS.txt` checksum output.
@@ -39,8 +39,8 @@ All notable changes to City Life Core are tracked here.
 
 - Bumped project version from `0.9.7` to `0.9.9` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
 - Updated smoke tests to expect `0.9.9`.
-- Updated public package documentation to reflect the C ABI v2 `clc_world` handle instead of describing the C ABI as version/time-only.
-- Updated release checklist and packaging docs to require installed and unpacked ZIP C ABI consumer validation for C ABI version, time utilities, and `clc_world` behavior.
+- Updated public package documentation to reflect the C ABI v3 `clc_world` handle and read-only event accessors instead of describing the C ABI as version/time-only.
+- Updated release checklist and packaging docs to require installed and unpacked ZIP C ABI consumer validation for C ABI version, time utilities, `clc_world` behavior and read-only event accessors.
 - Updated contribution documentation to keep contributions restricted until the final license and contribution model are chosen.
 - Changed runtime event log timestamps from day numbers to absolute runtime ticks.
 - Changed runtime save/load overloads to preserve `SimulationRuntime::time` through the runtime-specific world-state bridge.
@@ -50,8 +50,8 @@ All notable changes to City Life Core are tracked here.
 ### Compatibility
 
 - Existing day-based route, caravan, and contract APIs remain available.
-- Existing C ABI version/time functions remain available under C interface version `2`.
-- The new `clc_world` C ABI surface is intentionally minimal and does not expose full runtime, registries, containers, save/load, callbacks, event payload access, caravans, contracts, or economy workflows.
+- Existing C ABI version/time functions remain available under C interface version `3`.
+- The new `clc_world` and read-only world event C ABI surface is intentionally minimal and does not expose full runtime, registries, containers, save/load, callbacks, mutable event payload APIs, caravans, contracts, or economy workflows.
 - Older world-state saves without explicit runtime `time` are still accepted and synchronize runtime clock from `current_day`.
 - Older contract rows without `due_ticks` are still accepted and derive `due_ticks` from `due_day`.
 
