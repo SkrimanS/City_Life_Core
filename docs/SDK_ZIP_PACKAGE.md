@@ -1,6 +1,6 @@
 # SDK ZIP Package / SDK ZIP архив
 
-Version: **0.9.9**
+Version: **1.0.0**
 
 City Life Core can produce an install-layout SDK archive through CPack.
 
@@ -17,16 +17,16 @@ cpack --config build-sdk-zip/CPackConfig.cmake -G ZIP
 cmake -E sha256sum city-life-core-sdk-*.zip > SHA256SUMS.txt
 ```
 
-The generated archive name follows this pattern:
+The generated 1.0.0 archive name follows this pattern:
 
 ```text
-city-life-core-sdk-<version>-<system>-<processor>.zip
+city-life-core-sdk-1.0.0-<system>-<processor>.zip
 ```
 
 Example:
 
 ```text
-city-life-core-sdk-0.9.9-Linux-x86_64.zip
+city-life-core-sdk-1.0.0-Linux-x86_64.zip
 ```
 
 Checksum file:
@@ -42,7 +42,7 @@ SHA256SUMS.txt
 The archive contains the CMake install layout:
 
 ```text
-city-life-core-sdk-0.9.9-<system>-<processor>/
+city-life-core-sdk-1.0.0-<system>-<processor>/
   include/
     clc/
       CityLifeCore.hpp
@@ -71,8 +71,8 @@ city-life-core-sdk-0.9.9-<system>-<processor>/
 Unpack the archive and pass the unpacked prefix to CMake:
 
 ```bash
-unzip city-life-core-sdk-0.9.9-Linux-x86_64.zip -d /tmp/city-life-core-sdk
-cmake -S my_game -B build -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-0.9.9-Linux-x86_64
+unzip city-life-core-sdk-1.0.0-Linux-x86_64.zip -d /tmp/city-life-core-sdk
+cmake -S my_game -B build -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-1.0.0-Linux-x86_64
 cmake --build build
 ```
 
@@ -102,7 +102,7 @@ Recommended C ABI include:
 After downloading or copying the archive, verify the checksum:
 
 ```bash
-cmake -E sha256sum city-life-core-sdk-0.9.9-Linux-x86_64.zip
+cmake -E sha256sum city-life-core-sdk-1.0.0-Linux-x86_64.zip
 cat SHA256SUMS.txt
 ```
 
@@ -115,7 +115,7 @@ The hash printed for the ZIP should match the hash in `SHA256SUMS.txt`.
 After unpacking, build the standalone C++ consumer example against the installed package:
 
 ```bash
-cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-0.9.9-Linux-x86_64
+cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-1.0.0-Linux-x86_64
 cmake --build build-consumer
 ./build-consumer/city_life_core_consumer
 ```
@@ -134,7 +134,7 @@ This checks:
 After unpacking, build the standalone C ABI consumer example against the installed package:
 
 ```bash
-cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-0.9.9-Linux-x86_64
+cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk/city-life-core-sdk-1.0.0-Linux-x86_64
 cmake --build build-c-abi-consumer
 ./build-c-abi-consumer/city_life_core_c_abi_consumer
 ```
@@ -152,21 +152,23 @@ This checks:
 
 ## CI artifact and validation
 
-The CI workflow builds the ZIP package and uploads both:
+The CI workflow or manual validation builds the ZIP package and produces both:
 
 ```text
-city-life-core-sdk-*.zip
+city-life-core-sdk-1.0.0-<system>-<processor>.zip
 SHA256SUMS.txt
 ```
 
-CI also unpacks the generated ZIP and builds both `examples/find_package_consumer` and `examples/c_abi_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory. The C ABI consumer covers C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
+Validation also unpacks the generated ZIP and builds both `examples/find_package_consumer` and `examples/c_abi_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory. The C ABI consumer covers C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 
 ---
 
-## Release notes
+## Release notes and manifest
 
-A release should publish the ZIP archive together with a manifest/checksum file. See:
+A 1.0.0 release should publish the ZIP archive together with checksums and a filled manifest. See:
 
 ```text
+docs/RELEASE_NOTES_1.0.0.md
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
 docs/RELEASE_MANIFEST_TEMPLATE.md
 ```
