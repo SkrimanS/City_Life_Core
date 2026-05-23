@@ -1,247 +1,50 @@
 # City Life Core Packaging / Упаковка
 
-Version: **0.9.9**
+Version: **1.0.0**
 
-This document explains how to build, install, and consume City Life Core from an external C++ project.
-
-Этот документ объясняет, как собрать, установить и подключить City Life Core из внешнего C++ проекта.
+This document explains how to build, install, package, and consume the City Life Core 1.0.0 SDK.
 
 ---
 
-## Русский
+## CMake package
 
-### CMake package summary
-
-City Life Core устанавливается как CMake package и экспортирует target:
+City Life Core installs as a CMake package and exports:
 
 ```cmake
 CityLifeCore::core
 ```
 
-External projects should use:
+External C++ projects should use:
 
 ```cmake
 find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
 
-### Build options
+External C consumers may use `clc/c/CityLifeCoreC.h`, while linking through the C++ implementation:
 
-Когда City Life Core собирается как top-level project, tests/examples/tools включены по умолчанию. Когда проект подключается через `add_subdirectory(...)`, они выключены по умолчанию, чтобы внешний build не получал лишние targets.
+```cmake
+project(MyCityLifeCoreCConsumer LANGUAGES C CXX)
+find_package(CityLifeCore CONFIG REQUIRED)
+add_executable(my_consumer main.c)
+set_target_properties(my_consumer PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(my_consumer PRIVATE CityLifeCore::core)
+```
+
+---
+
+## Build options
 
 | Option | Top-level default | Subdirectory default | Purpose |
 | --- | --- | --- | --- |
-| `CLC_BUILD_TESTS` | `ON` | `OFF` | Build unit/integration tests |
-| `CLC_BUILD_EXAMPLES` | `ON` | `OFF` | Build SDK examples |
-| `CLC_BUILD_TOOLS` | `ON` | `OFF` | Build command-line tools such as `clc_runner` |
-| `CLC_BUILD_BENCHMARKS` | `OFF` | `OFF` | Build coarse benchmark executables |
-
-### Install from source
-
-```bash
-cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
-cmake --build build
-cmake --install build
-```
-
-Windows / multi-config generators:
-
-```powershell
-cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=C:\SDK\CityLifeCore
-cmake --build build --config Release
-cmake --install build --config Release
-```
-
-### Installed layout
-
-Default layout uses GNUInstallDirs:
-
-```text
-<prefix>/
-  include/
-    clc/
-      CityLifeCore.hpp
-      c/
-        CityLifeCoreC.h
-      core/
-      data/
-      economy/
-      sim/
-  lib/
-    libcity_life_core.*
-    cmake/CityLifeCore/
-      CityLifeCoreConfig.cmake
-      CityLifeCoreConfigVersion.cmake
-      CityLifeCoreTargets.cmake
-  share/
-    doc/CityLifeCore/
-      README.md
-      CHANGELOG.md
-      PUBLIC_API.md
-      PUBLIC_API_STATUS.md
-      SDK_STRUCTURE.md
-      VERSIONING.md
-      COMPATIBILITY.md
-      MIGRATION.md
-      PACKAGING.md
-      examples/
-    CityLifeCore/data/
-      demo_fantasy/
-```
-
-`lib/` may be `lib64/` or another configured path depending on platform/toolchain.
-
-### Minimal external CMake project
-
-`CMakeLists.txt`:
-
-```cmake
-cmake_minimum_required(VERSION 3.22)
-project(MyCityLifeApp LANGUAGES CXX)
-
-find_package(CityLifeCore CONFIG REQUIRED)
-
-add_executable(my_app main.cpp)
-target_link_libraries(my_app PRIVATE CityLifeCore::core)
-```
-
-`main.cpp`:
-
-```cpp
-#include "clc/CityLifeCore.hpp"
-
-#include <iostream>
-
-int main() {
-    auto bootstrap = clc::sim::make_basic_runtime_scenario();
-    if (!bootstrap.ok()) {
-        return 1;
-    }
-
-    auto& runtime = bootstrap.runtime;
-    auto report = clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
-    if (!report.ok()) {
-        return 1;
-    }
-
-    std::cout << clc::core_version_string() << " " << runtime.time.current_tick() << "\n";
-    return 0;
-}
-```
-
-Configure external project:
-
-```bash
-cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
-cmake --build build
-./build/my_app
-```
-
-### Installed SDK smoke tests
-
-The repository includes standalone consumer examples:
-
-```text
-examples/find_package_consumer/   # C++ consumer
-examples/c_abi_consumer/          # C consumer for minimal C ABI
-```
-
-End-to-end C++ install check:
-
-```bash
-cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
-cmake --build build-sdk
-cmake --install build-sdk --prefix /tmp/city-life-core-sdk
-
-cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
-cmake --build build-consumer
-./build-consumer/city_life_core_consumer
-```
-
-End-to-end C ABI install check:
-
-```bash
-cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
-cmake --build build-c-abi-consumer
-./build-c-abi-consumer/city_life_core_c_abi_consumer
-```
-
-These checks verify:
-
-- installed public headers;
-- installed C ABI header `clc/c/CityLifeCoreC.h`;
-- installed `CityLifeCoreConfig.cmake`;
-- exported target `CityLifeCore::core`;
-- public include paths from the install prefix;
-- a minimal runtime tick scenario in an external C++ project;
-- version/time C ABI functions, the minimal opaque `clc_world` handle and read-only world event accessors from an external C project.
-
-### Using add_subdirectory
-
-```cmake
-add_subdirectory(external/City_Life_Core)
-target_link_libraries(my_app PRIVATE CityLifeCore::core)
-```
-
-When embedded this way, enable optional targets explicitly if needed:
-
-```cmake
-set(CLC_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
-set(CLC_BUILD_TESTS ON CACHE BOOL "" FORCE)
-add_subdirectory(external/City_Life_Core)
-```
-
-### SDK data and docs paths
-
-Demo data is installed under:
-
-```text
-<prefix>/share/CityLifeCore/data/
-```
-
-Docs are installed under:
-
-```text
-<prefix>/share/doc/CityLifeCore/
-```
-
-If a game needs data-pack discovery at runtime, pass the data directory explicitly from your application configuration.
-
-### Static/shared notes
-
-The current CMake target builds according to the normal CMake library settings of the project/toolchain. Projects that need a strict static/shared distribution policy should enforce it in their own build configuration until a separate binary SDK policy is documented.
+| `CLC_BUILD_TESTS` | `ON` | `OFF` | Build tests. |
+| `CLC_BUILD_EXAMPLES` | `ON` | `OFF` | Build examples. |
+| `CLC_BUILD_TOOLS` | `ON` | `OFF` | Build command-line tools. |
+| `CLC_BUILD_BENCHMARKS` | `OFF` | `OFF` | Build benchmarks. |
 
 ---
 
-## English
-
-### CMake package summary
-
-City Life Core installs as a CMake package and exports this target:
-
-```cmake
-CityLifeCore::core
-```
-
-External projects should use:
-
-```cmake
-find_package(CityLifeCore CONFIG REQUIRED)
-target_link_libraries(my_app PRIVATE CityLifeCore::core)
-```
-
-### Build options
-
-When City Life Core is built as the top-level project, tests/examples/tools default to `ON`. When consumed through `add_subdirectory(...)`, they default to `OFF` so the parent build does not receive extra targets by default.
-
-| Option | Top-level default | Subdirectory default | Purpose |
-| --- | --- | --- |
-| `CLC_BUILD_TESTS` | `ON` only for top-level project | Build unit/integration tests |
-| `CLC_BUILD_EXAMPLES` | `ON` only for top-level project | Build examples |
-| `CLC_BUILD_TOOLS` | `ON` only for top-level project | Build command-line tools such as `clc_runner` |
-| `CLC_BUILD_BENCHMARKS` | `OFF` | Build coarse benchmark executables |
-
-### Install from source
+## Install from source
 
 ```bash
 cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=/path/to/city-life-core-sdk
@@ -249,121 +52,36 @@ cmake --build build
 cmake --install build
 ```
 
-Windows / multi-config generators:
+Installed package variables are documented in `docs/CMAKE_PACKAGE.md`:
 
-```powershell
-cmake -S . -B build -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=C:\SDK\CityLifeCore
-cmake --build build --config Release
-cmake --install build --config Release
-```
+- `CityLifeCore_INCLUDE_DIR`
+- `CityLifeCore_DOCS_DIR`
+- `CityLifeCore_DATA_DIR`
+- `CityLifeCore_EXAMPLES_DIR`
 
-### Installed layout
+---
 
-Default layout uses GNUInstallDirs:
+## Installed SDK checks
 
-```text
-<prefix>/
-  include/
-    clc/
-      CityLifeCore.hpp
-      c/
-        CityLifeCoreC.h
-      core/
-      data/
-      economy/
-      sim/
-  lib/
-    libcity_life_core.*
-    cmake/CityLifeCore/
-      CityLifeCoreConfig.cmake
-      CityLifeCoreConfigVersion.cmake
-      CityLifeCoreTargets.cmake
-  share/
-    doc/CityLifeCore/
-      README.md
-      CHANGELOG.md
-      PUBLIC_API.md
-      PUBLIC_API_STATUS.md
-      SDK_STRUCTURE.md
-      VERSIONING.md
-      COMPATIBILITY.md
-      MIGRATION.md
-      PACKAGING.md
-      examples/
-    CityLifeCore/data/
-      demo_fantasy/
-```
-
-`lib/` may be `lib64/` or another configured path depending on platform/toolchain.
-
-### Minimal external CMake project
-
-`CMakeLists.txt`:
-
-```cmake
-cmake_minimum_required(VERSION 3.22)
-project(MyCityLifeApp LANGUAGES CXX)
-
-find_package(CityLifeCore CONFIG REQUIRED)
-
-add_executable(my_app main.cpp)
-target_link_libraries(my_app PRIVATE CityLifeCore::core)
-```
-
-`main.cpp`:
-
-```cpp
-#include "clc/CityLifeCore.hpp"
-
-#include <iostream>
-
-int main() {
-    auto bootstrap = clc::sim::make_basic_runtime_scenario();
-    if (!bootstrap.ok()) {
-        return 1;
-    }
-
-    auto& runtime = bootstrap.runtime;
-    auto report = clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
-    if (!report.ok()) {
-        return 1;
-    }
-
-    std::cout << clc::core_version_string() << " " << runtime.time.current_tick() << "\n";
-    return 0;
-}
-```
-
-Configure external project:
-
-```bash
-cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/city-life-core-sdk
-cmake --build build
-./build/my_app
-```
-
-### Installed SDK smoke tests
-
-The repository includes standalone consumer examples:
+Standalone consumers:
 
 ```text
 examples/find_package_consumer/   # C++ consumer
-examples/c_abi_consumer/          # C consumer for minimal C ABI
+examples/c_abi_consumer/          # C consumer for the minimal C ABI
 ```
 
-End-to-end C++ install check:
+C++ install check:
 
 ```bash
 cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
 cmake --build build-sdk
 cmake --install build-sdk --prefix /tmp/city-life-core-sdk
-
 cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
 cmake --build build-consumer
 ./build-consumer/city_life_core_consumer
 ```
 
-End-to-end C ABI install check:
+C ABI install check:
 
 ```bash
 cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
@@ -371,47 +89,29 @@ cmake --build build-c-abi-consumer
 ./build-c-abi-consumer/city_life_core_c_abi_consumer
 ```
 
-These checks verify:
+These checks verify installed public headers, `CityLifeCoreConfig.cmake`, exported target `CityLifeCore::core`, C++ runtime consumption, and the C ABI version/time/world/event surface.
 
-- installed public headers;
-- installed C ABI header `clc/c/CityLifeCoreC.h`;
-- installed `CityLifeCoreConfig.cmake`;
-- exported target `CityLifeCore::core`;
-- public include paths from the install prefix;
-- a minimal runtime tick scenario in an external C++ project;
-- version/time C ABI functions, the minimal opaque `clc_world` handle and read-only world event accessors from an external C project.
+---
 
-### Using add_subdirectory
+## SDK ZIP package
 
-```cmake
-add_subdirectory(external/City_Life_Core)
-target_link_libraries(my_app PRIVATE CityLifeCore::core)
+```bash
+cmake -S . -B build-sdk-zip -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
+cmake --build build-sdk-zip --config Release
+cpack --config build-sdk-zip/CPackConfig.cmake -G ZIP
+cmake -E sha256sum city-life-core-sdk-*.zip > SHA256SUMS.txt
 ```
 
-When embedded this way, enable optional targets explicitly if needed:
-
-```cmake
-set(CLC_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
-set(CLC_BUILD_TESTS ON CACHE BOOL "" FORCE)
-add_subdirectory(external/City_Life_Core)
-```
-
-### SDK data and docs paths
-
-Demo data is installed under:
+Expected 1.0.0 artifact pattern:
 
 ```text
-<prefix>/share/CityLifeCore/data/
+city-life-core-sdk-1.0.0-<system>-<processor>.zip
 ```
 
-Docs are installed under:
+The ZIP can be consumed with `CMAKE_PREFIX_PATH` after unpacking. See `docs/SDK_ZIP_PACKAGE.md` and `docs/CI_ARTIFACT_REVIEW.md` for release validation rules.
 
-```text
-<prefix>/share/doc/CityLifeCore/
-```
+---
 
-If a game needs data-pack discovery at runtime, pass the data directory explicitly from your application configuration.
+## Policy
 
-### Static/shared notes
-
-The current CMake target builds according to the normal CMake library settings of the project/toolchain. Projects that need a strict static/shared distribution policy should enforce it in their own build configuration until a separate binary SDK policy is documented.
+Source-first and binary compatibility policy are documented in `docs/BUILD_AND_LINKING_POLICY.md`.
