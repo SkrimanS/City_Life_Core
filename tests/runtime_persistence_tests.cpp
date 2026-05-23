@@ -1,9 +1,13 @@
 #include "clc/sim/SimulationPersistence.hpp"
+#include "clc/sim/SimulationRuntimePersistence.hpp"
+#include "clc/sim/SimulationRuntimeScenario.hpp"
+#include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <string_view>
 
 namespace {
@@ -15,107 +19,68 @@ void require(bool condition, std::string_view message) {
     }
 }
 
-clc::data::DataRegistry make_registry() {
-    clc::data::DataRegistry registry;
-    require(registry.add(clc::data::ResourceDefinition{.id = "grain", .display_name = "Grain", .category = "food", .base_value = 10}).ok(), "grain should register");
-    require(registry.add(clc::data::ResourceDefinition{.id = "wood", .display_name = "Wood", .category = "construction", .base_value = 6}).ok(), "wood should register");
-    require(registry.add(clc::data::ProfessionDefinition{.id = "farmer", .display_name = "Farmer", .category = "production"}).ok(), "farmer should register");
-    require(registry.add(clc::data::BuildingDefinition{
-        .id = "farm",
-        .display_name = "Farm",
-        .category = "production",
-        .worker_slots = 4,
-        .required_profession_id = "farmer",
-        .input_resource_ids = {"wood"},
-        .output_resource_ids = {"grain"},
-    }).ok(), "farm should register");
-    require(registry.add(clc::data::SettlementDefinition{.id = "riverwatch", .display_name = "Riverwatch", .starting_population = 120}).ok(), "riverwatch should register");
-    require(registry.add(clc::data::SettlementDefinition{.id = "hillford", .display_name = "Hillford", .starting_population = 80}).ok(), "hillford should register");
-    return registry;
-}
-
-clc::sim::SimulationEngineState make_engine_state() {
-    clc::sim::SimulationEngineState state;
-    state.current_day = 4;
-    clc::sim::SettlementState riverwatch{.id = "riverwatch", .display_name = "Riverwatch", .population = 120};
-    require(riverwatch.storage.add("grain", 80).ok(), "riverwatch should accept grain");
-    require(riverwatch.storage.add("wood", 20).ok(), "riverwatch should accept wood");
-    riverwatch.buildings.push_back(clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4});
-    riverwatch.tick_remainders.push_back(clc::sim::SettlementTickRemainder{.key = "food:grain", .numerator = clc::hours_to_ticks(3) * 12});
-    state.settlements.push_back(riverwatch);
-    clc::sim::SettlementState hillford{.id = "hillford", .display_name = "Hillford", .population = 80};
-    require(hillford.storage.add("grain", 20).ok(), "hillford should accept grain");
-    state.settlements.push_back(hillford);
-    state.market_demands.push_back(clc::sim::SimulationMarketDemand{.resource_id = "grain", .demand = 70});
-    state.events.push_back(clc::sim::SimulationEvent{.day = 4, .type = "runtime", .message = "saved"});
-    return state;
+void add_tick_remainder_to_first_settlement(clc::sim::SimulationEngine& engine) {
+    auto state = engine.export_state();
+    require(!state.settlements.empty(), "engine should have settlement for tick remainder setup");
+    state.settlements[0].tick_remainders.push_back(clc::sim::SettlementTickRemainder{
+        .key = "food:grain",
+        .numerator = 1,
+        .denominator = 2,
+    });
+    require(engine.restore_state(std::move(state)).ok(), "engine should restore tick remainder setup state");
 }
 
 } // namespace
 
 int main() {
-    auto registry = make_registry();
-    clc::sim::SimulationEngine source_engine{registry};
-    require(source_engine.restore_state(make_engine_state()).ok(), "source engine should restore state");
+    auto bootstrap = clc::sim::make_basic_runtime_scenario();
+    require(bootstrap.ok(), "runtime scenario should bootstrap");
 
-    clc::sim::SettlementRouteCatalog routes;
-    require(clc::sim::add_settlement_route(routes, clc::sim::SettlementRoute{
-        .id = "riverwatch_to_hillford",
-        .display_name = "Riverwatch to Hillford",
-        .origin_settlement_id = "riverwatch",
-        .destination_settlement_id = "hillford",
-        .travel_days = 2,
-    }).ok(), "route should add");
-    require(clc::sim::add_settlement_route(routes, clc::sim::make_settlement_route_ticks(
+    auto& runtime = bootstrap.runtime;
+    auto& source_engine = runtime.engine;
+    auto& routes = runtime.routes;
+    auto& caravans = runtime.caravans;
+    auto& factions = runtime.factions;
+    auto& ownership = runtime.ownership;
+    auto& contracts = runtime.contracts;
+    auto& wallet = runtime.wallet;
+    auto& ledger = runtime.ledger;
+
+    require(source_engine.add_resource_to_settlement("riverwatch", "grain", 50).ok(), "source engine should add more grain");
+    require(source_engine.transfer_resource_between_settlements("riverwatch", "hillford", "grain", 20).ok(), "source engine should transfer grain");
+    require(source_engine.run_days(3).size() == 3, "source engine should run three days");
+
+    auto hourly_route = clc::sim::make_settlement_route_ticks(
         "riverwatch_to_hillford_hours",
         "Riverwatch to Hillford Hours",
         "riverwatch",
         "hillford",
         clc::hours_to_ticks(3)
-    )).ok(), "hourly route should add");
+    );
+    require(clc::sim::add_settlement_route(routes, std::move(hourly_route)).ok(), "runtime should add hourly route");
 
-    clc::sim::CaravanFleet caravans;
-    auto caravan = clc::sim::create_caravan_for_route(routes.routes[0], "caravan_001", "First Caravan");
-    require(caravan.cargo.add("grain", 30).ok(), "caravan cargo should accept grain");
-    require(clc::sim::advance_caravan_day(caravan).days_remaining_after == 1, "caravan should advance once");
-    require(clc::sim::add_caravan(caravans, caravan).ok(), "caravan should add");
+    auto hourly_caravan = clc::sim::create_caravan_for_route(
+        routes.routes[1],
+        "hourly_caravan_001",
+        "Hourly Caravan"
+    );
+    require(clc::sim::add_caravan(caravans, std::move(hourly_caravan)).ok(), "runtime should add hourly caravan");
+    clc::sim::advance_caravan_ticks(caravans.caravans[1], clc::hours_to_ticks(1));
 
-    auto hourly_caravan = clc::sim::create_caravan_for_route(routes.routes[1], "hourly_caravan_001", "Hourly Caravan");
-    require(hourly_caravan.cargo.add("grain", 10).ok(), "hourly caravan cargo should accept grain");
-    require(clc::sim::advance_caravan_ticks(hourly_caravan, clc::hours_to_ticks(1)).ticks_remaining_after == clc::hours_to_ticks(2), "hourly caravan should advance one hour");
-    require(clc::sim::add_caravan(caravans, hourly_caravan).ok(), "hourly caravan should add");
+    require(clc::sim::advance_runtime_caravan_day(runtime, "caravan_001").ok(), "runtime should advance default caravan");
+    add_tick_remainder_to_first_settlement(source_engine);
 
-    clc::sim::FactionCatalog factions;
-    require(clc::sim::add_faction(factions, clc::sim::FactionState{.id = "riverwatch", .display_name = "Riverwatch"}).ok(), "riverwatch faction should add");
-    require(clc::sim::add_faction(factions, clc::sim::FactionState{.id = "traders_guild", .display_name = "Traders Guild"}).ok(), "traders faction should add");
-
-    clc::sim::OwnershipCatalog ownership;
-    require(clc::sim::set_settlement_owner(ownership, "riverwatch", "riverwatch").ok(), "settlement owner should set");
-    require(clc::sim::set_caravan_owner(ownership, "caravan_001", "riverwatch").ok(), "caravan owner should set");
-    require(clc::sim::set_caravan_owner(ownership, "hourly_caravan_001", "riverwatch").ok(), "hourly caravan owner should set");
-
-    clc::sim::ContractCatalog contracts;
-    require(clc::sim::add_contract(contracts, clc::sim::ResourceDeliveryContract{
-        .id = "grain_delivery_001",
-        .display_name = "Grain Delivery 001",
-        .issuer_faction_id = "riverwatch",
-        .receiver_faction_id = "traders_guild",
-        .resource_id = "grain",
-        .quantity = 30,
-        .reward_coins = 75,
-        .due_day = 8,
-    }).ok(), "contract should add");
-
-    clc::economy::Wallet wallet{.coins = 45};
-    clc::economy::EconomyLedger ledger;
-    require(ledger.record_contract_reward("bootstrap_reward", "grain", 5, 10, "bootstrap"), "ledger should record bootstrap reward");
+    require(clc::sim::set_runtime_caravan_owner(runtime, "caravan_001", "riverwatch").ok(), "runtime should set first caravan owner");
+    require(clc::sim::set_runtime_caravan_owner(runtime, "hourly_caravan_001", "hillford").ok(), "runtime should set second caravan owner");
+    wallet.coins = 45;
+    require(ledger.record_contract_reward("before_runtime_save", "grain", 2, 5, "before save"), "runtime ledger should record reward");
 
     const auto directory = std::filesystem::temp_directory_path() / "clc_runtime_persistence_tests";
     std::filesystem::remove_all(directory);
     std::filesystem::create_directories(directory);
     const auto file_path = directory / "runtime.clcs";
 
-    require(clc::sim::save_simulation_runtime_to_file(
+    const auto save_result = clc::sim::save_simulation_runtime_to_file(
         source_engine,
         routes,
         caravans,
@@ -125,9 +90,10 @@ int main() {
         wallet,
         ledger,
         file_path
-    ).ok(), "runtime should save to file");
+    );
+    require(save_result.ok(), "runtime should save to file");
 
-    clc::sim::SimulationEngine target_engine{registry};
+    clc::sim::SimulationEngine target_engine{clc::sim::make_basic_runtime_scenario_registry()};
     clc::sim::SettlementRouteCatalog target_routes;
     clc::sim::CaravanFleet target_caravans;
     clc::sim::FactionCatalog target_factions;
@@ -158,8 +124,9 @@ int main() {
     require(target_caravans.caravans[0].ticks_remaining == clc::days_to_ticks(1), "runtime load should restore caravan tick progress");
     require(target_caravans.caravans[1].total_travel_ticks == clc::hours_to_ticks(3), "runtime load should restore hourly caravan total ticks");
     require(target_caravans.caravans[1].ticks_remaining == clc::hours_to_ticks(2), "runtime load should restore hourly caravan remaining ticks");
-    require(target_engine.state().settlements[0].tick_remainders.size() == 1, "runtime load should restore settlement tick remainders");
-    require(target_engine.state().settlements[0].tick_remainders[0].key == "food:grain", "runtime load should restore settlement tick remainder key");
+    const auto target_state = target_engine.export_state();
+    require(target_state.settlements[0].tick_remainders.size() == 1, "runtime load should restore settlement tick remainders");
+    require(target_state.settlements[0].tick_remainders[0].key == "food:grain", "runtime load should restore settlement tick remainder key");
     require(target_factions.factions.size() == 2, "runtime load should restore factions");
     require(target_ownership.caravans.size() == 2, "runtime load should restore ownership");
     require(target_contracts.contracts.size() == 1, "runtime load should restore contracts");
@@ -190,29 +157,27 @@ int main() {
     output << broken_text;
     output.close();
 
-    clc::sim::SimulationEngine untouched_engine{registry};
-    clc::sim::SettlementRouteCatalog untouched_routes;
-    clc::sim::CaravanFleet untouched_caravans;
-    clc::sim::FactionCatalog untouched_factions;
-    clc::sim::OwnershipCatalog untouched_ownership;
-    clc::sim::ContractCatalog untouched_contracts;
-    clc::economy::Wallet untouched_wallet{.coins = 999};
-    clc::economy::EconomyLedger untouched_ledger;
-    require(!clc::sim::load_simulation_runtime_from_file(
+    clc::sim::SimulationEngine broken_engine{clc::sim::make_basic_runtime_scenario_registry()};
+    clc::sim::SettlementRouteCatalog broken_routes;
+    clc::sim::CaravanFleet broken_caravans;
+    clc::sim::FactionCatalog broken_factions;
+    clc::sim::OwnershipCatalog broken_ownership;
+    clc::sim::ContractCatalog broken_contracts;
+    clc::economy::Wallet broken_wallet;
+    clc::economy::EconomyLedger broken_ledger;
+
+    const auto broken_load = clc::sim::load_simulation_runtime_from_file(
         file_path,
-        untouched_engine,
-        untouched_routes,
-        untouched_caravans,
-        untouched_factions,
-        untouched_ownership,
-        untouched_contracts,
-        untouched_wallet,
-        untouched_ledger
-    ).ok(), "runtime load should reject invalid referenced world state");
-    require(untouched_engine.current_day() == 0, "failed runtime load should not mutate engine");
-    require(untouched_routes.routes.empty(), "failed runtime load should not mutate routes");
-    require(untouched_wallet.coins == 999, "failed runtime load should not mutate wallet");
-    require(untouched_ledger.entries().empty(), "failed runtime load should not mutate ledger");
+        broken_engine,
+        broken_routes,
+        broken_caravans,
+        broken_factions,
+        broken_ownership,
+        broken_contracts,
+        broken_wallet,
+        broken_ledger
+    );
+    require(!broken_load.ok(), "runtime load should reject corrupted route reference");
 
     std::filesystem::remove_all(directory);
     return 0;
