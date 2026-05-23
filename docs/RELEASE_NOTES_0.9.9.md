@@ -1,122 +1,168 @@
-# City Life Core 0.9.9 Release Notes / Примечания к релизу
+# Release Notes 0.9.9 / Заметки релиза 0.9.9
 
-Status: **pre-1.0 audit build / сборка для аудита перед 1.0**
+Status: **unreleased / blocked for official publication**
 
-`0.9.9` is the real-time runtime and persistence hardening build before the final 1.0 audit. It keeps the existing day-based APIs while adding first-class tick-based runtime flows for games where caravans, traders, contracts, and world events may resolve after seconds, minutes, or hours.
+These notes describe the current `0.9.9` SDK/release-candidate preparation state on `v/1.0-rc-prep`.
 
-`0.9.9` — это сборка укрепления real-time runtime и persistence перед финальным аудитом 1.0. Она сохраняет существующие day-based API и добавляет полноценные tick-based runtime flows для игр, где караваны, торговцы, контракты и события мира могут завершаться через секунды, минуты или часы.
-
----
-
-## Highlights / Главное
-
-- Runtime now persists `SimulationRuntime::time`.
-- World state now stores explicit runtime `time` rows.
-- Routes and caravans support tick-based travel.
-- Contracts support `due_ticks` deadlines.
-- Runtime can advance by arbitrary ticks without daily engine advancement.
-- High-level tick-run helpers can wait for caravan arrival and fulfill contracts.
-- Event logs now use absolute runtime tick timestamps instead of day numbers.
-- Tick-run diagnostics are available through `runtime.tick.completed` events.
-- Cargo delivery event helpers can timestamp from `SimulationRuntime::time` directly.
-- Legacy saves remain compatible when `time` or `due_ticks` are missing.
+Эти заметки описывают текущее состояние подготовки SDK/release candidate `0.9.9` в ветке `v/1.0-rc-prep`.
 
 ---
 
-## New runtime APIs
+## Release status
 
-### Tick advancement
+`0.9.9` is a release-preparation snapshot, not an official public release yet.
+
+Hard gates still apply:
+
+- owner must choose the final LICENSE/contribution model;
+- root `LICENSE` must be added;
+- CI matrix must be reviewed or failures must be explicitly accepted and documented by the owner;
+- benchmark artifacts must be reviewed;
+- SDK ZIP artifacts and `SHA256SUMS.txt` must be reviewed;
+- installed and unpacked ZIP C++/C ABI consumers must be confirmed;
+- draft release manifest must be filled from reviewed data or superseded by a final manifest;
+- owner must explicitly approve release/merge.
+
+Do not publish official artifacts or merge to `main` until the release gates are closed.
+
+---
+
+## Highlights
+
+### Public SDK packaging
+
+- Added recommended C++ umbrella header:
 
 ```cpp
-clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(10));
+#include "clc/CityLifeCore.hpp"
 ```
 
-### Tick run
+- Added installed CMake package support for external consumers:
 
-```cpp
-clc::sim::run_runtime_ticks(
-    runtime,
-    clc::hours_to_ticks(2),
-    clc::minutes_to_ticks(30)
-);
+```cmake
+find_package(CityLifeCore CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
 
-### Wait for arrival by ticks
+- Added standalone C++ package consumer:
 
-```cpp
-clc::sim::run_runtime_until_first_caravan_arrival_by_ticks(
-    runtime,
-    clc::hours_to_ticks(6),
-    clc::minutes_to_ticks(15)
-);
+```text
+examples/find_package_consumer/
 ```
 
-### Wait for arrival and fulfill a contract by ticks
+- Added CPack ZIP SDK package flow with checksum generation.
 
-```cpp
-clc::sim::run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(
-    runtime,
-    clc::hours_to_ticks(6),
-    clc::minutes_to_ticks(15),
-    "riverwatch"
-);
+### Minimal C ABI v3
+
+`0.9.9` introduces a minimal C ABI surface for C/FFI smoke consumption:
+
+```c
+#include "clc/c/CityLifeCoreC.h"
+```
+
+The C ABI currently covers:
+
+- core version;
+- C interface version `3`;
+- time constants and conversions;
+- opaque `clc_world` create/destroy;
+- world name/seed/current tick/event count;
+- tick advancement;
+- read-only world event id/tick/type/payload accessors.
+
+The C ABI intentionally does not expose full runtime, registries, save/load, callbacks, caravans, contracts, economy workflows or mutable event payload APIs.
+
+### Runtime tick model
+
+The runtime now has stronger tick-based support for real-time and server-authoritative games:
+
+- runtime clock persistence through `SimulationRuntime::time`;
+- tick-based route travel;
+- tick-based caravan progress;
+- tick-based contract deadlines;
+- tick-based runtime helpers;
+- absolute runtime tick event logs.
+
+Day-based compatibility APIs remain available.
+
+### Persistence and diagnostics
+
+`0.9.9` strengthens runtime persistence and diagnostics:
+
+- runtime clock save/load;
+- contract `due_ticks` save/load;
+- caravan tick progress save/load;
+- settlement tick remainder save/load;
+- legacy save compatibility from day-based saves;
+- deterministic runtime replay diagnostics;
+- event-log drift checks.
+
+### Release governance
+
+Release-preparation documentation now includes:
+
+```text
+docs/READINESS_STATUS.md
+docs/RELEASE_BLOCKERS.md
+docs/CI_ARTIFACT_REVIEW.md
+docs/RELEASE_MANIFEST_TEMPLATE.md
+docs/RELEASE_MANIFEST_DRAFT_0.9.9.md
+docs/RELEASE_CHECKLIST.md
+docs/VERIFYING_RELEASES.md
+docs/PROTECTION_STRATEGY.md
+```
+
+Local troubleshooting helpers are available:
+
+```bash
+bash scripts/manual_release_validation.sh
+```
+
+```powershell
+pwsh -File scripts/manual_release_validation.ps1
 ```
 
 ---
 
-## Persistence changes
+## Compatibility notes
 
-`0.9.9` persists:
-
-- runtime clock;
-- route/caravan tick travel state;
-- contract tick deadlines;
-- settlement partial tick remainders;
-- runtime event/replay relevant state.
-
-Compatibility behavior:
-
-- older saves without explicit `time` synchronize runtime clock from `current_day`;
-- older contract rows without `due_ticks` derive `due_ticks` from `due_day`.
+- Existing day-based route, caravan and contract APIs remain available.
+- Existing C ABI version/time functions remain available under C interface version `3`.
+- Older world-state saves without explicit runtime `time` are still accepted and synchronize runtime clock from saved `current_day`.
+- Older contract rows without `due_ticks` are still accepted and derive `due_ticks` from `due_day`.
+- C++ source compatibility is still source-first; binary ABI stability is not promised for the C++ API.
 
 ---
 
-## Diagnostics changes
+## Known limitations before official release
 
-Runtime events now use absolute runtime tick timestamps.
+The current readiness snapshot is tracked in:
 
-Supported event types:
+```text
+docs/READINESS_STATUS.md
+```
 
-- `runtime.day.completed`
-- `runtime.tick.completed`
-- `runtime.caravan.progress`
-- `runtime.caravan.arrived`
-- `runtime.caravan.cargo_delivered`
-- `runtime.contract.fulfilled`
-- `runtime.contract.failed`
+Areas still worth hardening before or after RC:
 
-New helpers:
-
-- `append_runtime_tick_report_events(...)`
-- `append_runtime_tick_run_events(...)`
-- `append_runtime_tick_arrival_contract_events(...)`
+- Basic Economy/Market;
+- Data Registry;
+- Factions/Ownership;
+- C ABI breadth;
+- benchmark baseline history;
+- final release governance after license decision.
 
 ---
 
-## Notes for auditors / Заметки для аудита
+## Verification path
 
-Important areas to verify before 1.0:
+Before treating `0.9.9` as an official release candidate:
 
-- full CMake configure/build/test on target platforms;
-- no accidental day-only assumptions in public runtime APIs;
-- persistence compatibility for existing saves;
-- deterministic replay after midpoint save/load;
-- event-log timestamp semantics;
-- C++ public API naming before freezing for 1.0;
-- package install/export behavior.
-
-Known not-final areas:
-
-- C ABI is still not implemented;
-- binary package artifacts are not finalized;
-- final 1.0 public naming freeze is pending audit.
+1. Close or explicitly accept hard blockers in issue #40.
+2. Review `docs/RELEASE_BLOCKERS.md`.
+3. Review `docs/READINESS_STATUS.md`.
+4. Run CI or local fallback validation.
+5. Review benchmark artifacts.
+6. Review SDK ZIP artifacts and `SHA256SUMS.txt`.
+7. Confirm installed and unpacked ZIP consumers.
+8. Fill `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md` or replace it with a final manifest.
+9. Receive explicit owner release/merge approval.
