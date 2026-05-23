@@ -27,7 +27,7 @@ The SDK provides:
 - runtime workflows for server-authoritative logic;
 - persistence, save/load validation and deterministic replay diagnostics;
 - CMake install/export package for external projects;
-- minimal C interface for version/time utilities and an opaque world handle.
+- minimal C interface for version/time utilities, an opaque world handle and read-only world event access.
 
 ---
 
@@ -45,7 +45,7 @@ For the minimal C interface:
 #include "clc/c/CityLifeCoreC.h"
 ```
 
-The C interface currently exposes version utilities, time utilities, and a minimal opaque `clc_world` handle for create/destroy, basic state access and simple tick advancement. Full runtime integration is C++ API.
+The C interface currently exposes version utilities, time utilities, a minimal opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement and read-only world event inspection by index. Full runtime integration is C++ API.
 
 ---
 
