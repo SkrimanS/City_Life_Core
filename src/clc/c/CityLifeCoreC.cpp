@@ -5,6 +5,7 @@
 #include "clc/core/Version.hpp"
 #include "clc/core/World.hpp"
 
+#include <cstddef>
 #include <limits>
 #include <new>
 #include <string>
