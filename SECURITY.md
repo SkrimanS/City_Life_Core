@@ -69,9 +69,9 @@ Until a dedicated private security contact is published, report through the offi
 
 ## Supported versions / Поддерживаемые версии
 
-During the pre-1.0 phase, only the current `main` branch and active release-preparation branches are considered supported for security review.
+For the 1.0.0 release-preparation phase, only the current `main` branch and active release-preparation branches are considered supported for security review.
 
-Во время pre-1.0 фазы только текущая ветка `main` и активные release-preparation branches считаются поддерживаемыми для security review.
+Во время подготовки 1.0.0 только текущая ветка `main` и активные release-preparation branches считаются поддерживаемыми для security review.
 
 ---
 
@@ -99,13 +99,14 @@ See also:
 
 ```text
 docs/VERIFYING_RELEASES.md
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
 ```
 
 ---
 
 ## Maintainer security requirements / Требования к maintainer security
 
-Before public 1.0 release, the project should enforce:
+Before public 1.0.0 release, the project should enforce:
 
 - protected `main` branch;
 - no force-push to protected branches;
@@ -134,6 +135,9 @@ Changes to these areas should require owner review:
 - `docs/COMPATIBILITY.md`
 - `docs/PUBLIC_API_STATUS.md`
 - `docs/RELEASE_CHECKLIST.md`
+- `docs/RELEASE_BLOCKERS.md`
+- `docs/RELEASE_MANIFEST_TEMPLATE.md`
+- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md`
 - `docs/PROTECTION_STRATEGY.md`
 - `docs/VERIFYING_RELEASES.md`
 
