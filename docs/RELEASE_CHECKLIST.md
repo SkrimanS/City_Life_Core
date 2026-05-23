@@ -99,6 +99,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Recommended trade+ledger wrapper exists or docs warn users explicitly.
 - [ ] C interface version/time functions have C smoke coverage.
 - [ ] C interface opaque `clc_world` handle has C smoke coverage for create/destroy, null-safety, state access and tick advancement.
+- [ ] C interface read-only world event accessors have C smoke coverage for null-safety, out-of-range indexes, event ids, ticks, types and payloads.
 
 ## 7. Tests / Тесты
 
@@ -110,10 +111,10 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] New public headers have compile/include coverage.
 - [ ] C++ umbrella header test passes.
 - [ ] C interface smoke test passes.
-- [ ] C interface smoke test covers C ABI version, time utilities and opaque `clc_world` behavior.
+- [ ] C interface smoke test covers C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 - [ ] Installed C++ SDK consumer test passes.
 - [ ] Installed C ABI consumer test passes.
-- [ ] Installed C ABI consumer exercises C ABI version, time utilities and opaque `clc_world` behavior.
+- [ ] Installed C ABI consumer exercises C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 - [ ] External `find_package(CityLifeCore CONFIG REQUIRED)` examples build.
 - [ ] CI covers tests, examples, benchmarks and package smoke checks.
 
@@ -139,12 +140,12 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] CMake package variables exist: `CityLifeCore_INCLUDE_DIR`, `CityLifeCore_DOCS_DIR`, `CityLifeCore_DATA_DIR`, `CityLifeCore_EXAMPLES_DIR`.
 - [ ] Installed C++ consumer builds and runs.
 - [ ] Installed C ABI consumer builds and runs.
-- [ ] Installed C ABI consumer validates C ABI version, time utilities and opaque `clc_world` behavior.
+- [ ] Installed C ABI consumer validates C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 - [ ] CPack ZIP package builds.
 - [ ] SDK ZIP checksum file `SHA256SUMS.txt` is produced.
 - [ ] Unpacked SDK ZIP C++ consumer builds and runs.
 - [ ] Unpacked SDK ZIP C ABI consumer builds and runs.
-- [ ] Unpacked SDK ZIP C ABI consumer validates C ABI version, time utilities and opaque `clc_world` behavior.
+- [ ] Unpacked SDK ZIP C ABI consumer validates C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 - [ ] CI uploads SDK ZIP artifact.
 - [ ] CI uploads checksum artifact.
 - [ ] Examples source is included.
