@@ -1,6 +1,6 @@
 # Project Protection Strategy / Стратегия защиты проекта
 
-Status: **draft for 1.0.0-rc1 / черновик для 1.0.0-rc1**
+Status: **1.0.0 protection strategy / стратегия защиты 1.0.0**
 
 This document describes practical ways to protect City Life Core as a public SDK/release project. It is not legal advice. The final license and commercial/legal model must be chosen by the project owner.
 
@@ -26,9 +26,9 @@ No technical measure can fully prevent someone from copying code they can read. 
 
 ## 1. License decision / Решение по лицензии
 
-A public 1.0 release must not ship without a root `LICENSE` file.
+A public 1.0.0 release must not ship without a root `LICENSE` file.
 
-Публичный 1.0 release нельзя выпускать без файла `LICENSE` в корне репозитория.
+Публичный 1.0.0 release нельзя выпускать без файла `LICENSE` в корне репозитория.
 
 ### Main options
 
@@ -41,7 +41,7 @@ A public 1.0 release must not ship without a root `LICENSE` file.
 
 ### Owner decision required
 
-Before 1.0.0-rc1, the owner must decide:
+Before 1.0.0, the owner must decide:
 
 - Is City Life Core open source, source-available, or proprietary?
 - Can third parties fork it?
@@ -56,7 +56,7 @@ Before 1.0.0-rc1, the owner must decide:
 
 Recommended before accepting external contributions:
 
-- Add `CONTRIBUTING.md`.
+- Keep `CONTRIBUTING.md` current.
 - Decide whether contributors need a CLA/DCO.
 - Require contributors to confirm they have the right to submit code.
 - Keep commit history and authorship clear.
@@ -66,7 +66,7 @@ Possible policies:
 
 - **DCO**: contributors certify origin through Signed-off-by.
 - **CLA**: contributors grant broader rights to the project owner.
-- **No external contributions before 1.0**: simplest until API/license model is final.
+- **No external contributions before license/contribution policy is final**: simplest until the legal model is chosen.
 
 ---
 
@@ -82,9 +82,9 @@ Recommended policy:
 - State that forks may not imply they are official builds.
 - Consider trademark registration if the project becomes commercial/public enough.
 
-Add later:
+Add later if needed:
 
-- `TRADEMARK_POLICY.md` or a section in `BRANDING.md`.
+- `TRADEMARK_POLICY.md` or a section in a future branding document.
 
 ---
 
@@ -92,14 +92,14 @@ Add later:
 
 To protect users from unofficial or modified builds, official releases should be verifiable.
 
-Recommended for 1.0.0-rc1:
+Recommended for 1.0.0:
 
-- Git tags for releases.
-- Signed tags or signed release commits.
-- SDK zip checksums.
+- Git tag `v1.0.0`.
+- Signed tag or signed release commit if available.
+- SDK ZIP checksums.
 - Release manifest listing files and hashes.
 - Changelog/release notes tied to exact commit SHA.
-- Installed-SDK smoke test result attached or documented.
+- Installed/unpacked SDK consumer validation recorded in the manifest.
 
 Recommended later:
 
@@ -112,21 +112,19 @@ Recommended later:
 
 ## 5. Branch and repository protection
 
-Recommended repository settings before public 1.0:
+Recommended repository settings before public 1.0.0:
 
 - Protect `main`.
 - Require PR review before merge.
 - Require CI green before merge.
 - Disable force push to protected branches.
-- Require signed commits or signed tags for releases.
+- Require signed tags for releases or document signing policy.
 - Use CODEOWNERS for critical areas:
   - `include/clc/**`
   - `src/clc/**`
   - `cmake/**`
-  - `docs/VERSIONING.md`
-  - `docs/COMPATIBILITY.md`
-  - `docs/PUBLIC_API_STATUS.md`
-  - `CMakeLists.txt`
+  - release-governance docs;
+  - `CMakeLists.txt`.
 
 ---
 
@@ -137,18 +135,18 @@ The easiest way to lose control of a public SDK is to accidentally make internal
 Protection measures:
 
 - Keep `docs/PUBLIC_API_STATUS.md` up to date.
-- Mark experimental/internal-risk headers clearly.
-- Avoid promising binary ABI compatibility before it is ready.
-- Do not freeze C ABI until the C++ API is stable.
+- Mark experimental/specialized headers clearly.
+- Avoid promising C++ binary ABI compatibility before it is ready.
+- Keep the C ABI scope explicit in `docs/C_ABI.md`.
 - Add deprecation policy before removing stable APIs.
 
 ---
 
-## 7. Future 3.x+ closed-core or source-available model
+## 7. Future protected distribution model
 
-For 1.x and 2.x, City Life Core can remain a source-first SDK while the public API stabilizes and real integrations are validated.
+City Life Core 1.0.0 is prepared as a source-first SDK while the public API stabilizes and real integrations are validated.
 
-For 3.x and later, the owner may switch to a more protected model without blocking legitimate customization. Possible direction:
+Later, the owner may switch to a more protected model without blocking legitimate customization. Possible direction:
 
 - keep the **official core** closed or source-available under restricted redistribution terms;
 - publish public headers, SDK docs, and binary packages;
@@ -160,7 +158,7 @@ For 3.x and later, the owner may switch to a more protected model without blocki
 
 This model protects the identity and integrity of the core while still allowing modification through supported boundaries.
 
-Для 3.x+ можно перейти к модели: закрытое или source-available ядро, но с официальными точками расширения. Цель — не запретить моддинг, а не дать людям выдавать изменённое ядро за официальное.
+Для будущих версий можно перейти к модели: закрытое или source-available ядро, но с официальными точками расширения. Цель — не запретить моддинг, а не дать людям выдавать изменённое ядро за официальное.
 
 Recommended architecture work before that transition:
 
@@ -192,33 +190,31 @@ What is not realistic:
 
 ---
 
-## 9. Minimum protection checklist before 1.0.0-rc1
+## 9. Minimum protection checklist before 1.0.0
 
 - [ ] Choose license model.
 - [ ] Add root `LICENSE`.
 - [ ] Add license note to README.
 - [ ] Add license note to package docs.
-- [ ] Decide whether external contributions are accepted before 1.0.
-- [ ] Add `CONTRIBUTING.md` or state contributions are closed for now.
-- [ ] Decide DCO/CLA policy.
+- [ ] Decide whether external contributions are accepted.
+- [ ] Keep `CONTRIBUTING.md` aligned with the chosen model.
+- [ ] Decide DCO/CLA policy if external contributions are accepted.
 - [ ] Protect `main` branch.
 - [ ] Require CI before merge.
-- [ ] Use signed tags for release candidates.
+- [ ] Use signed tags or document release signing policy.
 - [ ] Generate release checksums.
-- [ ] Add release manifest.
+- [ ] Fill release manifest.
 - [ ] Define official release channel.
 - [ ] Document that unofficial forks/builds are not official City Life Core releases.
-- [ ] Document future 3.x+ closed-core/source-available direction if the owner chooses it.
 
 ---
 
 ## Recommended near-term policy
 
-For the current pre-1.0 phase, the safest non-final policy is:
+For the current 1.0.0 preparation phase, the safest non-final policy is:
 
-- do not publish 1.0 until a license is chosen;
+- do not publish 1.0.0 until a license is chosen;
 - do not accept outside code unless contribution terms are clear;
-- treat `v/1.0-rc-prep` as internal stabilization work;
-- release `1.0.0-rc1` only with LICENSE, checksums, release notes, security policy, verification guide, and public API status;
-- for 3.x+, evaluate closed-core/source-available distribution with official extension points;
-- decide later whether to add commercial licensing or trademark policy.
+- treat `v/1.0-rc-prep` as release-preparation work only;
+- release `1.0.0` only with LICENSE, checksums, release notes, security policy, verification guide, public API status and completed manifest;
+- evaluate protected/source-available/commercial distribution later if the owner chooses it.
