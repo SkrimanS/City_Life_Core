@@ -78,7 +78,7 @@ int main() {
     add_tick_remainder_to_first_settlement(source_engine);
 
     require(clc::sim::set_runtime_caravan_owner(runtime, "caravan_001", "riverwatch").ok(), "runtime should set first caravan owner");
-    require(clc::sim::set_runtime_caravan_owner(runtime, "hourly_caravan_001", "hillford").ok(), "runtime should set second caravan owner");
+    require(clc::sim::set_runtime_caravan_owner(runtime, "hourly_caravan_001", "traders_guild").ok(), "runtime should set second caravan owner");
     wallet.coins = 45;
     require(ledger.record_contract_reward("before_runtime_save", "grain", 2, 5, "before save"), "runtime ledger should record reward");
 
