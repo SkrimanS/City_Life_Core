@@ -1,16 +1,16 @@
 # Scripts / Скрипты
 
-This directory contains helper scripts for local validation and release-candidate troubleshooting.
+This directory contains helper scripts for local validation and 1.0.0 release troubleshooting.
 
-Эта директория содержит helper scripts для локальной проверки и troubleshooting перед release candidate.
+Эта директория содержит helper scripts для локальной проверки и troubleshooting перед релизом 1.0.0.
 
 ---
 
 ## Manual release validation
 
-Use these scripts when GitHub Actions logs, metadata or artifacts are unavailable, or when you want to reproduce the release-validation flow locally before reviewing a release candidate.
+Use these scripts when GitHub Actions logs, metadata or artifacts are unavailable, or when you want to reproduce the release-validation flow locally before reviewing the 1.0.0 release.
 
-Используйте эти скрипты, когда GitHub Actions logs, metadata или artifacts недоступны, либо когда нужно локально воспроизвести release-validation flow перед review release candidate.
+Используйте эти скрипты, когда GitHub Actions logs, metadata или artifacts недоступны, либо когда нужно локально воспроизвести release-validation flow перед review релиза 1.0.0.
 
 ### Unix-like shell
 
@@ -21,7 +21,7 @@ bash scripts/manual_release_validation.sh
 With a custom build directory:
 
 ```bash
-bash scripts/manual_release_validation.sh build-local-rc-validation
+bash scripts/manual_release_validation.sh build-local-1.0.0-validation
 ```
 
 ### Windows PowerShell
@@ -33,7 +33,7 @@ pwsh -File scripts/manual_release_validation.ps1
 With a custom build directory:
 
 ```powershell
-pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-rc-validation
+pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-1.0.0-validation
 ```
 
 ---
@@ -71,6 +71,7 @@ A successful local script run is useful for troubleshooting and preflight valida
 - supported CI matrix should pass, or failures should be explicitly accepted and documented;
 - benchmark artifacts should be reviewed;
 - SDK ZIP artifacts and checksums should be reviewed;
+- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` should be filled or superseded by a final manifest;
 - LICENSE must be chosen by the owner;
 - do not merge to `main` until the owner explicitly approves release/merge.
 
@@ -79,4 +80,5 @@ See also:
 ```text
 docs/CI_ARTIFACT_REVIEW.md
 docs/RELEASE_CHECKLIST.md
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
 ```
