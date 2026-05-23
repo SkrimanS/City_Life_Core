@@ -99,6 +99,8 @@ int main() {
     require(ledger.record_contract_reward("before_runtime_save", "grain", 2, 5, "before save"), "runtime ledger should record reward");
 
     const auto expected_day_after_save = source_engine.current_day();
+    const auto expected_riverwatch_grain_after_save = source_engine.settlement_resource_amount("riverwatch", "grain");
+    const auto expected_hillford_grain_after_save = source_engine.settlement_resource_amount("hillford", "grain");
 
     const auto directory = std::filesystem::temp_directory_path() / "clc_runtime_persistence_tests";
     std::filesystem::remove_all(directory);
@@ -146,8 +148,8 @@ int main() {
     }
     require(load_result.ok(), "runtime should load from file");
     require(target_engine.current_day() == expected_day_after_save, "runtime load should restore engine day");
-    require(target_engine.settlement_resource_amount("riverwatch", "grain") == 80, "runtime load should restore settlement storage");
-    require(target_engine.settlement_resource_amount("hillford", "grain") == 20, "runtime load should restore destination settlement storage");
+    require(target_engine.settlement_resource_amount("riverwatch", "grain") == expected_riverwatch_grain_after_save, "runtime load should restore settlement storage");
+    require(target_engine.settlement_resource_amount("hillford", "grain") == expected_hillford_grain_after_save, "runtime load should restore destination settlement storage");
     require(target_routes.routes.size() == 2, "runtime load should restore routes");
     require(target_routes.routes[1].travel_ticks == clc::hours_to_ticks(3), "runtime load should restore hourly route ticks");
     require(target_caravans.caravans.size() == 2, "runtime load should restore caravans");
