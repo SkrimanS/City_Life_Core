@@ -1,6 +1,6 @@
 # Core Concepts / Основные концепции ядра
 
-Version: **0.9.9**
+Version: **1.0.0**
 
 This document explains the main City Life Core systems and how external C++ projects should interact with them.
 
@@ -425,3 +425,4 @@ Safe rule:
 - `docs/COMPATIBILITY.md` — compatibility rules.
 - `docs/MIGRATION.md` — migration instructions.
 - `docs/PACKAGING.md` — install and external consumer flow.
+- `docs/RELEASE_NOTES_1.0.0.md` — current release notes.
