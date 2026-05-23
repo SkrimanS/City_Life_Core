@@ -5,13 +5,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Invoke-Step {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$FilePath,
+    if ($args.Count -lt 1) {
+        throw "Invoke-Step requires an executable name"
+    }
 
-        [Parameter(ValueFromRemainingArguments = $true)]
-        [string[]]$Arguments
-    )
+    $FilePath = [string]$args[0]
+    $Arguments = @()
+    if ($args.Count -gt 1) {
+        $Arguments = @($args[1..($args.Count - 1)] | ForEach-Object { [string]$_ })
+    }
 
     Write-Host ""
     Write-Host "+ $FilePath $($Arguments -join ' ')"
