@@ -6,6 +6,12 @@ This document lists blockers that must be resolved before City Life Core can lea
 
 Этот документ перечисляет блокеры, которые нужно закрыть перед выходом из draft validation, merge в `main` или публикацией public release.
 
+Current readiness snapshot:
+
+```text
+docs/READINESS_STATUS.md
+```
+
 ---
 
 ## Hard blockers
