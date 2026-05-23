@@ -34,14 +34,15 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 
 ---
 
-## Release documents
+## Roadmap and release documents
 
 | Document | Purpose |
 | --- | --- |
+| [`roadmap.md`](roadmap.md) | Project direction, internal milestone plan and v2/v3/v4 roadmap. |
+| [`versioning.md`](versioning.md) | Versioning, branch, tag and release policy. |
 | [`release-notes-1.0.0.md`](release-notes-1.0.0.md) | Final 1.0.0 release notes. |
 | [`release-manifest-1.0.0.md`](release-manifest-1.0.0.md) | Final 1.0.0 release manifest and reviewed local validation data. |
 | [`readiness-status.md`](readiness-status.md) | Subsystem readiness estimate for the 1.0.0 line. |
-| [`versioning.md`](versioning.md) | Versioning and tag rules. |
 | [`verifying-releases.md`](verifying-releases.md) | Release verification guide. |
 | [`ci-artifact-review.md`](ci-artifact-review.md) | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
 | [`release-manifest-template.md`](release-manifest-template.md) | Template for future release manifests. |
