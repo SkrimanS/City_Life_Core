@@ -180,6 +180,8 @@ Start here:
 - [SDK ZIP package](docs/sdk-zip-package.md)
 - [Compatibility](docs/compatibility.md)
 - [Migration](docs/migration.md)
+- [Roadmap](docs/roadmap.md)
+- [Versioning and release policy](docs/versioning.md)
 - [Release notes](docs/release-notes-1.0.0.md)
 - [Release manifest](docs/release-manifest-1.0.0.md)
 - [Release verification](docs/verifying-releases.md)
