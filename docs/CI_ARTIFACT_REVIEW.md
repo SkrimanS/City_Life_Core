@@ -43,7 +43,9 @@ Each job should pass:
 
 ## Local manual validation fallback
 
-If GitHub Actions logs, metadata or artifacts are unavailable, run the local validation helper from the repository root:
+If GitHub Actions logs, metadata or artifacts are unavailable, run a local validation helper from the repository root.
+
+Unix-like shells:
 
 ```bash
 bash scripts/manual_release_validation.sh
@@ -55,7 +57,19 @@ Optional custom build directory:
 bash scripts/manual_release_validation.sh build-local-rc-validation
 ```
 
-The script runs the same release-validation shape as CI:
+Windows PowerShell:
+
+```powershell
+pwsh -File scripts/manual_release_validation.ps1
+```
+
+Optional custom build directory:
+
+```powershell
+pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-rc-validation
+```
+
+The scripts run the same release-validation shape as CI:
 
 - configure/build with tests, examples and benchmarks enabled;
 - `ctest`;
@@ -68,7 +82,7 @@ The script runs the same release-validation shape as CI:
 - unpacked ZIP C++ consumer;
 - unpacked ZIP C ABI consumer.
 
-The script prints paths for:
+The scripts print paths for:
 
 - benchmark output;
 - checksum file;
