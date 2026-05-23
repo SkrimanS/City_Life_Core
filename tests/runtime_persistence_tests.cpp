@@ -27,7 +27,17 @@ void print_report(const clc::data::ValidationReport& report) {
 void add_tick_remainder_to_first_settlement(clc::sim::SimulationEngine& engine) {
     auto state = engine.export_state();
     require(!state.settlements.empty(), "engine should have settlement for tick remainder setup");
-    state.settlements[0].tick_remainders.push_back(clc::sim::SettlementTickRemainder{
+
+    auto& remainders = state.settlements[0].tick_remainders;
+    for (auto& remainder : remainders) {
+        if (remainder.key == "food:grain") {
+            remainder.numerator = 1;
+            require(engine.restore_state(std::move(state)).ok(), "engine should restore tick remainder setup state");
+            return;
+        }
+    }
+
+    remainders.push_back(clc::sim::SettlementTickRemainder{
         .key = "food:grain",
         .numerator = 1,
     });
