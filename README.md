@@ -6,7 +6,9 @@
 
 Version: **1.0.0**
 
-Status: **release preparation / blocked until LICENSE, CI/artifact review, release manifest and owner approval are complete**
+Status: **release preparation / blocked until final manifest metadata and owner approval are complete**
+
+License: **Apache-2.0**. See the root `LICENSE` file.
 
 ---
 
@@ -155,7 +157,7 @@ bash scripts/manual_release_validation.sh
 Windows PowerShell:
 
 ```powershell
-pwsh -File scripts/manual_release_validation.ps1
+powershell -ExecutionPolicy Bypass -File scripts/manual_release_validation.ps1
 ```
 
 These scripts run configure/build, tests, benchmarks, install, installed C++/C ABI consumers, CPack ZIP packaging, checksum generation and unpacked ZIP consumer checks. See `scripts/README.md` and `docs/CI_ARTIFACT_REVIEW.md`.
@@ -414,8 +416,6 @@ examples/c_abi_consumer/          # C consumer for minimal C interface
 
 ## Release and license status / Статус релиза и лицензии
 
-## Release and license status / Статус релиза и лицензии
-
 City Life Core is licensed under Apache License 2.0. See the root `LICENSE` file.
 
 City Life Core 1.0.0 is not official until the remaining release gates are closed.
@@ -426,6 +426,16 @@ Current remaining gates:
 - the owner must explicitly approve release/merge.
 
 GitHub Actions and Linux GCC/Clang validation are deferred to later verification. Windows/MSVC local release validation is accepted as the release gate for this candidate.
+
+See:
+
+```text
+docs/RELEASE_BLOCKERS.md
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
+docs/RELEASE_NOTES_1.0.0.md
+```
+
+---
 
 ## Documentation / Документация
 
