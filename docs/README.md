@@ -2,6 +2,8 @@
 
 Version: **1.0.0**
 
+Status: **release preparation / blocked until LICENSE, CI/artifact review, release manifest and owner approval are complete**
+
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
 Эта папка содержит документацию для разработчиков, которые подключают City Life Core к C++ игре, серверу, backend-сервису, редактору или simulation tool.
@@ -47,6 +49,8 @@ This directory contains developer-facing documentation for integrating City Life
 | `RELEASE_MANIFEST_DRAFT_1.0.0.md` | Blocked draft manifest for the current validation branch. |
 | `RELEASE_CHECKLIST.md` | Maintainer release checklist. |
 | `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
+
+Current 1.0.0 publication is blocked until the owner chooses a license/contribution model, CI and artifacts are reviewed, the manifest is completed or superseded, and the owner explicitly approves release/merge.
 
 Normal SDK users usually start with `CORE_CONCEPTS.md`, `PUBLIC_API.md`, `SDK_STRUCTURE.md` and `PACKAGING.md`.
 
