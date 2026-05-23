@@ -31,16 +31,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure
-        run: cmake -S . -B build -DCLC_BUILD_TESTS=ON -DCLC_BUILD_EXAMPLES=ON -DCLC_BUILD_BENCHMARKS=ON
+        id: configure
+        continue-on-error: true
+        run: cmake -S . -B build -DCLC_BUILD_TESTS=ON -DCLC_BUILD_EXAMPLES=ON -DCLC_BUILD_BENCHMARKS=ON 2>&1 | tee configure-output.txt
+        shell: bash
 
       - name: Build
-        run: cmake --build build --config Release
+        id: build
+        if: steps.configure.outcome == 'success'
+        continue-on-error: true
+        run: cmake --build build --config Release 2>&1 | tee build-output.txt
+        shell: bash
 
       - name: Test
-        run: ctest --test-dir build --output-on-failure -C Release
+        id: test
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        run: ctest --test-dir build --output-on-failure -C Release 2>&1 | tee test-output.txt
+        shell: bash
 
-      - name: Collect failure diagnostics
-        if: failure()
+      - name: Collect validation diagnostics
+        if: steps.configure.outcome != 'success' || steps.build.outcome != 'success' || steps.test.outcome != 'success'
         run: |
           mkdir -p ci-diagnostics
           echo "runner_os=${{ runner.os }}" > ci-diagnostics/summary.txt
@@ -48,6 +59,12 @@ jobs:
           echo "matrix_compiler=${{ matrix.compiler }}" >> ci-diagnostics/summary.txt
           echo "head_sha=${{ github.sha }}" >> ci-diagnostics/summary.txt
           echo "workflow_run=${{ github.run_id }}" >> ci-diagnostics/summary.txt
+          echo "configure=${{ steps.configure.outcome }}" >> ci-diagnostics/summary.txt
+          echo "build=${{ steps.build.outcome }}" >> ci-diagnostics/summary.txt
+          echo "test=${{ steps.test.outcome }}" >> ci-diagnostics/summary.txt
+          cp configure-output.txt ci-diagnostics/configure-output.txt 2>/dev/null || true
+          cp build-output.txt ci-diagnostics/build-output.txt 2>/dev/null || true
+          cp test-output.txt ci-diagnostics/test-output.txt 2>/dev/null || true
           if [ -d build ]; then
             find build -maxdepth 4 -type f \( -name "*.log" -o -name "LastTest.log" -o -name "CMakeOutput.log" -o -name "CMakeError.log" \) -print > ci-diagnostics/build-log-files.txt || true
             find build -maxdepth 3 -type f | sort > ci-diagnostics/build-files.txt || true
@@ -57,13 +74,17 @@ jobs:
           fi
         shell: bash
 
-      - name: Upload failure diagnostics
-        if: failure()
+      - name: Upload validation diagnostics
+        if: steps.configure.outcome != 'success' || steps.build.outcome != 'success' || steps.test.outcome != 'success'
         uses: actions/upload-artifact@v4
         with:
           name: city-life-core-ci-diagnostics-${{ matrix.os }}-${{ matrix.compiler }}
           path: ci-diagnostics/
           if-no-files-found: warn
+
+      - name: Stop after failed validation
+        if: steps.configure.outcome != 'success' || steps.build.outcome != 'success' || steps.test.outcome != 'success'
+        run: exit 1
 
       - name: Run core benchmarks
         run: |
