@@ -6,7 +6,7 @@
 
 Version: **1.0.0**
 
-Status: **release preparation / blocked until final manifest metadata and owner approval are complete**
+Status: **released / v1.0.0**
 
 License: **Apache-2.0**. See the root `LICENSE` file.
 
@@ -416,16 +416,9 @@ examples/c_abi_consumer/          # C consumer for minimal C interface
 
 ## Release and license status / Статус релиза и лицензии
 
-City Life Core is licensed under Apache License 2.0. See the root `LICENSE` file.
+City Life Core 1.0.0 is released under the Apache License 2.0. See the root `LICENSE` file.
 
-City Life Core 1.0.0 is not official until the remaining release gates are closed.
-
-Current remaining gates:
-
-- the final 1.0.0 release manifest must be completed or supersede the draft;
-- the owner must explicitly approve release/merge.
-
-GitHub Actions and Linux GCC/Clang validation are deferred to later verification. Windows/MSVC local release validation is accepted as the release gate for this candidate.
+GitHub Actions and Linux GCC/Clang validation are tracked as post-release verification. Windows/MSVC local release validation was accepted as the release gate for this candidate.
 
 See:
 
