@@ -142,6 +142,24 @@ cmake --build build-bench --target clc_core_benchmarks
 
 ---
 
+## Manual release validation / Ручная проверка релиза
+
+When GitHub Actions logs, metadata or artifacts are unavailable, or when you want to reproduce the release-validation flow locally, use:
+
+```bash
+bash scripts/manual_release_validation.sh
+```
+
+Windows PowerShell:
+
+```powershell
+pwsh -File scripts/manual_release_validation.ps1
+```
+
+These scripts run configure/build, tests, benchmarks, install, installed C++/C ABI consumers, CPack ZIP packaging, checksum generation and unpacked ZIP consumer checks. See `scripts/README.md` and `docs/CI_ARTIFACT_REVIEW.md`.
+
+---
+
 ## SDK ZIP package / SDK ZIP архив
 
 Build an install-layout ZIP package:
