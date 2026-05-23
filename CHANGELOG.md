@@ -10,11 +10,13 @@ Changes merged into `main` after the latest public release are recorded here.
 
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
+- Added a custom GitHub issue template for general tasks, planning items, investigations, release/packaging work and maintenance notes.
 
 ### Changed
 
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
+- Updated GitHub bug report and feature request issue templates with clearer affected-area, version, compatibility, roadmap and reproduction sections.
 - Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
 
 ## 1.0.0 - 2026-05-23
