@@ -1,6 +1,6 @@
 # C Interface / C ABI
 
-Version: **0.9.9**  
+Version: **1.0.0**  
 C interface version: **3**
 
 City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, a minimal opaque world handle, read-only world event access, and simple FFI smoke checks.
@@ -25,10 +25,10 @@ include/clc/c/CityLifeCoreC.h
 
 ## Scope
 
-The current C interface exposes:
+The 1.0.0 C interface exposes:
 
 - core version;
-- C interface version;
+- C interface version `3`;
 - tick constants;
 - safe time conversion preflight helpers;
 - saturating time conversion helpers;
@@ -38,7 +38,7 @@ The current C interface exposes:
 - simple world tick advancement;
 - read-only world event access by index.
 
-The current C interface does **not** expose:
+The C interface does **not** expose:
 
 - data registries;
 - containers;
@@ -289,7 +289,7 @@ CI validates:
 
 `clc_c_interface_version_c()` returns the version of the C-facing interface. It is separate from the core SDK version.
 
-For `0.9.9`, the C interface version is:
+For `1.0.0`, the C interface version is:
 
 ```text
 3
