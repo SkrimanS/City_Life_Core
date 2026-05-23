@@ -145,6 +145,7 @@ This checks:
 - C compiler consumption of the installed package;
 - version/time C ABI functions;
 - opaque `clc_world` create/destroy, state access and tick advancement;
+- read-only world event accessors;
 - linking through exported target `CityLifeCore::core`.
 
 ---
@@ -158,7 +159,7 @@ city-life-core-sdk-*.zip
 SHA256SUMS.txt
 ```
 
-CI also unpacks the generated ZIP and builds both `examples/find_package_consumer` and `examples/c_abi_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory.
+CI also unpacks the generated ZIP and builds both `examples/find_package_consumer` and `examples/c_abi_consumer` against the unpacked archive prefix. This verifies that the archive itself is consumable, not only the intermediate `cmake --install` directory. The C ABI consumer covers C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 
 ---
 
