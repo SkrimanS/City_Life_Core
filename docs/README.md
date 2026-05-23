@@ -37,6 +37,7 @@ This directory contains developer-facing documentation for integrating City Life
 
 | Document | Purpose |
 | --- | --- |
+| `READINESS_STATUS.md` | Current subsystem readiness estimate and release-readiness interpretation. |
 | `VERSIONING.md` | Versioning and tag rules. |
 | `VERIFYING_RELEASES.md` | Release verification guide. |
 | `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
