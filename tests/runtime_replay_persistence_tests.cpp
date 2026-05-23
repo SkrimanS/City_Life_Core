@@ -1,5 +1,6 @@
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
+#include "clc/sim/SimulationRuntimeTick.hpp"
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
 #include <cstdlib>
@@ -24,12 +25,21 @@ void require(bool condition, std::string_view message) {
     }
 }
 
+void print_report(const clc::data::ValidationReport& report) {
+    for (const auto& item : report.messages()) {
+        std::cerr << item.path << ": " << item.message << '\n';
+    }
+}
+
 void require_runtimes_match(
     const clc::sim::SimulationRuntime& expected,
     const clc::sim::SimulationRuntime& actual,
     std::string_view message
 ) {
     const auto match = clc::sim::validate_simulation_runtimes_match(expected, actual);
+    if (!match.ok()) {
+        print_report(match);
+    }
     require(match.ok(), message);
 }
 
@@ -64,8 +74,8 @@ void apply_pre_save_replay_sequence(clc::sim::SimulationRuntime& runtime) {
     const auto advanced = clc::sim::advance_runtime_caravan_day(runtime, caravan_id);
     require(advanced.ok(), "replay caravan midpoint advance failed");
 
-    const auto reports = runtime.engine.run_days(1);
-    require(reports.size() == 1, "replay engine midpoint advance failed");
+    const auto run = clc::sim::run_runtime_days(runtime, 1);
+    require(run.reports.size() == 1, "replay runtime midpoint advance failed");
 }
 
 void apply_post_load_replay_sequence(clc::sim::SimulationRuntime& runtime) {
@@ -88,8 +98,8 @@ void apply_post_load_replay_sequence(clc::sim::SimulationRuntime& runtime) {
     require(delivery.delivered[0].amount == 10, "replay cargo delivery should report remaining grain amount");
     require(runtime.engine.settlement_resource_amount(destination_settlement_id, resource_id) == 10, "replay cargo delivery should credit destination storage");
 
-    const auto reports = runtime.engine.run_days(2);
-    require(reports.size() == 2, "replay engine post-load advance failed");
+    const auto run = clc::sim::run_runtime_days(runtime, 2);
+    require(run.reports.size() == 2, "replay runtime post-load advance failed");
 }
 
 } // namespace
@@ -113,10 +123,16 @@ int main() {
 
     const auto path = directory / "runtime_replay.clcs";
     const auto save_report = clc::sim::save_simulation_runtime_to_file(source, path);
+    if (!save_report.ok()) {
+        print_report(save_report);
+    }
     require(save_report.ok(), "replay midpoint save failed");
 
     clc::sim::SimulationRuntime replayed{clc::sim::make_basic_runtime_scenario_registry()};
     const auto load = clc::sim::load_simulation_runtime_from_file(path, replayed);
+    if (!load.ok()) {
+        print_report(load.validation);
+    }
     require(load.ok(), "replay midpoint load failed");
 
     require_runtimes_match(control, replayed, "replay midpoint runtime mismatch");
@@ -127,8 +143,8 @@ int main() {
     require_runtimes_match(control, replayed, "post-load replay runtime mismatch after cargo delivery");
 
     auto drifted = replayed;
-    const auto reports = drifted.engine.run_days(1);
-    require(reports.size() == 1, "replay negative drift setup failed");
+    const auto drift_run = clc::sim::run_runtime_days(drifted, 1);
+    require(drift_run.reports.size() == 1, "replay negative drift setup failed");
     expect_runtime_drift_detected(control, drifted, "runtime match unexpectedly accepted replay drift");
 
     auto storage_drifted = replayed;
