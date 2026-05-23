@@ -6,12 +6,12 @@
 
 int main(void) {
     const clc_version version = clc_core_version_c();
-    if (version.major != 0 || version.minor != 9 || version.patch != 9) {
+    if (version.major != 1 || version.minor != 0 || version.patch != 0) {
         fprintf(stderr, "Unexpected version: %d.%d.%d\n", version.major, version.minor, version.patch);
         return 1;
     }
 
-    if (strcmp(clc_core_version_string_c(), "0.9.9") != 0) {
+    if (strcmp(clc_core_version_string_c(), "1.0.0") != 0) {
         fprintf(stderr, "Unexpected version string: %s\n", clc_core_version_string_c());
         return 1;
     }
