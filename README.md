@@ -6,6 +6,8 @@
 
 Version: **1.0.0**
 
+Status: **release preparation / blocked until LICENSE, CI/artifact review, release manifest and owner approval are complete**
+
 ---
 
 ## What it is / Что это такое
@@ -406,6 +408,28 @@ Standalone installed-package consumers:
 ```text
 examples/find_package_consumer/   # C++ consumer
 examples/c_abi_consumer/          # C consumer for minimal C interface
+```
+
+---
+
+## Release and license status / Статус релиза и лицензии
+
+City Life Core 1.0.0 is not official until the remaining release gates are closed.
+
+Current blockers:
+
+- the owner must choose the final license/contribution model;
+- root `LICENSE` must be added;
+- CI and artifacts must be reviewed;
+- the 1.0.0 release manifest must be filled or superseded;
+- the owner must explicitly approve release/merge.
+
+See:
+
+```text
+docs/RELEASE_BLOCKERS.md
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
+docs/RELEASE_NOTES_1.0.0.md
 ```
 
 ---
