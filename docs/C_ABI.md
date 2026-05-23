@@ -155,11 +155,13 @@ Ownership and lifetime rules:
 
 - `clc_world_create_c()` returns `NULL` if allocation or construction fails.
 - Passing `NULL` as `name` creates a world with the default name `City Life World`.
+- Passing an empty string as `name` preserves the empty name.
 - `clc_world_destroy_c(NULL)` is valid and does nothing.
 - `clc_world_name_c()` returns a pointer owned by the world handle. Do not free it and do not keep it after destroying the world.
 - null world accessors return empty string or zero values.
 - `clc_world_advance_c()` returns `1` on success and `0` on failure.
 - advancing by zero ticks fails and does not mutate the world.
+- very large positive advances use the core saturating tick behavior and do not wrap the current tick.
 
 Example:
 
