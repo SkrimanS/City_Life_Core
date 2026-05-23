@@ -16,6 +16,30 @@ void require(bool condition, std::string_view message) {
     }
 }
 
+void add_partial_settlement_tick_remainder(clc::sim::SimulationRuntime& runtime) {
+    auto state = runtime.engine.export_state();
+    require(!state.settlements.empty(), "runtime should have a settlement for tick remainder setup");
+    require(state.settlements[0].storage.add("wood", 20).ok(), "roundtrip settlement should receive wood for tick economy");
+    state.settlements[0].buildings.push_back(clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4});
+    const auto partial_tick = clc::sim::advance_settlement_ticks(state.settlements[0], runtime.engine.registry(), clc::hours_to_ticks(1));
+    require(partial_tick.elapsed_ticks == clc::hours_to_ticks(1), "partial settlement tick should expose elapsed ticks");
+    require(!state.settlements[0].tick_remainders.empty(), "partial settlement tick should create remainders before save");
+    require(runtime.engine.restore_state(std::move(state)).ok(), "runtime engine should accept tick remainder setup state");
+}
+
+bool first_settlement_has_tick_remainders(const clc::sim::SimulationRuntime& runtime) {
+    const auto state = runtime.engine.export_state();
+    return !state.settlements.empty() && !state.settlements[0].tick_remainders.empty();
+}
+
+void drift_first_settlement_tick_remainder(clc::sim::SimulationRuntime& runtime) {
+    auto state = runtime.engine.export_state();
+    require(!state.settlements.empty(), "runtime should have a settlement for remainder drift");
+    require(!state.settlements[0].tick_remainders.empty(), "runtime should have tick remainder for drift");
+    state.settlements[0].tick_remainders[0].numerator += 1;
+    require(runtime.engine.restore_state(std::move(state)).ok(), "runtime engine should accept drifted state");
+}
+
 } // namespace
 
 int main() {
@@ -39,11 +63,7 @@ int main() {
     require(runtime.caravans.caravans[0].ticks_remaining == clc::ticks_per_day(), "caravan tick progress should be partially advanced before save");
     runtime.time.advance(clc::hours_to_ticks(2));
 
-    require(runtime.engine.state().settlements[0].storage.add("wood", 20).ok(), "roundtrip settlement should receive wood for tick economy");
-    runtime.engine.state().settlements[0].buildings.push_back(clc::sim::BuildingInstance{.definition_id = "farm", .assigned_workers = 4});
-    const auto partial_tick = clc::sim::advance_settlement_ticks(runtime.engine.state().settlements[0], runtime.engine.registry(), clc::hours_to_ticks(1));
-    require(partial_tick.elapsed_ticks == clc::hours_to_ticks(1), "partial settlement tick should expose elapsed ticks");
-    require(!runtime.engine.state().settlements[0].tick_remainders.empty(), "partial settlement tick should create remainders before save");
+    add_partial_settlement_tick_remainder(runtime);
 
     auto uninterrupted = runtime;
 
@@ -69,7 +89,7 @@ int main() {
     require(!clc::sim::validate_simulation_runtimes_match(uninterrupted, tick_drift).ok(), "runtime matcher should reject caravan tick progress drift");
 
     auto remainder_drift = loaded;
-    remainder_drift.engine.state().settlements[0].tick_remainders[0].numerator += 1;
+    drift_first_settlement_tick_remainder(remainder_drift);
     require(!clc::sim::validate_simulation_runtimes_match(uninterrupted, remainder_drift).ok(), "runtime matcher should reject settlement tick remainder drift");
 
     require(loaded.engine.settlement_resource_amount("riverwatch", "grain") == runtime.engine.settlement_resource_amount("riverwatch", "grain"), "loaded runtime should preserve origin storage debit");
@@ -79,7 +99,7 @@ int main() {
     require(loaded.caravans.caravans[0].days_remaining == 1, "loaded runtime should preserve partial travel progress");
     require(loaded.caravans.caravans[0].ticks_remaining == clc::ticks_per_day(), "loaded runtime should preserve partial tick travel progress");
     require(loaded.caravans.caravans[0].cargo.amount("grain") == 40, "loaded runtime should preserve cargo");
-    require(!loaded.engine.state().settlements[0].tick_remainders.empty(), "loaded runtime should preserve settlement tick remainders");
+    require(first_settlement_has_tick_remainders(loaded), "loaded runtime should preserve settlement tick remainders");
     require(loaded.wallet.coins == 10, "loaded runtime should preserve wallet before reward");
     require(loaded.ledger.entries().empty(), "loaded runtime should preserve empty ledger before fulfillment");
 
