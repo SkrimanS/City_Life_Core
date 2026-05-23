@@ -1,176 +1,328 @@
 #include "clc/sim/SimulationRuntimeEvents.hpp"
 
-#include "clc/sim/Caravans.hpp"
-#include "clc/sim/Contracts.hpp"
-#include "clc/sim/SimulationRuntime.hpp"
-
-#include <algorithm>
-#include <charconv>
-#include <limits>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace clc::sim {
 namespace {
 
-constexpr std::string_view runtime_day_completed = "runtime.day.completed";
-constexpr std::string_view runtime_tick_completed = "runtime.tick.completed";
-constexpr std::string_view runtime_caravan_progress = "runtime.caravan.progress";
-constexpr std::string_view runtime_caravan_arrived = "runtime.caravan.arrived";
-constexpr std::string_view runtime_caravan_cargo_delivered = "runtime.caravan.cargo_delivered";
-constexpr std::string_view runtime_contract_fulfilled = "runtime.contract.fulfilled";
-constexpr std::string_view runtime_contract_failed = "runtime.contract.failed";
+void append_event(
+    clc::EventLog& log,
+    RuntimeEventLogSummary& summary,
+    std::uint64_t tick,
+    std::string type,
+    std::string payload
+) {
+    log.append(tick, std::move(type), std::move(payload));
+    ++summary.events_appended;
+}
 
-std::string to_decimal(std::uint64_t value) {
-    return std::to_string(value);
+void merge_summary(RuntimeEventLogSummary& target, const RuntimeEventLogSummary& source) noexcept {
+    target.events_appended += source.events_appended;
+    target.day_events += source.day_events;
+    target.tick_events += source.tick_events;
+    target.caravan_events += source.caravan_events;
+    target.cargo_events += source.cargo_events;
+    target.contract_events += source.contract_events;
+}
+
+bool is_known_runtime_event_type(const std::string& type) {
+    return type == "runtime.day.completed"
+        || type == "runtime.tick.completed"
+        || type == "runtime.caravan.progress"
+        || type == "runtime.caravan.arrived"
+        || type == "runtime.caravan.cargo_delivered"
+        || type == "runtime.contract.fulfilled"
+        || type == "runtime.contract.failed";
 }
 
 bool decimal_digits_only(std::string_view value) noexcept {
-    return !value.empty() && std::all_of(value.begin(), value.end(), [](char character) {
-        return character >= '0' && character <= '9';
-    });
+    if (value.empty()) {
+        return false;
+    }
+    for (const auto character : value) {
+        if (character < '0' || character > '9') {
+            return false;
+        }
+    }
+    return true;
 }
 
-bool parse_u64(std::string_view value, std::uint64_t& out) noexcept {
+bool positive_decimal_digits(std::string_view value) noexcept {
     if (!decimal_digits_only(value)) {
         return false;
     }
-
-    const auto* begin = value.data();
-    const auto* end = value.data() + value.size();
-    const auto [ptr, error] = std::from_chars(begin, end, out);
-    return error == std::errc{} && ptr == end;
+    for (const auto character : value) {
+        if (character != '0') {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool valid_tick_completed_payload(std::string_view payload) noexcept {
     constexpr std::string_view prefix = "elapsed=";
-    if (payload.rfind(prefix, 0) != 0) {
-        return false;
-    }
-
-    std::uint64_t elapsed{};
-    return parse_u64(payload.substr(prefix.size()), elapsed) && elapsed > 0;
+    return payload.rfind(prefix, 0) == 0 && positive_decimal_digits(payload.substr(prefix.size()));
 }
 
 bool valid_cargo_delivery_payload(std::string_view payload) noexcept {
-    const auto colon = payload.find(':');
-    if (colon == std::string_view::npos || colon == 0 || colon + 1 >= payload.size()) {
+    const auto arrow = payload.find("->");
+    if (arrow == std::string_view::npos || arrow == 0) {
         return false;
     }
 
-    const auto arrow = payload.substr(0, colon).find("->");
-    if (arrow == std::string_view::npos || arrow == 0 || arrow + 2 >= colon) {
+    constexpr std::string_view total_marker = ":total=";
+    const auto total = payload.find(total_marker, arrow + 2);
+    if (total == std::string_view::npos || total == arrow + 2) {
         return false;
     }
 
-    constexpr std::string_view total_prefix = "total=";
-    const auto total = payload.substr(colon + 1);
-    if (total.rfind(total_prefix, 0) != 0) {
+    const auto amount_start = total + total_marker.size();
+    if (amount_start >= payload.size()) {
         return false;
     }
 
-    std::uint64_t amount{};
-    return parse_u64(total.substr(total_prefix.size()), amount) && amount > 0;
+    return positive_decimal_digits(payload.substr(amount_start));
 }
 
-bool is_known_runtime_event_type(std::string_view type) noexcept {
-    return type == runtime_day_completed
-        || type == runtime_tick_completed
-        || type == runtime_caravan_progress
-        || type == runtime_caravan_arrived
-        || type == runtime_caravan_cargo_delivered
-        || type == runtime_contract_fulfilled
-        || type == runtime_contract_failed;
+std::uint64_t fulfilled_contract_event_tick(const SimulationRuntimeArrivalContractResult& result) noexcept {
+    if (!result.arrival.run.reports.empty()) {
+        return result.arrival.run.reports.back().ticks.tick_after;
+    }
+    return result.arrival.arrival_elapsed_ticks;
 }
 
-void append_event(EventLog& log, GameTime time, std::string type, std::string payload) {
-    log.append(time.current_tick(), std::move(type), std::move(payload));
+std::uint64_t fulfilled_contract_event_tick(const SimulationRuntimeTickArrivalContractResult& result) noexcept {
+    if (!result.arrival.run.reports.empty()) {
+        return result.arrival.run.reports.back().tick_after;
+    }
+    return result.arrival.arrival_tick;
 }
 
-std::string caravan_payload(const CaravanState& caravan) {
-    return caravan.id;
-}
-
-std::string contract_payload(const ResourceDeliveryContract& contract) {
-    return contract.id;
-}
-
-std::string cargo_payload(const RuntimeCaravanCargoDeliveryResult& result) {
-    return result.caravan_id + "->" + result.destination_settlement_id + ":total=" + to_decimal(result.total_amount);
+std::string cargo_delivery_payload(const RuntimeCaravanCargoDeliveryResult& result) {
+    return result.caravan_id
+        + "->"
+        + result.destination_settlement_id
+        + ":total="
+        + std::to_string(result.total_amount);
 }
 
 } // namespace
 
-void append_runtime_day_completed_event(EventLog& log, std::uint64_t day) {
-    log.append(day, std::string{runtime_day_completed}, "day=" + to_decimal(day));
-}
+RuntimeEventLogSummary append_runtime_day_report_events(
+    clc::EventLog& log,
+    const SimulationRuntimeDayReport& report
+) {
+    RuntimeEventLogSummary summary{};
+    const auto event_tick = report.ticks.tick_after;
 
-void append_runtime_day_completed_event(EventLog& log, GameTime time, std::uint64_t day) {
-    append_event(log, time, std::string{runtime_day_completed}, "day=" + to_decimal(day));
-}
+    append_event(
+        log,
+        summary,
+        event_tick,
+        "runtime.day.completed",
+        "day=" + std::to_string(report.engine.day)
+    );
+    ++summary.day_events;
 
-void append_runtime_tick_completed_event(EventLog& log, GameTime time, std::uint64_t elapsed_ticks) {
-    append_event(log, time, std::string{runtime_tick_completed}, "elapsed=" + to_decimal(elapsed_ticks));
-}
-
-void append_runtime_caravan_progress_event(EventLog& log, GameTime time, const CaravanState& caravan) {
-    append_event(log, time, std::string{runtime_caravan_progress}, caravan_payload(caravan));
-}
-
-void append_runtime_caravan_arrived_event(EventLog& log, GameTime time, const CaravanState& caravan) {
-    append_event(log, time, std::string{runtime_caravan_arrived}, caravan_payload(caravan));
-}
-
-void append_runtime_caravan_cargo_delivered_event(EventLog& log, GameTime time, const RuntimeCaravanCargoDeliveryResult& result) {
-    append_event(log, time, std::string{runtime_caravan_cargo_delivered}, cargo_payload(result));
-}
-
-void append_runtime_contract_fulfilled_event(EventLog& log, GameTime time, const ResourceDeliveryContract& contract) {
-    append_event(log, time, std::string{runtime_contract_fulfilled}, contract_payload(contract));
-}
-
-void append_runtime_contract_failed_event(EventLog& log, GameTime time, const ResourceDeliveryContract& contract) {
-    append_event(log, time, std::string{runtime_contract_failed}, contract_payload(contract));
-}
-
-void append_runtime_caravan_arrival_events(EventLog& log, GameTime time, const RuntimeAdvanceReport& report, const CaravanFleet& fleet) {
-    for (const auto& caravan_report : report.caravans) {
-        if (!caravan_report.arrived || caravan_report.ticks_elapsed == 0) {
-            continue;
-        }
-
-        const auto* caravan = caravan_by_id(fleet, caravan_report.caravan_id);
-        if (caravan == nullptr) {
-            continue;
-        }
-
-        append_runtime_caravan_arrived_event(log, time, *caravan);
+    for (const auto& caravan : report.caravans) {
+        append_event(
+            log,
+            summary,
+            event_tick,
+            caravan.advance.arrived ? "runtime.caravan.arrived" : "runtime.caravan.progress",
+            caravan.caravan_id
+        );
+        ++summary.caravan_events;
     }
+
+    for (const auto& contract_id : report.contracts.failed_contract_ids) {
+        append_event(
+            log,
+            summary,
+            report.contracts.current_tick,
+            "runtime.contract.failed",
+            contract_id
+        );
+        ++summary.contract_events;
+    }
+
+    return summary;
 }
 
-void append_runtime_caravan_progress_events(EventLog& log, GameTime time, const RuntimeAdvanceReport& report, const CaravanFleet& fleet) {
-    for (const auto& caravan_report : report.caravans) {
-        if (caravan_report.ticks_elapsed == 0) {
-            continue;
-        }
+RuntimeEventLogSummary append_runtime_run_events(
+    clc::EventLog& log,
+    const SimulationRuntimeRunResult& run
+) {
+    RuntimeEventLogSummary summary{};
 
-        const auto* caravan = caravan_by_id(fleet, caravan_report.caravan_id);
-        if (caravan == nullptr) {
-            continue;
-        }
-
-        append_runtime_caravan_progress_event(log, time, *caravan);
+    for (const auto& report : run.reports) {
+        const auto partial = append_runtime_day_report_events(log, report);
+        merge_summary(summary, partial);
     }
+
+    return summary;
 }
 
-void append_runtime_contract_events(EventLog& log, GameTime time, const ContractCatalog& contracts) {
-    for (const auto& contract : contracts.contracts) {
-        if (contract.status == ContractStatus::fulfilled) {
-            append_runtime_contract_fulfilled_event(log, time, contract);
-        } else if (contract.status == ContractStatus::failed) {
-            append_runtime_contract_failed_event(log, time, contract);
-        }
+RuntimeEventLogSummary append_runtime_arrival_contract_events(
+    clc::EventLog& log,
+    const SimulationRuntimeArrivalContractResult& result
+) {
+    auto summary = append_runtime_run_events(log, result.arrival.run);
+
+    if (result.fulfillment.ok()) {
+        append_event(
+            log,
+            summary,
+            fulfilled_contract_event_tick(result),
+            "runtime.contract.fulfilled",
+            result.fulfillment.contract_id
+        );
+        ++summary.contract_events;
     }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_tick_report_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickReport& report
+) {
+    RuntimeEventLogSummary summary{};
+
+    append_event(
+        log,
+        summary,
+        report.tick_after,
+        "runtime.tick.completed",
+        "elapsed=" + std::to_string(report.elapsed_ticks)
+    );
+    ++summary.tick_events;
+
+    for (const auto& caravan : report.caravans) {
+        append_event(
+            log,
+            summary,
+            report.tick_after,
+            caravan.advance.arrived ? "runtime.caravan.arrived" : "runtime.caravan.progress",
+            caravan.caravan_id
+        );
+        ++summary.caravan_events;
+    }
+
+    for (const auto& contract_id : report.contracts.failed_contract_ids) {
+        append_event(
+            log,
+            summary,
+            report.contracts.current_tick,
+            "runtime.contract.failed",
+            contract_id
+        );
+        ++summary.contract_events;
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_tick_run_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickRunResult& run
+) {
+    RuntimeEventLogSummary summary{};
+
+    for (const auto& report : run.reports) {
+        const auto partial = append_runtime_tick_report_events(log, report);
+        merge_summary(summary, partial);
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_tick_arrival_contract_events(
+    clc::EventLog& log,
+    const SimulationRuntimeTickArrivalContractResult& result
+) {
+    auto summary = append_runtime_tick_run_events(log, result.arrival.run);
+
+    if (result.fulfillment.ok()) {
+        append_event(
+            log,
+            summary,
+            fulfilled_contract_event_tick(result),
+            "runtime.contract.fulfilled",
+            result.fulfillment.contract_id
+        );
+        ++summary.contract_events;
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
+    clc::EventLog& log,
+    std::uint64_t tick,
+    const RuntimeCaravanCargoDeliveryResult& result
+) {
+    RuntimeEventLogSummary summary{};
+
+    if (!validate_runtime_caravan_cargo_delivery_result(result).ok()) {
+        return summary;
+    }
+
+    if (result.total_amount == 0 || result.delivered.empty()) {
+        return summary;
+    }
+
+    append_event(
+        log,
+        summary,
+        tick,
+        "runtime.caravan.cargo_delivered",
+        cargo_delivery_payload(result)
+    );
+    ++summary.cargo_events;
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_caravan_cargo_delivery_event(
+    clc::EventLog& log,
+    const SimulationRuntime& runtime,
+    const RuntimeCaravanCargoDeliveryResult& result
+) {
+    return append_runtime_caravan_cargo_delivery_event(log, runtime.time.current_tick(), result);
+}
+
+RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
+    clc::EventLog& log,
+    std::uint64_t tick,
+    const RuntimeBulkCargoDeliveryResult& result
+) {
+    RuntimeEventLogSummary summary{};
+
+    if (!validate_runtime_bulk_cargo_delivery_result(result).ok()) {
+        return summary;
+    }
+
+    if (result.total_amount == 0 || result.deliveries.empty()) {
+        return summary;
+    }
+
+    for (const auto& delivery : result.deliveries) {
+        const auto partial = append_runtime_caravan_cargo_delivery_event(log, tick, delivery);
+        merge_summary(summary, partial);
+    }
+
+    return summary;
+}
+
+RuntimeEventLogSummary append_runtime_bulk_caravan_cargo_delivery_events(
+    clc::EventLog& log,
+    const SimulationRuntime& runtime,
+    const RuntimeBulkCargoDeliveryResult& result
+) {
+    return append_runtime_bulk_caravan_cargo_delivery_events(log, runtime.time.current_tick(), result);
 }
 
 RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
@@ -185,19 +337,19 @@ RuntimeEventLogAnalysis analyze_runtime_event_log(const clc::EventLog& log) {
     }
 
     for (const auto& event : events) {
-        if (event.type == runtime_day_completed) {
+        if (event.type == "runtime.day.completed") {
             ++analysis.day_events;
-        } else if (event.type == runtime_tick_completed) {
+        } else if (event.type == "runtime.tick.completed") {
             ++analysis.tick_events;
-        } else if (event.type == runtime_caravan_progress) {
+        } else if (event.type == "runtime.caravan.progress") {
             ++analysis.caravan_progress_events;
-        } else if (event.type == runtime_caravan_arrived) {
+        } else if (event.type == "runtime.caravan.arrived") {
             ++analysis.caravan_arrival_events;
-        } else if (event.type == runtime_caravan_cargo_delivered) {
+        } else if (event.type == "runtime.caravan.cargo_delivered") {
             ++analysis.caravan_cargo_delivered_events;
-        } else if (event.type == runtime_contract_fulfilled) {
+        } else if (event.type == "runtime.contract.fulfilled") {
             ++analysis.contract_fulfilled_events;
-        } else if (event.type == runtime_contract_failed) {
+        } else if (event.type == "runtime.contract.failed") {
             ++analysis.contract_failed_events;
         } else {
             ++analysis.unknown_events;
@@ -239,26 +391,26 @@ data::ValidationReport validate_runtime_event_log_payloads(const clc::EventLog& 
     data::ValidationReport report{};
 
     for (const auto& event : log.events()) {
-        if (event.type == runtime_day_completed) {
+        if (event.type == "runtime.day.completed") {
             constexpr std::string_view prefix = "day=";
             if (event.payload.rfind(prefix, 0) != 0 || !decimal_digits_only(std::string_view{event.payload}.substr(prefix.size()))) {
                 report.add_error("runtime.event_log.payload", "day event payload must be day=N");
                 return report;
             }
-        } else if (event.type == runtime_tick_completed) {
+        } else if (event.type == "runtime.tick.completed") {
             if (!valid_tick_completed_payload(event.payload)) {
                 report.add_error("runtime.event_log.payload", "tick event payload must be elapsed=N with N greater than zero");
                 return report;
             }
-        } else if (event.type == runtime_caravan_progress
-            || event.type == runtime_caravan_arrived
-            || event.type == runtime_contract_fulfilled
-            || event.type == runtime_contract_failed) {
+        } else if (event.type == "runtime.caravan.progress"
+            || event.type == "runtime.caravan.arrived"
+            || event.type == "runtime.contract.fulfilled"
+            || event.type == "runtime.contract.failed") {
             if (event.payload.empty()) {
                 report.add_error("runtime.event_log.payload", "runtime event payload must not be empty");
                 return report;
             }
-        } else if (event.type == runtime_caravan_cargo_delivered) {
+        } else if (event.type == "runtime.caravan.cargo_delivered") {
             if (!valid_cargo_delivery_payload(event.payload)) {
                 report.add_error("runtime.event_log.payload", "cargo delivery payload must be caravan->settlement:total=N with N greater than zero");
                 return report;
