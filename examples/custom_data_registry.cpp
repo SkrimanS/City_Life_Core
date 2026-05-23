@@ -1,4 +1,5 @@
 #include "clc/CityLifeCore.hpp"
+#include "clc/data/DataPackLoader.hpp"
 
 #include <iostream>
 #include <string_view>
@@ -83,8 +84,8 @@ int main() {
 
     std::cout << "settlements=" << tick_report.settlements.size() << '\n';
     std::cout << "flour=" << flour << '\n';
-    std::cout << "resources=" << registry.resources().size() << '\n';
-    std::cout << "buildings=" << registry.buildings().size() << '\n';
+    std::cout << "resources=" << registry.resource_count() << '\n';
+    std::cout << "buildings=" << registry.building_count() << '\n';
 
     return flour == 0 ? 1 : 0;
 }
