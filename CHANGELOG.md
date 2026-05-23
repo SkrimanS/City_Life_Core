@@ -74,7 +74,6 @@ All notable changes to City Life Core are tracked here.
 - Added deterministic cargo delivery event payload validation using `caravan_id->destination_settlement_id:total=N`.
 - Added cargo delivery event-log analysis checks for `caravan_cargo_delivered_events` and replayed contract fulfillment events.
 - Added negative event-log checksum drift coverage for changed cargo delivery payloads.
-- Added `docs/RELEASE_NOTES_0.9.6.md`.
 
 ### Changed
 
@@ -89,7 +88,6 @@ All notable changes to City Life Core are tracked here.
 - Added `clc_runtime_cargo_delivery_persistence_tests` for explicit cargo delivery save/load coverage.
 - Added roundtrip coverage proving delivered destination settlement storage persists and caravan cargo remains empty after load.
 - Added negative drift coverage for delivered destination storage and redelivered caravan cargo.
-- Added `docs/RELEASE_NOTES_0.9.5.md`.
 
 ### Changed
 
@@ -108,7 +106,6 @@ All notable changes to City Life Core are tracked here.
 - Added cargo delivery event summary and analysis counters.
 - Added `append_runtime_caravan_cargo_delivery_event()` helper.
 - Added workflow and event-log coverage for explicit cargo delivery.
-- Added `docs/RELEASE_NOTES_0.9.4.md`.
 
 ### Changed
 
@@ -125,7 +122,6 @@ All notable changes to City Life Core are tracked here.
 - Added exported package target `CityLifeCore::core` for external `find_package(CityLifeCore CONFIG REQUIRED)` consumers.
 - Added install rules for public headers, SDK docs, examples, and demo data.
 - Added `docs/PACKAGING.md` with bilingual source install and package consumption guidance.
-- Added `docs/RELEASE_NOTES_0.9.3.md`.
 
 ### Changed
 
