@@ -1,11 +1,11 @@
 # C Interface / C ABI
 
 Version: **0.9.9**  
-C interface version: **2**
+C interface version: **3**
 
-City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, a minimal opaque world handle, and simple FFI smoke checks.
+City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, a minimal opaque world handle, read-only world event access, and simple FFI smoke checks.
 
-City Life Core в первую очередь является C++20 SDK. Небольшой C-facing interface предоставлен для version/time utilities, минимального opaque world handle и простых FFI smoke checks.
+City Life Core в первую очередь является C++20 SDK. Небольшой C-facing interface предоставлен для version/time utilities, минимального opaque world handle, read-only world event access и простых FFI smoke checks.
 
 ---
 
@@ -35,7 +35,8 @@ The current C interface exposes:
 - a minimal opaque `clc_world` handle;
 - world create/destroy;
 - world name/seed/current tick/event count accessors;
-- simple world tick advancement.
+- simple world tick advancement;
+- read-only world event access by index.
 
 The current C interface does **not** expose:
 
@@ -44,7 +45,7 @@ The current C interface does **not** expose:
 - strings with caller-owned allocation;
 - save/load APIs;
 - event callbacks;
-- event payload access;
+- mutable event payload APIs;
 - caravans/contracts/economy workflows.
 
 Use the C++ API for full SDK integration.
@@ -163,6 +164,29 @@ Ownership and lifetime rules:
 - advancing by zero ticks fails and does not mutate the world.
 - very large positive advances use the core saturating tick behavior and do not wrap the current tick.
 
+---
+
+## Read-only world events
+
+```c
+uint64_t clc_world_event_id_c(const clc_world* world, uint64_t index);
+uint64_t clc_world_event_tick_c(const clc_world* world, uint64_t index);
+const char* clc_world_event_type_c(const clc_world* world, uint64_t index);
+const char* clc_world_event_payload_c(const clc_world* world, uint64_t index);
+```
+
+Event access is index-based and read-only.
+
+Rules:
+
+- valid indexes are `0 <= index < clc_world_event_count_c(world)`;
+- invalid indexes return `0` for numeric fields and an empty string for string fields;
+- null world handles return `0` or an empty string;
+- returned strings are owned by the world handle;
+- do not free returned strings;
+- do not keep returned string pointers after destroying the world;
+- pointers may be invalidated by later world mutation, such as successful `clc_world_advance_c()` calls.
+
 Example:
 
 ```c
@@ -176,10 +200,14 @@ if (clc_world_advance_c(world, 5) != 1) {
     return 1;
 }
 
-printf("%s tick=%llu events=%llu\n",
-    clc_world_name_c(world),
-    (unsigned long long)clc_world_current_tick_c(world),
-    (unsigned long long)clc_world_event_count_c(world));
+for (uint64_t i = 0; i < clc_world_event_count_c(world); ++i) {
+    printf("event %llu: id=%llu tick=%llu type=%s payload=%s\n",
+        (unsigned long long)i,
+        (unsigned long long)clc_world_event_id_c(world, i),
+        (unsigned long long)clc_world_event_tick_c(world, i),
+        clc_world_event_type_c(world, i),
+        clc_world_event_payload_c(world, i));
+}
 
 clc_world_destroy_c(world);
 ```
@@ -249,6 +277,9 @@ CI validates:
 
 - C header compilation;
 - linking against `CityLifeCore::core`;
+- version/time functions;
+- opaque `clc_world` create/destroy and tick advancement;
+- read-only world event accessors;
 - installed SDK C consumer;
 - unpacked ZIP SDK C consumer.
 
@@ -261,7 +292,7 @@ CI validates:
 For `0.9.9`, the C interface version is:
 
 ```text
-2
+3
 ```
 
 Future C interface expansion should preserve existing functions where possible and increase the C interface version when the C-facing surface changes meaningfully.
