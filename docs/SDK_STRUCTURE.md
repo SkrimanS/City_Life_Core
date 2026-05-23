@@ -41,7 +41,7 @@ SDK содержит:
 #include "clc/c/CityLifeCoreC.h"
 ```
 
-C interface сейчас покрывает version/time utilities и минимальный opaque `clc_world` handle для create/destroy, basic state access и simple tick advancement. Полный runtime API остаётся C++ API.
+C interface сейчас покрывает version/time utilities, минимальный opaque `clc_world` handle для create/destroy, basic state access, simple tick advancement и read-only world event inspection by index. Полный runtime API остаётся C++ API.
 
 Для крупных C++ проектов можно подключать headers точечно:
 
@@ -204,9 +204,10 @@ Main concepts:
 - opaque `clc_world` handle;
 - world create/destroy;
 - world name/seed/current tick/event count accessors;
-- simple world tick advancement.
+- simple world tick advancement;
+- read-only world event access by index.
 
-Full runtime, data registries, containers, save/load, event payload access and callbacks are not exposed through C.
+Full runtime, data registries, containers, save/load, mutable event payload access and callbacks are not exposed through C.
 
 #### Core
 
