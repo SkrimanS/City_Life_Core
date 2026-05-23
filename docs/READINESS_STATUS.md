@@ -1,10 +1,10 @@
 # Readiness Status / Статус готовности
 
-Status: **v/1.0-rc-prep snapshot / срез v/1.0-rc-prep**
+Status: **1.0.0 release-preparation snapshot / срез подготовки 1.0.0**
 
-This document captures the current release-readiness estimate for City Life Core before the remaining owner/CI/artifact gates are closed.
+This document captures the current release-readiness estimate for City Life Core `1.0.0` before the remaining owner/CI/artifact gates are closed.
 
-Этот документ фиксирует текущую оценку готовности City Life Core до закрытия оставшихся owner/CI/artifact gates.
+Этот документ фиксирует текущую оценку готовности City Life Core `1.0.0` до закрытия оставшихся owner/CI/artifact gates.
 
 ---
 
@@ -32,16 +32,16 @@ C ABI:                       50–60%
 
 ## Overall interpretation
 
-The project is close to release-candidate readiness from a source/API/docs/package-shape perspective, but it is not release-ready until the hard gates are closed.
+The project is close to `1.0.0` release readiness from a source/API/docs/package-shape perspective, but it is not publishable until the hard gates are closed.
 
-Проект близок к release-candidate готовности с точки зрения source/API/docs/package-shape, но не считается release-ready до закрытия hard gates.
+Проект близок к готовности `1.0.0` с точки зрения source/API/docs/package-shape, но не считается publishable до закрытия hard gates.
 
 Approximate status:
 
 ```text
-Technical RC readiness:       high, roughly low-to-mid 90% range
+Technical 1.0.0 readiness:    high, roughly low-to-mid 90% range
 Release/merge readiness:      blocked by LICENSE, CI validation and artifact review
-Public final 1.0 readiness:   not yet final; weaker areas remain tracked
+Public 1.0.0 readiness:       not final until owner approval and manifest completion
 ```
 
 ---
@@ -54,6 +54,12 @@ The active hard blockers are tracked in:
 docs/RELEASE_BLOCKERS.md
 ```
 
+The draft release manifest is tracked in:
+
+```text
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
+```
+
 At minimum, the project still needs:
 
 - owner license/contribution-model decision;
@@ -63,14 +69,14 @@ At minimum, the project still needs:
 - benchmark artifact review;
 - SDK ZIP artifact and checksum review;
 - installed and unpacked ZIP C++/C ABI consumer confirmation;
-- release manifest fields filled from reviewed data;
+- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` filled from reviewed data or superseded by a final manifest;
 - explicit owner release/merge approval.
 
 ---
 
 ## Strong areas
 
-These areas are currently near RC shape:
+These areas are currently near `1.0.0` shape:
 
 - Foundation/Core;
 - Settlement/Storage;
@@ -86,7 +92,7 @@ These areas are currently near RC shape:
 
 ## Areas to keep hardening
 
-These areas can continue improving before or after RC, depending on owner priorities:
+These areas can continue improving before or after `1.0.0`, depending on owner priorities:
 
 - Basic Economy/Market;
 - Data Registry;
@@ -102,7 +108,7 @@ These areas can continue improving before or after RC, depending on owner priori
 The C ABI is intentionally minimal and currently covers:
 
 - core version;
-- C interface version;
+- C interface version `3`;
 - time constants and conversions;
 - opaque `clc_world` create/destroy;
 - world name/seed/current tick/event count;
@@ -120,4 +126,5 @@ Do not merge to `main` or publish official artifacts until:
 - issue #40 is closed or unresolved blockers are explicitly accepted by the owner;
 - `docs/RELEASE_BLOCKERS.md` is reviewed;
 - `docs/CI_ARTIFACT_REVIEW.md` is followed;
+- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` is completed or superseded;
 - the owner explicitly approves release/merge.
