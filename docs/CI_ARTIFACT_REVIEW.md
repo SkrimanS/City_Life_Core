@@ -1,18 +1,18 @@
 # CI and Artifact Review / Проверка CI и artifacts
 
-Status: **manual release gate / ручной release gate**
+Status: **1.0.0 manual release gate / ручной release gate 1.0.0**
 
-This document describes how to review CI, benchmark artifacts and SDK ZIP artifacts when preparing a release candidate.
+This document describes how to review CI, benchmark artifacts and SDK ZIP artifacts when preparing the City Life Core 1.0.0 release.
 
-Этот документ описывает, как вручную проверять CI, benchmark artifacts и SDK ZIP artifacts перед release candidate.
+Этот документ описывает, как вручную проверять CI, benchmark artifacts и SDK ZIP artifacts перед релизом City Life Core 1.0.0.
 
 ---
 
 ## Purpose
 
-A release candidate must not be merged or published only because the source branch is mergeable. CI results and generated artifacts must be reviewed first.
+The 1.0.0 release must not be merged or published only because the source branch is mergeable. CI results and generated artifacts must be reviewed first.
 
-Release candidate нельзя merge/publish только потому, что branch mergeable. Сначала нужно проверить CI results и generated artifacts.
+Релиз 1.0.0 нельзя merge/publish только потому, что branch mergeable. Сначала нужно проверить CI results и generated artifacts.
 
 ---
 
@@ -54,7 +54,7 @@ bash scripts/manual_release_validation.sh
 Optional custom build directory:
 
 ```bash
-bash scripts/manual_release_validation.sh build-local-rc-validation
+bash scripts/manual_release_validation.sh build-local-1.0.0-validation
 ```
 
 Windows PowerShell:
@@ -66,7 +66,7 @@ pwsh -File scripts/manual_release_validation.ps1
 Optional custom build directory:
 
 ```powershell
-pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-rc-validation
+pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-1.0.0-validation
 ```
 
 The scripts run the same release-validation shape as CI:
@@ -105,7 +105,7 @@ city-life-core-sdk-<os>-<compiler>
 The SDK artifact should contain:
 
 ```text
-city-life-core-sdk-*.zip
+city-life-core-sdk-1.0.0-<system>-<processor>.zip
 SHA256SUMS.txt
 ```
 
@@ -212,14 +212,14 @@ If workflow logs or artifacts are unavailable through automation, inspect the Gi
 
 ## Release decision rule
 
-Before leaving draft status or publishing a release candidate:
+Before leaving draft status or publishing 1.0.0:
 
 - all required CI jobs should be green, or failures should be explicitly accepted and documented;
 - benchmark artifacts should be reviewed;
 - SDK ZIP artifacts should be reviewed;
 - checksums should be verified;
 - installed and unpacked ZIP consumers should be confirmed;
-- release manifest fields should be fillable from the reviewed run;
+- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` should be filled from the reviewed run or superseded by a final manifest;
 - LICENSE must be chosen by the owner.
 
 Do not merge to `main` until the owner explicitly approves release/merge.
