@@ -24,6 +24,7 @@ All notable changes to City Life Core are tracked here.
   - `docs/READINESS_STATUS.md`;
   - `docs/CI_ARTIFACT_REVIEW.md`;
   - `docs/RELEASE_BLOCKERS.md`;
+  - `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md`;
   - blocker issue #40 for pre-merge hard gates.
 - Added public SDK/release documentation for CMake packages, SDK ZIP packages, C ABI, compatibility, versioning, migration, release verification, protection strategy, and release checklist.
 - Added hardening tests for market edge cases, data registry validation, faction/ownership mutation guards, storage, ledger, settlement arithmetic, runtime workflows, and persistence failure paths.
@@ -49,7 +50,7 @@ All notable changes to City Life Core are tracked here.
 - Updated smoke tests to expect `0.9.9`.
 - Updated public package documentation to reflect the C ABI v3 `clc_world` handle and read-only event accessors instead of describing the C ABI as version/time-only.
 - Updated release checklist and packaging docs to require installed and unpacked ZIP C ABI consumer validation for C ABI version, time utilities, `clc_world` behavior and read-only event accessors.
-- Updated release checklist, PR gate and blocker issue to require review of `docs/READINESS_STATUS.md`, `docs/RELEASE_BLOCKERS.md` and `docs/CI_ARTIFACT_REVIEW.md` before merge/release.
+- Updated release checklist, PR gate and blocker issue to require review of `docs/READINESS_STATUS.md`, `docs/RELEASE_BLOCKERS.md`, `docs/CI_ARTIFACT_REVIEW.md`, and `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md` before merge/release.
 - Updated CODEOWNERS coverage for release-validation scripts and release-governance docs.
 - Updated contribution documentation to keep contributions restricted until the final license and contribution model are chosen.
 - Changed runtime event log timestamps from day numbers to absolute runtime ticks.
