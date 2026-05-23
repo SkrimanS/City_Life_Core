@@ -43,6 +43,11 @@ uint64_t clc_world_current_tick_c(const clc_world* world);
 uint64_t clc_world_event_count_c(const clc_world* world);
 int clc_world_advance_c(clc_world* world, uint64_t ticks);
 
+uint64_t clc_world_event_id_c(const clc_world* world, uint64_t index);
+uint64_t clc_world_event_tick_c(const clc_world* world, uint64_t index);
+const char* clc_world_event_type_c(const clc_world* world, uint64_t index);
+const char* clc_world_event_payload_c(const clc_world* world, uint64_t index);
+
 #ifdef __cplusplus
 }
 #endif
