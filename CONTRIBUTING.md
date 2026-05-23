@@ -1,8 +1,8 @@
 # Contributing / Участие в разработке
 
-City Life Core is currently in pre-1.0 SDK preparation. Until the project owner explicitly chooses the final license and contribution model, external code contributions are limited and require maintainer approval before review or merge.
+City Life Core is currently preparing the 1.0.0 SDK release. Until the project owner explicitly chooses the final license and contribution model, external code contributions are restricted and require maintainer approval before review or merge.
 
-City Life Core сейчас находится на этапе подготовки pre-1.0 SDK. Пока владелец проекта явно не выбрал финальную лицензию и модель contribution, внешние code contributions ограничены и требуют одобрения maintainer перед review или merge.
+City Life Core сейчас готовится к релизу SDK 1.0.0. Пока владелец проекта явно не выбрал финальную лицензию и модель contribution, внешние code contributions ограничены и требуют одобрения maintainer перед review или merge.
 
 ---
 
@@ -18,7 +18,7 @@ This means:
 - no contribution is accepted as official until it is merged by an authorized maintainer;
 - no fork, mirror, package or rebuild may claim to be the official City Life Core distribution unless it is published through the official project release channel.
 
-This policy protects the project while the license, public SDK boundary and release process are being finalized.
+This policy protects the project while the license, public SDK boundary and 1.0.0 release process are being finalized.
 
 ---
 
@@ -109,3 +109,5 @@ Preferred docs focus:
 - how to validate errors;
 - how to save/load and verify packages;
 - what is stable, experimental or specialized.
+
+When touching documentation, remove obsolete version-specific or pre-1.0 material instead of adding another outdated layer.
