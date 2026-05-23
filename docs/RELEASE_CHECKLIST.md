@@ -66,6 +66,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Experimental headers are clearly documented as experimental.
 - [ ] Diagnostics APIs have documented compatibility boundaries.
 - [ ] C interface scope is documented in `docs/C_ABI.md`.
+- [ ] C interface scope is reflected in `README.md`, `docs/SDK_STRUCTURE.md`, `docs/PACKAGING.md`, and `docs/SDK_ZIP_PACKAGE.md`.
 - [ ] `SimulationRuntime` mutable data-bag policy is accepted or replaced with a facade.
 - [ ] Pointer/reference invalidation rules are documented in `PUBLIC_API.md`.
 - [ ] Missing documented headers are fixed or removed from docs.
@@ -97,6 +98,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Market report lookup helpers exist.
 - [ ] Recommended trade+ledger wrapper exists or docs warn users explicitly.
 - [ ] C interface version/time functions have C smoke coverage.
+- [ ] C interface opaque `clc_world` handle has C smoke coverage for create/destroy, null-safety, state access and tick advancement.
 
 ## 7. Tests / Тесты
 
@@ -108,8 +110,10 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] New public headers have compile/include coverage.
 - [ ] C++ umbrella header test passes.
 - [ ] C interface smoke test passes.
+- [ ] C interface smoke test covers C ABI version, time utilities and opaque `clc_world` behavior.
 - [ ] Installed C++ SDK consumer test passes.
 - [ ] Installed C ABI consumer test passes.
+- [ ] Installed C ABI consumer exercises C ABI version, time utilities and opaque `clc_world` behavior.
 - [ ] External `find_package(CityLifeCore CONFIG REQUIRED)` examples build.
 - [ ] CI covers tests, examples, benchmarks and package smoke checks.
 
@@ -135,10 +139,12 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] CMake package variables exist: `CityLifeCore_INCLUDE_DIR`, `CityLifeCore_DOCS_DIR`, `CityLifeCore_DATA_DIR`, `CityLifeCore_EXAMPLES_DIR`.
 - [ ] Installed C++ consumer builds and runs.
 - [ ] Installed C ABI consumer builds and runs.
+- [ ] Installed C ABI consumer validates C ABI version, time utilities and opaque `clc_world` behavior.
 - [ ] CPack ZIP package builds.
 - [ ] SDK ZIP checksum file `SHA256SUMS.txt` is produced.
 - [ ] Unpacked SDK ZIP C++ consumer builds and runs.
 - [ ] Unpacked SDK ZIP C ABI consumer builds and runs.
+- [ ] Unpacked SDK ZIP C ABI consumer validates C ABI version, time utilities and opaque `clc_world` behavior.
 - [ ] CI uploads SDK ZIP artifact.
 - [ ] CI uploads checksum artifact.
 - [ ] Examples source is included.
