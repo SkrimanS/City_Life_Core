@@ -35,6 +35,7 @@ A release should be considered official only when all of these are true:
 - it is published from the official repository;
 - it has a tag or commit SHA listed in official release notes;
 - release artifacts have checksums or a manifest when artifacts are provided;
+- CI, installed SDK consumer checks, and unpacked SDK consumer checks are linked or recorded in the manifest;
 - the package name and namespace match official documentation;
 - the release is not marked as revoked or compromised.
 
@@ -46,9 +47,10 @@ A release should be considered official only when all of these are true:
 2. Check the release/tag name.
 3. Compare the commit SHA with release notes.
 4. Verify artifact checksums when provided.
-5. Prefer signed tags or signed release commits when available.
-6. Build from source if a binary package cannot be verified.
-7. Do not trust third-party mirrors unless they are listed in official release notes.
+5. Check the release manifest for CI and consumer validation results.
+6. Prefer signed tags or signed release commits when available.
+7. Build from source if a binary package cannot be verified.
+8. Do not trust third-party mirrors unless they are listed in official release notes.
 
 ---
 
@@ -58,7 +60,7 @@ Release artifacts should include checksums, for example:
 
 ```text
 city-life-core-sdk-1.0.0-rc1.zip
-city-life-core-sdk-1.0.0-rc1.zip.sha256
+SHA256SUMS.txt
 ```
 
 Users should compare the downloaded artifact checksum with the official checksum before use.
@@ -67,18 +69,29 @@ Users should compare the downloaded artifact checksum with the official checksum
 
 ## Release manifest
 
-A future release manifest should include:
+A release manifest should include enough information to verify both artifact identity and package usability:
 
-```text
+```yaml
 project: City Life Core
-repository: https://github.com/SkrimanS/City_Life_Core
+official_repository: https://github.com/SkrimanS/City_Life_Core
 version: 1.0.0-rc1
 commit: <commit-sha>
 tag: v1.0.0-rc1
 artifacts:
-  - path: city-life-core-sdk-1.0.0-rc1.zip
+  - name: city-life-core-sdk-1.0.0-rc1.zip
     sha256: <sha256>
+verification:
+  ci_run_url: <url-or-empty>
+  installed_sdk_smoke_test: pass-or-fail
+  external_find_package_consumer: pass-or-fail
+  external_c_abi_consumer: pass-or-fail
+  unpacked_zip_find_package_consumer: pass-or-fail
+  unpacked_zip_c_abi_consumer: pass-or-fail
+  c_abi_version: <number>
+  c_abi_world_handle_checked: true-or-false
 ```
+
+For the current 0.9.9/1.0-rc-prep SDK shape, the C ABI consumer should validate the C ABI version, time utilities, and the minimal opaque `clc_world` handle. The C++ consumer should validate normal `find_package(CityLifeCore CONFIG REQUIRED)` usage through the exported `CityLifeCore::core` target.
 
 ---
 
@@ -90,6 +103,7 @@ Treat a build as suspicious if:
 - it has no release notes;
 - it has no commit SHA;
 - it has no checksum or checksum mismatch;
+- it has no CI or consumer validation results for distributed SDK artifacts;
 - it asks users to disable security checks;
 - it changes namespace/package name while claiming official status;
 - it is distributed only through private messages or unknown mirrors.
