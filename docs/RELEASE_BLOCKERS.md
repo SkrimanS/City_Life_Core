@@ -2,9 +2,9 @@
 
 Status: **active 1.0.0 release gate / активный release gate 1.0.0**
 
-This document lists blockers that must be resolved before City Life Core `1.0.0` can be merged to `main` or published as an official public release.
+This document lists the remaining gates that must be resolved or explicitly accepted before City Life Core `1.0.0` can be merged to `main` or published as an official public release.
 
-Этот документ перечисляет блокеры, которые нужно закрыть перед merge City Life Core `1.0.0` в `main` или публикацией official public release.
+Этот документ перечисляет оставшиеся release gates, которые нужно закрыть или явно принять перед merge City Life Core `1.0.0` в `main` или публикацией official public release.
 
 Current readiness snapshot:
 
@@ -20,7 +20,19 @@ docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
 
 ---
 
-## Completed validation
+## Completed gates
+
+### License decision
+
+Status: **complete**
+
+Selected license: **Apache-2.0**
+
+Root license file:
+
+```text
+LICENSE
+```
 
 ### Windows/MSVC local release validation
 
@@ -59,30 +71,13 @@ SHA256:
 
 ---
 
-## Hard blockers
+## Remaining hard gates
 
-### 1. License decision
-
-Status: **open**
-
-A final license/contribution model must be chosen by the owner before the public `1.0.0` release.
-
-Required follow-up:
-
-- choose license model;
-- add root `LICENSE` file;
-- update `README.md` license section;
-- update package/release docs that mention licensing;
-- confirm contribution policy in `CONTRIBUTING.md`;
-- review `docs/PROTECTION_STRATEGY.md` against the chosen model.
-
-Until this is done, the release must remain blocked.
-
-### 2. CI / platform validation decision
+### 1. CI / platform validation decision
 
 Status: **partially complete**
 
-Windows/MSVC local validation is complete. The owner must still decide whether official CI validation is required before merge/release or whether the local Windows validation is accepted for this release candidate.
+Windows/MSVC local validation is complete. The owner must still decide whether official CI/Linux validation is required before merge/release or whether the local Windows validation is accepted for this release candidate.
 
 Supported CI matrix normally includes:
 
@@ -99,9 +94,9 @@ Required follow-up:
   - `scripts/manual_release_validation.sh`;
   - `scripts/manual_release_validation.ps1`.
 
-### 3. Artifact review
+### 2. Artifact review / final manifest
 
-Status: **Windows local artifact reviewed / remaining scope depends on owner CI decision**
+Status: **Windows local artifact reviewed / final metadata pending**
 
 Windows local release artifact review is complete for:
 
@@ -120,6 +115,15 @@ Required follow-up:
 - fill final manifest fields that depend on final commit/tag/release date/artifact size;
 - complete or supersede `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md`.
 
+### 3. Owner release approval
+
+Status: **open**
+
+Required follow-up:
+
+- owner explicitly approves the final release/merge scope;
+- only then can PR #39 leave draft/validation-only status or be merged.
+
 ---
 
 ## Current validation PR
@@ -129,8 +133,8 @@ Draft PR #39 is validation-only.
 Rules:
 
 - do not merge until the owner explicitly approves release/merge;
-- do not remove draft status until hard blockers are closed or explicitly deferred;
-- do not publish artifacts as official until checksums and manifest are reviewed;
+- do not remove draft status until hard gates are closed or explicitly accepted/deferred;
+- do not publish artifacts as official until checksums and manifest are reviewed for the accepted scope;
 - keep `main` untouched until release/merge approval.
 
 ---
@@ -151,7 +155,6 @@ These can be consciously deferred from `1.0.0`, but should remain tracked as fol
 
 The release can be merged/published only when:
 
-- license decision is complete;
 - CI/platform validation scope is green or explicitly accepted/deferred by owner;
 - benchmark artifacts are reviewed for the accepted scope;
 - SDK ZIP artifacts and checksums are reviewed for the accepted scope;
