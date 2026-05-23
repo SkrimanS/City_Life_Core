@@ -1,16 +1,14 @@
 # Build and Linking Policy / Политика сборки и линковки
 
-Version: **0.9.9**
+Version: **1.0.0**
 
 This document describes how City Life Core should be built and linked by SDK users and release maintainers.
-
-Этот документ описывает, как City Life Core должен собираться и линковаться SDK users и release maintainers.
 
 ---
 
 ## Recommended release model
 
-City Life Core is currently a **source-first C++ SDK**.
+City Life Core 1.0.0 is a **source-first C++ SDK**.
 
 Recommended public SDK consumption modes:
 
@@ -18,7 +16,7 @@ Recommended public SDK consumption modes:
 2. SDK ZIP package produced from the install layout.
 3. Source build through `add_subdirectory(...)` or vendored source tree.
 
-The stable public contract for 0.9.9/pre-1.0 is primarily the **source-level C++ API** and the **minimal C interface** documented in `docs/C_ABI.md`.
+The stable public contract for 1.0.0 is primarily the **source-level C++ API** and the **minimal C interface** documented in `docs/C_ABI.md`.
 
 ---
 
@@ -34,7 +32,7 @@ cmake -S . -B build-sdk -DBUILD_SHARED_LIBS=OFF
 
 ### Static build
 
-Static builds are the recommended default for 0.9.9/pre-1.0 SDK packages.
+Static builds are the recommended default for 1.0.0 SDK packages.
 
 Reasons:
 
@@ -45,14 +43,14 @@ Reasons:
 
 ### Shared build
 
-Shared builds may work on some platforms/toolchains, but they are not the recommended public release artifact yet.
+Shared builds may work on some platforms/toolchains, but they are not the recommended public release artifact for 1.0.0.
 
 Reasons:
 
 - C++ symbol visibility/export policy is not finalized;
 - C++ binary ABI compatibility is not guaranteed;
 - Windows DLL export/import annotations are not part of the public API yet;
-- runtime/container/template-heavy APIs are better treated as source-level C++ APIs for now.
+- runtime/container/template-heavy APIs are better treated as source-level C++ APIs.
 
 If a project builds City Life Core as a shared library, that project owns the platform-specific binary distribution and compatibility testing.
 
@@ -60,19 +58,13 @@ If a project builds City Life Core as a shared library, that project owns the pl
 
 ## C++ ABI policy
 
-For 0.9.9/pre-1.0:
+For 1.0.0:
 
 - C++ **source compatibility** is the primary compatibility target.
 - C++ **binary ABI compatibility** is not promised.
 - Public headers under `include/clc/**` are documented by status in `docs/PUBLIC_API_STATUS.md`.
-- Stable-candidate headers should avoid unnecessary breaking changes before 1.0.0.
+- Stable-candidate headers should avoid unnecessary breaking changes in 1.x releases.
 - Experimental and diagnostics APIs may change more easily.
-
-For 1.0.0:
-
-- the project should explicitly decide whether the release is source-only or binary-distributed;
-- if binary artifacts are published, supported platform/toolchain combinations should be listed;
-- if shared libraries are published, symbol export/import and ABI rules must be documented.
 
 ---
 
@@ -87,12 +79,16 @@ The minimal C interface is available through:
 It currently covers:
 
 - core version;
-- C interface version;
+- C interface version `3`;
 - tick constants;
 - time conversion preflight helpers;
-- saturating time conversion helpers.
+- saturating time conversion helpers;
+- opaque `clc_world` create/destroy;
+- basic world state access;
+- simple world tick advancement;
+- read-only world event accessors.
 
-It does not expose full runtime state or ownership of core objects.
+It does not expose full runtime state, registries, containers, save/load, callbacks, caravans, contracts or economy workflows.
 
 The C interface has its own version:
 
@@ -153,12 +149,10 @@ docs/CMAKE_PACKAGE.md
 
 ## Release artifact policy
 
-For 0.9.9/pre-1.0 audit builds, release artifacts should be treated as SDK validation artifacts, not final binary ABI commitments.
-
-Recommended artifacts:
+Recommended 1.0.0 artifacts:
 
 ```text
-city-life-core-sdk-<version>-<system>-<processor>.zip
+city-life-core-sdk-1.0.0-<system>-<processor>.zip
 SHA256SUMS.txt
 release manifest
 ```
@@ -172,7 +166,7 @@ The ZIP package should contain:
 - examples;
 - demo data.
 
-CI should validate:
+CI or manual release validation should check:
 
 - build and tests;
 - installed C++ consumer;
@@ -181,29 +175,16 @@ CI should validate:
 - checksum generation;
 - unpacked ZIP C++ consumer;
 - unpacked ZIP C interface consumer;
-- benchmark baseline output.
+- benchmark output.
 
 ---
 
-## Release decision before 1.0.0
+## Current 1.0.0 position
 
-Before tagging 1.0.0, the maintainer should explicitly choose one of these positions:
+City Life Core 1.0.0 should ship as source-first SDK package:
 
-### Option A: source-first 1.0.0
-
-- Publish source and SDK ZIP with install layout.
-- Do not promise C++ binary ABI.
-- Recommend static linking.
-- Treat C++ API compatibility as source-level compatibility.
-- Keep minimal C interface stable where possible.
-
-### Option B: binary SDK 1.0.0
-
-- Publish platform/toolchain-specific artifacts.
-- Define supported compilers and standard libraries.
-- Define shared/static policy.
-- Define symbol export/import policy.
-- Define C++ ABI policy.
-- Add binary compatibility tests.
-
-Recommended current path: **Option A: source-first 1.0.0**.
+- publish source and SDK ZIP with install layout;
+- do not promise C++ binary ABI;
+- recommend static linking;
+- treat C++ API compatibility as source-level compatibility;
+- keep the minimal C interface stable where possible.
