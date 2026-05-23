@@ -40,6 +40,7 @@ This directory contains developer-facing documentation for integrating City Life
 | `VERSIONING.md` | Versioning and tag rules. |
 | `VERIFYING_RELEASES.md` | Release verification guide. |
 | `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
+| `RELEASE_BLOCKERS.md` | Active release blockers and exit criteria. |
 | `RELEASE_MANIFEST_TEMPLATE.md` | Manifest template for release artifacts. |
 | `RELEASE_CHECKLIST.md` | Maintainer release checklist. |
 | `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
