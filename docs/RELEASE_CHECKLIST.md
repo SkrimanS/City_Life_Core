@@ -52,6 +52,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release checksums are generated.
 - [ ] Release manifest is generated from `docs/RELEASE_MANIFEST_TEMPLATE.md`.
 - [ ] `docs/VERIFYING_RELEASES.md` is included in release docs.
+- [ ] `docs/CI_ARTIFACT_REVIEW.md` is included in release docs and used for artifact review.
 - [ ] `.github/CODEOWNERS` or equivalent ownership review policy is added for critical files.
 - [ ] Official artifacts are linked only from official release notes/channels.
 - [ ] Unofficial forks/builds are explicitly forbidden from claiming official status.
@@ -117,6 +118,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Installed C ABI consumer exercises C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 - [ ] External `find_package(CityLifeCore CONFIG REQUIRED)` examples build.
 - [ ] CI covers tests, examples, benchmarks and package smoke checks.
+- [ ] CI/artifact review follows `docs/CI_ARTIFACT_REVIEW.md`.
 
 ## 8. Benchmarks / Бенчмарки
 
@@ -124,6 +126,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] `clc_core_benchmarks` builds in CI.
 - [ ] `clc_core_benchmarks` runs in CI.
 - [ ] CI uploads `benchmark-output.txt` artifact.
+- [ ] Benchmark artifacts are reviewed according to `docs/CI_ARTIFACT_REVIEW.md`.
 - [ ] 10/100 settlement × 365-day baseline is recorded or consciously deferred.
 - [ ] 100/1000 caravan baseline is recorded or consciously deferred.
 - [ ] Runtime tick small-step baseline is recorded or consciously deferred.
@@ -148,6 +151,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Unpacked SDK ZIP C ABI consumer validates C ABI version, time utilities, opaque `clc_world` behavior and read-only world event accessors.
 - [ ] CI uploads SDK ZIP artifact.
 - [ ] CI uploads checksum artifact.
+- [ ] SDK ZIP artifacts are reviewed according to `docs/CI_ARTIFACT_REVIEW.md`.
 - [ ] Examples source is included.
 - [ ] Demo data is included.
 - [ ] Docs are included.
@@ -159,6 +163,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release branch is created from current `main`.
 - [ ] No force push is used unless explicitly approved.
 - [ ] CI is green or failures are documented.
+- [ ] CI/artifact review is completed according to `docs/CI_ARTIFACT_REVIEW.md`.
 - [ ] Benchmark artifacts are reviewed.
 - [ ] SDK ZIP artifacts are reviewed.
 - [ ] `SHA256SUMS.txt` is reviewed.
