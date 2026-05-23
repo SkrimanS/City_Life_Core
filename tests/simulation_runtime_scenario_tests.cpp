@@ -1,3 +1,4 @@
+#include "clc/sim/SimulationPersistence.hpp"
 #include "clc/sim/SimulationRuntimeScenario.hpp"
 
 #include <cstdlib>
