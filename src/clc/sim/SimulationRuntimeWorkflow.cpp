@@ -23,7 +23,7 @@ CaravanState* mutable_caravan_by_id(CaravanFleet& fleet, std::string_view carava
     return nullptr;
 }
 
-const CaravanState* caravan_by_id(const CaravanFleet& fleet, std::string_view caravan_id) noexcept {
+const CaravanState* runtime_workflow_caravan_by_id(const CaravanFleet& fleet, std::string_view caravan_id) noexcept {
     for (const auto& caravan : fleet.caravans) {
         if (caravan.id == caravan_id) {
             return &caravan;
@@ -540,7 +540,7 @@ data::ValidationReport validate_runtime_caravan_cargo_delivery_result_for_runtim
         return report;
     }
 
-    const auto* caravan = caravan_by_id(runtime.caravans, result.caravan_id);
+    const auto* caravan = runtime_workflow_caravan_by_id(runtime.caravans, result.caravan_id);
     if (caravan == nullptr) {
         report.add_error("runtime.cargo_delivery.caravan_id", "caravan_id must reference an existing caravan");
         return report;
