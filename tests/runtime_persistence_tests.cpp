@@ -24,7 +24,6 @@ void add_tick_remainder_to_first_settlement(clc::sim::SimulationEngine& engine) 
     state.settlements[0].tick_remainders.push_back(clc::sim::SettlementTickRemainder{
         .key = "food:grain",
         .numerator = 1,
-        .denominator = 2,
     });
     require(engine.restore_state(std::move(state)).ok(), "engine should restore tick remainder setup state");
 }
@@ -64,7 +63,8 @@ int main() {
         "Hourly Caravan"
     );
     require(clc::sim::add_caravan(caravans, std::move(hourly_caravan)).ok(), "runtime should add hourly caravan");
-    clc::sim::advance_caravan_ticks(caravans.caravans[1], clc::hours_to_ticks(1));
+    const auto hourly_advance = clc::sim::advance_caravan_ticks(caravans.caravans[1], clc::hours_to_ticks(1));
+    require(hourly_advance.ticks_elapsed == clc::hours_to_ticks(1), "runtime should advance hourly caravan");
 
     require(clc::sim::advance_runtime_caravan_day(runtime, "caravan_001").ok(), "runtime should advance default caravan");
     add_tick_remainder_to_first_settlement(source_engine);
