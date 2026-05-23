@@ -52,21 +52,33 @@ They must not be published as public Git tags or GitHub Releases unless the rele
 
 ## Branch policy
 
-The project should avoid many small long-lived planning branches. Prefer one broad branch per internal stage, for example:
+The project should avoid many small long-lived planning branches. Prefer one broad branch per internal stage.
 
-- `version/v1.1.0-core-polish`
-- `version/v1.2.0-runtime-data-hardening`
-- `version/v1.3.0-game-profiles`
-- `version/v1.4.0-platform-integration-layer`
-- `version/v1.5.0-mmo-foundation-i`
-- `version/v1.6.0-economy-factions-contracts-depth`
-- `version/v1.7.0-persistence-replay-migration`
-- `version/v1.8.0-performance-scale`
-- `version/v1.9.0-v2-prep`
+Stage branches are named after the internal milestone itself:
+
+- `v1.1.0`
+- `v1.2.0`
+- `v1.3.0`
+- `v1.4.0`
+- `v1.5.0`
+- `v1.6.0`
+- `v1.7.0`
+- `v1.8.0`
+- `v1.9.0`
 
 Each stage branch may contain many focused commits and tasks. When the stage is ready, merge it into `main`.
 
-Do not create a public tag for the internal stage after merging.
+Do not create a public tag or GitHub Release for the internal stage after merging.
+
+---
+
+## Development direction by release line
+
+Before `v2.0.0`, the project focuses on polishing the base, stabilizing the SDK, improving API/runtime/docs/packaging and preparing the first foundations for different game types and MMO/server-authoritative scenarios.
+
+From `v2.0.0` to `v4.0.0`, the project focuses on global mechanics deepening: settlement, resource, economy, faction, contract, runtime, tools, validation, replay, persistence and diagnostics should become deeper, more connected and more useful for real projects.
+
+Starting with `v4.0.0`, the project moves toward maximum mechanics depth and large-project readiness: complex worlds, MMO-like simulations, server-authoritative architectures, production-scale diagnostics and deeper simulation layers.
 
 ---
 
