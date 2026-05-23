@@ -36,7 +36,18 @@ function Find-Executable {
     throw "Executable not found. Candidates: $($Candidates -join ', ')"
 }
 
-$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
+function Remove-TreeIfExists {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (Test-Path $Path) {
+        Remove-Item -Recurse -Force $Path
+    }
+}
+
+$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $BuildPath = Join-Path $RepoRoot $BuildDir
 $InstallPrefix = Join-Path $BuildPath "install-prefix"
 $ConsumerBuild = Join-Path $BuildPath "consumer-build"
@@ -71,11 +82,25 @@ if ($LASTEXITCODE -ne 0) {
     throw "Benchmark runner failed with exit code $($LASTEXITCODE)"
 }
 
+Remove-TreeIfExists $InstallPrefix
+Remove-TreeIfExists $ConsumerBuild
+Remove-TreeIfExists $CAbiConsumerBuild
+Remove-TreeIfExists $ZipExtractDir
+Remove-TreeIfExists $ZipConsumerBuild
+Remove-TreeIfExists $ZipCAbiConsumerBuild
+Remove-Item -Force $ChecksumsFile -ErrorAction SilentlyContinue
+Get-ChildItem -Path $BuildPath -Filter "city-life-core-sdk-*.zip" -File -ErrorAction SilentlyContinue | Remove-Item -Force
+
 Invoke-Step cmake --install $BuildPath --config Release --prefix $InstallPrefix
+
+$InstalledConfig = Join-Path $InstallPrefix "lib/cmake/CityLifeCore/CityLifeCoreConfig.cmake"
+if (!(Test-Path $InstalledConfig)) {
+    throw "Installed CMake package config not found: $InstalledConfig"
+}
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/find_package_consumer") `
     -B $ConsumerBuild `
-    -DCMAKE_PREFIX_PATH=$InstallPrefix
+    "-DCMAKE_PREFIX_PATH=$InstallPrefix"
 Invoke-Step cmake --build $ConsumerBuild --config Release
 $ConsumerExe = Find-Executable @(
     (Join-Path $ConsumerBuild "Release/city_life_core_consumer.exe"),
@@ -86,7 +111,7 @@ Invoke-Step $ConsumerExe
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/c_abi_consumer") `
     -B $CAbiConsumerBuild `
-    -DCMAKE_PREFIX_PATH=$InstallPrefix
+    "-DCMAKE_PREFIX_PATH=$InstallPrefix"
 Invoke-Step cmake --build $CAbiConsumerBuild --config Release
 $CAbiConsumerExe = Find-Executable @(
     (Join-Path $CAbiConsumerBuild "Release/city_life_core_c_abi_consumer.exe"),
@@ -97,9 +122,9 @@ Invoke-Step $CAbiConsumerExe
 
 Invoke-Step cmake -E chdir $BuildPath cpack --config CPackConfig.cmake -G ZIP -C Release
 
-$ZipFiles = Get-ChildItem -Path $BuildPath -Filter "city-life-core-sdk-*.zip" -File
-if ($ZipFiles.Count -eq 0) {
-    throw "No SDK ZIP package found in $BuildPath"
+$ZipFiles = @(Get-ChildItem -Path $BuildPath -Filter "city-life-core-sdk-*.zip" -File | Sort-Object LastWriteTime -Descending)
+if ($ZipFiles.Count -ne 1) {
+    throw "Expected exactly one SDK ZIP package in $BuildPath, found $($ZipFiles.Count)"
 }
 $ZipFile = $ZipFiles[0].FullName
 
@@ -107,21 +132,23 @@ $Hash = Get-FileHash -Algorithm SHA256 $ZipFile
 "$($Hash.Hash.ToLowerInvariant())  $([System.IO.Path]::GetFileName($ZipFile))" | Set-Content -Path $ChecksumsFile -Encoding UTF8
 Write-Host "SHA256 $([System.IO.Path]::GetFileName($ZipFile)) = $($Hash.Hash.ToLowerInvariant())"
 
-if (Test-Path $ZipExtractDir) {
-    Remove-Item -Recurse -Force $ZipExtractDir
-}
 New-Item -ItemType Directory -Path $ZipExtractDir | Out-Null
 Invoke-Step cmake -E chdir $ZipExtractDir cmake -E tar xf $ZipFile
 
-$SdkPrefix = Get-ChildItem -Path $ZipExtractDir -Directory | Select-Object -First 1
-if ($null -eq $SdkPrefix) {
-    throw "Could not locate unpacked SDK prefix"
+$SdkPrefixes = @(Get-ChildItem -Path $ZipExtractDir -Directory)
+if ($SdkPrefixes.Count -ne 1) {
+    throw "Expected exactly one unpacked SDK prefix in $ZipExtractDir, found $($SdkPrefixes.Count)"
 }
-$SdkPrefixPath = $SdkPrefix.FullName
+$SdkPrefixPath = $SdkPrefixes[0].FullName
+
+$UnpackedConfig = Join-Path $SdkPrefixPath "lib/cmake/CityLifeCore/CityLifeCoreConfig.cmake"
+if (!(Test-Path $UnpackedConfig)) {
+    throw "Unpacked CMake package config not found: $UnpackedConfig"
+}
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/find_package_consumer") `
     -B $ZipConsumerBuild `
-    -DCMAKE_PREFIX_PATH=$SdkPrefixPath
+    "-DCMAKE_PREFIX_PATH=$SdkPrefixPath"
 Invoke-Step cmake --build $ZipConsumerBuild --config Release
 $ZipConsumerExe = Find-Executable @(
     (Join-Path $ZipConsumerBuild "Release/city_life_core_consumer.exe"),
@@ -132,7 +159,7 @@ Invoke-Step $ZipConsumerExe
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/c_abi_consumer") `
     -B $ZipCAbiConsumerBuild `
-    -DCMAKE_PREFIX_PATH=$SdkPrefixPath
+    "-DCMAKE_PREFIX_PATH=$SdkPrefixPath"
 Invoke-Step cmake --build $ZipCAbiConsumerBuild --config Release
 $ZipCAbiConsumerExe = Find-Executable @(
     (Join-Path $ZipCAbiConsumerBuild "Release/city_life_core_c_abi_consumer.exe"),
