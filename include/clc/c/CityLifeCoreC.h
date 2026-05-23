@@ -12,6 +12,8 @@ typedef struct clc_version {
     int patch;
 } clc_version;
 
+typedef struct clc_world clc_world;
+
 clc_version clc_core_version_c(void);
 const char* clc_core_version_string_c(void);
 
@@ -31,6 +33,15 @@ uint64_t clc_seconds_to_ticks_c(uint64_t seconds);
 uint64_t clc_minutes_to_ticks_c(uint64_t minutes);
 uint64_t clc_hours_to_ticks_c(uint64_t hours);
 uint64_t clc_days_to_ticks_c(uint64_t days);
+
+clc_world* clc_world_create_c(const char* name, uint64_t seed);
+void clc_world_destroy_c(clc_world* world);
+
+const char* clc_world_name_c(const clc_world* world);
+uint64_t clc_world_seed_c(const clc_world* world);
+uint64_t clc_world_current_tick_c(const clc_world* world);
+uint64_t clc_world_event_count_c(const clc_world* world);
+int clc_world_advance_c(clc_world* world, uint64_t ticks);
 
 #ifdef __cplusplus
 }
