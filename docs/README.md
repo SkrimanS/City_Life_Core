@@ -1,6 +1,6 @@
 # City Life Core Documentation / Документация
 
-Version: **0.9.9**
+Version: **1.0.0**
 
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
@@ -38,13 +38,13 @@ This directory contains developer-facing documentation for integrating City Life
 | Document | Purpose |
 | --- | --- |
 | `READINESS_STATUS.md` | Current subsystem readiness estimate and release-readiness interpretation. |
-| `RELEASE_NOTES_0.9.9.md` | Current 0.9.9 release-preparation notes and remaining gates. |
+| `RELEASE_NOTES_1.0.0.md` | Current 1.0.0 release-preparation notes and remaining gates. |
 | `VERSIONING.md` | Versioning and tag rules. |
 | `VERIFYING_RELEASES.md` | Release verification guide. |
 | `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
 | `RELEASE_BLOCKERS.md` | Active release blockers and exit criteria. |
 | `RELEASE_MANIFEST_TEMPLATE.md` | Manifest template for release artifacts. |
-| `RELEASE_MANIFEST_DRAFT_0.9.9.md` | Blocked draft manifest for the current validation branch. |
+| `RELEASE_MANIFEST_DRAFT_1.0.0.md` | Blocked draft manifest for the current validation branch. |
 | `RELEASE_CHECKLIST.md` | Maintainer release checklist. |
 | `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
 
