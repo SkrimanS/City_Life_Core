@@ -32,14 +32,15 @@
 
 ---
 
-## Релизные документы
+## Roadmap и релизные документы
 
 | Документ | Назначение |
 | --- | --- |
+| [Roadmap](../roadmap.md) | Направление проекта, внутренние milestones и план v2/v3/v4. |
+| [Versioning and release policy](../versioning.md) | Политика версий, веток, тегов и релизов. |
 | [Release notes 1.0.0](../release-notes-1.0.0.md) | Финальные заметки релиза 1.0.0. |
 | [Release manifest 1.0.0](../release-manifest-1.0.0.md) | Финальный manifest релиза и validation summary. |
 | [Readiness status](../readiness-status.md) | Срез готовности подсистем для линии 1.0.0. |
-| [Versioning](../versioning.md) | Правила версионирования и тегов. |
 | [Verifying releases](../verifying-releases.md) | Проверка официальных релизов. |
 | [CI artifact review](../ci-artifact-review.md) | Проверка CI, benchmark artifacts и SDK ZIP artifacts. |
 | [Release manifest template](../release-manifest-template.md) | Шаблон будущих release manifests. |
