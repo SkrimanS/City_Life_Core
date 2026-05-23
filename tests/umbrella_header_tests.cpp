@@ -16,7 +16,9 @@ void require(bool condition, std::string_view message) {
 } // namespace
 
 int main() {
-    require(clc::core_version().major == 0, "umbrella header should expose core version");
+    require(clc::core_version().major == 1, "umbrella header should expose core version");
+    require(clc::core_version().minor == 0, "umbrella header should expose core version minor");
+    require(clc::core_version().patch == 0, "umbrella header should expose core version patch");
     require(clc::ticks_per_minute() == 60, "umbrella header should expose time API");
 
     clc::data::DataRegistry registry;
