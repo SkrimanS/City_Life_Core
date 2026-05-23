@@ -2,6 +2,15 @@
 
 #include "clc/core/Time.hpp"
 #include "clc/core/Version.hpp"
+#include "clc/core/World.hpp"
+
+#include <new>
+#include <string>
+#include <utility>
+
+struct clc_world {
+    clc::World impl;
+};
 
 clc_version clc_core_version_c(void) {
     const auto version = clc::core_version();
@@ -17,7 +26,7 @@ const char* clc_core_version_string_c(void) {
 }
 
 uint32_t clc_c_interface_version_c(void) {
-    return 1u;
+    return 2u;
 }
 
 uint64_t clc_ticks_per_second_c(void) {
@@ -66,4 +75,55 @@ uint64_t clc_hours_to_ticks_c(uint64_t hours) {
 
 uint64_t clc_days_to_ticks_c(uint64_t days) {
     return clc::days_to_ticks(days);
+}
+
+clc_world* clc_world_create_c(const char* name, uint64_t seed) {
+    try {
+        clc::WorldConfig config{
+            .name = name == nullptr ? std::string{"City Life World"} : std::string{name},
+            .seed = seed,
+        };
+        return new clc_world{clc::World{std::move(config)}};
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+void clc_world_destroy_c(clc_world* world) {
+    delete world;
+}
+
+const char* clc_world_name_c(const clc_world* world) {
+    if (world == nullptr) {
+        return "";
+    }
+    return world->impl.config().name.c_str();
+}
+
+uint64_t clc_world_seed_c(const clc_world* world) {
+    if (world == nullptr) {
+        return 0;
+    }
+    return world->impl.config().seed;
+}
+
+uint64_t clc_world_current_tick_c(const clc_world* world) {
+    if (world == nullptr) {
+        return 0;
+    }
+    return world->impl.time().current_tick();
+}
+
+uint64_t clc_world_event_count_c(const clc_world* world) {
+    if (world == nullptr) {
+        return 0;
+    }
+    return world->impl.event_log().size();
+}
+
+int clc_world_advance_c(clc_world* world, uint64_t ticks) {
+    if (world == nullptr) {
+        return 0;
+    }
+    return world->impl.advance(ticks).ok() ? 1 : 0;
 }
