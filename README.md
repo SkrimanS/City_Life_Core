@@ -4,7 +4,7 @@
 
 **City Life Core / Ядро** — headless SDK симуляции на C++20 для живых поселений, ресурсов, экономики, маршрутов, караванов, фракций, владения, контрактов, сохранений, детерминированного replay и server-authoritative игровых серверов.
 
-Version: **0.9.9**
+Version: **1.0.0**
 
 ---
 
@@ -425,4 +425,6 @@ Start here:
 - [SDK ZIP Package](docs/SDK_ZIP_PACKAGE.md)
 - [Compatibility](docs/COMPATIBILITY.md)
 - [Migration](docs/MIGRATION.md)
+- [Release notes](docs/RELEASE_NOTES_1.0.0.md)
+- [Release blockers](docs/RELEASE_BLOCKERS.md)
 - [Release verification](docs/VERIFYING_RELEASES.md)
