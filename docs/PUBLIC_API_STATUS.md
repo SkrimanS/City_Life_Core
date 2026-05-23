@@ -1,10 +1,17 @@
 # Public API Status / Статус публичного API
 
-Version: **0.9.9**
+Version: **1.0.0**
 
-This document classifies the installed City Life Core headers by intended SDK usage.
+This document classifies the installed City Life Core 1.0.0 headers by intended SDK usage.
 
-Этот документ классифицирует установленные headers City Life Core по назначению для SDK users.
+Этот документ классифицирует установленные headers City Life Core 1.0.0 по назначению для SDK users.
+
+Release notes and blockers:
+
+```text
+docs/RELEASE_NOTES_1.0.0.md
+docs/RELEASE_BLOCKERS.md
+```
 
 ---
 
