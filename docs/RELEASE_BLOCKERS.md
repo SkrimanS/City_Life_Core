@@ -1,15 +1,21 @@
 # Release Blockers / Блокеры релиза
 
-Status: **active release gate / активный release gate**
+Status: **active 1.0.0 release gate / активный release gate 1.0.0**
 
-This document lists blockers that must be resolved before City Life Core can leave release-candidate draft validation or be merged to `main` for a public release.
+This document lists blockers that must be resolved before City Life Core `1.0.0` can be merged to `main` or published as an official public release.
 
-Этот документ перечисляет блокеры, которые нужно закрыть перед выходом из draft validation, merge в `main` или публикацией public release.
+Этот документ перечисляет блокеры, которые нужно закрыть перед merge City Life Core `1.0.0` в `main` или публикацией official public release.
 
 Current readiness snapshot:
 
 ```text
 docs/READINESS_STATUS.md
+```
+
+Draft release manifest:
+
+```text
+docs/RELEASE_MANIFEST_DRAFT_1.0.0.md
 ```
 
 ---
@@ -18,7 +24,7 @@ docs/READINESS_STATUS.md
 
 ### 1. License decision
 
-A final license/contribution model must be chosen by the owner before a public release.
+A final license/contribution model must be chosen by the owner before the public `1.0.0` release.
 
 Required follow-up:
 
@@ -61,7 +67,7 @@ Required follow-up:
 - verify installed C ABI consumer;
 - verify unpacked ZIP C++ consumer;
 - verify unpacked ZIP C ABI consumer;
-- fill release manifest fields from reviewed results.
+- fill `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` from reviewed results or consciously supersede it with a final manifest.
 
 ---
 
@@ -78,9 +84,9 @@ Rules:
 
 ---
 
-## Non-blocking but recommended before final 1.0
+## Non-blocking but recommended before or after 1.0.0
 
-These can be consciously deferred from an RC, but should be tracked before final 1.0:
+These can be consciously deferred from `1.0.0`, but should remain tracked as follow-up hardening:
 
 - stronger Basic Economy/Market hardening;
 - more Data Registry data-pack coverage;
@@ -92,12 +98,12 @@ These can be consciously deferred from an RC, but should be tracked before final
 
 ## Exit criteria
 
-The release can leave draft validation only when:
+The release can be merged/published only when:
 
 - license decision is complete;
 - CI matrix is green or failures are explicitly accepted and documented;
 - benchmark artifacts are reviewed;
 - SDK ZIP artifacts and checksums are reviewed;
 - installed and unpacked ZIP consumers are confirmed;
-- release manifest can be filled from reviewed data;
+- `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` is filled from reviewed data or superseded by a final manifest;
 - owner explicitly approves release/merge.
