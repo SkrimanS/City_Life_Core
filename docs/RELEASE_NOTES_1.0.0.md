@@ -112,6 +112,8 @@ docs/VERIFYING_RELEASES.md
 docs/PROTECTION_STRATEGY.md
 ```
 
+Documentation has been cleaned for the 1.0.0 release path: obsolete pre-1.0 and 0.9.x release-note files were removed, release-facing docs now point at 1.0.0, and the changelog is focused on the supported 1.0.0 SDK surface.
+
 Local troubleshooting helpers are available:
 
 ```bash
