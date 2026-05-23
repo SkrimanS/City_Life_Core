@@ -61,6 +61,8 @@ Default layout uses GNUInstallDirs:
   include/
     clc/
       CityLifeCore.hpp
+      c/
+        CityLifeCoreC.h
       core/
       data/
       economy/
@@ -135,15 +137,16 @@ cmake --build build
 ./build/my_app
 ```
 
-### Installed SDK smoke test
+### Installed SDK smoke tests
 
-The repository includes a standalone consumer example:
+The repository includes standalone consumer examples:
 
 ```text
-examples/find_package_consumer/
+examples/find_package_consumer/   # C++ consumer
+examples/c_abi_consumer/          # C consumer for minimal C ABI
 ```
 
-End-to-end install check:
+End-to-end C++ install check:
 
 ```bash
 cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
@@ -155,13 +158,23 @@ cmake --build build-consumer
 ./build-consumer/city_life_core_consumer
 ```
 
-This verifies:
+End-to-end C ABI install check:
+
+```bash
+cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
+cmake --build build-c-abi-consumer
+./build-c-abi-consumer/city_life_core_c_abi_consumer
+```
+
+These checks verify:
 
 - installed public headers;
+- installed C ABI header `clc/c/CityLifeCoreC.h`;
 - installed `CityLifeCoreConfig.cmake`;
 - exported target `CityLifeCore::core`;
 - public include paths from the install prefix;
-- a minimal runtime tick scenario in an external project.
+- a minimal runtime tick scenario in an external C++ project;
+- version/time C ABI functions and the minimal opaque `clc_world` handle from an external C project.
 
 ### Using add_subdirectory
 
@@ -253,6 +266,8 @@ Default layout uses GNUInstallDirs:
   include/
     clc/
       CityLifeCore.hpp
+      c/
+        CityLifeCoreC.h
       core/
       data/
       economy/
@@ -327,15 +342,16 @@ cmake --build build
 ./build/my_app
 ```
 
-### Installed SDK smoke test
+### Installed SDK smoke tests
 
-The repository includes a standalone consumer example:
+The repository includes standalone consumer examples:
 
 ```text
-examples/find_package_consumer/
+examples/find_package_consumer/   # C++ consumer
+examples/c_abi_consumer/          # C consumer for minimal C ABI
 ```
 
-End-to-end install check:
+End-to-end C++ install check:
 
 ```bash
 cmake -S . -B build-sdk -DCLC_BUILD_TESTS=OFF -DCLC_BUILD_EXAMPLES=OFF -DCLC_BUILD_TOOLS=OFF
@@ -347,13 +363,23 @@ cmake --build build-consumer
 ./build-consumer/city_life_core_consumer
 ```
 
-This verifies:
+End-to-end C ABI install check:
+
+```bash
+cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/tmp/city-life-core-sdk
+cmake --build build-c-abi-consumer
+./build-c-abi-consumer/city_life_core_c_abi_consumer
+```
+
+These checks verify:
 
 - installed public headers;
+- installed C ABI header `clc/c/CityLifeCoreC.h`;
 - installed `CityLifeCoreConfig.cmake`;
 - exported target `CityLifeCore::core`;
 - public include paths from the install prefix;
-- a minimal runtime tick scenario in an external project.
+- a minimal runtime tick scenario in an external C++ project;
+- version/time C ABI functions and the minimal opaque `clc_world` handle from an external C project.
 
 ### Using add_subdirectory
 
