@@ -14,16 +14,16 @@ static int require_int(int condition, const char* message) {
 
 int main(void) {
     const clc_version version = clc_core_version_c();
-    if (require_int(version.major == 0, "major version should be 0")) {
+    if (require_int(version.major == 1, "major version should be 1")) {
         return 1;
     }
-    if (require_int(version.minor == 9, "minor version should be 9")) {
+    if (require_int(version.minor == 0, "minor version should be 0")) {
         return 1;
     }
-    if (require_int(version.patch == 9, "patch version should be 9")) {
+    if (require_int(version.patch == 0, "patch version should be 0")) {
         return 1;
     }
-    if (require_int(strcmp(clc_core_version_string_c(), "0.9.9") == 0, "version string should match")) {
+    if (require_int(strcmp(clc_core_version_string_c(), "1.0.0") == 0, "version string should match")) {
         return 1;
     }
     if (require_int(clc_c_interface_version_c() == 3u, "C interface version should be 3")) {
