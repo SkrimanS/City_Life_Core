@@ -137,7 +137,10 @@ install(
 install(
     DIRECTORY docs/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
-    FILES_MATCHING PATTERN "*.md"
+    FILES_MATCHING
+        PATTERN "*.md"
+        PATTERN "RELEASE_NOTES_0*.md" EXCLUDE
+        PATTERN "RELEASE_MANIFEST_DRAFT_0*.md" EXCLUDE
 )
 
 install(
