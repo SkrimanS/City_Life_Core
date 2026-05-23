@@ -89,9 +89,10 @@ verification:
   unpacked_zip_c_abi_consumer: pass-or-fail
   c_abi_version: <number>
   c_abi_world_handle_checked: true-or-false
+  c_abi_event_access_checked: true-or-false
 ```
 
-For the current 0.9.9/1.0-rc-prep SDK shape, the C ABI consumer should validate the C ABI version, time utilities, and the minimal opaque `clc_world` handle. The C++ consumer should validate normal `find_package(CityLifeCore CONFIG REQUIRED)` usage through the exported `CityLifeCore::core` target.
+For the current 0.9.9/1.0-rc-prep SDK shape, the C ABI consumer should validate the C ABI version, time utilities, the minimal opaque `clc_world` handle, and read-only world event accessors. The C++ consumer should validate normal `find_package(CityLifeCore CONFIG REQUIRED)` usage through the exported `CityLifeCore::core` target.
 
 ---
 
