@@ -18,6 +18,12 @@ void require(bool condition, std::string_view message) {
     }
 }
 
+void print_report(const clc::data::ValidationReport& report) {
+    for (const auto& item : report.messages()) {
+        std::cerr << item.path << ": " << item.message << '\n';
+    }
+}
+
 void add_tick_remainder_to_first_settlement(clc::sim::SimulationEngine& engine) {
     auto state = engine.export_state();
     require(!state.settlements.empty(), "engine should have settlement for tick remainder setup");
@@ -98,6 +104,9 @@ int main() {
         ledger,
         file_path
     );
+    if (!save_result.ok()) {
+        print_report(save_result);
+    }
     require(save_result.ok(), "runtime should save to file");
 
     clc::sim::SimulationEngine target_engine{clc::sim::make_basic_runtime_scenario_registry()};
@@ -120,6 +129,9 @@ int main() {
         target_wallet,
         target_ledger
     );
+    if (!load_result.ok()) {
+        print_report(load_result.validation);
+    }
     require(load_result.ok(), "runtime should load from file");
     require(target_engine.current_day() == 4, "runtime load should restore engine day");
     require(target_engine.settlement_resource_amount("riverwatch", "grain") == 80, "runtime load should restore settlement storage");
