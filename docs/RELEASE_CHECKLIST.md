@@ -51,6 +51,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release tags are signed or release signing policy is documented.
 - [ ] Release checksums are generated.
 - [ ] Release manifest is generated from `docs/RELEASE_MANIFEST_TEMPLATE.md`.
+- [ ] `docs/READINESS_STATUS.md` is reviewed and accepted as the current readiness snapshot.
 - [ ] `docs/VERIFYING_RELEASES.md` is included in release docs.
 - [ ] `docs/CI_ARTIFACT_REVIEW.md` is included in release docs and used for artifact review.
 - [ ] `docs/RELEASE_BLOCKERS.md` is reviewed and all hard blockers are closed or explicitly accepted by the owner.
@@ -163,6 +164,7 @@ This checklist must be completed before publishing a public SDK release or relea
 
 - [ ] Release branch is created from current `main`.
 - [ ] No force push is used unless explicitly approved.
+- [ ] `docs/READINESS_STATUS.md` is reviewed and accepted as the current readiness snapshot.
 - [ ] `docs/RELEASE_BLOCKERS.md` is reviewed and has no unresolved hard blockers unless explicitly accepted by the owner.
 - [ ] CI is green or failures are documented.
 - [ ] CI/artifact review is completed according to `docs/CI_ARTIFACT_REVIEW.md`.
