@@ -1,6 +1,6 @@
 # Verifying Official Releases / Проверка официальных релизов
 
-Status: **draft for 1.0.0-rc1 / черновик для 1.0.0-rc1**
+Status: **1.0.0 release verification guide / guide проверки релиза 1.0.0**
 
 This guide helps users distinguish official City Life Core releases from forks, modified archives, fake packages, or malicious builds.
 
@@ -59,7 +59,7 @@ A release should be considered official only when all of these are true:
 Release artifacts should include checksums, for example:
 
 ```text
-city-life-core-sdk-1.0.0-rc1.zip
+city-life-core-sdk-1.0.0-<system>-<processor>.zip
 SHA256SUMS.txt
 ```
 
@@ -74,11 +74,11 @@ A release manifest should include enough information to verify both artifact ide
 ```yaml
 project: City Life Core
 official_repository: https://github.com/SkrimanS/City_Life_Core
-version: 1.0.0-rc1
+version: 1.0.0
 commit: <commit-sha>
-tag: v1.0.0-rc1
+tag: v1.0.0
 artifacts:
-  - name: city-life-core-sdk-1.0.0-rc1.zip
+  - name: city-life-core-sdk-1.0.0-<system>-<processor>.zip
     sha256: <sha256>
 verification:
   ci_run_url: <url-or-empty>
@@ -87,12 +87,12 @@ verification:
   external_c_abi_consumer: pass-or-fail
   unpacked_zip_find_package_consumer: pass-or-fail
   unpacked_zip_c_abi_consumer: pass-or-fail
-  c_abi_version: <number>
+  c_abi_version: 3
   c_abi_world_handle_checked: true-or-false
   c_abi_event_access_checked: true-or-false
 ```
 
-For the current 0.9.9/1.0-rc-prep SDK shape, the C ABI consumer should validate the C ABI version, time utilities, the minimal opaque `clc_world` handle, and read-only world event accessors. The C++ consumer should validate normal `find_package(CityLifeCore CONFIG REQUIRED)` usage through the exported `CityLifeCore::core` target.
+For the 1.0.0 SDK shape, the C ABI consumer should validate the C ABI version, time utilities, the minimal opaque `clc_world` handle, and read-only world event accessors. The C++ consumer should validate normal `find_package(CityLifeCore CONFIG REQUIRED)` usage through the exported `CityLifeCore::core` target.
 
 ---
 
@@ -122,11 +122,9 @@ If you find a fake official release, impersonation attempt, or malicious package
 
 ---
 
-## Future 3.x+ distribution model
+## Future distribution model
 
-For 1.x/2.x, City Life Core may remain a source-first SDK while the public API stabilizes.
-
-For 3.x and later, the owner may choose a more protected distribution model, such as:
+City Life Core 1.0.0 is prepared as a source-first SDK with a minimal C ABI. The owner may later choose a more protected distribution model, such as:
 
 - closed core with public headers and extension points;
 - source-available core with restricted redistribution;
