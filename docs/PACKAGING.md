@@ -174,7 +174,7 @@ These checks verify:
 - exported target `CityLifeCore::core`;
 - public include paths from the install prefix;
 - a minimal runtime tick scenario in an external C++ project;
-- version/time C ABI functions and the minimal opaque `clc_world` handle from an external C project.
+- version/time C ABI functions, the minimal opaque `clc_world` handle and read-only world event accessors from an external C project.
 
 ### Using add_subdirectory
 
@@ -235,11 +235,11 @@ target_link_libraries(my_app PRIVATE CityLifeCore::core)
 When City Life Core is built as the top-level project, tests/examples/tools default to `ON`. When consumed through `add_subdirectory(...)`, they default to `OFF` so the parent build does not receive extra targets by default.
 
 | Option | Top-level default | Subdirectory default | Purpose |
-| --- | --- | --- | --- |
-| `CLC_BUILD_TESTS` | `ON` | `OFF` | Build unit/integration tests |
-| `CLC_BUILD_EXAMPLES` | `ON` | `OFF` | Build SDK examples |
-| `CLC_BUILD_TOOLS` | `ON` | `OFF` | Build command-line tools such as `clc_runner` |
-| `CLC_BUILD_BENCHMARKS` | `OFF` | `OFF` | Build coarse benchmark executables |
+| --- | --- | --- |
+| `CLC_BUILD_TESTS` | `ON` only for top-level project | Build unit/integration tests |
+| `CLC_BUILD_EXAMPLES` | `ON` only for top-level project | Build examples |
+| `CLC_BUILD_TOOLS` | `ON` only for top-level project | Build command-line tools such as `clc_runner` |
+| `CLC_BUILD_BENCHMARKS` | `OFF` | Build coarse benchmark executables |
 
 ### Install from source
 
@@ -379,7 +379,7 @@ These checks verify:
 - exported target `CityLifeCore::core`;
 - public include paths from the install prefix;
 - a minimal runtime tick scenario in an external C++ project;
-- version/time C ABI functions and the minimal opaque `clc_world` handle from an external C project.
+- version/time C ABI functions, the minimal opaque `clc_world` handle and read-only world event accessors from an external C project.
 
 ### Using add_subdirectory
 
