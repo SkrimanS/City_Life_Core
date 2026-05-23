@@ -43,6 +43,7 @@ This directory contains developer-facing documentation for integrating City Life
 | `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
 | `RELEASE_BLOCKERS.md` | Active release blockers and exit criteria. |
 | `RELEASE_MANIFEST_TEMPLATE.md` | Manifest template for release artifacts. |
+| `RELEASE_MANIFEST_DRAFT_0.9.9.md` | Blocked draft manifest for the current validation branch. |
 | `RELEASE_CHECKLIST.md` | Maintainer release checklist. |
 | `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
 
