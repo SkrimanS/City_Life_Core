@@ -51,6 +51,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release tags are signed or release signing policy is documented.
 - [ ] Release checksums are generated.
 - [ ] Release manifest is generated from `docs/RELEASE_MANIFEST_TEMPLATE.md`.
+- [ ] `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md` is filled from reviewed data or consciously superseded by a final manifest.
 - [ ] `docs/READINESS_STATUS.md` is reviewed and accepted as the current readiness snapshot.
 - [ ] `docs/VERIFYING_RELEASES.md` is included in release docs.
 - [ ] `docs/CI_ARTIFACT_REVIEW.md` is included in release docs and used for artifact review.
@@ -171,6 +172,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Benchmark artifacts are reviewed.
 - [ ] SDK ZIP artifacts are reviewed.
 - [ ] `SHA256SUMS.txt` is reviewed.
+- [ ] `docs/RELEASE_MANIFEST_DRAFT_0.9.9.md` is filled from reviewed CI/artifact data or consciously superseded by a final manifest.
 - [ ] Release notes are final.
 - [ ] Tag naming follows `docs/VERSIONING.md`.
 - [ ] Release artifacts are attached or documented.
