@@ -2,7 +2,7 @@
 
 Version: **1.0.0**
 
-Status: **release preparation / blocked until LICENSE, CI/artifact review, release manifest and owner approval are complete**
+Status: **released / v1.0.0**
 
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
@@ -39,18 +39,16 @@ This directory contains developer-facing documentation for integrating City Life
 
 | Document | Purpose |
 | --- | --- |
-| `READINESS_STATUS.md` | Current subsystem readiness estimate and release-readiness interpretation. |
-| `RELEASE_NOTES_1.0.0.md` | Current 1.0.0 release-preparation notes and remaining gates. |
+| `RELEASE_NOTES_1.0.0.md` | Final 1.0.0 release notes. |
+| `RELEASE_MANIFEST_1.0.0.md` | Final 1.0.0 release manifest and reviewed local validation data. |
+| `READINESS_STATUS.md` | Subsystem readiness estimate for the 1.0.0 line. |
 | `VERSIONING.md` | Versioning and tag rules. |
 | `VERIFYING_RELEASES.md` | Release verification guide. |
 | `CI_ARTIFACT_REVIEW.md` | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
-| `RELEASE_BLOCKERS.md` | Active release blockers and exit criteria. |
-| `RELEASE_MANIFEST_TEMPLATE.md` | Manifest template for release artifacts. |
-| `RELEASE_MANIFEST_DRAFT_1.0.0.md` | Blocked draft manifest for the current validation branch. |
-| `RELEASE_CHECKLIST.md` | Maintainer release checklist. |
+| `RELEASE_MANIFEST_TEMPLATE.md` | Template for future release manifests. |
 | `PROTECTION_STRATEGY.md` | Project protection and distribution strategy. |
 
-Current 1.0.0 publication is blocked until the owner chooses a license/contribution model, CI and artifacts are reviewed, the manifest is completed or superseded, and the owner explicitly approves release/merge.
+GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
 Normal SDK users usually start with `CORE_CONCEPTS.md`, `PUBLIC_API.md`, `SDK_STRUCTURE.md` and `PACKAGING.md`.
 
