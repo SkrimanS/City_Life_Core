@@ -39,6 +39,32 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
 
+      - name: Collect failure diagnostics
+        if: failure()
+        run: |
+          mkdir -p ci-diagnostics
+          echo "runner_os=${{ runner.os }}" > ci-diagnostics/summary.txt
+          echo "matrix_os=${{ matrix.os }}" >> ci-diagnostics/summary.txt
+          echo "matrix_compiler=${{ matrix.compiler }}" >> ci-diagnostics/summary.txt
+          echo "head_sha=${{ github.sha }}" >> ci-diagnostics/summary.txt
+          echo "workflow_run=${{ github.run_id }}" >> ci-diagnostics/summary.txt
+          if [ -d build ]; then
+            find build -maxdepth 4 -type f \( -name "*.log" -o -name "LastTest.log" -o -name "CMakeOutput.log" -o -name "CMakeError.log" \) -print > ci-diagnostics/build-log-files.txt || true
+            find build -maxdepth 3 -type f | sort > ci-diagnostics/build-files.txt || true
+            cp build/CMakeFiles/CMakeOutput.log ci-diagnostics/CMakeOutput.log 2>/dev/null || true
+            cp build/CMakeFiles/CMakeError.log ci-diagnostics/CMakeError.log 2>/dev/null || true
+            cp build/Testing/Temporary/LastTest.log ci-diagnostics/LastTest.log 2>/dev/null || true
+          fi
+        shell: bash
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: city-life-core-ci-diagnostics-${{ matrix.os }}-${{ matrix.compiler }}
+          path: ci-diagnostics/
+          if-no-files-found: warn
+
       - name: Run core benchmarks
         run: |
           if [ "${{ runner.os }}" = "Windows" ]; then
