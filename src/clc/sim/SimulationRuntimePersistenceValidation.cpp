@@ -8,7 +8,7 @@ namespace {
 
 void add_mismatch(data::ValidationReport& report, bool condition, const char* message) {
     if (!condition) {
-        report.add_error(message);
+        report.add_error("runtime.validation", message);
     }
 }
 
