@@ -53,6 +53,7 @@ This checklist must be completed before publishing a public SDK release or relea
 - [ ] Release manifest is generated from `docs/RELEASE_MANIFEST_TEMPLATE.md`.
 - [ ] `docs/VERIFYING_RELEASES.md` is included in release docs.
 - [ ] `docs/CI_ARTIFACT_REVIEW.md` is included in release docs and used for artifact review.
+- [ ] `docs/RELEASE_BLOCKERS.md` is reviewed and all hard blockers are closed or explicitly accepted by the owner.
 - [ ] `.github/CODEOWNERS` or equivalent ownership review policy is added for critical files.
 - [ ] Official artifacts are linked only from official release notes/channels.
 - [ ] Unofficial forks/builds are explicitly forbidden from claiming official status.
@@ -162,6 +163,7 @@ This checklist must be completed before publishing a public SDK release or relea
 
 - [ ] Release branch is created from current `main`.
 - [ ] No force push is used unless explicitly approved.
+- [ ] `docs/RELEASE_BLOCKERS.md` is reviewed and has no unresolved hard blockers unless explicitly accepted by the owner.
 - [ ] CI is green or failures are documented.
 - [ ] CI/artifact review is completed according to `docs/CI_ARTIFACT_REVIEW.md`.
 - [ ] Benchmark artifacts are reviewed.
