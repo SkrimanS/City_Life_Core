@@ -48,6 +48,14 @@ int main() {
     require(source_engine.transfer_resource_between_settlements("riverwatch", "hillford", "grain", 20).ok(), "source engine should transfer grain");
     require(source_engine.run_days(3).size() == 3, "source engine should run three days");
 
+    auto default_caravan = clc::sim::create_runtime_caravan_for_route(
+        runtime,
+        "riverwatch_to_hillford",
+        "caravan_001",
+        "Runtime Caravan 001"
+    );
+    require(default_caravan.ok(), "runtime should create default caravan");
+
     auto hourly_route = clc::sim::make_settlement_route_ticks(
         "riverwatch_to_hillford_hours",
         "Riverwatch to Hillford Hours",
