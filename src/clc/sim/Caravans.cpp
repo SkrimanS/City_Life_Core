@@ -155,7 +155,8 @@ data::ValidationReport load_caravan_at_origin(
 
     auto cargo_report = caravan.cargo.add(std::string{resource_id}, amount);
     if (!cargo_report.ok()) {
-        origin.storage.add(std::string{resource_id}, amount);
+        const auto rollback_report = origin.storage.add(std::string{resource_id}, amount);
+        (void)rollback_report;
         return cargo_report;
     }
     return report;
@@ -186,7 +187,8 @@ data::ValidationReport unload_caravan_at_destination(
 
     auto destination_report = destination.storage.add(std::string{resource_id}, amount);
     if (!destination_report.ok()) {
-        caravan.cargo.add(std::string{resource_id}, amount);
+        const auto rollback_report = caravan.cargo.add(std::string{resource_id}, amount);
+        (void)rollback_report;
         return destination_report;
     }
     return report;
