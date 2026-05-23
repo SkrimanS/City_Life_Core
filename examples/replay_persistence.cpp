@@ -26,7 +26,7 @@ bool prepare_runtime(clc::sim::SimulationRuntime& runtime) {
         return false;
     }
 
-    if (!clc::sim::set_runtime_caravan_owner(runtime, caravan_id, faction_id).ok()) {
+    if (!clc::sim::set_runtime_caravan_owner(runtime, std::string{caravan_id}, std::string{faction_id}).ok()) {
         return false;
     }
 
