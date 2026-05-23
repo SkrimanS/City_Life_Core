@@ -17,7 +17,7 @@ Public Git tags and GitHub Releases are reserved for major public milestones onl
 - `v3.0.0`
 - `v4.0.0`
 
-Minor version names such as `v1.1.0`, `v1.2.0`, `v2.1.0` and similar labels are **internal development milestones**. They may be used in branch names, planning notes, issues and pull requests, but they are not public release tags.
+Minor version names such as `v1.1.0`, `v1.2.0`, `v2.1.0` and similar labels are **internal development milestones**. They may be used as branch names, planning notes, issues and pull requests, but they are not public release tags.
 
 Bug fixes are handled separately from the milestone branches. When a bug fix is ready, it should be merged into `main` and recorded in `CHANGELOG.md` under `Unreleased`.
 
@@ -27,19 +27,31 @@ See [`versioning.md`](versioning.md) for the full release and versioning policy.
 
 ## Branch strategy
 
-The project avoids a large number of small long-lived planning branches. Each internal stage should normally use one broad branch and contain many focused commits:
+The project avoids a large number of small long-lived planning branches. Each internal stage should normally use one broad branch named after the internal milestone itself:
 
-- `version/v1.1.0-core-polish`
-- `version/v1.2.0-runtime-data-hardening`
-- `version/v1.3.0-game-profiles`
-- `version/v1.4.0-platform-integration-layer`
-- `version/v1.5.0-mmo-foundation-i`
-- `version/v1.6.0-economy-factions-contracts-depth`
-- `version/v1.7.0-persistence-replay-migration`
-- `version/v1.8.0-performance-scale`
-- `version/v1.9.0-v2-prep`
+- `v1.1.0`
+- `v1.2.0`
+- `v1.3.0`
+- `v1.4.0`
+- `v1.5.0`
+- `v1.6.0`
+- `v1.7.0`
+- `v1.8.0`
+- `v1.9.0`
 
-After a stage is ready, its branch is merged into `main`. No public tag is created for the internal milestone.
+Each stage branch may contain many focused commits and tasks. After a stage is ready, its branch is merged into `main`. No public tag is created for the internal stage.
+
+---
+
+## Roadmap shape
+
+```text
+v1.x  -> base polish and SDK preparation
+v2.x  -> start of global mechanics deepening
+v3.x  -> expansion, stabilization and production hardening of deeper systems
+v4.0  -> transition to a deeply developed simulation core
+v4.x+ -> large-project, MMO and complex-world evolution
+```
 
 ---
 
@@ -50,9 +62,10 @@ The main goal before `v2.0.0` is to polish the existing 1.0.0 foundation and mak
 Primary themes:
 
 1. Optimize and polish the existing codebase.
-2. Improve support for different game types and integration styles.
-3. Start the foundation for MMO and server-authoritative games.
-4. Harden runtime, validation, persistence, replay, packaging, documentation, examples and the C ABI.
+2. Stabilize the SDK, public API, runtime, documentation and packaging baseline.
+3. Improve support for different game types and integration styles.
+4. Start the foundation for MMO and server-authoritative games.
+5. Harden runtime, validation, persistence, replay, packaging, documentation, examples and the C ABI.
 
 ---
 
@@ -60,7 +73,7 @@ Primary themes:
 
 ### v1.1.0 - Core polish
 
-Branch: `version/v1.1.0-core-polish`
+Branch: `v1.1.0`
 
 Focus: improve the quality, consistency and maintainability of the current 1.0.0 codebase without changing the overall product direction.
 
@@ -79,7 +92,7 @@ Expected outcome: a cleaner and safer core baseline for later runtime, data and 
 
 ### v1.2.0 - Runtime and data hardening
 
-Branch: `version/v1.2.0-runtime-data-hardening`
+Branch: `v1.2.0`
 
 Focus: make runtime data, validation and deterministic behavior more robust.
 
@@ -97,7 +110,7 @@ Expected outcome: safer data ingestion and more predictable runtime behavior.
 
 ### v1.3.0 - Game profiles
 
-Branch: `version/v1.3.0-game-profiles`
+Branch: `v1.3.0`
 
 Focus: make the core easier to adopt for different game styles.
 
@@ -118,7 +131,7 @@ Expected outcome: clearer adoption paths for external developers building differ
 
 ### v1.4.0 - Platform and integration layer
 
-Branch: `version/v1.4.0-platform-integration-layer`
+Branch: `v1.4.0`
 
 Focus: improve SDK embedding across platforms, engines and backend environments.
 
@@ -136,7 +149,7 @@ Expected outcome: a cleaner integration surface for games, tools and backend ser
 
 ### v1.5.0 - MMO foundation I
 
-Branch: `version/v1.5.0-mmo-foundation-i`
+Branch: `v1.5.0`
 
 Focus: start the first explicit foundation for server-authoritative and MMO-like runtime use.
 
@@ -153,7 +166,7 @@ Expected outcome: a practical foundation for larger server-controlled simulation
 
 ### v1.6.0 - Economy, factions and contracts depth
 
-Branch: `version/v1.6.0-economy-factions-contracts-depth`
+Branch: `v1.6.0`
 
 Focus: deepen the systems that make settlement and resource simulations feel connected.
 
@@ -170,7 +183,7 @@ Expected outcome: deeper connected gameplay primitives while preserving the SDK'
 
 ### v1.7.0 - Persistence, replay and migration
 
-Branch: `version/v1.7.0-persistence-replay-migration`
+Branch: `v1.7.0`
 
 Focus: make saved data and replay workflows more reliable for real projects.
 
@@ -187,7 +200,7 @@ Expected outcome: safer long-term data handling and better replay-based debuggin
 
 ### v1.8.0 - Performance and scale
 
-Branch: `version/v1.8.0-performance-scale`
+Branch: `v1.8.0`
 
 Focus: prepare the core for larger simulations and more demanding server/tool scenarios.
 
@@ -204,7 +217,7 @@ Expected outcome: a more scalable foundation for bigger worlds and longer-runnin
 
 ### v1.9.0 - v2 preparation
 
-Branch: `version/v1.9.0-v2-prep`
+Branch: `v1.9.0`
 
 Focus: prepare `main` for the public `v2.0.0` milestone.
 
@@ -221,31 +234,43 @@ Expected outcome: a release-ready `main` branch for the next public major milest
 
 ---
 
-## v2.0.0 public release milestone
+## v2.0.0 - Stable multi-game SDK foundation
 
 `v2.0.0` is the next public Git tag and GitHub Release after `v1.0.0`.
 
+`v2.0.0` marks the point where City Life Core should become a stable SDK foundation for different types of games, tools and server-authoritative runtimes.
+
 The release should represent the completed pre-v2 work from the internal v1.x milestones. It should include updated release notes, a release manifest, verification guidance, migration notes and reviewed SDK artifacts.
+
+After `v2.0.0`, development is no longer limited to base polishing. Each following internal minor milestone should gradually deepen gameplay mechanics and make the core more globally developed.
 
 No `v1.1.0`, `v1.2.0` or other minor v1.x public release tags are planned.
 
 ---
 
-## Direction from v2.0.0 to v4.0.0
+## Main development line after v2.0.0
 
-After `v2.0.0`, the project should move from foundation and integration hardening toward deeper simulation mechanics and larger-world readiness.
+Starting with `v2.0.0`, City Life Core moves from the **stable SDK foundation** stage into the stage of **global gameplay-mechanics deepening**.
 
-Primary themes:
+If `v1.x` is about polishing the base, API, runtime, documentation, packaging and the first steps toward multiple game types and MMO/server-authoritative foundations, then `v2.x` and `v3.x` should gradually turn the core into a deeper, more flexible and more useful system for real projects.
 
-- deepen settlement, resource, economy, faction, contract and runtime systems;
-- create more links between systems;
-- support bigger worlds, server scenarios and MMO-like simulation patterns;
+From `v2.0.0` to `v4.0.0`, the main task is to:
+
+- deepen existing mechanics;
+- expand settlement, resource, economy, faction, contract and runtime systems;
+- add more links between systems;
+- prepare the core for large worlds, server scenarios and MMO-like use;
 - improve tools, validation, replay, persistence and diagnostics;
-- keep the core useful across genres and platforms.
+- make the core convenient for different genres and platforms;
+- avoid merely adding surface-level features and instead make systems deeper, more reliable and more useful.
 
-### v2.x internal milestones
+`v2.x` and `v3.x` are the foundation for a mature simulation core.
 
-The v2.x line should deepen the mechanics introduced and stabilized before `v2.0.0`.
+---
+
+## v2.x internal milestones
+
+The v2.x line starts the global deepening of mechanics introduced and stabilized before `v2.0.0`.
 
 Likely work areas:
 
@@ -259,9 +284,19 @@ Likely work areas:
 
 Minor v2.x labels remain internal planning milestones unless the release policy changes.
 
-### v3.x internal milestones
+---
 
-The v3.x line should focus on production hardening for large worlds and server-centric scenarios.
+## v3.0.0 - Deepening production systems
+
+`v3.0.0` should develop what was prepared in `v2.x`: runtime, economy, factions, settlements, persistence, replay, MMO foundation, tools and diagnostics.
+
+The focus of `v3.x` is not just new features. It is system connectedness, scale, integration quality and preparation for `v4.0.0`.
+
+---
+
+## v3.x internal milestones
+
+The v3.x line should expand, stabilize and harden deeper production systems for large worlds and server-centric scenarios.
 
 Likely work areas:
 
@@ -275,27 +310,25 @@ Likely work areas:
 
 Minor v3.x labels remain internal planning milestones unless the release policy changes.
 
-### v4.0.0 public release milestone
-
-`v4.0.0` should represent a much deeper and more production-oriented version of the core.
-
-The target is not only broader API coverage, but deeper mechanics and stronger relationships between systems: economy, production, logistics, consumption, settlements, factions, contracts, events, big-world simulation and MMO-like runtime use.
-
 ---
 
-## Direction from v4.0.0 onward
+## v4.0.0 and beyond - Deep mechanics and large project readiness
 
-From `v4.0.0` onward, the focus should be maximum mechanical depth and usefulness for larger production projects.
+`v4.0.0` opens the stage of maximum mechanics deepening. After this version, City Life Core should evolve as a serious core for large projects, complex game worlds, server-authoritative architectures and MMO-like simulations.
 
-Long-term focus areas:
+Before `v4.0.0`, the core gradually strengthens its base, expands systems and prepares the foundation. Starting with `v4.0.0`, it should become not only an SDK foundation but a deeply developed simulation core.
 
-- complex economy and production chains;
-- logistics, transport, storage and consumption loops;
-- settlement lifecycle, specialization, growth and decline;
-- faction strategy, reputation, ownership and conflict systems;
-- world events that affect economy, logistics, factions and settlements together;
-- server-authoritative runtime operations;
-- MMO-like persistence, replay, diagnostics and validation;
-- tooling support for balancing, debugging and content iteration.
+The main goal after `v4.0.0` is to:
+
+- deepen gameplay mechanics as much as possible;
+- develop complex economy, production, logistics and consumption chains;
+- expand settlement, faction, contract, ownership and event behavior;
+- improve scalability for large worlds;
+- strengthen MMO/server-authoritative support;
+- add more complex simulation layers;
+- improve analysis, balancing, debugging and replay tools;
+- make the core useful not only for small games, but also for large production projects.
+
+`v4.0.0` is not the finish line. It is the transition into deep mechanics development.
 
 The core should remain headless, portable and embeddable. Rendering, UI and networking should remain outside the core unless a future policy explicitly changes that boundary.
