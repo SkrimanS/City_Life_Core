@@ -2,11 +2,22 @@
 
 All notable changes to City Life Core are tracked here.
 
-Все заметные изменения City Life Core фиксируются здесь.
+## Unreleased
 
-## 1.0.0 - Unreleased
+Changes merged into `main` after the latest public release are recorded here.
 
-Status: **blocked until LICENSE, CI/artifact review, release manifest and owner approval are complete**.
+### Added
+
+- Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
+
+### Changed
+
+- Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
+- Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
+
+## 1.0.0 - 2026-05-23
+
+Status: **released / v1.0.0**.
 
 ### Added
 
@@ -23,13 +34,11 @@ Status: **blocked until LICENSE, CI/artifact review, release manifest and owner 
   - `scripts/manual_release_validation.sh`;
   - `scripts/manual_release_validation.ps1`.
 - Added release-gate documentation and tracking:
-  - `docs/READINESS_STATUS.md`;
-  - `docs/RELEASE_NOTES_1.0.0.md`;
-  - `docs/CI_ARTIFACT_REVIEW.md`;
-  - `docs/RELEASE_BLOCKERS.md`;
-  - `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md`;
-  - blocker issue #40 for pre-merge hard gates.
-- Added public SDK/release documentation for CMake packages, SDK ZIP packages, C ABI, compatibility, versioning, migration, release verification, protection strategy, and release checklist.
+  - `docs/readiness-status.md`;
+  - `docs/release-notes-1.0.0.md`;
+  - `docs/ci-artifact-review.md`;
+  - `docs/release-manifest-1.0.0.md`.
+- Added public SDK/release documentation for CMake packages, SDK ZIP packages, C ABI, compatibility, versioning, migration, release verification, protection strategy, release manifests and release checklist.
 - Added hardening tests for market edge cases, data registry validation, faction/ownership mutation guards, storage, ledger, settlement arithmetic, runtime workflows, and persistence failure paths.
 - Added tick-based runtime clock persistence through `SimulationRuntime::time` and `SimulationWorldState::time`.
 - Added tick-based route, caravan, and contract deadline support for real-time, MMO, and non-turn-based games.
@@ -52,7 +61,7 @@ Status: **blocked until LICENSE, CI/artifact review, release manifest and owner 
 - Bumped project version to `1.0.0` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
 - Updated C++ and C ABI smoke tests to expect `1.0.0`.
 - Updated public package documentation to reflect the C ABI v3 `clc_world` handle and read-only event accessors instead of describing the C ABI as version/time-only.
-- Updated release checklist, PR gate and blocker issue to require review of `docs/READINESS_STATUS.md`, `docs/RELEASE_BLOCKERS.md`, `docs/CI_ARTIFACT_REVIEW.md`, and `docs/RELEASE_MANIFEST_DRAFT_1.0.0.md` before merge/release.
+- Updated release checklist, PR gate and blocker issue references to require release documentation and validation review before merge/release.
 - Updated CODEOWNERS coverage for release-validation scripts and release-governance docs.
 - Updated contribution documentation to keep contributions restricted until the final license and contribution model are chosen.
 - Changed runtime event log timestamps from day numbers to absolute runtime ticks.
@@ -60,6 +69,7 @@ Status: **blocked until LICENSE, CI/artifact review, release manifest and owner 
 - Changed runtime caravan loading checks to use tick progress instead of day-only progress, preventing cargo loading after tick-based departure.
 - Kept day-based APIs as compatibility wrappers while making tick-based APIs the preferred path for real-time games.
 - Removed obsolete version-specific release notes for pre-1.0 preparation layers.
+- Converted public documentation to an English-primary structure with Russian entry point under `docs/ru/` and lower-kebab-case document filenames.
 
 ### Compatibility
 
