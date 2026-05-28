@@ -34,7 +34,10 @@ Primary source changes:
 - `examples/c_abi_consumer/main.c`
 - `examples/csharp_unity/CityLifeCoreNative.cs`
 - `examples/csharp_unity/CityLifeSmokeTest.cs`
+- `examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj`
 - `examples/csharp_unity/README.md`
+- `scripts/validate_csharp_wrapper.sh`
+- `scripts/validate_csharp_wrapper.ps1`
 
 ---
 
@@ -59,6 +62,18 @@ The CI workflow validates:
 - unpacked SDK ZIP C++ consumer;
 - unpacked SDK ZIP C ABI consumer;
 - shared-core build with `BUILD_SHARED_LIBS=ON`.
+
+The C# wrapper can be validated locally with:
+
+```bash
+scripts/validate_csharp_wrapper.sh
+```
+
+or on Windows:
+
+```powershell
+scripts/validate_csharp_wrapper.ps1
+```
 
 ---
 
@@ -106,6 +121,7 @@ Expected C# / Unity example files:
 
 - `examples/csharp_unity/CityLifeCoreNative.cs`
 - `examples/csharp_unity/CityLifeSmokeTest.cs`
+- `examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj`
 - `examples/csharp_unity/README.md`
 
 Expected managed wrapper surface includes:
@@ -178,6 +194,18 @@ Recommended affected-example checks:
 ```bash
 cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/path/to/installed/sdk
 cmake --build build-c-abi-consumer
+```
+
+For C# wrapper compile validation, run:
+
+```bash
+scripts/validate_csharp_wrapper.sh
+```
+
+or on Windows:
+
+```powershell
+scripts/validate_csharp_wrapper.ps1
 ```
 
 For native plug-in oriented builds, also verify:
