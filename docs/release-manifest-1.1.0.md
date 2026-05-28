@@ -101,7 +101,7 @@ Expected managed wrapper surface includes:
   - `CityLifeWorld.AdvanceHours`;
   - `CityLifeWorld.AdvanceDays`;
   - `CityLifeWorld.GetEvent`;
-- non-throwing gameplay helpers:
+- hardened non-throwing gameplay helpers:
   - `CityLifeWorld.TryCreate`;
   - `CityLifeWorld.TryAdvance`;
   - `CityLifeWorld.TryAdvanceSeconds`;
@@ -109,7 +109,7 @@ Expected managed wrapper surface includes:
   - `CityLifeWorld.TryAdvanceHours`;
   - `CityLifeWorld.TryAdvanceDays`;
   - `CityLifeWorld.TryGetEvent`;
-- `CityLifeWorld.Dispose`;
+- safe native world destruction from `Dispose` and finalizer;
 - read-only event access.
 
 The Unity smoke test should use soft native-library C ABI probing before calling other native functions, then use `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` for gameplay-style non-throwing paths.
