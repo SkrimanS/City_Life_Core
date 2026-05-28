@@ -14,6 +14,7 @@
 | [Core concepts](../core-concepts.md) | Основные системы: registry, runtime, ticks, settlements, caravans, economy, contracts, events и persistence. |
 | [Public API](../public-api.md) | Публичный SDK API, рекомендуемые include, validation model и правила использования. |
 | [SDK structure](../sdk-structure.md) | Структура репозитория, установленного SDK, CMake options и integration modes. |
+| [Game integration profiles](../game-profiles.md) | Профили интеграции для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
 | [Packaging](../packaging.md) | Сборка, установка и подключение SDK через CMake. |
 | [CMake package](../cmake-package.md) | Exported CMake target и installed package variables. |
 | [SDK ZIP package](../sdk-zip-package.md) | Создание и использование CPack ZIP SDK archive. |
