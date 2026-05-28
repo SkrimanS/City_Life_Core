@@ -35,7 +35,7 @@ This keeps the core reusable while allowing different platforms to use the same 
 | Native C++ game/tool/server | Supported | Public C++ API and CMake package | Best-supported integration path. |
 | Native C consumer | Minimal supported | C ABI and `examples/c_abi_consumer/` | Good foreign-function base, but intentionally small. |
 | Unity / C# | Initial support | C ABI + P/Invoke wrapper in `examples/csharp_unity/` | Usable as a smoke-test wrapper; not yet a full Unity package. |
-| Browser / WebAssembly | Planned | Future Emscripten/WASM build and JavaScript adapter | Not yet implemented. |
+| Browser / WebAssembly | Planned | Future Emscripten/WASM build and JavaScript adapter; see `browser-wasm.md` | Not yet implemented. |
 | Other engines | Planned | Future adapters through C ABI or engine-specific bindings | Godot, Unreal or custom engines should not call unstable C++ ABI directly. |
 | Backend service / MMO server | Partially supported | Native C++ API and runtime workflows | More server-authoritative command/replay/persistence work is planned. |
 | Editor / balancing tools | Partially supported | Native C++ API, C ABI, validation docs | More diagnostics and data-authoring support is planned. |
@@ -128,6 +128,12 @@ Unity should consume the native library as a plug-in. The C++ core should not in
 
 Browser support should be built as a separate WebAssembly integration layer.
 
+Guidance and implementation plan:
+
+```text
+docs/browser-wasm.md
+```
+
 Planned work:
 
 - define an Emscripten/WASM build profile;
@@ -162,6 +168,7 @@ Before `v2.0.0`, integration work should focus on making the core easier to embe
 - keep the C++ API clean;
 - keep the C ABI safe and small;
 - document C# / Unity integration through P/Invoke;
+- document the browser/WebAssembly integration path before adding a full adapter;
 - identify missing ABI functions needed by real Unity, browser and tool users;
 - avoid engine-specific coupling inside the native core.
 
@@ -173,6 +180,7 @@ Likely focus:
 
 - richer C ABI coverage;
 - stable managed wrapper design;
+- browser/WASM adapter design;
 - validation and diagnostics usable from tools and editors;
 - persistence and replay APIs suitable for server and tool workflows;
 - safer data loading and content iteration for external environments.
