@@ -31,6 +31,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/cmake-package.md` to describe the exported target, C++ and C ABI consumers, installed package variables, installed examples, shared-library native plug-in builds and planned Browser/WASM package notes.
 - Updated `docs/compatibility.md` to split compatibility expectations across C++ source compatibility, C ABI compatibility, C# / Unity wrapper expectations, planned Browser/WASM support, save/load, replay, data validation and packaging.
 - Updated `docs/migration.md` with migration guidance for lower-kebab-case docs, CMake package usage, source-first C++ API, C ABI adoption, Unity/C# wrapper migration, planned Browser/WASM support, game profiles, save/load and replay checks.
+- Updated `docs/protection-strategy.md` to document canonical source verification, major-only public release protection, archive provenance, API boundary protection, integration claim protection and downstream responsibility.
 - Updated `docs/public-api.md` to explain the C++ API, C ABI, Unity/C# wrapper path, planned Browser/WASM boundary, examples/adapters and unsupported internals.
 - Updated `docs/public-api-status.md` to classify the public C++ API, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
 - Updated `docs/readiness-status.md` to separate the `v1.0.0` release snapshot from post-1.0.0 integration readiness for C ABI, Unity/C#, Browser/WASM, game profiles, server-authoritative runtime, MMO-like support and tooling workflows.
