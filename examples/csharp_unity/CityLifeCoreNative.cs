@@ -34,6 +34,8 @@ namespace CityLifeCore.Unity
 
     public static class CityLifeCoreNative
     {
+        public const uint RequiredCInterfaceVersion = 4;
+
 #if UNITY_IOS && !UNITY_EDITOR
         private const string LibraryName = "__Internal";
 #else
@@ -43,11 +45,22 @@ namespace CityLifeCore.Unity
         public static CityLifeCoreVersion Version => clc_core_version_c();
         public static string VersionString => PtrToString(clc_core_version_string_c());
         public static uint CInterfaceVersion => clc_c_interface_version_c();
+        public static bool IsCInterfaceCompatible => CInterfaceVersion >= RequiredCInterfaceVersion;
 
         public static ulong TicksPerSecond => clc_ticks_per_second_c();
         public static ulong TicksPerMinute => clc_ticks_per_minute_c();
         public static ulong TicksPerHour => clc_ticks_per_hour_c();
         public static ulong TicksPerDay => clc_ticks_per_day_c();
+
+        public static void EnsureCompatibleCInterface()
+        {
+            var actual = CInterfaceVersion;
+            if (actual < RequiredCInterfaceVersion)
+            {
+                throw new NotSupportedException(
+                    $"City Life Core C ABI version {actual} is too old for this C# wrapper. Required C ABI version: {RequiredCInterfaceVersion}.");
+            }
+        }
 
         public static ulong SecondsToTicks(ulong seconds) => clc_seconds_to_ticks_c(seconds);
         public static ulong MinutesToTicks(ulong minutes) => clc_minutes_to_ticks_c(minutes);
@@ -61,6 +74,7 @@ namespace CityLifeCore.Unity
 
         internal static IntPtr CreateWorld(string name, ulong seed)
         {
+            EnsureCompatibleCInterface();
             return clc_world_create_c(name, seed);
         }
 
