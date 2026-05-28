@@ -14,7 +14,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can detect native libraries older than the required C interface version.
 - Added non-throwing C# / Unity native-library C ABI probing helpers for detecting missing or incompatible native plug-ins before gameplay calls.
 - Added hardened non-throwing C# / Unity `TryCreate`, `TryAdvance*` and `TryGetEvent` helpers for gameplay-oriented flows.
-- Added shared-library build friendliness for native plug-in scenarios through explicit `BUILD_SHARED_LIBS`, position-independent code and Windows symbol export settings.
+- Added shared-library build friendliness and CI validation for native plug-in scenarios through explicit `BUILD_SHARED_LIBS`, position-independent code, Windows symbol export settings and a shared-core CI build.
 - Added Unity-style smoke-test component for creating, advancing and disposing a world.
 - Added Browser/WebAssembly planning documentation without claiming implemented WASM support.
 - Added integration target and game-profile guidance for native C++, C ABI, Unity/C#, Browser/WASM, servers, MMO-like systems and tools.
@@ -60,6 +60,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 
 ## Changed
 
+- Updated CI to run on direct `v1.1.0`-style milestone branches and validate a shared-core build with `BUILD_SHARED_LIBS=ON`.
 - Hardened C# / Unity non-throwing wrapper paths so `TryAdvance*`, `TryGetEvent` and native world destruction catch interop exceptions and return safe results where applicable.
 - Updated CMake build configuration to make shared native plug-in builds easier through `BUILD_SHARED_LIBS`, `POSITION_INDEPENDENT_CODE` and `WINDOWS_EXPORT_ALL_SYMBOLS`.
 - Updated `clc_c_interface_version_c()` to return `4`.
@@ -95,11 +96,12 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-Also verify affected examples, especially:
+Also verify affected examples and the shared native plug-in build path:
 
 ```text
 examples/c_abi_consumer/
 examples/csharp_unity/
+BUILD_SHARED_LIBS=ON
 ```
 
 ---
