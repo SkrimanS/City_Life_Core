@@ -9,6 +9,7 @@ The wrapper is intentionally small. It demonstrates how Unity can call the nativ
 | File | Purpose |
 | --- | --- |
 | `CityLifeCoreNative.cs` | C# P/Invoke declarations and a small safe wrapper around the current `clc_world` C ABI handle. |
+| `CityLifeSmokeTest.cs` | Optional Unity `MonoBehaviour` smoke test that creates a world, advances it and prints events to the Unity console. |
 
 ## Build the native library
 
@@ -27,7 +28,7 @@ Typical output names:
 
 ## Unity layout
 
-Copy the native library and C# wrapper into a Unity project:
+Copy the native library, wrapper and optional smoke test into a Unity project:
 
 ```text
 Assets/
@@ -36,11 +37,22 @@ Assets/
       city_life_core.dll
   Scripts/
     CityLifeCoreNative.cs
+    CityLifeSmokeTest.cs
 ```
 
 For Linux or macOS, use the matching native library for that platform.
 
 ## Minimal Unity usage
+
+Attach `CityLifeSmokeTest` to an empty GameObject and enter Play Mode. The script should:
+
+- print the native City Life Core version;
+- print the C ABI version;
+- create a native world;
+- advance it by a small number of ticks;
+- print any world events returned through the C ABI.
+
+Equivalent minimal code:
 
 ```csharp
 using CityLifeCore.Unity;
