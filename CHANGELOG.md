@@ -11,6 +11,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
 - Added `docs/integration-targets.md` to clarify supported, initial and planned integration targets across C++, C ABI, Unity/C#, browser/WASM, other engines, backend/MMO and tooling scenarios.
+- Added `docs/browser-wasm.md` with the planned browser and WebAssembly integration path for web games, web tools and browser-hosted demos.
 - Added `docs/csharp-unity.md` with initial C# and Unity integration guidance through the C ABI and P/Invoke.
 - Added `examples/csharp_unity/` with a C# P/Invoke wrapper and Unity-oriented usage notes for the current minimal C ABI.
 - Added a custom GitHub issue template for general tasks, planning items, investigations, release/packaging work and maintenance notes.
@@ -21,7 +22,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with integration target and C# / Unity integration links.
+- Updated root README, documentation index, Russian documentation index and examples index with integration target, C# / Unity and browser/WebAssembly links.
 - Updated SDK install rules so C# example sources are included with installed examples.
 - Updated GitHub bug report and feature request issue templates with clearer affected-area, version, compatibility, roadmap and reproduction sections.
 - Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
@@ -87,7 +88,7 @@ Status: **released / v1.0.0**.
 - Existing day-based route, caravan, and contract APIs remain available.
 - Existing C ABI version/time functions remain available under C interface version `3`.
 - The `clc_world` and read-only world event C ABI surface is intentionally minimal and does not expose full runtime, registries, containers, save/load, callbacks, mutable event payload APIs, caravans, contracts, or economy workflows.
-- Older world-state saves without explicit runtime `time` are still accepted and synchronize runtime clock from `current_day`.
+- Older world-state saves without explicit runtime `time` are still accepted and synchronize runtime clock from saved `current_day`.
 - Older contract rows without `due_ticks` are still accepted and derive `due_ticks` from `due_day`.
 - C++ API compatibility is source-first; binary ABI stability is not promised for the C++ API.
 
