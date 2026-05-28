@@ -35,10 +35,10 @@ namespace CityLifeCore.Unity.Examples
             world = CityLifeWorld.Create(worldName, safeSeed);
             Debug.Log($"Created world '{world.Name}' with seed {world.Seed}.");
 
-            var ticks = CityLifeCoreNative.MinutesToTicks(safeAdvanceMinutes);
-            world.Advance(ticks);
+            world.AdvanceMinutes(safeAdvanceMinutes);
 
-            Debug.Log($"Advanced world by {ticks} ticks. Current tick: {world.CurrentTick}.");
+            var ticks = CityLifeCoreNative.MinutesToTicks(safeAdvanceMinutes);
+            Debug.Log($"Advanced world by {safeAdvanceMinutes} minute(s) / {ticks} ticks. Current tick: {world.CurrentTick}.");
             Debug.Log($"World event count: {world.EventCount}.");
 
             for (ulong i = 0; i < world.EventCount; ++i)
