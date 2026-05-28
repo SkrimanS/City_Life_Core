@@ -8,6 +8,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added non-throwing C# / Unity `TryAdvance*` helpers for native world advancement in gameplay-oriented flows.
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can report and reject native libraries older than the required C interface version.
 - Added `docs/release-plan-1.1.0.md`, `docs/release-notes-1.1.0.md` and `docs/release-manifest-1.1.0.md` as internal release-gate files for the `v1.1.0` Integration Foundation milestone.
 - Added C ABI world time-advance helpers for advancing opaque world handles by seconds, minutes, hours or days, and bumped the C interface version to `4`.
@@ -28,6 +29,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Updated the C# / Unity smoke-test script to use the non-throwing `TryAdvanceMinutes` helper and log a Unity error on failed advancement.
 - Updated the C# / Unity smoke-test script to log actual and required C ABI versions before creating a native world.
 - Hardened C ABI world destruction, accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
 - Updated `CONTRIBUTING.md` to document restricted contributions, current `v1.x` branch policy, major-only public releases, integration boundary rules, PR expectations and security-sensitive integration areas.
@@ -47,7 +49,6 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/release-manifest-template.md` to include major-only release policy, installed package validation, SDK ZIP contents, C ABI review, C# / Unity review, Browser/WASM status, compatibility and migration sections.
 - Updated `docs/verifying-releases.md` to document the major-only public release policy, archive checksum checks, expected SDK ZIP contents, installed C++ and C ABI consumer verification, Unity/C# example caveats and planned Browser/WASM release caveats.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
-- Updated the C# / Unity smoke-test script to use Unity Inspector-friendly serialized fields and the new managed `AdvanceMinutes` helper.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
 - Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity and browser/WebAssembly links.
