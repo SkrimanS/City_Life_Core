@@ -25,12 +25,24 @@ namespace CityLifeCore.Unity.Examples
 
         private void Start()
         {
+            if (!CityLifeCoreNative.TryGetCInterfaceVersion(out var actualAbiVersion))
+            {
+                Debug.LogError($"Failed to load City Life Core native library or read its C ABI version. Required C ABI version: {CityLifeCoreNative.RequiredCInterfaceVersion}.");
+                return;
+            }
+
+            var compatible = CityLifeCoreNative.TryCheckCInterfaceCompatibility(out actualAbiVersion);
+
             Debug.Log($"City Life Core version: {CityLifeCoreNative.VersionString}");
-            Debug.Log($"C ABI version: {CityLifeCoreNative.CInterfaceVersion} / required: {CityLifeCoreNative.RequiredCInterfaceVersion}");
-            Debug.Log($"C ABI compatible: {CityLifeCoreNative.IsCInterfaceCompatible}");
+            Debug.Log($"C ABI version: {actualAbiVersion} / required: {CityLifeCoreNative.RequiredCInterfaceVersion}");
+            Debug.Log($"C ABI compatible: {compatible}");
             Debug.Log($"Ticks per day: {CityLifeCoreNative.TicksPerDay}");
 
-            CityLifeCoreNative.EnsureCompatibleCInterface();
+            if (!compatible)
+            {
+                Debug.LogError($"City Life Core native library C ABI version {actualAbiVersion} is not compatible with this wrapper.");
+                return;
+            }
 
             var safeSeed = seed < 0 ? 0UL : (ulong)seed;
             var safeAdvanceMinutes = advanceMinutes < 0 ? 0UL : (ulong)advanceMinutes;
