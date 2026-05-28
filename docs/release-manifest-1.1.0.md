@@ -26,6 +26,7 @@ Public Git tags and GitHub Releases remain planned only for major public milesto
 
 Primary source changes:
 
+- `CMakeLists.txt`
 - `include/clc/c/CityLifeCoreC.h`
 - `src/clc/c/CityLifeCoreC.cpp`
 - `tests/c_abi_smoke_tests.c`
@@ -33,6 +34,23 @@ Primary source changes:
 - `examples/csharp_unity/CityLifeCoreNative.cs`
 - `examples/csharp_unity/CityLifeSmokeTest.cs`
 - `examples/csharp_unity/README.md`
+
+---
+
+## Build surface
+
+Shared native plug-in oriented builds should use:
+
+```bash
+cmake -S . -B build-shared -DBUILD_SHARED_LIBS=ON
+cmake --build build-shared
+```
+
+Build configuration includes:
+
+- explicit `BUILD_SHARED_LIBS` option;
+- `POSITION_INDEPENDENT_CODE` for the core target;
+- `WINDOWS_EXPORT_ALL_SYMBOLS` for friendlier Windows DLL exports.
 
 ---
 
@@ -135,6 +153,13 @@ Recommended affected-example checks:
 ```bash
 cmake -S examples/c_abi_consumer -B build-c-abi-consumer -DCMAKE_PREFIX_PATH=/path/to/installed/sdk
 cmake --build build-c-abi-consumer
+```
+
+For native plug-in oriented builds, also verify:
+
+```bash
+cmake -S . -B build-shared -DBUILD_SHARED_LIBS=ON
+cmake --build build-shared
 ```
 
 Unity smoke verification should be performed in Unity when a suitable native shared library is available for the target platform.
