@@ -126,7 +126,10 @@ clc_world* clc_world_create_c(const char* name, uint64_t seed) {
 }
 
 void clc_world_destroy_c(clc_world* world) {
-    delete world;
+    try {
+        delete world;
+    } catch (...) {
+    }
 }
 
 const char* clc_world_name_c(const clc_world* world) {
