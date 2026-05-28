@@ -47,6 +47,9 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | --- | --- |
 | [`roadmap.md`](roadmap.md) | Project direction, internal milestone plan and v2/v3/v4 roadmap. |
 | [`versioning.md`](versioning.md) | Versioning, branch, tag and release policy. |
+| [`release-plan-1.1.0.md`](release-plan-1.1.0.md) | Internal v1.1.0 Integration Foundation release plan and merge gate. |
+| [`release-notes-1.1.0.md`](release-notes-1.1.0.md) | Internal v1.1.0 Integration Foundation release notes. |
+| [`release-manifest-1.1.0.md`](release-manifest-1.1.0.md) | Internal v1.1.0 Integration Foundation manifest and validation expectations. |
 | [`release-notes-1.0.0.md`](release-notes-1.0.0.md) | Final 1.0.0 release notes. |
 | [`release-manifest-1.0.0.md`](release-manifest-1.0.0.md) | Final 1.0.0 release manifest and reviewed local validation data. |
 | [`readiness-status.md`](readiness-status.md) | Subsystem readiness estimate for the 1.0.0 line. |
