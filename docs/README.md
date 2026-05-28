@@ -29,6 +29,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | --- | --- |
 | [`public-api-status.md`](public-api-status.md) | Header-by-header usage classification. |
 | [`c-abi.md`](c-abi.md) | Minimal C interface for version/time utilities, an opaque world handle and read-only world event access. |
+| [`csharp-unity.md`](csharp-unity.md) | C# and Unity integration guide using the C ABI and P/Invoke. |
 | [`compatibility.md`](compatibility.md) | Time, events, save/load, validation and source/binary compatibility rules. |
 | [`migration.md`](migration.md) | Instructions for updating older integrations. |
 
@@ -50,7 +51,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
-Normal SDK users usually start with `core-concepts.md`, `public-api.md`, `sdk-structure.md` and `packaging.md`.
+Normal SDK users usually start with `core-concepts.md`, `public-api.md`, `sdk-structure.md` and `packaging.md`. Unity/C# users should start with `csharp-unity.md` after reviewing the C ABI documentation.
 
 ---
 
