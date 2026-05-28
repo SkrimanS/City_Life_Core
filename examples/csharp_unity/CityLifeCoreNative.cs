@@ -124,9 +124,17 @@ namespace CityLifeCore.Unity
 
         internal static void DestroyWorld(IntPtr world)
         {
-            if (world != IntPtr.Zero)
+            if (world == IntPtr.Zero)
+            {
+                return;
+            }
+
+            try
             {
                 clc_world_destroy_c(world);
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -280,27 +288,62 @@ namespace CityLifeCore.Unity
 
         public bool TryAdvance(ulong ticks)
         {
-            return IsAlive && CityLifeCoreNative.AdvanceWorld(handle, ticks);
+            try
+            {
+                return IsAlive && CityLifeCoreNative.AdvanceWorld(handle, ticks);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public bool TryAdvanceSeconds(ulong seconds)
         {
-            return IsAlive && CityLifeCoreNative.AdvanceWorldSeconds(handle, seconds);
+            try
+            {
+                return IsAlive && CityLifeCoreNative.AdvanceWorldSeconds(handle, seconds);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public bool TryAdvanceMinutes(ulong minutes)
         {
-            return IsAlive && CityLifeCoreNative.AdvanceWorldMinutes(handle, minutes);
+            try
+            {
+                return IsAlive && CityLifeCoreNative.AdvanceWorldMinutes(handle, minutes);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public bool TryAdvanceHours(ulong hours)
         {
-            return IsAlive && CityLifeCoreNative.AdvanceWorldHours(handle, hours);
+            try
+            {
+                return IsAlive && CityLifeCoreNative.AdvanceWorldHours(handle, hours);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public bool TryAdvanceDays(ulong days)
         {
-            return IsAlive && CityLifeCoreNative.AdvanceWorldDays(handle, days);
+            try
+            {
+                return IsAlive && CityLifeCoreNative.AdvanceWorldDays(handle, days);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public void Advance(ulong ticks)
@@ -331,17 +374,31 @@ namespace CityLifeCore.Unity
         public bool TryGetEvent(ulong index, out CityLifeWorldEvent worldEvent)
         {
             worldEvent = default;
-            if (!IsAlive || index >= EventCount)
+            try
             {
+                if (!IsAlive)
+                {
+                    return false;
+                }
+
+                var eventCount = CityLifeCoreNative.WorldEventCount(handle);
+                if (index >= eventCount)
+                {
+                    return false;
+                }
+
+                worldEvent = new CityLifeWorldEvent(
+                    CityLifeCoreNative.WorldEventId(handle, index),
+                    CityLifeCoreNative.WorldEventTick(handle, index),
+                    CityLifeCoreNative.WorldEventType(handle, index),
+                    CityLifeCoreNative.WorldEventPayload(handle, index));
+                return true;
+            }
+            catch (Exception)
+            {
+                worldEvent = default;
                 return false;
             }
-
-            worldEvent = new CityLifeWorldEvent(
-                CityLifeCoreNative.WorldEventId(handle, index),
-                CityLifeCoreNative.WorldEventTick(handle, index),
-                CityLifeCoreNative.WorldEventType(handle, index),
-                CityLifeCoreNative.WorldEventPayload(handle, index));
-            return true;
         }
 
         public CityLifeWorldEvent GetEvent(ulong index)
