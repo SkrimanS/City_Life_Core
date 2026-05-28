@@ -174,6 +174,7 @@ Start here:
 
 - [Documentation index](docs/README.md)
 - [Core concepts](docs/core-concepts.md)
+- [Architecture](docs/architecture.md)
 - [Public API](docs/public-api.md)
 - [Public API status](docs/public-api-status.md)
 - [Game integration profiles](docs/game-profiles.md)
