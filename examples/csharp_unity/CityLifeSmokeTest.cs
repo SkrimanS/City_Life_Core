@@ -26,8 +26,11 @@ namespace CityLifeCore.Unity.Examples
         private void Start()
         {
             Debug.Log($"City Life Core version: {CityLifeCoreNative.VersionString}");
-            Debug.Log($"C ABI version: {CityLifeCoreNative.CInterfaceVersion}");
+            Debug.Log($"C ABI version: {CityLifeCoreNative.CInterfaceVersion} / required: {CityLifeCoreNative.RequiredCInterfaceVersion}");
+            Debug.Log($"C ABI compatible: {CityLifeCoreNative.IsCInterfaceCompatible}");
             Debug.Log($"Ticks per day: {CityLifeCoreNative.TicksPerDay}");
+
+            CityLifeCoreNative.EnsureCompatibleCInterface();
 
             var safeSeed = seed < 0 ? 0UL : (ulong)seed;
             var safeAdvanceMinutes = advanceMinutes < 0 ? 0UL : (ulong)advanceMinutes;
