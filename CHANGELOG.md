@@ -8,6 +8,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added non-throwing C# / Unity `TryCreate` and `TryGetEvent` helpers for gameplay-oriented world creation and event inspection flows.
 - Added non-throwing C# / Unity `TryAdvance*` helpers for native world advancement in gameplay-oriented flows.
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can report and reject native libraries older than the required C interface version.
 - Added `docs/release-plan-1.1.0.md`, `docs/release-notes-1.1.0.md` and `docs/release-manifest-1.1.0.md` as internal release-gate files for the `v1.1.0` Integration Foundation milestone.
@@ -29,7 +30,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
-- Updated the C# / Unity smoke-test script to use the non-throwing `TryAdvanceMinutes` helper and log a Unity error on failed advancement.
+- Updated the C# / Unity smoke-test script to use non-throwing `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` helpers and log Unity errors on failed operations.
 - Updated the C# / Unity smoke-test script to log actual and required C ABI versions before creating a native world.
 - Hardened C ABI world destruction, accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
 - Updated `CONTRIBUTING.md` to document restricted contributions, current `v1.x` branch policy, major-only public releases, integration boundary rules, PR expectations and security-sensitive integration areas.
