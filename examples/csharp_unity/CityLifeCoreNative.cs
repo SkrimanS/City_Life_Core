@@ -45,16 +45,40 @@ namespace CityLifeCore.Unity
         public static CityLifeCoreVersion Version => clc_core_version_c();
         public static string VersionString => PtrToString(clc_core_version_string_c());
         public static uint CInterfaceVersion => clc_c_interface_version_c();
-        public static bool IsCInterfaceCompatible => CInterfaceVersion >= RequiredCInterfaceVersion;
+        public static bool IsCInterfaceCompatible => TryCheckCInterfaceCompatibility(out _);
 
         public static ulong TicksPerSecond => clc_ticks_per_second_c();
         public static ulong TicksPerMinute => clc_ticks_per_minute_c();
         public static ulong TicksPerHour => clc_ticks_per_hour_c();
         public static ulong TicksPerDay => clc_ticks_per_day_c();
 
+        public static bool TryGetCInterfaceVersion(out uint actualVersion)
+        {
+            try
+            {
+                actualVersion = CInterfaceVersion;
+                return true;
+            }
+            catch (Exception)
+            {
+                actualVersion = 0;
+                return false;
+            }
+        }
+
+        public static bool TryCheckCInterfaceCompatibility(out uint actualVersion)
+        {
+            return TryGetCInterfaceVersion(out actualVersion) && actualVersion >= RequiredCInterfaceVersion;
+        }
+
         public static void EnsureCompatibleCInterface()
         {
-            var actual = CInterfaceVersion;
+            if (!TryGetCInterfaceVersion(out var actual))
+            {
+                throw new InvalidOperationException(
+                    $"Failed to load City Life Core native library or read its C ABI version. Required C ABI version: {RequiredCInterfaceVersion}.");
+            }
+
             if (actual < RequiredCInterfaceVersion)
             {
                 throw new NotSupportedException(
@@ -81,13 +105,21 @@ namespace CityLifeCore.Unity
         internal static bool TryCreateWorld(string name, ulong seed, out IntPtr world)
         {
             world = IntPtr.Zero;
-            if (!IsCInterfaceCompatible)
+            if (!TryCheckCInterfaceCompatibility(out _))
             {
                 return false;
             }
 
-            world = clc_world_create_c(name, seed);
-            return world != IntPtr.Zero;
+            try
+            {
+                world = clc_world_create_c(name, seed);
+                return world != IntPtr.Zero;
+            }
+            catch (Exception)
+            {
+                world = IntPtr.Zero;
+                return false;
+            }
         }
 
         internal static void DestroyWorld(IntPtr world)
