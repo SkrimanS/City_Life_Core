@@ -10,6 +10,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
+- Added `docs/game-profiles.md` with recommended integration profiles for native C++ games, Unity/C#, Browser/WASM, server-authoritative games, MMO-like services and editor/tooling workflows.
 - Added `docs/c-abi-expansion-plan.md` with a staged plan for expanding the C ABI for Unity/C#, browser/WASM, tools and other foreign-language integrations.
 - Added `docs/integration-targets.md` to clarify supported, initial and planned integration targets across C++, C ABI, Unity/C#, browser/WASM, other engines, backend/MMO and tooling scenarios.
 - Added `docs/integration-validation.md` with validation checklists for C++ package, installed consumer, C ABI, C# / Unity, SDK ZIP and future Browser/WASM integration work.
@@ -28,7 +29,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated the C# / Unity smoke-test script to use Unity Inspector-friendly serialized fields.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with integration target, C ABI expansion, C# / Unity and browser/WebAssembly links.
+- Updated root README, documentation index, Russian documentation index and examples index with integration target, game-profile, C ABI expansion, C# / Unity and browser/WebAssembly links.
 - Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
 - Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
