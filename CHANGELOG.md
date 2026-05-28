@@ -8,6 +8,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added C# / Unity C ABI compatibility guard helpers so the wrapper can report and reject native libraries older than the required C interface version.
 - Added `docs/release-plan-1.1.0.md`, `docs/release-notes-1.1.0.md` and `docs/release-manifest-1.1.0.md` as internal release-gate files for the `v1.1.0` Integration Foundation milestone.
 - Added C ABI world time-advance helpers for advancing opaque world handles by seconds, minutes, hours or days, and bumped the C interface version to `4`.
 - Added C and C# / Unity example coverage for the new C ABI world time-advance helpers.
@@ -27,6 +28,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Updated the C# / Unity smoke-test script to log actual and required C ABI versions before creating a native world.
 - Hardened C ABI world destruction, accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
 - Updated `CONTRIBUTING.md` to document restricted contributions, current `v1.x` branch policy, major-only public releases, integration boundary rules, PR expectations and security-sensitive integration areas.
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
