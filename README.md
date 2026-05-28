@@ -27,7 +27,8 @@ The SDK provides:
 - runtime workflows for server-authoritative logic;
 - persistence, save/load validation and deterministic replay diagnostics;
 - CMake install/export package for external projects;
-- a minimal C interface for version/time utilities, an opaque world handle and read-only world event access.
+- a minimal C interface for version/time utilities, an opaque world handle and read-only world event access;
+- initial C# / Unity guidance through the C ABI and P/Invoke.
 
 ---
 
@@ -46,6 +47,8 @@ For the minimal C interface:
 ```
 
 The C interface exposes version utilities, time utilities, a minimal opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement and read-only world event inspection by index. Full runtime integration is provided by the C++ API.
+
+For Unity and C# integrations, use the C ABI through P/Invoke. See [`docs/csharp-unity.md`](docs/csharp-unity.md).
 
 ---
 
@@ -174,6 +177,7 @@ Start here:
 - [Public API](docs/public-api.md)
 - [Public API status](docs/public-api-status.md)
 - [C interface](docs/c-abi.md)
+- [C# and Unity integration](docs/csharp-unity.md)
 - [SDK structure](docs/sdk-structure.md)
 - [CMake package](docs/cmake-package.md)
 - [Packaging](docs/packaging.md)
