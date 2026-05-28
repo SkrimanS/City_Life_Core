@@ -75,14 +75,21 @@ Expected managed wrapper surface includes:
 - tick conversion helpers;
 - `CityLifeWorld.Create`;
 - `CityLifeWorld.Dispose`;
-- `CityLifeWorld.Advance`;
-- `CityLifeWorld.AdvanceSeconds`;
-- `CityLifeWorld.AdvanceMinutes`;
-- `CityLifeWorld.AdvanceHours`;
-- `CityLifeWorld.AdvanceDays`;
+- throwing advancement helpers:
+  - `CityLifeWorld.Advance`;
+  - `CityLifeWorld.AdvanceSeconds`;
+  - `CityLifeWorld.AdvanceMinutes`;
+  - `CityLifeWorld.AdvanceHours`;
+  - `CityLifeWorld.AdvanceDays`;
+- non-throwing advancement helpers:
+  - `CityLifeWorld.TryAdvance`;
+  - `CityLifeWorld.TryAdvanceSeconds`;
+  - `CityLifeWorld.TryAdvanceMinutes`;
+  - `CityLifeWorld.TryAdvanceHours`;
+  - `CityLifeWorld.TryAdvanceDays`;
 - read-only event access.
 
-The Unity smoke test should log actual and required C ABI versions before creating a native world.
+The Unity smoke test should log actual and required C ABI versions before creating a native world and use `TryAdvanceMinutes` for the gameplay-style advance path.
 
 This is not a full Unity package.
 
