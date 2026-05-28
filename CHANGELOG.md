@@ -8,6 +8,9 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added C ABI world time-advance helpers for advancing opaque world handles by seconds, minutes, hours or days, and bumped the C interface version to `4`.
+- Added C and C# / Unity example coverage for the new C ABI world time-advance helpers.
+- Added C ABI smoke-test coverage for the new world time-advance helpers, including null-handle and zero-duration failure behavior.
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
 - Added `docs/game-profiles.md` with recommended integration profiles for native C++ games, Unity/C#, Browser/WASM, server-authoritative games, MMO-like services and editor/tooling workflows.
@@ -40,7 +43,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/release-manifest-template.md` to include major-only release policy, installed package validation, SDK ZIP contents, C ABI review, C# / Unity review, Browser/WASM status, compatibility and migration sections.
 - Updated `docs/verifying-releases.md` to document the major-only public release policy, archive checksum checks, expected SDK ZIP contents, installed C++ and C ABI consumer verification, Unity/C# example caveats and planned Browser/WASM release caveats.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
-- Updated the C# / Unity smoke-test script to use Unity Inspector-friendly serialized fields.
+- Updated the C# / Unity smoke-test script to use Unity Inspector-friendly serialized fields and the new managed `AdvanceMinutes` helper.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
 - Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity and browser/WebAssembly links.
