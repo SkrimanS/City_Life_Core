@@ -71,6 +71,8 @@ Expected managed wrapper surface includes:
 - C ABI compatibility helpers:
   - `RequiredCInterfaceVersion`;
   - `IsCInterfaceCompatible`;
+  - `TryGetCInterfaceVersion`;
+  - `TryCheckCInterfaceCompatibility`;
   - `EnsureCompatibleCInterface()`;
 - tick conversion helpers;
 - throwing helpers:
@@ -92,7 +94,7 @@ Expected managed wrapper surface includes:
 - `CityLifeWorld.Dispose`;
 - read-only event access.
 
-The Unity smoke test should log actual and required C ABI versions before creating a native world and use `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` for gameplay-style non-throwing paths.
+The Unity smoke test should use soft native-library C ABI probing before calling other native functions, then use `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` for gameplay-style non-throwing paths.
 
 This is not a full Unity package.
 
