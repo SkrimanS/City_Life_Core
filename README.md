@@ -48,7 +48,7 @@ For the minimal C interface:
 
 The C interface exposes version utilities, time utilities, a minimal opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement and read-only world event inspection by index. Full runtime integration is provided by the C++ API.
 
-For Unity and C# integrations, use the C ABI through P/Invoke. See [`docs/csharp-unity.md`](docs/csharp-unity.md). For browser and WebAssembly planning, see [`docs/browser-wasm.md`](docs/browser-wasm.md).
+For Unity and C# integrations, use the C ABI through P/Invoke. See [`docs/csharp-unity.md`](docs/csharp-unity.md). For browser and WebAssembly planning, see [`docs/browser-wasm.md`](docs/browser-wasm.md). For the staged C ABI expansion plan, see [`docs/c-abi-expansion-plan.md`](docs/c-abi-expansion-plan.md).
 
 ---
 
@@ -177,6 +177,7 @@ Start here:
 - [Public API](docs/public-api.md)
 - [Public API status](docs/public-api-status.md)
 - [C interface](docs/c-abi.md)
+- [C ABI expansion plan](docs/c-abi-expansion-plan.md)
 - [Integration targets](docs/integration-targets.md)
 - [C# and Unity integration](docs/csharp-unity.md)
 - [Browser and WebAssembly integration](docs/browser-wasm.md)
