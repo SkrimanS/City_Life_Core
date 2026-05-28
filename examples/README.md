@@ -192,6 +192,31 @@ cmake --build build-consumer
 
 ---
 
+## C ABI consumer example / Пример C ABI consumer
+
+`examples/c_abi_consumer/` is a standalone C consumer project for the installed SDK. It is the native integration layer that C#, Unity and other non-C++ integrations should build on.
+
+---
+
+## C# / Unity wrapper example / Пример C# / Unity wrapper
+
+`examples/csharp_unity/` contains an initial C# P/Invoke wrapper for the current C ABI.
+
+It shows:
+
+- how to import the native `city_life_core` library from C#;
+- how to read version and tick utility functions;
+- how to wrap the opaque `clc_world` handle in a disposable managed class;
+- how to inspect read-only world events from Unity or another C# host.
+
+See also:
+
+```text
+docs/csharp-unity.md
+```
+
+---
+
 ## Integration direction / Как использовать в интеграции
 
 Recommended include:
@@ -216,6 +241,13 @@ Start with faction and ownership permissions if your game has faction-owned sett
 
 ```text
 examples/faction_ownership_contracts.cpp
+```
+
+Start with the C ABI if you are integrating from C, C#, Unity or another language/runtime that should not call the C++ API directly:
+
+```text
+examples/c_abi_consumer/
+examples/csharp_unity/
 ```
 
 Start with the basic bootstrap if you want a minimal smoke test:
