@@ -29,6 +29,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | --- | --- |
 | [`public-api-status.md`](public-api-status.md) | Header-by-header usage classification. |
 | [`c-abi.md`](c-abi.md) | Minimal C interface for version/time utilities, an opaque world handle and read-only world event access. |
+| [`c-abi-expansion-plan.md`](c-abi-expansion-plan.md) | Staged plan for expanding the C ABI for Unity/C#, browser/WASM, tools and other foreign-language integrations. |
 | [`integration-targets.md`](integration-targets.md) | Supported, initial and planned integration targets, including C++, C ABI, Unity/C#, browser/WASM, servers and tools. |
 | [`csharp-unity.md`](csharp-unity.md) | C# and Unity integration guide using the C ABI and P/Invoke. |
 | [`browser-wasm.md`](browser-wasm.md) | Planned browser and WebAssembly integration path for web games, web tools and demos. |
