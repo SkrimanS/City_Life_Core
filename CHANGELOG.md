@@ -10,6 +10,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
+- Added `docs/c-abi-expansion-plan.md` with a staged plan for expanding the C ABI for Unity/C#, browser/WASM, tools and other foreign-language integrations.
 - Added `docs/integration-targets.md` to clarify supported, initial and planned integration targets across C++, C ABI, Unity/C#, browser/WASM, other engines, backend/MMO and tooling scenarios.
 - Added `docs/browser-wasm.md` with the planned browser and WebAssembly integration path for web games, web tools and browser-hosted demos.
 - Added `docs/csharp-unity.md` with initial C# and Unity integration guidance through the C ABI and P/Invoke.
@@ -21,8 +22,9 @@ Changes merged into `main` after the latest public release are recorded here.
 
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
+- Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with integration target, C# / Unity and browser/WebAssembly links.
+- Updated root README, documentation index, Russian documentation index and examples index with integration target, C ABI expansion, C# / Unity and browser/WebAssembly links.
 - Updated SDK install rules so C# example sources are included with installed examples.
 - Updated GitHub bug report and feature request issue templates with clearer affected-area, version, compatibility, roadmap and reproduction sections.
 - Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
