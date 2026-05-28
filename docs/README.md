@@ -31,6 +31,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`c-abi.md`](c-abi.md) | Minimal C interface for version/time utilities, an opaque world handle and read-only world event access. |
 | [`integration-targets.md`](integration-targets.md) | Supported, initial and planned integration targets, including C++, C ABI, Unity/C#, browser/WASM, servers and tools. |
 | [`csharp-unity.md`](csharp-unity.md) | C# and Unity integration guide using the C ABI and P/Invoke. |
+| [`browser-wasm.md`](browser-wasm.md) | Planned browser and WebAssembly integration path for web games, web tools and demos. |
 | [`compatibility.md`](compatibility.md) | Time, events, save/load, validation and source/binary compatibility rules. |
 | [`migration.md`](migration.md) | Instructions for updating older integrations. |
 
@@ -52,7 +53,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
-Normal SDK users usually start with `core-concepts.md`, `public-api.md`, `sdk-structure.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md` and `csharp-unity.md` after reviewing the C ABI documentation.
+Normal SDK users usually start with `core-concepts.md`, `public-api.md`, `sdk-structure.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md` and `browser-wasm.md`.
 
 ---
 
