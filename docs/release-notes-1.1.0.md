@@ -14,6 +14,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can detect native libraries older than the required C interface version.
 - Added non-throwing C# / Unity native-library C ABI probing helpers for detecting missing or incompatible native plug-ins before gameplay calls.
 - Added hardened non-throwing C# / Unity `TryCreate`, `TryAdvance*` and `TryGetEvent` helpers for gameplay-oriented flows.
+- Added a C# wrapper compile-check project and validation scripts for Linux/macOS and Windows developer environments.
 - Added shared-library build friendliness and CI validation for native plug-in scenarios through explicit `BUILD_SHARED_LIBS`, position-independent code, Windows symbol export settings and a shared-core CI build.
 - Added Unity-style smoke-test component for creating, advancing and disposing a world.
 - Added Browser/WebAssembly planning documentation without claiming implemented WASM support.
@@ -30,7 +31,10 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 
 - `examples/csharp_unity/CityLifeCoreNative.cs`.
 - `examples/csharp_unity/CityLifeSmokeTest.cs`.
+- `examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj`.
 - `examples/csharp_unity/README.md`.
+- `scripts/validate_csharp_wrapper.sh`.
+- `scripts/validate_csharp_wrapper.ps1`.
 - `docs/csharp-unity.md`.
 - `docs/browser-wasm.md`.
 - `docs/c-abi-expansion-plan.md`.
@@ -96,11 +100,13 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-Also verify affected examples and the shared native plug-in build path:
+Also verify affected examples, the C# wrapper and the shared native plug-in build path:
 
 ```text
 examples/c_abi_consumer/
 examples/csharp_unity/
+scripts/validate_csharp_wrapper.sh
+scripts/validate_csharp_wrapper.ps1
 BUILD_SHARED_LIBS=ON
 ```
 
