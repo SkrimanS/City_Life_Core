@@ -26,7 +26,7 @@ int main(void) {
     if (require_int(strcmp(clc_core_version_string_c(), "1.0.0") == 0, "version string should match")) {
         return 1;
     }
-    if (require_int(clc_c_interface_version_c() == 3u, "C interface version should be 3")) {
+    if (require_int(clc_c_interface_version_c() == 4u, "C interface version should be 4")) {
         return 1;
     }
 
@@ -87,6 +87,18 @@ int main(void) {
     if (require_int(clc_world_advance_c(NULL, 1) == 0, "null world advance should fail")) {
         return 1;
     }
+    if (require_int(clc_world_advance_seconds_c(NULL, 1) == 0, "null world seconds advance should fail")) {
+        return 1;
+    }
+    if (require_int(clc_world_advance_minutes_c(NULL, 1) == 0, "null world minutes advance should fail")) {
+        return 1;
+    }
+    if (require_int(clc_world_advance_hours_c(NULL, 1) == 0, "null world hours advance should fail")) {
+        return 1;
+    }
+    if (require_int(clc_world_advance_days_c(NULL, 1) == 0, "null world days advance should fail")) {
+        return 1;
+    }
     clc_world_destroy_c(NULL);
 
     clc_world* world = clc_world_create_c("C ABI World", 42);
@@ -145,6 +157,22 @@ int main(void) {
         clc_world_destroy_c(world);
         return 1;
     }
+    if (require_int(clc_world_advance_seconds_c(world, 0) == 0, "zero second advance should fail")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_minutes_c(world, 0) == 0, "zero minute advance should fail")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_hours_c(world, 0) == 0, "zero hour advance should fail")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_days_c(world, 0) == 0, "zero day advance should fail")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
     if (require_int(clc_world_current_tick_c(world) == 0, "failed advance should not change tick")) {
         clc_world_destroy_c(world);
         return 1;
@@ -181,6 +209,42 @@ int main(void) {
         clc_world_destroy_c(world);
         return 1;
     }
+    if (require_int(clc_world_advance_seconds_c(world, 5) == 1, "seconds advance should succeed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_current_tick_c(world) == 10, "seconds advance should add five ticks")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_minutes_c(world, 2) == 1, "minutes advance should succeed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_current_tick_c(world) == 130, "minutes advance should add 120 ticks")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_hours_c(world, 1) == 1, "hours advance should succeed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_current_tick_c(world) == 3730, "hours advance should add 3600 ticks")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_advance_days_c(world, 1) == 1, "days advance should succeed")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_current_tick_c(world) == 90130, "days advance should add 86400 ticks")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_count_c(world) == 6, "time helpers should append successful advance events")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
     if (require_int(clc_world_advance_c(world, UINT64_MAX) == 1, "huge tick advance should succeed with saturation")) {
         clc_world_destroy_c(world);
         return 1;
@@ -197,15 +261,15 @@ int main(void) {
         clc_world_destroy_c(world);
         return 1;
     }
-    if (require_int(clc_world_event_count_c(world) == 4, "saturating advances should append events without wrapping")) {
+    if (require_int(clc_world_event_count_c(world) == 8, "saturating advances should append events without wrapping")) {
         clc_world_destroy_c(world);
         return 1;
     }
-    if (require_int(clc_world_event_tick_c(world, 2) == UINT64_MAX, "saturating advance event tick should be max")) {
+    if (require_int(clc_world_event_tick_c(world, 6) == UINT64_MAX, "saturating advance event tick should be max")) {
         clc_world_destroy_c(world);
         return 1;
     }
-    if (require_int(clc_world_event_tick_c(world, 3) == UINT64_MAX, "post-saturation event tick should remain max")) {
+    if (require_int(clc_world_event_tick_c(world, 7) == UINT64_MAX, "post-saturation event tick should remain max")) {
         clc_world_destroy_c(world);
         return 1;
     }
