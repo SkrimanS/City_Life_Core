@@ -25,11 +25,12 @@ Changes merged into `main` after the latest public release are recorded here.
 
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
+- Updated `docs/architecture.md` to describe core layers, public C++ API, C ABI, Unity/C# wrapper, future Browser/WASM adapter, server-authoritative/MMO boundaries and non-goals.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
 - Updated the C# / Unity smoke-test script to use Unity Inspector-friendly serialized fields.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with integration target, game-profile, C ABI expansion, C# / Unity and browser/WebAssembly links.
+- Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity and browser/WebAssembly links.
 - Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
 - Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
