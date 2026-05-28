@@ -26,6 +26,10 @@ Select all that apply:
 - [ ] Persistence / save-load
 - [ ] Replay / determinism
 - [ ] C ABI
+- [ ] C ABI expansion / foreign-language binding
+- [ ] C# / Unity integration
+- [ ] Browser / WebAssembly integration
+- [ ] Integration targets / platform support
 - [ ] CMake / packaging
 - [ ] Documentation
 - [ ] Other
@@ -34,9 +38,12 @@ Select all that apply:
 
 - Git ref, branch, or commit:
 - Public release tag, if applicable:
+- Internal milestone branch, if applicable:
 - OS:
 - Compiler:
 - CMake version:
+- Unity version, if applicable:
+- Browser / runtime, if applicable:
 
 ## Steps to reproduce
 
@@ -54,7 +61,7 @@ What happens instead?
 
 ## Minimal reproduction
 
-Paste a minimal code sample, test case, save file excerpt, data definition, or command sequence.
+Paste a minimal code sample, test case, save file excerpt, data definition, Unity script, C ABI call sequence, or command sequence.
 
 ```cpp
 // minimal reproduction here
@@ -65,6 +72,8 @@ Paste a minimal code sample, test case, save file excerpt, data definition, or c
 ```text
 paste relevant output here
 ```
+
+For Unity or browser integration issues, include the exact loading or binding error if available.
 
 ## Regression?
 
@@ -82,6 +91,9 @@ Describe how serious this is:
 - [ ] Blocks tests
 - [ ] Breaks runtime behavior
 - [ ] Breaks public API usage
+- [ ] Breaks C ABI / foreign-language binding
+- [ ] Breaks Unity/C# integration
+- [ ] Breaks Browser/WASM integration
 - [ ] Breaks package/install flow
 - [ ] Documentation mismatch
 - [ ] Minor issue
