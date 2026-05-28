@@ -16,6 +16,10 @@ Select one:
 - [ ] Roadmap / planning
 - [ ] Release / packaging
 - [ ] CI / validation
+- [ ] Integration target
+- [ ] C ABI expansion
+- [ ] Unity / C# integration
+- [ ] Browser / WebAssembly integration
 - [ ] Investigation
 - [ ] Question
 - [ ] Other
@@ -36,6 +40,9 @@ What should be included?
 - [ ] Tests
 - [ ] Documentation
 - [ ] Examples
+- [ ] C ABI
+- [ ] C# / Unity wrapper
+- [ ] Browser / WebAssembly adapter
 - [ ] CMake / packaging
 - [ ] CI
 - [ ] Release notes / changelog
@@ -62,6 +69,10 @@ List relevant paths:
 ```text
 docs/roadmap.md
 docs/versioning.md
+docs/integration-targets.md
+docs/c-abi-expansion-plan.md
+docs/csharp-unity.md
+docs/browser-wasm.md
 CHANGELOG.md
 ```
 
