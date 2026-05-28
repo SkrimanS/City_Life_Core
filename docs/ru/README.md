@@ -27,6 +27,7 @@
 | --- | --- |
 | [Public API status](../public-api-status.md) | Классификация публичных headers и API surface. |
 | [C interface](../c-abi.md) | Минимальный C interface для version/time utilities, opaque world handle и read-only world events. |
+| [Integration targets](../integration-targets.md) | Текущие и планируемые integration targets: C++, C ABI, Unity/C#, browser/WASM, servers и tools. |
 | [C# and Unity integration](../csharp-unity.md) | Интеграция Unity/C# через C ABI и P/Invoke. |
 | [Compatibility](../compatibility.md) | Правила совместимости time, events, save/load, validation и source/binary compatibility. |
 | [Migration](../migration.md) | Инструкции для обновления старых integrations. |
