@@ -51,8 +51,9 @@ C ABI hardening:
 
 - null world handles return safe fallback values;
 - invalid event indexes return safe fallback values;
+- extreme invalid event indexes return safe fallback values;
 - destroy-null remains safe;
-- world accessors and advance helpers catch exceptions at the C boundary.
+- world destruction, accessors and advance helpers catch exceptions at the C boundary.
 
 ---
 
@@ -67,6 +68,10 @@ Expected C# / Unity example files:
 Expected managed wrapper surface includes:
 
 - version helpers;
+- C ABI compatibility helpers:
+  - `RequiredCInterfaceVersion`;
+  - `IsCInterfaceCompatible`;
+  - `EnsureCompatibleCInterface()`;
 - tick conversion helpers;
 - `CityLifeWorld.Create`;
 - `CityLifeWorld.Dispose`;
@@ -76,6 +81,8 @@ Expected managed wrapper surface includes:
 - `CityLifeWorld.AdvanceHours`;
 - `CityLifeWorld.AdvanceDays`;
 - read-only event access.
+
+The Unity smoke test should log actual and required C ABI versions before creating a native world.
 
 This is not a full Unity package.
 
