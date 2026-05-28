@@ -111,6 +111,7 @@ install(
     FILES_MATCHING
         PATTERN "*.cpp"
         PATTERN "*.c"
+        PATTERN "*.cs"
         PATTERN "*.txt"
         PATTERN "*.md"
 )
