@@ -31,6 +31,13 @@ const clc::Event* event_at(const clc_world* world, uint64_t index) noexcept {
     return &events[event_index];
 }
 
+int advance_world_by_ticks(clc_world* world, uint64_t ticks) {
+    if (world == nullptr) {
+        return 0;
+    }
+    return world->impl.advance(ticks).ok() ? 1 : 0;
+}
+
 } // namespace
 
 clc_version clc_core_version_c(void) {
@@ -47,7 +54,7 @@ const char* clc_core_version_string_c(void) {
 }
 
 uint32_t clc_c_interface_version_c(void) {
-    return 3u;
+    return 4u;
 }
 
 uint64_t clc_ticks_per_second_c(void) {
@@ -143,10 +150,23 @@ uint64_t clc_world_event_count_c(const clc_world* world) {
 }
 
 int clc_world_advance_c(clc_world* world, uint64_t ticks) {
-    if (world == nullptr) {
-        return 0;
-    }
-    return world->impl.advance(ticks).ok() ? 1 : 0;
+    return advance_world_by_ticks(world, ticks);
+}
+
+int clc_world_advance_seconds_c(clc_world* world, uint64_t seconds) {
+    return advance_world_by_ticks(world, clc::seconds_to_ticks(seconds));
+}
+
+int clc_world_advance_minutes_c(clc_world* world, uint64_t minutes) {
+    return advance_world_by_ticks(world, clc::minutes_to_ticks(minutes));
+}
+
+int clc_world_advance_hours_c(clc_world* world, uint64_t hours) {
+    return advance_world_by_ticks(world, clc::hours_to_ticks(hours));
+}
+
+int clc_world_advance_days_c(clc_world* world, uint64_t days) {
+    return advance_world_by_ticks(world, clc::days_to_ticks(days));
 }
 
 uint64_t clc_world_event_id_c(const clc_world* world, uint64_t index) {
