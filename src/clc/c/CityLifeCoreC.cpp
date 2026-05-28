@@ -17,25 +17,33 @@ struct clc_world {
 
 namespace {
 
-const clc::Event* event_at(const clc_world* world, uint64_t index) noexcept {
-    if (world == nullptr || index > static_cast<uint64_t>(std::numeric_limits<std::size_t>::max())) {
+const clc::Event* event_at(const clc_world* world, uint64_t index) {
+    try {
+        if (world == nullptr || index > static_cast<uint64_t>(std::numeric_limits<std::size_t>::max())) {
+            return nullptr;
+        }
+
+        const auto& events = world->impl.event_log().events();
+        const auto event_index = static_cast<std::size_t>(index);
+        if (event_index >= events.size()) {
+            return nullptr;
+        }
+
+        return &events[event_index];
+    } catch (...) {
         return nullptr;
     }
-
-    const auto& events = world->impl.event_log().events();
-    const auto event_index = static_cast<std::size_t>(index);
-    if (event_index >= events.size()) {
-        return nullptr;
-    }
-
-    return &events[event_index];
 }
 
 int advance_world_by_ticks(clc_world* world, uint64_t ticks) {
-    if (world == nullptr) {
+    try {
+        if (world == nullptr) {
+            return 0;
+        }
+        return world->impl.advance(ticks).ok() ? 1 : 0;
+    } catch (...) {
         return 0;
     }
-    return world->impl.advance(ticks).ok() ? 1 : 0;
 }
 
 } // namespace
@@ -122,31 +130,47 @@ void clc_world_destroy_c(clc_world* world) {
 }
 
 const char* clc_world_name_c(const clc_world* world) {
-    if (world == nullptr) {
+    try {
+        if (world == nullptr) {
+            return "";
+        }
+        return world->impl.config().name.c_str();
+    } catch (...) {
         return "";
     }
-    return world->impl.config().name.c_str();
 }
 
 uint64_t clc_world_seed_c(const clc_world* world) {
-    if (world == nullptr) {
+    try {
+        if (world == nullptr) {
+            return 0;
+        }
+        return world->impl.config().seed;
+    } catch (...) {
         return 0;
     }
-    return world->impl.config().seed;
 }
 
 uint64_t clc_world_current_tick_c(const clc_world* world) {
-    if (world == nullptr) {
+    try {
+        if (world == nullptr) {
+            return 0;
+        }
+        return world->impl.time().current_tick();
+    } catch (...) {
         return 0;
     }
-    return world->impl.time().current_tick();
 }
 
 uint64_t clc_world_event_count_c(const clc_world* world) {
-    if (world == nullptr) {
+    try {
+        if (world == nullptr) {
+            return 0;
+        }
+        return world->impl.event_log().size();
+    } catch (...) {
         return 0;
     }
-    return world->impl.event_log().size();
 }
 
 int clc_world_advance_c(clc_world* world, uint64_t ticks) {
