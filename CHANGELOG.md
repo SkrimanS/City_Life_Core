@@ -29,6 +29,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/build-and-linking-policy.md` to document C++ source-first linking, C ABI foreign-language boundaries, shared-library native plug-in builds, Unity/C# P/Invoke usage and planned Browser/WASM linking policy.
 - Updated `docs/compatibility.md` to split compatibility expectations across C++ source compatibility, C ABI compatibility, C# / Unity wrapper expectations, planned Browser/WASM support, save/load, replay, data validation and packaging.
 - Updated `docs/migration.md` with migration guidance for lower-kebab-case docs, CMake package usage, source-first C++ API, C ABI adoption, Unity/C# wrapper migration, planned Browser/WASM support, game profiles, save/load and replay checks.
+- Updated `docs/public-api-status.md` to classify the public C++ API, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
 - Updated the C# / Unity smoke-test script to use Unity Inspector-friendly serialized fields.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
