@@ -12,6 +12,7 @@
 | Документ | Назначение |
 | --- | --- |
 | [Core concepts](../core-concepts.md) | Основные системы: registry, runtime, ticks, settlements, caravans, economy, contracts, events и persistence. |
+| [Architecture](../architecture.md) | Обзор архитектуры: core layers, C++ API, C ABI, integration layers и non-goals. |
 | [Public API](../public-api.md) | Публичный SDK API, рекомендуемые include, validation model и правила использования. |
 | [SDK structure](../sdk-structure.md) | Структура репозитория, установленного SDK, CMake options и integration modes. |
 | [Game integration profiles](../game-profiles.md) | Профили интеграции для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
