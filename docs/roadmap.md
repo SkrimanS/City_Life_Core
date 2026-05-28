@@ -66,6 +66,7 @@ Primary themes:
 3. Improve support for different game types and integration styles.
 4. Start the foundation for MMO and server-authoritative games.
 5. Harden runtime, validation, persistence, replay, packaging, documentation, examples and the C ABI.
+6. Add first-class integration guidance for C# and Unity through the C ABI without making the core Unity-specific.
 
 ---
 
@@ -84,11 +85,12 @@ Planned work:
 - Tighten validation messages and error reporting consistency.
 - Expand regression coverage for known edge cases.
 - Improve examples so they represent recommended integration patterns.
+- Add initial C# / Unity integration guidance through the existing C ABI and P/Invoke.
 - Review runtime APIs for clarity before larger data/runtime work starts.
 - Keep source compatibility in mind for current 1.x users.
 - Keep documentation aligned with the English-primary structure and `docs/ru` entry point.
 
-Expected outcome: a cleaner and safer core baseline for later runtime, data and MMO-oriented work.
+Expected outcome: a cleaner and safer core baseline for later runtime, data, Unity/C# and MMO-oriented work.
 
 ### v1.2.0 - Runtime and data hardening
 
@@ -120,12 +122,13 @@ Planned work:
   - turn-based city/settlement simulation;
   - real-time economy simulation;
   - survival or colony-style logistics;
+  - Unity/C# client or tool integration through native plug-ins;
   - backend service simulation;
   - MMO/server-authoritative simulation.
 - Document which systems are required, optional or recommended for each profile.
 - Add example scenarios or presets that show how the same core can support different genres.
 - Clarify platform-neutral assumptions and non-goals.
-- Identify missing APIs needed by non-desktop or non-C++ integration layers.
+- Identify missing APIs needed by non-desktop, Unity/C# or non-C++ integration layers.
 
 Expected outcome: clearer adoption paths for external developers building different types of games and tools.
 
@@ -140,12 +143,13 @@ Planned work:
 - Review engine-agnostic adapter boundaries.
 - Improve examples for consuming the installed SDK from external projects.
 - Evaluate safe C ABI expansion candidates after the 1.0.0 minimal interface.
-- Add clearer integration notes for servers, editors, tools and game clients.
+- Expand C# / Unity support once the required C ABI surface is stable enough.
+- Add clearer integration notes for servers, editors, tools, Unity projects and game clients.
 - Improve CMake package, ZIP SDK and artifact-review workflows where needed.
 - Document threading, ownership and lifecycle assumptions.
 - Add integration diagnostics that are useful outside local tests.
 
-Expected outcome: a cleaner integration surface for games, tools and backend services.
+Expected outcome: a cleaner integration surface for games, tools, Unity projects and backend services.
 
 ### v1.5.0 - MMO foundation I
 
@@ -306,7 +310,7 @@ Likely work areas:
 - large-scale logistics and cross-region simulation;
 - better observability for servers and tools;
 - stronger migration guarantees for shipped games;
-- improved C ABI or foreign-language integration where the API is stable enough.
+- improved C ABI, C# or other foreign-language integration where the API is stable enough.
 
 Minor v3.x labels remain internal planning milestones unless the release policy changes.
 
