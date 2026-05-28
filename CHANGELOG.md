@@ -23,6 +23,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Updated `CONTRIBUTING.md` to document restricted contributions, current `v1.x` branch policy, major-only public releases, integration boundary rules, PR expectations and security-sensitive integration areas.
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
 - Updated `docs/architecture.md` to describe core layers, public C++ API, C ABI, Unity/C# wrapper, future Browser/WASM adapter, server-authoritative/MMO boundaries and non-goals.
