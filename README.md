@@ -177,6 +177,7 @@ Start here:
 - [Public API](docs/public-api.md)
 - [Public API status](docs/public-api-status.md)
 - [C interface](docs/c-abi.md)
+- [Integration targets](docs/integration-targets.md)
 - [C# and Unity integration](docs/csharp-unity.md)
 - [SDK structure](docs/sdk-structure.md)
 - [CMake package](docs/cmake-package.md)
