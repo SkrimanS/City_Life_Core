@@ -84,6 +84,18 @@ int main(void) {
     if (require_int(clc_world_event_payload_c(NULL, 0)[0] == '\0', "null world event payload should be empty")) {
         return 1;
     }
+    if (require_int(clc_world_event_id_c(NULL, UINT64_MAX) == 0, "null world max event id should be zero")) {
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(NULL, UINT64_MAX) == 0, "null world max event tick should be zero")) {
+        return 1;
+    }
+    if (require_int(clc_world_event_type_c(NULL, UINT64_MAX)[0] == '\0', "null world max event type should be empty")) {
+        return 1;
+    }
+    if (require_int(clc_world_event_payload_c(NULL, UINT64_MAX)[0] == '\0', "null world max event payload should be empty")) {
+        return 1;
+    }
     if (require_int(clc_world_advance_c(NULL, 1) == 0, "null world advance should fail")) {
         return 1;
     }
@@ -150,6 +162,22 @@ int main(void) {
         return 1;
     }
     if (require_int(clc_world_event_payload_c(world, 1)[0] == '\0', "out-of-range event payload should be empty")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_id_c(world, UINT64_MAX) == 0, "max-index event id should be zero")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_tick_c(world, UINT64_MAX) == 0, "max-index event tick should be zero")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_type_c(world, UINT64_MAX)[0] == '\0', "max-index event type should be empty")) {
+        clc_world_destroy_c(world);
+        return 1;
+    }
+    if (require_int(clc_world_event_payload_c(world, UINT64_MAX)[0] == '\0', "max-index event payload should be empty")) {
         clc_world_destroy_c(world);
         return 1;
     }
