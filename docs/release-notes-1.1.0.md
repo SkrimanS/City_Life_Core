@@ -12,7 +12,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 
 - Added initial C# / Unity P/Invoke wrapper examples over the C ABI.
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can detect native libraries older than the required C interface version.
-- Added non-throwing C# / Unity `TryAdvance*` helpers for gameplay-oriented advancement flows.
+- Added non-throwing C# / Unity `TryCreate`, `TryAdvance*` and `TryGetEvent` helpers for gameplay-oriented flows.
 - Added Unity-style smoke-test component for creating, advancing and disposing a world.
 - Added Browser/WebAssembly planning documentation without claiming implemented WASM support.
 - Added integration target and game-profile guidance for native C++, C ABI, Unity/C#, Browser/WASM, servers, MMO-like systems and tools.
@@ -44,11 +44,13 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
   - `RequiredCInterfaceVersion`;
   - `IsCInterfaceCompatible`;
   - `EnsureCompatibleCInterface()`;
+  - `TryCreate`;
   - `TryAdvance`;
   - `TryAdvanceSeconds`;
   - `TryAdvanceMinutes`;
   - `TryAdvanceHours`;
-  - `TryAdvanceDays`.
+  - `TryAdvanceDays`;
+  - `TryGetEvent`.
 
 ---
 
@@ -57,8 +59,8 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Updated `clc_c_interface_version_c()` to return `4`.
 - Updated C ABI smoke tests for the expanded C ABI surface.
 - Updated the C ABI consumer example to use time-based world advance helpers.
-- Updated the C# / Unity wrapper to expose managed `AdvanceSeconds`, `AdvanceMinutes`, `AdvanceHours`, `AdvanceDays` and non-throwing `TryAdvance*` methods.
-- Updated the Unity smoke test to log actual and required C ABI versions, check compatibility and use `TryAdvanceMinutes`.
+- Updated the C# / Unity wrapper to expose managed `AdvanceSeconds`, `AdvanceMinutes`, `AdvanceHours`, `AdvanceDays` and non-throwing `TryCreate`, `TryAdvance*` and `TryGetEvent` methods.
+- Updated the Unity smoke test to log actual and required C ABI versions, check compatibility and use `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent`.
 - Updated CMake install rules so C# example sources are included with installed examples.
 - Updated public API, compatibility, migration, packaging, build/linking, readiness and release verification documentation to reflect the integration foundation.
 
