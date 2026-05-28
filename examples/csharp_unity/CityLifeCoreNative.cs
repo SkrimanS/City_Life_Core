@@ -77,6 +77,10 @@ namespace CityLifeCore.Unity
         internal static ulong WorldCurrentTick(IntPtr world) => clc_world_current_tick_c(world);
         internal static ulong WorldEventCount(IntPtr world) => clc_world_event_count_c(world);
         internal static bool AdvanceWorld(IntPtr world, ulong ticks) => clc_world_advance_c(world, ticks) != 0;
+        internal static bool AdvanceWorldSeconds(IntPtr world, ulong seconds) => clc_world_advance_seconds_c(world, seconds) != 0;
+        internal static bool AdvanceWorldMinutes(IntPtr world, ulong minutes) => clc_world_advance_minutes_c(world, minutes) != 0;
+        internal static bool AdvanceWorldHours(IntPtr world, ulong hours) => clc_world_advance_hours_c(world, hours) != 0;
+        internal static bool AdvanceWorldDays(IntPtr world, ulong days) => clc_world_advance_days_c(world, days) != 0;
 
         internal static ulong WorldEventId(IntPtr world, ulong index) => clc_world_event_id_c(world, index);
         internal static ulong WorldEventTick(IntPtr world, ulong index) => clc_world_event_tick_c(world, index);
@@ -155,6 +159,18 @@ namespace CityLifeCore.Unity
         private static extern int clc_world_advance_c(IntPtr world, ulong ticks);
 
         [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clc_world_advance_seconds_c(IntPtr world, ulong seconds);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clc_world_advance_minutes_c(IntPtr world, ulong minutes);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clc_world_advance_hours_c(IntPtr world, ulong hours);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clc_world_advance_days_c(IntPtr world, ulong days);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong clc_world_event_id_c(IntPtr world, ulong index);
 
         [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -194,11 +210,27 @@ namespace CityLifeCore.Unity
 
         public void Advance(ulong ticks)
         {
-            EnsureAlive();
-            if (!CityLifeCoreNative.AdvanceWorld(handle, ticks))
-            {
-                throw new InvalidOperationException("Failed to advance City Life Core world.");
-            }
+            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorld(handle, ticks));
+        }
+
+        public void AdvanceSeconds(ulong seconds)
+        {
+            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldSeconds(handle, seconds));
+        }
+
+        public void AdvanceMinutes(ulong minutes)
+        {
+            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldMinutes(handle, minutes));
+        }
+
+        public void AdvanceHours(ulong hours)
+        {
+            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldHours(handle, hours));
+        }
+
+        public void AdvanceDays(ulong days)
+        {
+            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldDays(handle, days));
         }
 
         public CityLifeWorldEvent GetEvent(ulong index)
@@ -226,6 +258,15 @@ namespace CityLifeCore.Unity
         ~CityLifeWorld()
         {
             CityLifeCoreNative.DestroyWorld(handle);
+        }
+
+        private void EnsureAdvanceSucceeded(bool advanced)
+        {
+            EnsureAlive();
+            if (!advanced)
+            {
+                throw new InvalidOperationException("Failed to advance City Life Core world.");
+            }
         }
 
         private void EnsureAlive()
