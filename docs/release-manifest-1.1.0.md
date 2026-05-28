@@ -26,6 +26,7 @@ Public Git tags and GitHub Releases remain planned only for major public milesto
 
 Primary source changes:
 
+- `.github/workflows/ci.yml`
 - `CMakeLists.txt`
 - `include/clc/c/CityLifeCoreC.h`
 - `src/clc/c/CityLifeCoreC.cpp`
@@ -34,6 +35,30 @@ Primary source changes:
 - `examples/csharp_unity/CityLifeCoreNative.cs`
 - `examples/csharp_unity/CityLifeSmokeTest.cs`
 - `examples/csharp_unity/README.md`
+
+---
+
+## CI surface
+
+CI should run for:
+
+- `main`;
+- `develop`;
+- `bootstrap/**`;
+- `feature/**`;
+- legacy `v/**` branches;
+- direct milestone branches such as `v1.1.0`, `v1.2.0` and `v2.1.0` through `v*`.
+
+The CI workflow validates:
+
+- normal configure/build/test;
+- benchmark execution;
+- installed C++ consumer;
+- installed C ABI consumer;
+- SDK ZIP generation;
+- unpacked SDK ZIP C++ consumer;
+- unpacked SDK ZIP C ABI consumer;
+- shared-core build with `BUILD_SHARED_LIBS=ON`.
 
 ---
 
