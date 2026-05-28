@@ -10,6 +10,7 @@ project(
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+option(BUILD_SHARED_LIBS "Build City Life Core libraries as shared libraries" OFF)
 option(CLC_BUILD_TESTS "Build City Life Core tests" ON)
 option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ON)
 option(CLC_BUILD_BENCHMARKS "Build City Life Core benchmarks" OFF)
@@ -55,6 +56,8 @@ set_target_properties(city_life_core PROPERTIES
     OUTPUT_NAME city_life_core
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
 if(CLC_BUILD_EXAMPLES)
