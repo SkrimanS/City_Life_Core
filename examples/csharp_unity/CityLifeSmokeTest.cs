@@ -38,7 +38,11 @@ namespace CityLifeCore.Unity.Examples
             world = CityLifeWorld.Create(worldName, safeSeed);
             Debug.Log($"Created world '{world.Name}' with seed {world.Seed}.");
 
-            world.AdvanceMinutes(safeAdvanceMinutes);
+            if (!world.TryAdvanceMinutes(safeAdvanceMinutes))
+            {
+                Debug.LogError($"Failed to advance world by {safeAdvanceMinutes} minute(s).");
+                return;
+            }
 
             var ticks = CityLifeCoreNative.MinutesToTicks(safeAdvanceMinutes);
             Debug.Log($"Advanced world by {safeAdvanceMinutes} minute(s) / {ticks} ticks. Current tick: {world.CurrentTick}.");
