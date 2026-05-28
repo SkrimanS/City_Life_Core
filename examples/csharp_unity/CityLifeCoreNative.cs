@@ -222,29 +222,54 @@ namespace CityLifeCore.Unity
             return new CityLifeWorld(world);
         }
 
+        public bool TryAdvance(ulong ticks)
+        {
+            return IsAlive && CityLifeCoreNative.AdvanceWorld(handle, ticks);
+        }
+
+        public bool TryAdvanceSeconds(ulong seconds)
+        {
+            return IsAlive && CityLifeCoreNative.AdvanceWorldSeconds(handle, seconds);
+        }
+
+        public bool TryAdvanceMinutes(ulong minutes)
+        {
+            return IsAlive && CityLifeCoreNative.AdvanceWorldMinutes(handle, minutes);
+        }
+
+        public bool TryAdvanceHours(ulong hours)
+        {
+            return IsAlive && CityLifeCoreNative.AdvanceWorldHours(handle, hours);
+        }
+
+        public bool TryAdvanceDays(ulong days)
+        {
+            return IsAlive && CityLifeCoreNative.AdvanceWorldDays(handle, days);
+        }
+
         public void Advance(ulong ticks)
         {
-            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorld(handle, ticks));
+            EnsureAdvanceSucceeded(TryAdvance(ticks));
         }
 
         public void AdvanceSeconds(ulong seconds)
         {
-            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldSeconds(handle, seconds));
+            EnsureAdvanceSucceeded(TryAdvanceSeconds(seconds));
         }
 
         public void AdvanceMinutes(ulong minutes)
         {
-            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldMinutes(handle, minutes));
+            EnsureAdvanceSucceeded(TryAdvanceMinutes(minutes));
         }
 
         public void AdvanceHours(ulong hours)
         {
-            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldHours(handle, hours));
+            EnsureAdvanceSucceeded(TryAdvanceHours(hours));
         }
 
         public void AdvanceDays(ulong days)
         {
-            EnsureAdvanceSucceeded(CityLifeCoreNative.AdvanceWorldDays(handle, days));
+            EnsureAdvanceSucceeded(TryAdvanceDays(days));
         }
 
         public CityLifeWorldEvent GetEvent(ulong index)
@@ -274,6 +299,8 @@ namespace CityLifeCore.Unity
             CityLifeCoreNative.DestroyWorld(handle);
         }
 
+        private bool IsAlive => handle != IntPtr.Zero;
+
         private void EnsureAdvanceSucceeded(bool advanced)
         {
             EnsureAlive();
@@ -285,7 +312,7 @@ namespace CityLifeCore.Unity
 
         private void EnsureAlive()
         {
-            if (handle == IntPtr.Zero)
+            if (!IsAlive)
             {
                 throw new ObjectDisposedException(nameof(CityLifeWorld));
             }
