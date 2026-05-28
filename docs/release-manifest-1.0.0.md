@@ -25,8 +25,15 @@ This manifest summarizes the released City Life Core 1.0.0 SDK line.
 
 The release-validation flow covers configure/build, tests, benchmarks, install, installed C++ and C ABI consumers, CPack ZIP packaging, checksum generation and unpacked ZIP consumer checks.
 
+## Post-release documentation note
+
+This manifest describes the already released `v1.0.0` public milestone.
+
+Post-1.0.0 development documents, including Unity/C# guidance, Browser/WebAssembly planning, game integration profiles, C ABI expansion planning and integration validation checklists, describe ongoing internal `v1.x` branch work unless they are explicitly included in a future public release manifest.
+
 ## Related documents
 
 - [Release notes](release-notes-1.0.0.md)
 - [Release verification](verifying-releases.md)
 - [CI artifact review](ci-artifact-review.md)
+- [Versioning](versioning.md)
