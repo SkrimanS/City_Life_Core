@@ -78,6 +78,18 @@ namespace CityLifeCore.Unity
             return clc_world_create_c(name, seed);
         }
 
+        internal static bool TryCreateWorld(string name, ulong seed, out IntPtr world)
+        {
+            world = IntPtr.Zero;
+            if (!IsCInterfaceCompatible)
+            {
+                return false;
+            }
+
+            world = clc_world_create_c(name, seed);
+            return world != IntPtr.Zero;
+        }
+
         internal static void DestroyWorld(IntPtr world)
         {
             if (world != IntPtr.Zero)
@@ -222,6 +234,18 @@ namespace CityLifeCore.Unity
             return new CityLifeWorld(world);
         }
 
+        public static bool TryCreate(string name, ulong seed, out CityLifeWorld world)
+        {
+            world = null;
+            if (!CityLifeCoreNative.TryCreateWorld(name, seed, out var handle))
+            {
+                return false;
+            }
+
+            world = new CityLifeWorld(handle);
+            return true;
+        }
+
         public bool TryAdvance(ulong ticks)
         {
             return IsAlive && CityLifeCoreNative.AdvanceWorld(handle, ticks);
@@ -272,19 +296,31 @@ namespace CityLifeCore.Unity
             EnsureAdvanceSucceeded(TryAdvanceDays(days));
         }
 
-        public CityLifeWorldEvent GetEvent(ulong index)
+        public bool TryGetEvent(ulong index, out CityLifeWorldEvent worldEvent)
         {
-            EnsureAlive();
-            if (index >= EventCount)
+            worldEvent = default;
+            if (!IsAlive || index >= EventCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                return false;
             }
 
-            return new CityLifeWorldEvent(
+            worldEvent = new CityLifeWorldEvent(
                 CityLifeCoreNative.WorldEventId(handle, index),
                 CityLifeCoreNative.WorldEventTick(handle, index),
                 CityLifeCoreNative.WorldEventType(handle, index),
                 CityLifeCoreNative.WorldEventPayload(handle, index));
+            return true;
+        }
+
+        public CityLifeWorldEvent GetEvent(ulong index)
+        {
+            EnsureAlive();
+            if (!TryGetEvent(index, out var worldEvent))
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            return worldEvent;
         }
 
         public void Dispose()
