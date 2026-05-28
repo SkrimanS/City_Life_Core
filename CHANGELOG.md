@@ -15,6 +15,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `docs/browser-wasm.md` with the planned browser and WebAssembly integration path for web games, web tools and browser-hosted demos.
 - Added `docs/csharp-unity.md` with initial C# and Unity integration guidance through the C ABI and P/Invoke, including native plug-in troubleshooting notes.
 - Added `examples/csharp_unity/` with a C# P/Invoke wrapper, Unity `MonoBehaviour` smoke test and Unity-oriented usage notes for the current minimal C ABI.
+- Added a GitHub pull request template with branch/release-policy, integration-boundary, compatibility, validation and documentation/changelog checks.
 - Added a custom GitHub issue template for general tasks, planning items, investigations, release/packaging work and maintenance notes.
 - Added GitHub issue template configuration to disable blank issues and point users to documentation, roadmap and release policy references.
 
