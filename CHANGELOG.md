@@ -28,6 +28,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
 - Updated root README, documentation index, Russian documentation index and examples index with integration target, C ABI expansion, C# / Unity and browser/WebAssembly links.
+- Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
 - Updated SDK install rules so C# example sources are included with installed examples.
 - Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
