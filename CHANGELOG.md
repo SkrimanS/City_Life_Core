@@ -8,6 +8,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added `docs/release-plan-1.1.0.md`, `docs/release-notes-1.1.0.md` and `docs/release-manifest-1.1.0.md` as internal release-gate files for the `v1.1.0` Integration Foundation milestone.
 - Added C ABI world time-advance helpers for advancing opaque world handles by seconds, minutes, hours or days, and bumped the C interface version to `4`.
 - Added C and C# / Unity example coverage for the new C ABI world time-advance helpers.
 - Added C ABI smoke-test coverage for the new world time-advance helpers, including null-handle and zero-duration failure behavior.
