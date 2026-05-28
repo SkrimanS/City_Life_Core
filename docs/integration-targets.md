@@ -24,6 +24,8 @@ City Life Core native simulation core
       -> future engine or language bindings
 ```
 
+The staged plan for growing the C ABI is documented in `c-abi-expansion-plan.md`.
+
 This keeps the core reusable while allowing different platforms to use the same simulation logic through platform-specific adapters.
 
 ---
@@ -81,6 +83,12 @@ The current C ABI exposes:
 - read-only world event inspection.
 
 The C ABI is intentionally minimal. It is the safest boundary for languages that should not bind directly to the C++ API.
+
+Expansion plan:
+
+```text
+docs/c-abi-expansion-plan.md
+```
 
 ---
 
@@ -167,6 +175,7 @@ Before `v2.0.0`, integration work should focus on making the core easier to embe
 
 - keep the C++ API clean;
 - keep the C ABI safe and small;
+- document the C ABI expansion plan;
 - document C# / Unity integration through P/Invoke;
 - document the browser/WebAssembly integration path before adding a full adapter;
 - identify missing ABI functions needed by real Unity, browser and tool users;
