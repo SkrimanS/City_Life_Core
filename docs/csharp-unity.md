@@ -47,6 +47,12 @@ Initial C# wrapper example:
 examples/csharp_unity/CityLifeCoreNative.cs
 ```
 
+Optional Unity smoke-test component:
+
+```text
+examples/csharp_unity/CityLifeSmokeTest.cs
+```
+
 ---
 
 ## Build a native plug-in library
@@ -91,6 +97,7 @@ Assets/
       libcity_life_core.dylib     # macOS example
   Scripts/
     CityLifeCoreNative.cs
+    CityLifeSmokeTest.cs          # optional smoke test
 ```
 
 For iOS-style static linking, Unity commonly uses `__Internal` as the import name. The sample wrapper handles that through platform defines.
@@ -98,6 +105,8 @@ For iOS-style static linking, Unity commonly uses `__Internal` as the import nam
 ---
 
 ## Minimal C# usage
+
+The example folder includes `CityLifeSmokeTest.cs`, which can be attached to an empty Unity GameObject to verify that the native plug-in loads and that the C ABI wrapper can create and advance a world.
 
 ```csharp
 using CityLifeCore.Unity;
@@ -160,7 +169,7 @@ Do not attempt to free returned string pointers from C#.
 Initial C# / Unity support should remain intentionally small:
 
 - C# P/Invoke wrapper for the existing C ABI;
-- Unity smoke-test guidance;
+- Unity smoke-test guidance and `MonoBehaviour` smoke-test example;
 - native plug-in packaging notes;
 - no Unity dependency in the C++ core;
 - no generated C# package until the C ABI is wider and more stable.
