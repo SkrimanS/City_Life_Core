@@ -42,6 +42,10 @@ uint64_t clc_world_seed_c(const clc_world* world);
 uint64_t clc_world_current_tick_c(const clc_world* world);
 uint64_t clc_world_event_count_c(const clc_world* world);
 int clc_world_advance_c(clc_world* world, uint64_t ticks);
+int clc_world_advance_seconds_c(clc_world* world, uint64_t seconds);
+int clc_world_advance_minutes_c(clc_world* world, uint64_t minutes);
+int clc_world_advance_hours_c(clc_world* world, uint64_t hours);
+int clc_world_advance_days_c(clc_world* world, uint64_t days);
 
 uint64_t clc_world_event_id_c(const clc_world* world, uint64_t index);
 uint64_t clc_world_event_tick_c(const clc_world* world, uint64_t index);
