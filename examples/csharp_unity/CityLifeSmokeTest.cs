@@ -16,10 +16,10 @@ namespace CityLifeCore.Unity.Examples
         private string worldName = "Unity Demo World";
 
         [SerializeField]
-        private ulong seed = 42;
+        private int seed = 42;
 
         [SerializeField]
-        private ulong advanceMinutes = 5;
+        private int advanceMinutes = 5;
 
         private CityLifeWorld world;
 
@@ -29,10 +29,13 @@ namespace CityLifeCore.Unity.Examples
             Debug.Log($"C ABI version: {CityLifeCoreNative.CInterfaceVersion}");
             Debug.Log($"Ticks per day: {CityLifeCoreNative.TicksPerDay}");
 
-            world = CityLifeWorld.Create(worldName, seed);
+            var safeSeed = seed < 0 ? 0UL : (ulong)seed;
+            var safeAdvanceMinutes = advanceMinutes < 0 ? 0UL : (ulong)advanceMinutes;
+
+            world = CityLifeWorld.Create(worldName, safeSeed);
             Debug.Log($"Created world '{world.Name}' with seed {world.Seed}.");
 
-            var ticks = CityLifeCoreNative.MinutesToTicks(advanceMinutes);
+            var ticks = CityLifeCoreNative.MinutesToTicks(safeAdvanceMinutes);
             world.Advance(ticks);
 
             Debug.Log($"Advanced world by {ticks} ticks. Current tick: {world.CurrentTick}.");
