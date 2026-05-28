@@ -27,6 +27,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
 - Updated `docs/architecture.md` to describe core layers, public C++ API, C ABI, Unity/C# wrapper, future Browser/WASM adapter, server-authoritative/MMO boundaries and non-goals.
 - Updated `docs/build-and-linking-policy.md` to document C++ source-first linking, C ABI foreign-language boundaries, shared-library native plug-in builds, Unity/C# P/Invoke usage and planned Browser/WASM linking policy.
+- Updated `docs/ci-artifact-review.md` to expand CI, benchmark, SDK ZIP, installed package, C ABI consumer, C# / Unity example and planned Browser/WASM artifact review guidance.
 - Updated `docs/cmake-package.md` to describe the exported target, C++ and C ABI consumers, installed package variables, installed examples, shared-library native plug-in builds and planned Browser/WASM package notes.
 - Updated `docs/compatibility.md` to split compatibility expectations across C++ source compatibility, C ABI compatibility, C# / Unity wrapper expectations, planned Browser/WASM support, save/load, replay, data validation and packaging.
 - Updated `docs/migration.md` with migration guidance for lower-kebab-case docs, CMake package usage, source-first C++ API, C ABI adoption, Unity/C# wrapper migration, planned Browser/WASM support, game profiles, save/load and replay checks.
