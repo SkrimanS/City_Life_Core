@@ -164,6 +164,61 @@ Do not attempt to free returned string pointers from C#.
 
 ---
 
+## Troubleshooting
+
+### `DllNotFoundException: city_life_core`
+
+Check that the native library is present under `Assets/Plugins` for the current Unity editor/player platform.
+
+Typical names:
+
+- Windows: `city_life_core.dll`
+- Linux: `libcity_life_core.so`
+- macOS: `libcity_life_core.dylib`
+
+Also check the plug-in import settings in the Unity Inspector. The native plug-in must be enabled for the platform you are running.
+
+### `EntryPointNotFoundException`
+
+This usually means Unity found a native library, but it does not export the expected C ABI symbol.
+
+Check that:
+
+- the library was built from the same City Life Core version as the C# wrapper;
+- the C ABI implementation was included in the native build;
+- the library exports functions such as `clc_core_version_string_c` and `clc_world_create_c`;
+- the C# wrapper function names match `include/clc/c/CityLifeCoreC.h`.
+
+### Architecture mismatch
+
+Unity Editor and the native plug-in must use compatible architectures. For modern desktop Unity editor builds, this usually means a 64-bit native library.
+
+Examples:
+
+- 64-bit Windows Unity Editor needs a 64-bit `.dll`;
+- Linux Unity Editor needs a matching `.so`;
+- macOS Unity Editor needs a matching `.dylib` or bundle-compatible native plug-in.
+
+### Native dependency missing
+
+If the plug-in exists but still fails to load, one of its native dependencies may be missing.
+
+Check platform-specific dependency tools, for example:
+
+```text
+Windows: dumpbin /DEPENDENTS or Dependencies.exe
+Linux:   ldd
+macOS:   otool -L
+```
+
+### Crash or invalid native handle
+
+Keep native handles inside `CityLifeWorld` and call `Dispose()` when done. Do not copy raw `IntPtr` values into gameplay scripts.
+
+If a crash happens after domain reloads or scene changes, make sure Unity objects dispose their native world in `OnDestroy()`.
+
+---
+
 ## Scope for the first Unity support stage
 
 Initial C# / Unity support should remain intentionally small:
