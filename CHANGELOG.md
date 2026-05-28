@@ -12,6 +12,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
 - Added `docs/c-abi-expansion-plan.md` with a staged plan for expanding the C ABI for Unity/C#, browser/WASM, tools and other foreign-language integrations.
 - Added `docs/integration-targets.md` to clarify supported, initial and planned integration targets across C++, C ABI, Unity/C#, browser/WASM, other engines, backend/MMO and tooling scenarios.
+- Added `docs/integration-validation.md` with validation checklists for C++ package, installed consumer, C ABI, C# / Unity, SDK ZIP and future Browser/WASM integration work.
 - Added `docs/browser-wasm.md` with the planned browser and WebAssembly integration path for web games, web tools and browser-hosted demos.
 - Added `docs/csharp-unity.md` with initial C# and Unity integration guidance through the C ABI and P/Invoke, including native plug-in troubleshooting notes.
 - Added `examples/csharp_unity/` with a C# P/Invoke wrapper, Unity `MonoBehaviour` smoke test and Unity-oriented usage notes for the current minimal C ABI.
@@ -29,6 +30,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
 - Updated root README, documentation index, Russian documentation index and examples index with integration target, C ABI expansion, C# / Unity and browser/WebAssembly links.
 - Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
+- Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
 - Updated SDK install rules so C# example sources are included with installed examples.
 - Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
