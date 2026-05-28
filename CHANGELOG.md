@@ -11,7 +11,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `docs/release-plan-1.1.0.md`, `docs/release-notes-1.1.0.md` and `docs/release-manifest-1.1.0.md` as internal release-gate files for the `v1.1.0` Integration Foundation milestone.
 - Added C ABI world time-advance helpers for advancing opaque world handles by seconds, minutes, hours or days, and bumped the C interface version to `4`.
 - Added C and C# / Unity example coverage for the new C ABI world time-advance helpers.
-- Added C ABI smoke-test coverage for the new world time-advance helpers, including null-handle and zero-duration failure behavior.
+- Added C ABI smoke-test coverage for the new world time-advance helpers, including null-handle, extreme invalid-index and zero-duration failure behavior.
 - Added `docs/roadmap.md` with the post-1.0.0 project roadmap, internal milestone plan and v2/v3/v4 direction.
 - Added the main post-`v2.0.0` development line to the roadmap: global gameplay-mechanics deepening through `v2.x` and `v3.x`, followed by maximum mechanics depth and large-project readiness starting with `v4.0.0`.
 - Added `docs/game-profiles.md` with recommended integration profiles for native C++ games, Unity/C#, Browser/WASM, server-authoritative games, MMO-like services and editor/tooling workflows.
@@ -27,7 +27,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
-- Hardened C ABI world accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
+- Hardened C ABI world destruction, accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
 - Updated `CONTRIBUTING.md` to document restricted contributions, current `v1.x` branch policy, major-only public releases, integration boundary rules, PR expectations and security-sensitive integration areas.
 - Updated `docs/versioning.md` to document the current release policy: public Git tags and GitHub Releases are planned only for `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`; minor version labels are internal development milestones.
 - Updated roadmap and versioning branch policy to use broad internal stage branches named directly after the milestone, such as `v1.1.0`, `v1.2.0` and `v1.3.0`.
