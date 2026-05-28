@@ -35,7 +35,12 @@ namespace CityLifeCore.Unity.Examples
             var safeSeed = seed < 0 ? 0UL : (ulong)seed;
             var safeAdvanceMinutes = advanceMinutes < 0 ? 0UL : (ulong)advanceMinutes;
 
-            world = CityLifeWorld.Create(worldName, safeSeed);
+            if (!CityLifeWorld.TryCreate(worldName, safeSeed, out world))
+            {
+                Debug.LogError($"Failed to create City Life Core world '{worldName}'.");
+                return;
+            }
+
             Debug.Log($"Created world '{world.Name}' with seed {world.Seed}.");
 
             if (!world.TryAdvanceMinutes(safeAdvanceMinutes))
@@ -50,7 +55,12 @@ namespace CityLifeCore.Unity.Examples
 
             for (ulong i = 0; i < world.EventCount; ++i)
             {
-                var ev = world.GetEvent(i);
+                if (!world.TryGetEvent(i, out var ev))
+                {
+                    Debug.LogError($"Failed to read City Life Core event at index {i}.");
+                    continue;
+                }
+
                 Debug.Log($"CityLifeEvent id={ev.Id} tick={ev.Tick} type={ev.Type} payload={ev.Payload}");
             }
         }
