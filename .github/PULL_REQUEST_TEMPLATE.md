@@ -69,11 +69,19 @@ Select all that apply:
 - [ ] Local build passed
 - [ ] Tests passed
 - [ ] Examples built or checked
+- [ ] Installed package consumer checked
 - [ ] C ABI consumer checked
 - [ ] C# / Unity wrapper checked
 - [ ] Browser / WebAssembly path checked
+- [ ] SDK ZIP package checked
 - [ ] Documentation links checked
 - [ ] Not run / documentation-only change
+
+For integration-related changes, use:
+
+```text
+docs/integration-validation.md
+```
 
 ## Documentation and changelog
 
@@ -88,6 +96,7 @@ Relevant documents to consider:
 docs/roadmap.md
 docs/versioning.md
 docs/integration-targets.md
+docs/integration-validation.md
 docs/c-abi.md
 docs/c-abi-expansion-plan.md
 docs/csharp-unity.md
