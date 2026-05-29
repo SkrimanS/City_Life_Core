@@ -17,6 +17,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Added a C# wrapper compile-check project and validation scripts for Linux/macOS and Windows developer environments.
 - Added installed SDK/ZIP packaging support for C# compile-check project files.
 - Added shared-library build friendliness and CI validation for native plug-in scenarios through explicit `BUILD_SHARED_LIBS`, position-independent code, Windows symbol export settings and a shared-core CI build.
+- Added Unix manual release validation coverage for shared native builds, C# wrapper compile validation and installed/ZIP C# compile-check project presence.
 - Added Unity-style smoke-test component and expanded example README guidance for shared native builds, wrapper validation, soft ABI checks and non-throwing usage.
 - Added script-index documentation for C# / Unity wrapper validation.
 - Added Browser/WebAssembly planning documentation without claiming implemented WASM support.
@@ -66,6 +67,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 
 ## Changed
 
+- Extended Unix manual release validation to run the shared native build path, C# wrapper compile validation and installed/ZIP C# compile-check project presence checks.
 - Updated `scripts/README.md` to document C# wrapper compile validation scripts and clarify that they do not replace Unity Play Mode validation.
 - Expanded `examples/csharp_unity/README.md` with native shared-library build steps, C# wrapper compile validation, soft C ABI probing and non-throwing Unity usage examples.
 - Updated CMake install rules so C# example sources and C# compile-check project files are included with installed examples.
