@@ -18,24 +18,24 @@ namespace CityLifeCore.Unity.Examples
 
         private void Start()
         {
-            if (!CityLifeCoreNative.TryGetCInterfaceVersion(out var actualAbiVersion))
+            var status = CityLifeNativeDiagnostics.GetStatus();
+            var versionText = string.IsNullOrEmpty(status.VersionString) ? "unknown" : status.VersionString;
+            var ticksPerDayText = status.TicksPerDay == 0 ? "unknown" : status.TicksPerDay.ToString();
+
+            Debug.Log($"City Life Core version: {versionText}");
+            Debug.Log($"C ABI version: {status.ActualCInterfaceVersion} / required: {status.RequiredCInterfaceVersion}");
+            Debug.Log($"C ABI compatible: {status.CInterfaceCompatible}");
+            Debug.Log($"Ticks per day: {ticksPerDayText}");
+
+            if (!status.NativeLibraryLoaded)
             {
-                Debug.LogError($"Failed to load City Life Core native library or read its C ABI version. Required C ABI version: {CityLifeCoreNative.RequiredCInterfaceVersion}.");
+                Debug.LogError($"Failed to load City Life Core native library or read its C ABI version. Required C ABI version: {status.RequiredCInterfaceVersion}.");
                 return;
             }
 
-            var compatible = CityLifeCoreNative.TryCheckCInterfaceCompatibility(out actualAbiVersion);
-            var versionText = CityLifeCoreNative.TryGetVersionString(out var versionString) ? versionString : "unknown";
-            var ticksPerDayText = CityLifeCoreNative.TryGetTicksPerDay(out var ticksPerDay) ? ticksPerDay.ToString() : "unknown";
-
-            Debug.Log($"City Life Core version: {versionText}");
-            Debug.Log($"C ABI version: {actualAbiVersion} / required: {CityLifeCoreNative.RequiredCInterfaceVersion}");
-            Debug.Log($"C ABI compatible: {compatible}");
-            Debug.Log($"Ticks per day: {ticksPerDayText}");
-
-            if (!compatible)
+            if (!status.CInterfaceCompatible)
             {
-                Debug.LogError($"City Life Core native library C ABI version {actualAbiVersion} is not compatible with this wrapper.");
+                Debug.LogError($"City Life Core native library C ABI version {status.ActualCInterfaceVersion} is not compatible with this wrapper.");
                 return;
             }
 
