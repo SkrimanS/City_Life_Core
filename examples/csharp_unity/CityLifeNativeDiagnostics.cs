@@ -26,6 +26,40 @@ namespace CityLifeCore.Unity
         public ulong TicksPerDay { get; }
 
         public bool IsReady => NativeLibraryLoaded && CInterfaceCompatible;
+
+        public string FailureReason
+        {
+            get
+            {
+                if (!NativeLibraryLoaded)
+                {
+                    return "City Life Core native library is missing or its C ABI version cannot be read.";
+                }
+
+                if (!CInterfaceCompatible)
+                {
+                    return $"City Life Core C ABI version {ActualCInterfaceVersion} is older than required version {RequiredCInterfaceVersion}.";
+                }
+
+                return string.Empty;
+            }
+        }
+
+        public string Summary
+        {
+            get
+            {
+                var versionText = string.IsNullOrEmpty(VersionString) ? "unknown" : VersionString;
+                var ticksPerDayText = TicksPerDay == 0 ? "unknown" : TicksPerDay.ToString();
+                var readinessText = IsReady ? "ready" : "not ready";
+                return $"City Life Core native status: {readinessText}; version={versionText}; C ABI={ActualCInterfaceVersion}/{RequiredCInterfaceVersion}; ticksPerDay={ticksPerDayText}.";
+            }
+        }
+
+        public override string ToString()
+        {
+            return Summary;
+        }
     }
 
     public static class CityLifeNativeDiagnostics
