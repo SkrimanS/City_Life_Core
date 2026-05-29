@@ -344,7 +344,8 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
 RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const RuntimeAction& action) {
     auto validation = validate_runtime_action(action);
     if (!validation.ok()) {
-        return rejected_result(action, std::move(validation), "invalid_action", first_validation_message(validation));
+        const auto message = first_validation_message(validation);
+        return rejected_result(action, std::move(validation), "invalid_action", message);
     }
 
     const auto event_start = engine.events().size();
@@ -396,7 +397,8 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
 RuntimeActionResult dispatch_runtime_action_json(SimulationEngine& engine, std::string_view json) {
     auto parsed = parse_runtime_action_json(json);
     if (!parsed.validation.ok()) {
-        return rejected_parse_result(std::move(parsed.validation), "malformed_json", first_validation_message(parsed.validation));
+        const auto message = first_validation_message(parsed.validation);
+        return rejected_parse_result(std::move(parsed.validation), "malformed_json", message);
     }
     return dispatch_runtime_action(engine, parsed.action);
 }
