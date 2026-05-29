@@ -204,6 +204,12 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+The Unix manual release validation script also runs the shared native build path, C# wrapper compile validation and installed/ZIP C# compile-check project presence checks:
+
+```bash
+scripts/manual_release_validation.sh
+```
+
 Recommended affected-example checks:
 
 ```bash
