@@ -169,13 +169,18 @@ No WebAssembly runtime, JavaScript adapter or browser game is included in this m
 
 ## Installed package contents
 
-Installed examples should include C# files because `CMakeLists.txt` installs `*.cs` files under examples.
+Installed examples should include C# files and C# project files because `CMakeLists.txt` installs both `*.cs` and `*.csproj` files under examples.
 
 Expected integration examples:
 
 - `examples/find_package_consumer/`
 - `examples/c_abi_consumer/`
 - `examples/csharp_unity/`
+
+Expected C# compile validation files in installed examples:
+
+- `examples/csharp_unity/CityLifeCoreNative.cs`
+- `examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj`
 
 ---
 
