@@ -16,31 +16,11 @@ option(CLC_BUILD_EXAMPLES "Build City Life Core examples" ON)
 option(CLC_BUILD_BENCHMARKS "Build City Life Core benchmarks" OFF)
 option(CLC_BUILD_TOOLS "Build City Life Core tools" ON)
 
-add_library(city_life_core
-    src/clc/Version.cpp
-    src/clc/Time.cpp
-    src/clc/data/DataRegistry.cpp
-    src/clc/data/DataRegistryValidation.cpp
-    src/clc/data/DataPackLoader.cpp
-    src/clc/sim/ResourceStorage.cpp
-    src/clc/sim/SettlementSimulation.cpp
-    src/clc/sim/SettlementReport.cpp
-    src/clc/sim/SettlementRoute.cpp
-    src/clc/sim/CaravanSimulation.cpp
-    src/clc/sim/FactionSystem.cpp
-    src/clc/sim/Contracts.cpp
-    src/clc/sim/SimulationRuntime.cpp
-    src/clc/sim/SimulationRuntimeValidation.cpp
-    src/clc/sim/SimulationRuntimePersistence.cpp
-    src/clc/sim/SimulationRuntimePersistenceValidation.cpp
-    src/clc/sim/WorldEvent.cpp
-    src/clc/sim/WorldEventLog.cpp
-    src/clc/economy/Market.cpp
-    src/clc/economy/Wallet.cpp
-    src/clc/economy/Trade.cpp
-    src/clc/economy/Ledger.cpp
-    src/clc/c/CityLifeCoreC.cpp
+file(GLOB_RECURSE CLC_CORE_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/clc/*.cpp"
 )
+
+add_library(city_life_core ${CLC_CORE_SOURCES})
 
 add_library(CityLifeCore::core ALIAS city_life_core)
 
