@@ -115,6 +115,7 @@ install(
         PATTERN "*.cpp"
         PATTERN "*.c"
         PATTERN "*.cs"
+        PATTERN "*.csproj"
         PATTERN "*.txt"
         PATTERN "*.md"
 )
