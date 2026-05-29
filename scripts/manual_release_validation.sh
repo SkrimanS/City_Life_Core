@@ -15,11 +15,13 @@ Runs the local release validation flow:
   - installed C++ find_package consumer
   - installed C ABI consumer
   - installed C# wrapper compile-check project presence
+  - installed validation script presence
   - CPack ZIP package
   - SHA256SUMS.txt generation
   - unpacked ZIP C++ consumer
   - unpacked ZIP C ABI consumer
   - unpacked ZIP C# wrapper compile-check project presence
+  - unpacked ZIP validation script presence
 
 The optional build-dir defaults to build-manual-release-validation.
 EOF
@@ -77,6 +79,25 @@ find_csharp_compile_project() {
   find "${prefix}" -type f -path '*/examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj' | head -n 1
 }
 
+find_installed_script() {
+  local prefix="$1"
+  local script_name="$2"
+  find "${prefix}" -type f -path "*/scripts/${script_name}" | head -n 1
+}
+
+require_installed_script() {
+  local prefix="$1"
+  local script_name="$2"
+  local description="$3"
+  local script_path
+  script_path="$(find_installed_script "${prefix}" "${script_name}")"
+  if [[ -z "${script_path}" ]]; then
+    echo "Missing ${description} under ${prefix}" >&2
+    exit 1
+  fi
+  require_file "${script_path}" "${description}"
+}
+
 echo "Repository: ${repo_root}"
 echo "Build dir:  ${build_path}"
 
@@ -111,6 +132,8 @@ if [[ -z "${installed_csharp_project}" ]]; then
   exit 1
 fi
 require_file "${installed_csharp_project}" "installed C# wrapper compile-check project"
+require_installed_script "${install_prefix}" "validate_csharp_wrapper.sh" "installed C# wrapper validation shell script"
+require_installed_script "${install_prefix}" "validate_csharp_wrapper.ps1" "installed C# wrapper validation PowerShell script"
 
 run cmake -S "${repo_root}/examples/find_package_consumer" \
   -B "${consumer_build}" \
@@ -155,6 +178,8 @@ if [[ -z "${zip_csharp_project}" ]]; then
   exit 1
 fi
 require_file "${zip_csharp_project}" "unpacked SDK C# wrapper compile-check project"
+require_installed_script "${sdk_prefix}" "validate_csharp_wrapper.sh" "unpacked SDK C# wrapper validation shell script"
+require_installed_script "${sdk_prefix}" "validate_csharp_wrapper.ps1" "unpacked SDK C# wrapper validation PowerShell script"
 
 run cmake -S "${repo_root}/examples/find_package_consumer" \
   -B "${zip_consumer_build}" \
