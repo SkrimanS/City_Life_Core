@@ -33,6 +33,7 @@ target_include_directories(city_life_core
 )
 
 set_target_properties(city_life_core PROPERTIES
+    EXPORT_NAME core
     OUTPUT_NAME city_life_core
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
