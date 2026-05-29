@@ -40,6 +40,48 @@ Functions:
 - `clc::sim::dispatch_runtime_action_json`;
 - `clc::sim::runtime_action_result_to_json`.
 
+## Action format
+
+Canonical JSON actions use:
+
+- `action_id`;
+- `type`;
+- optional `actor_id`;
+- action-specific `payload` object.
+
+The parsed `RuntimeAction` also exposes common payload fields for dispatch:
+
+- `target_id`;
+- `secondary_target_id`;
+- `resource_id`;
+- `amount`;
+- `days`;
+- raw `payload_json`.
+
+## Result format
+
+Action results include:
+
+- `accepted`;
+- `validation_status`;
+- `error_code`;
+- `message`;
+- `validation` diagnostics;
+- produced events.
+
+Stable validation statuses:
+
+- `accepted`;
+- `invalid`;
+- `rejected`.
+
+Stable error-code categories:
+
+- `malformed_json`;
+- `invalid_action`;
+- `action_rejected`;
+- `unsupported_action_type`.
+
 ## Examples
 
 ```text
@@ -51,6 +93,16 @@ examples/action_bridge.cpp
 ```text
 tests/action_bridge_tests.cpp
 ```
+
+Coverage includes:
+
+- valid action;
+- invalid action type;
+- malformed JSON;
+- malformed payload;
+- missing fields;
+- rejected action no mutation;
+- deterministic result JSON basics.
 
 ## Documentation
 
