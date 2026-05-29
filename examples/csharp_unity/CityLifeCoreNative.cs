@@ -71,6 +71,48 @@ namespace CityLifeCore.Unity
             return TryGetCInterfaceVersion(out actualVersion) && actualVersion >= RequiredCInterfaceVersion;
         }
 
+        public static bool TryGetVersionString(out string versionString)
+        {
+            try
+            {
+                versionString = VersionString;
+                return true;
+            }
+            catch (Exception)
+            {
+                versionString = string.Empty;
+                return false;
+            }
+        }
+
+        public static bool TryGetTicksPerDay(out ulong ticksPerDay)
+        {
+            try
+            {
+                ticksPerDay = TicksPerDay;
+                return true;
+            }
+            catch (Exception)
+            {
+                ticksPerDay = 0;
+                return false;
+            }
+        }
+
+        public static bool TryMinutesToTicks(ulong minutes, out ulong ticks)
+        {
+            try
+            {
+                ticks = MinutesToTicks(minutes);
+                return true;
+            }
+            catch (Exception)
+            {
+                ticks = 0;
+                return false;
+            }
+        }
+
         public static void EnsureCompatibleCInterface()
         {
             if (!TryGetCInterfaceVersion(out var actual))
