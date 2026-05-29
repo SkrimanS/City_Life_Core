@@ -150,6 +150,7 @@ configure_package_config_file(
     PATH_VARS
         CLC_INSTALL_DATA_DIR
         CLC_INSTALL_EXAMPLES_DIR
+        CLC_INSTALL_SCRIPTS_DIR
 )
 
 write_basic_package_version_file(
