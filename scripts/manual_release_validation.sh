@@ -8,14 +8,18 @@ Usage: scripts/manual_release_validation.sh [build-dir]
 Runs the local release validation flow:
   - configure/build with tests, examples and benchmarks enabled
   - ctest
+  - shared core build with BUILD_SHARED_LIBS=ON
+  - C# wrapper compile validation
   - benchmark runner
   - cmake --install into a local prefix
   - installed C++ find_package consumer
   - installed C ABI consumer
+  - installed C# wrapper compile-check project presence
   - CPack ZIP package
   - SHA256SUMS.txt generation
   - unpacked ZIP C++ consumer
   - unpacked ZIP C ABI consumer
+  - unpacked ZIP C# wrapper compile-check project presence
 
 The optional build-dir defaults to build-manual-release-validation.
 EOF
@@ -29,6 +33,7 @@ fi
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 build_dir="${1:-build-manual-release-validation}"
 build_path="${repo_root}/${build_dir}"
+shared_build_path="${build_path}/shared-build"
 install_prefix="${build_path}/install-prefix"
 consumer_build="${build_path}/consumer-build"
 c_abi_consumer_build="${build_path}/c-abi-consumer-build"
@@ -58,6 +63,20 @@ find_executable() {
   return 1
 }
 
+require_file() {
+  local path="$1"
+  local description="$2"
+  if [[ ! -f "${path}" ]]; then
+    echo "Missing ${description}: ${path}" >&2
+    exit 1
+  fi
+}
+
+find_csharp_compile_project() {
+  local prefix="$1"
+  find "${prefix}" -type f -path '*/examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj' | head -n 1
+}
+
 echo "Repository: ${repo_root}"
 echo "Build dir:  ${build_path}"
 
@@ -69,12 +88,29 @@ run cmake -S "${repo_root}" -B "${build_path}" \
 run cmake --build "${build_path}" --config Release
 run ctest --test-dir "${build_path}" --output-on-failure -C Release
 
+run cmake -S "${repo_root}" -B "${shared_build_path}" \
+  -DBUILD_SHARED_LIBS=ON \
+  -DCLC_BUILD_TESTS=OFF \
+  -DCLC_BUILD_EXAMPLES=OFF \
+  -DCLC_BUILD_BENCHMARKS=OFF \
+  -DCLC_BUILD_TOOLS=OFF
+run cmake --build "${shared_build_path}" --config Release
+
+run bash "${repo_root}/scripts/validate_csharp_wrapper.sh"
+
 benchmark_exe="$(find_executable \
   "${build_path}/clc_core_benchmarks" \
   "${build_path}/Release/clc_core_benchmarks.exe")"
 run "${benchmark_exe}" | tee "${benchmark_output}"
 
 run cmake --install "${build_path}" --config Release --prefix "${install_prefix}"
+
+installed_csharp_project="$(find_csharp_compile_project "${install_prefix}")"
+if [[ -z "${installed_csharp_project}" ]]; then
+  echo "Installed C# wrapper compile-check project was not found under ${install_prefix}" >&2
+  exit 1
+fi
+require_file "${installed_csharp_project}" "installed C# wrapper compile-check project"
 
 run cmake -S "${repo_root}/examples/find_package_consumer" \
   -B "${consumer_build}" \
@@ -113,6 +149,13 @@ if [[ -z "${sdk_prefix}" ]]; then
   exit 1
 fi
 
+zip_csharp_project="$(find_csharp_compile_project "${sdk_prefix}")"
+if [[ -z "${zip_csharp_project}" ]]; then
+  echo "Unpacked SDK C# wrapper compile-check project was not found under ${sdk_prefix}" >&2
+  exit 1
+fi
+require_file "${zip_csharp_project}" "unpacked SDK C# wrapper compile-check project"
+
 run cmake -S "${repo_root}/examples/find_package_consumer" \
   -B "${zip_consumer_build}" \
   -DCMAKE_PREFIX_PATH="${sdk_prefix}"
@@ -137,3 +180,5 @@ echo "Benchmark output: ${benchmark_output}"
 echo "Checksums:        ${checksums_file}"
 echo "SDK ZIP:          ${zip_file}"
 echo "Unpacked prefix:  ${sdk_prefix}"
+echo "Shared build:     ${shared_build_path}"
+echo "C# check project: ${installed_csharp_project}"
