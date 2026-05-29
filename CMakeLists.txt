@@ -80,6 +80,7 @@ endif()
 set(CLC_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CityLifeCore)
 set(CLC_INSTALL_DATA_DIR ${CMAKE_INSTALL_DATADIR}/city-life-core)
 set(CLC_INSTALL_EXAMPLES_DIR ${CMAKE_INSTALL_DOCDIR}/examples)
+set(CLC_INSTALL_SCRIPTS_DIR ${CMAKE_INSTALL_DOCDIR}/scripts)
 
 install(
     TARGETS city_life_core
@@ -117,6 +118,15 @@ install(
         PATTERN "*.cs"
         PATTERN "*.csproj"
         PATTERN "*.txt"
+        PATTERN "*.md"
+)
+
+install(
+    DIRECTORY scripts/
+    DESTINATION ${CLC_INSTALL_SCRIPTS_DIR}
+    FILES_MATCHING
+        PATTERN "*.sh"
+        PATTERN "*.ps1"
         PATTERN "*.md"
 )
 
