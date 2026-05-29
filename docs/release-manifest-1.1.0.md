@@ -124,6 +124,16 @@ Expected C# / Unity example files:
 - `examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj`
 - `examples/csharp_unity/README.md`
 
+The example README should cover:
+
+- shared native library build commands;
+- expected native library names on Windows, Linux and macOS;
+- wrapper compile validation with `dotnet build` or validation scripts;
+- Unity `Assets/Plugins` and `Assets/Scripts` layout;
+- soft C ABI probing before gameplay calls;
+- non-throwing `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` usage;
+- the current minimal C ABI scope and future expansion boundary.
+
 Expected managed wrapper surface includes:
 
 - version helpers;
