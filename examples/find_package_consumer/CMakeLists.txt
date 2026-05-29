@@ -24,6 +24,14 @@ if(NOT DEFINED CityLifeCore_SCRIPTS_DIR OR NOT EXISTS "${CityLifeCore_SCRIPTS_DI
     message(FATAL_ERROR "CityLifeCore_SCRIPTS_DIR is not defined or does not exist")
 endif()
 
+if(NOT EXISTS "${CityLifeCore_SCRIPTS_DIR}/validate_csharp_wrapper.sh")
+    message(FATAL_ERROR "validate_csharp_wrapper.sh is missing from CityLifeCore_SCRIPTS_DIR")
+endif()
+
+if(NOT EXISTS "${CityLifeCore_SCRIPTS_DIR}/validate_csharp_wrapper.ps1")
+    message(FATAL_ERROR "validate_csharp_wrapper.ps1 is missing from CityLifeCore_SCRIPTS_DIR")
+endif()
+
 add_executable(city_life_core_consumer main.cpp)
 target_link_libraries(city_life_core_consumer PRIVATE CityLifeCore::core)
 target_compile_features(city_life_core_consumer PRIVATE cxx_std_20)
