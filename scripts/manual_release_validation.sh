@@ -98,10 +98,22 @@ require_installed_script() {
   require_file "${script_path}" "${description}"
 }
 
+case "${build_path}" in
+  "${repo_root}"|"${repo_root}/"|"/")
+    echo "Refusing to clean unsafe build directory: ${build_path}" >&2
+    exit 1
+    ;;
+esac
+
+rm -rf "${build_path}"
+
+mkdir -p "${build_path}"
+
 echo "Repository: ${repo_root}"
 echo "Build dir:  ${build_path}"
 
 run cmake -S "${repo_root}" -B "${build_path}" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DCLC_BUILD_TESTS=ON \
   -DCLC_BUILD_EXAMPLES=ON \
   -DCLC_BUILD_BENCHMARKS=ON
@@ -110,6 +122,7 @@ run cmake --build "${build_path}" --config Release
 run ctest --test-dir "${build_path}" --output-on-failure -C Release
 
 run cmake -S "${repo_root}" -B "${shared_build_path}" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=ON \
   -DCLC_BUILD_TESTS=OFF \
   -DCLC_BUILD_EXAMPLES=OFF \
@@ -138,6 +151,7 @@ require_installed_script "${install_prefix}" "validate_csharp_wrapper.ps1" "inst
 
 run cmake -S "${repo_root}/examples/find_package_consumer" \
   -B "${consumer_build}" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH="${install_prefix}"
 run cmake --build "${consumer_build}" --config Release
 consumer_exe="$(find_executable \
@@ -147,6 +161,7 @@ run "${consumer_exe}"
 
 run cmake -S "${repo_root}/examples/c_abi_consumer" \
   -B "${c_abi_consumer_build}" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH="${install_prefix}"
 run cmake --build "${c_abi_consumer_build}" --config Release
 c_abi_consumer_exe="$(find_executable \
@@ -185,6 +200,7 @@ require_installed_script "${sdk_prefix}" "validate_csharp_wrapper.ps1" "unpacked
 
 run cmake -S "${repo_root}/examples/find_package_consumer" \
   -B "${zip_consumer_build}" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH="${sdk_prefix}"
 run cmake --build "${zip_consumer_build}" --config Release
 zip_consumer_exe="$(find_executable \
@@ -194,6 +210,7 @@ run "${zip_consumer_exe}"
 
 run cmake -S "${repo_root}/examples/c_abi_consumer" \
   -B "${zip_c_abi_consumer_build}" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH="${sdk_prefix}"
 run cmake --build "${zip_c_abi_consumer_build}" --config Release
 zip_c_abi_consumer_exe="$(find_executable \
