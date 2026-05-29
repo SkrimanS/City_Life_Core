@@ -9,6 +9,7 @@ The wrapper is intentionally small. It demonstrates how Unity can call the nativ
 | File | Purpose |
 | --- | --- |
 | `CityLifeCoreNative.cs` | C# P/Invoke declarations and a small safe wrapper around the current `clc_world` C ABI handle. |
+| `CityLifeWorldSafeAccess.cs` | Optional extension helpers for non-throwing world property reads in Unity gameplay code. |
 | `CityLifeSmokeTest.cs` | Optional Unity `MonoBehaviour` smoke test that creates a world, advances it and prints events to the Unity console. |
 | `CityLifeCoreNative.CompileCheck.csproj` | Minimal .NET project used to compile-check the wrapper outside Unity. |
 
@@ -53,7 +54,7 @@ This check validates the managed wrapper syntax and public managed API. It does 
 
 ## Unity layout
 
-Copy the native library, wrapper and optional smoke test into a Unity project:
+Copy the native library, wrapper, safe-access helpers and optional smoke test into a Unity project:
 
 ```text
 Assets/
@@ -62,6 +63,7 @@ Assets/
       city_life_core.dll
   Scripts/
     CityLifeCoreNative.cs
+    CityLifeWorldSafeAccess.cs
     CityLifeSmokeTest.cs
 ```
 
@@ -76,6 +78,7 @@ Attach `CityLifeSmokeTest` to an empty GameObject and enter Play Mode. The scrip
 - print the actual and required C ABI versions;
 - create a native world;
 - advance it by a small number of minutes;
+- read world name, seed, current tick and event count through safe helpers;
 - print any world events returned through the C ABI;
 - log a Unity error instead of throwing for normal gameplay-style failures.
 
@@ -98,7 +101,8 @@ public sealed class CityLifeSmokeTest : MonoBehaviour
             return;
         }
 
-        Debug.Log($"City Life Core {CityLifeCoreNative.VersionString}");
+        var versionText = CityLifeCoreNative.TryGetVersionString(out var versionString) ? versionString : "unknown";
+        Debug.Log($"City Life Core {versionText}");
         Debug.Log($"C ABI {actualAbiVersion} / required {CityLifeCoreNative.RequiredCInterfaceVersion}");
 
         if (!CityLifeWorld.TryCreate("Unity Demo World", 42, out world))
@@ -107,13 +111,18 @@ public sealed class CityLifeSmokeTest : MonoBehaviour
             return;
         }
 
+        var worldNameText = world.TryGetName(out var worldName) ? worldName : "unknown";
+        var seedText = world.TryGetSeed(out var seed) ? seed.ToString() : "unknown";
+        Debug.Log($"Created world '{worldNameText}' with seed {seedText}.");
+
         if (!world.TryAdvanceMinutes(5))
         {
             Debug.LogError("Failed to advance City Life Core world.");
             return;
         }
 
-        for (ulong i = 0; i < world.EventCount; ++i)
+        var eventCount = world.TryGetEventCount(out var count) ? count : 0UL;
+        for (ulong i = 0; i < eventCount; ++i)
         {
             if (!world.TryGetEvent(i, out var ev))
             {
@@ -133,7 +142,7 @@ public sealed class CityLifeSmokeTest : MonoBehaviour
 }
 ```
 
-Throwing helpers such as `CityLifeWorld.Create`, `AdvanceMinutes` and `GetEvent` are still available for editor tooling, tests or code that prefers exceptions.
+Throwing helpers such as `CityLifeWorld.Create`, `AdvanceMinutes`, `GetEvent` and direct properties such as `Name`, `Seed`, `CurrentTick` and `EventCount` are still available for editor tooling, tests or code that prefers exceptions.
 
 ## Current scope
 
@@ -144,6 +153,7 @@ The current wrapper exposes only the existing minimal C ABI:
 - tick conversion helpers;
 - opaque world create/destroy;
 - world name, seed, current tick and event count;
+- safe managed property read helpers for Unity gameplay code;
 - simple world advancement by ticks, seconds, minutes, hours or days;
 - read-only event access.
 
