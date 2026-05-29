@@ -20,6 +20,7 @@
 #include "clc/economy/Market.hpp"
 #include "clc/economy/Trade.hpp"
 
+#include "clc/sim/ActionBridge.hpp"
 #include "clc/sim/Caravans.hpp"
 #include "clc/sim/ContractRewards.hpp"
 #include "clc/sim/Contracts.hpp"
