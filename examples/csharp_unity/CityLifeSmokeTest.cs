@@ -48,7 +48,9 @@ namespace CityLifeCore.Unity.Examples
                 return;
             }
 
-            Debug.Log($"Created world '{world.Name}' with seed {world.Seed}.");
+            var createdName = world.TryGetName(out var actualWorldName) ? actualWorldName : "unknown";
+            var createdSeed = world.TryGetSeed(out var actualSeed) ? actualSeed.ToString() : "unknown";
+            Debug.Log($"Created world '{createdName}' with seed {createdSeed}.");
 
             if (!world.TryAdvanceMinutes(safeAdvanceMinutes))
             {
@@ -57,10 +59,13 @@ namespace CityLifeCore.Unity.Examples
             }
 
             var ticksText = CityLifeCoreNative.TryMinutesToTicks(safeAdvanceMinutes, out var ticks) ? ticks.ToString() : "unknown";
-            Debug.Log($"Advanced world by {safeAdvanceMinutes} minute(s) / {ticksText} ticks. Current tick: {world.CurrentTick}.");
-            Debug.Log($"World event count: {world.EventCount}.");
+            var currentTickText = world.TryGetCurrentTick(out var currentTick) ? currentTick.ToString() : "unknown";
+            var eventCount = world.TryGetEventCount(out var count) ? count : 0UL;
 
-            for (ulong i = 0; i < world.EventCount; ++i)
+            Debug.Log($"Advanced world by {safeAdvanceMinutes} minute(s) / {ticksText} ticks. Current tick: {currentTickText}.");
+            Debug.Log($"World event count: {eventCount}.");
+
+            for (ulong i = 0; i < eventCount; ++i)
             {
                 if (!world.TryGetEvent(i, out var ev))
                 {
