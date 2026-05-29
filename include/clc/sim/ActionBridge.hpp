@@ -19,6 +19,7 @@ struct RuntimeAction final {
     std::string resource_id{};
     std::uint64_t amount{0};
     std::uint64_t days{0};
+    std::string payload_json{};
 };
 
 struct RuntimeActionParseResult final {
@@ -30,8 +31,10 @@ struct RuntimeActionResult final {
     std::string action_id{};
     std::string type{};
     bool accepted{false};
+    std::string validation_status{};
     std::string error_code{};
     std::string message{};
+    data::ValidationReport validation{};
     SimulationCommandResult command{};
     std::vector<SimulationEvent> events{};
 };
