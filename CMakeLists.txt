@@ -73,7 +73,7 @@ if(CLC_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
 
-if(CLC_BUILD_TOOLS)
+if(CLC_BUILD_TOOLS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tools/CMakeLists.txt")
     add_subdirectory(tools)
 endif()
 
