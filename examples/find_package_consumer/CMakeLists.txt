@@ -4,16 +4,25 @@ project(CityLifeCoreFindPackageConsumer LANGUAGES CXX)
 
 find_package(CityLifeCore CONFIG REQUIRED)
 
-foreach(required_dir IN ITEMS
-    CityLifeCore_INCLUDE_DIR
-    CityLifeCore_DOCS_DIR
-    CityLifeCore_DATA_DIR
-    CityLifeCore_EXAMPLES_DIR
-)
-    if(NOT DEFINED ${required_dir} OR NOT EXISTS "${${required_dir}}")
-        message(FATAL_ERROR "${required_dir} is not defined or does not exist: ${${required_dir}}")
-    endif()
-endforeach()
+if(NOT DEFINED CityLifeCore_INCLUDE_DIR OR NOT EXISTS "${CityLifeCore_INCLUDE_DIR}")
+    message(FATAL_ERROR "CityLifeCore_INCLUDE_DIR is not defined or does not exist")
+endif()
+
+if(NOT DEFINED CityLifeCore_DOCS_DIR OR NOT EXISTS "${CityLifeCore_DOCS_DIR}")
+    message(FATAL_ERROR "CityLifeCore_DOCS_DIR is not defined or does not exist")
+endif()
+
+if(NOT DEFINED CityLifeCore_DATA_DIR OR NOT EXISTS "${CityLifeCore_DATA_DIR}")
+    message(FATAL_ERROR "CityLifeCore_DATA_DIR is not defined or does not exist")
+endif()
+
+if(NOT DEFINED CityLifeCore_EXAMPLES_DIR OR NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}")
+    message(FATAL_ERROR "CityLifeCore_EXAMPLES_DIR is not defined or does not exist")
+endif()
+
+if(NOT DEFINED CityLifeCore_SCRIPTS_DIR OR NOT EXISTS "${CityLifeCore_SCRIPTS_DIR}")
+    message(FATAL_ERROR "CityLifeCore_SCRIPTS_DIR is not defined or does not exist")
+endif()
 
 add_executable(city_life_core_consumer main.cpp)
 target_link_libraries(city_life_core_consumer PRIVATE CityLifeCore::core)
