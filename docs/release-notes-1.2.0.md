@@ -7,11 +7,47 @@ v1.2.0 introduces a local action bridge for external game layers, tools and futu
 The bridge provides:
 
 - `clc::sim::RuntimeAction`;
+- `clc::sim::RuntimeActionParseResult`;
+- `clc::sim::RuntimeActionResult`;
 - `parse_runtime_action_json`;
 - `validate_runtime_action`;
 - `dispatch_runtime_action`;
 - `dispatch_runtime_action_json`;
 - `runtime_action_result_to_json`.
+
+## Action format
+
+The canonical v1.2.0 action format is payload-first:
+
+```json
+{
+  "action_id": "a1",
+  "type": "add_resource",
+  "actor_id": "tool-or-player",
+  "payload": {
+    "target_id": "riverwatch",
+    "resource_id": "grain",
+    "amount": 5
+  }
+}
+```
+
+## Result format
+
+Action results include:
+
+- `accepted`;
+- `validation_status`;
+- `error_code`;
+- `message`;
+- produced event count;
+- diagnostics count.
+
+`validation_status` is one of:
+
+- `accepted`;
+- `invalid`;
+- `rejected`.
 
 ## Supported actions
 
@@ -48,6 +84,7 @@ Added tests for:
 - valid action;
 - invalid action type;
 - malformed JSON;
+- malformed payload;
 - missing fields;
 - rejected action no mutation;
 - deterministic result JSON basics.
