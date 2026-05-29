@@ -231,7 +231,10 @@ int main() {
     expect_runtime_drift_detected(runtime, engine_storage_drifted, "runtime match unexpectedly accepted engine settlement storage drift");
 
     auto engine_event_drifted = loaded;
-    engine_event_drifted.engine.add_resource_to_settlement_command("riverwatch", "grain", 1);
+    require(
+        engine_event_drifted.engine.add_resource_to_settlement_command("riverwatch", "grain", 1).ok(),
+        "engine event drift setup failed"
+    );
     expect_runtime_drift_detected(runtime, engine_event_drifted, "runtime match unexpectedly accepted engine event drift");
 
     auto market_demand_drifted = loaded;
