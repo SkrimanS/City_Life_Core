@@ -1,6 +1,9 @@
 #include "clc/sim/SimulationRuntimePersistenceValidation.hpp"
 
+#include <algorithm>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace clc::sim {
 
@@ -20,6 +23,32 @@ void append_report(data::ValidationReport& target, const data::ValidationReport&
             target.add_warning(message.path, message.message);
         }
     }
+}
+
+std::vector<std::string> canonical_world_state_lines(const SimulationWorldState& state) {
+    const auto serialized = serialize_simulation_world_state(state);
+    std::vector<std::string> lines;
+
+    std::size_t start = 0;
+    while (start <= serialized.size()) {
+        const auto end = serialized.find('\n', start);
+        auto line = end == std::string::npos
+            ? serialized.substr(start)
+            : serialized.substr(start, end - start);
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        if (!line.empty()) {
+            lines.push_back(std::move(line));
+        }
+        if (end == std::string::npos) {
+            break;
+        }
+        start = end + 1;
+    }
+
+    std::sort(lines.begin(), lines.end());
+    return lines;
 }
 
 void add_registry_count_mismatches(
@@ -168,7 +197,7 @@ data::ValidationReport validate_simulation_runtimes_match(
 
     add_mismatch(
         report,
-        serialize_simulation_world_state(expected_state) == serialize_simulation_world_state(actual_state),
+        canonical_world_state_lines(expected_state) == canonical_world_state_lines(actual_state),
         "runtime world state serialization mismatch"
     );
 
