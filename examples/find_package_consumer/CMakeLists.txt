@@ -28,6 +28,10 @@ if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeWorldSafeAccess
     message(FATAL_ERROR "CityLifeWorldSafeAccess.cs is missing from CityLifeCore_EXAMPLES_DIR")
 endif()
 
+if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeNativeDiagnostics.cs")
+    message(FATAL_ERROR "CityLifeNativeDiagnostics.cs is missing from CityLifeCore_EXAMPLES_DIR")
+endif()
+
 if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeCoreNative.CompileCheck.csproj")
     message(FATAL_ERROR "CityLifeCoreNative.CompileCheck.csproj is missing from CityLifeCore_EXAMPLES_DIR")
 endif()
