@@ -1,6 +1,6 @@
 # Scripts
 
-This directory contains helper scripts for local validation and 1.0.0 release troubleshooting.
+This directory contains helper scripts for local validation, release troubleshooting and integration preflight checks.
 
 Russian documentation starts at [`../docs/ru/README.md`](../docs/ru/README.md).
 
@@ -8,7 +8,7 @@ Russian documentation starts at [`../docs/ru/README.md`](../docs/ru/README.md).
 
 ## Manual release validation
 
-Use these scripts when GitHub Actions logs, metadata or artifacts are unavailable, or when you want to reproduce the release-validation flow locally before reviewing the 1.0.0 release.
+Use these scripts when GitHub Actions logs, metadata or artifacts are unavailable, or when you want to reproduce the release-validation flow locally before reviewing a release.
 
 ### Unix-like shell
 
@@ -19,7 +19,7 @@ bash scripts/manual_release_validation.sh
 With a custom build directory:
 
 ```bash
-bash scripts/manual_release_validation.sh build-local-1.0.0-validation
+bash scripts/manual_release_validation.sh build-local-validation
 ```
 
 ### Windows PowerShell
@@ -31,14 +31,40 @@ pwsh -File scripts/manual_release_validation.ps1
 With a custom build directory:
 
 ```powershell
-pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-1.0.0-validation
+pwsh -File scripts/manual_release_validation.ps1 -BuildDir build-local-validation
 ```
 
 ---
 
-## What the validation scripts run
+## C# / Unity wrapper validation
 
-The scripts intentionally mirror the release-validation shape used by CI:
+Use these scripts to compile-check the C# wrapper outside Unity:
+
+### Unix-like shell
+
+```bash
+bash scripts/validate_csharp_wrapper.sh
+```
+
+### Windows PowerShell
+
+```powershell
+pwsh -File scripts/validate_csharp_wrapper.ps1
+```
+
+The scripts run:
+
+```bash
+dotnet build examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj -c Release
+```
+
+This validation checks the managed wrapper syntax and public managed API surface. It does not load the native library and does not replace Unity Play Mode validation with the platform-specific native plug-in copied into `Assets/Plugins`.
+
+---
+
+## What the manual release validation scripts run
+
+The manual release validation scripts intentionally mirror the release-validation shape used by CI:
 
 - configure/build with tests, examples and benchmarks enabled;
 - `ctest`;
@@ -56,7 +82,7 @@ The C ABI consumer validates:
 - C ABI version;
 - version/time utilities;
 - opaque `clc_world` create/destroy and state access;
-- world tick advancement;
+- world tick/time advancement helpers;
 - world event count;
 - read-only world event id/tick/type/payload accessors.
 
