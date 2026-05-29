@@ -93,6 +93,8 @@ install(
     DIRECTORY examples/
     DESTINATION ${CLC_INSTALL_EXAMPLES_DIR}
     FILES_MATCHING
+        PATTERN "bin" EXCLUDE
+        PATTERN "obj" EXCLUDE
         PATTERN "*.cpp"
         PATTERN "*.c"
         PATTERN "*.cs"
@@ -128,6 +130,8 @@ configure_package_config_file(
     ${CMAKE_CURRENT_BINARY_DIR}/CityLifeCoreConfig.cmake
     INSTALL_DESTINATION ${CLC_INSTALL_CMAKEDIR}
     PATH_VARS
+        CMAKE_INSTALL_INCLUDEDIR
+        CMAKE_INSTALL_DOCDIR
         CLC_INSTALL_DATA_DIR
         CLC_INSTALL_EXAMPLES_DIR
         CLC_INSTALL_SCRIPTS_DIR
