@@ -9,5 +9,6 @@
   <ItemGroup>
     <Compile Include="CityLifeCoreNative.cs" />
     <Compile Include="CityLifeWorldSafeAccess.cs" />
+    <Compile Include="CityLifeNativeDiagnostics.cs" />
   </ItemGroup>
 </Project>
