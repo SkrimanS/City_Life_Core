@@ -8,5 +8,6 @@
 
   <ItemGroup>
     <Compile Include="CityLifeCoreNative.cs" />
+    <Compile Include="CityLifeWorldSafeAccess.cs" />
   </ItemGroup>
 </Project>
