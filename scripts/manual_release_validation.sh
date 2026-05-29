@@ -170,16 +170,17 @@ c_abi_consumer_exe="$(find_executable \
 run "${c_abi_consumer_exe}"
 
 run cmake -E chdir "${build_path}" cpack --config CPackConfig.cmake -G ZIP -C Release
-run cmake -E chdir "${build_path}" sha256sum city-life-core-sdk-*.zip
-cmake -E chdir "${build_path}" sha256sum city-life-core-sdk-*.zip > "${checksums_file}"
-
-rm -rf "${zip_extract_dir}"
-mkdir -p "${zip_extract_dir}"
 zip_file="$(find "${build_path}" -maxdepth 1 -type f -name 'city-life-core-sdk-*.zip' | head -n 1)"
 if [[ -z "${zip_file}" ]]; then
   echo "No SDK ZIP package found in ${build_path}" >&2
   exit 1
 fi
+zip_basename="$(basename "${zip_file}")"
+run cmake -E chdir "${build_path}" sha256sum "${zip_basename}"
+cmake -E chdir "${build_path}" sha256sum "${zip_basename}" > "${checksums_file}"
+
+rm -rf "${zip_extract_dir}"
+mkdir -p "${zip_extract_dir}"
 
 run cmake -E chdir "${zip_extract_dir}" cmake -E tar xf "${zip_file}"
 sdk_prefix="$(find "${zip_extract_dir}" -mindepth 1 -maxdepth 1 -type d | head -n 1)"
