@@ -17,7 +17,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Added a C# wrapper compile-check project and validation scripts for Linux/macOS and Windows developer environments.
 - Added installed SDK/ZIP packaging support for C# compile-check project files.
 - Added shared-library build friendliness and CI validation for native plug-in scenarios through explicit `BUILD_SHARED_LIBS`, position-independent code, Windows symbol export settings and a shared-core CI build.
-- Added Unity-style smoke-test component for creating, advancing and disposing a world.
+- Added Unity-style smoke-test component and expanded example README guidance for shared native builds, wrapper validation, soft ABI checks and non-throwing usage.
 - Added Browser/WebAssembly planning documentation without claiming implemented WASM support.
 - Added integration target and game-profile guidance for native C++, C ABI, Unity/C#, Browser/WASM, servers, MMO-like systems and tools.
 - Expanded C ABI documentation and planning around staged foreign-language support.
@@ -65,6 +65,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 
 ## Changed
 
+- Expanded `examples/csharp_unity/README.md` with native shared-library build steps, C# wrapper compile validation, soft C ABI probing and non-throwing Unity usage examples.
 - Updated CMake install rules so C# example sources and C# compile-check project files are included with installed examples.
 - Updated CI to run on direct `v1.1.0`-style milestone branches and validate a shared-core build with `BUILD_SHARED_LIBS=ON`.
 - Hardened C# / Unity non-throwing wrapper paths so `TryAdvance*`, `TryGetEvent` and native world destruction catch interop exceptions and return safe results where applicable.
