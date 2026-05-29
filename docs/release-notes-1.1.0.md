@@ -15,6 +15,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Added non-throwing C# / Unity native-library C ABI probing helpers for detecting missing or incompatible native plug-ins before gameplay calls.
 - Added hardened non-throwing C# / Unity `TryCreate`, `TryAdvance*` and `TryGetEvent` helpers for gameplay-oriented flows.
 - Added a C# wrapper compile-check project and validation scripts for Linux/macOS and Windows developer environments.
+- Added installed SDK/ZIP packaging support for C# compile-check project files.
 - Added shared-library build friendliness and CI validation for native plug-in scenarios through explicit `BUILD_SHARED_LIBS`, position-independent code, Windows symbol export settings and a shared-core CI build.
 - Added Unity-style smoke-test component for creating, advancing and disposing a world.
 - Added Browser/WebAssembly planning documentation without claiming implemented WASM support.
@@ -64,6 +65,7 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 
 ## Changed
 
+- Updated CMake install rules so C# example sources and C# compile-check project files are included with installed examples.
 - Updated CI to run on direct `v1.1.0`-style milestone branches and validate a shared-core build with `BUILD_SHARED_LIBS=ON`.
 - Hardened C# / Unity non-throwing wrapper paths so `TryAdvance*`, `TryGetEvent` and native world destruction catch interop exceptions and return safe results where applicable.
 - Updated CMake build configuration to make shared native plug-in builds easier through `BUILD_SHARED_LIBS`, `POSITION_INDEPENDENT_CODE` and `WINDOWS_EXPORT_ALL_SYMBOLS`.
@@ -72,7 +74,6 @@ This milestone improves the SDK boundary for non-C++ consumers, especially C# / 
 - Updated the C ABI consumer example to use time-based world advance helpers.
 - Updated the C# / Unity wrapper to expose managed `AdvanceSeconds`, `AdvanceMinutes`, `AdvanceHours`, `AdvanceDays`, soft C ABI probing and non-throwing `TryCreate`, `TryAdvance*` and `TryGetEvent` methods.
 - Updated the Unity smoke test to use soft native-library C ABI probing before calling other native functions, then use `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent`.
-- Updated CMake install rules so C# example sources are included with installed examples.
 - Updated public API, compatibility, migration, packaging, build/linking, readiness and release verification documentation to reflect the integration foundation.
 
 ---
