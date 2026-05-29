@@ -3,13 +3,6 @@ using UnityEngine;
 
 namespace CityLifeCore.Unity.Examples
 {
-    /// <summary>
-    /// Minimal Unity smoke test for the City Life Core native plug-in.
-    ///
-    /// Attach this component to an empty GameObject after copying:
-    /// - the native City Life Core shared library into Assets/Plugins for your platform;
-    /// - CityLifeCoreNative.cs into a Unity Scripts folder.
-    /// </summary>
     public sealed class CityLifeSmokeTest : MonoBehaviour
     {
         [SerializeField]
@@ -32,11 +25,13 @@ namespace CityLifeCore.Unity.Examples
             }
 
             var compatible = CityLifeCoreNative.TryCheckCInterfaceCompatibility(out actualAbiVersion);
+            var versionText = CityLifeCoreNative.TryGetVersionString(out var versionString) ? versionString : "unknown";
+            var ticksPerDayText = CityLifeCoreNative.TryGetTicksPerDay(out var ticksPerDay) ? ticksPerDay.ToString() : "unknown";
 
-            Debug.Log($"City Life Core version: {CityLifeCoreNative.VersionString}");
+            Debug.Log($"City Life Core version: {versionText}");
             Debug.Log($"C ABI version: {actualAbiVersion} / required: {CityLifeCoreNative.RequiredCInterfaceVersion}");
             Debug.Log($"C ABI compatible: {compatible}");
-            Debug.Log($"Ticks per day: {CityLifeCoreNative.TicksPerDay}");
+            Debug.Log($"Ticks per day: {ticksPerDayText}");
 
             if (!compatible)
             {
@@ -61,8 +56,8 @@ namespace CityLifeCore.Unity.Examples
                 return;
             }
 
-            var ticks = CityLifeCoreNative.MinutesToTicks(safeAdvanceMinutes);
-            Debug.Log($"Advanced world by {safeAdvanceMinutes} minute(s) / {ticks} ticks. Current tick: {world.CurrentTick}.");
+            var ticksText = CityLifeCoreNative.TryMinutesToTicks(safeAdvanceMinutes, out var ticks) ? ticks.ToString() : "unknown";
+            Debug.Log($"Advanced world by {safeAdvanceMinutes} minute(s) / {ticksText} ticks. Current tick: {world.CurrentTick}.");
             Debug.Log($"World event count: {world.EventCount}.");
 
             for (ulong i = 0; i < world.EventCount; ++i)
