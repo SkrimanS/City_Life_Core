@@ -1,7 +1,7 @@
 # City Life Core Documentation
 
 Version: **1.0.0**  
-Status: **released / v1.0.0**
+Status: **released / v1.0.0, internal v1.2.0 in progress**
 
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
@@ -16,6 +16,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`core-concepts.md`](core-concepts.md) | Main systems: registry, runtime, ticks, settlements, caravans, economy, contracts, events and persistence. |
 | [`architecture.md`](architecture.md) | Architecture overview for core layers, public C++ API, C ABI, integration layers and non-goals. |
 | [`public-api.md`](public-api.md) | Public SDK API, recommended include, validation model, workflows and usage rules. |
+| [`action-bridge.md`](action-bridge.md) | Local JSON action bridge for external tools, game layers and future server-authoritative adapters. |
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | [`game-profiles.md`](game-profiles.md) | Recommended integration profiles for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
 | [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
@@ -47,6 +48,9 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | --- | --- |
 | [`roadmap.md`](roadmap.md) | Project direction, internal milestone plan and v2/v3/v4 roadmap. |
 | [`versioning.md`](versioning.md) | Versioning, branch, tag and release policy. |
+| [`release-plan-1.2.0.md`](release-plan-1.2.0.md) | Internal v1.2.0 Action Bridge release plan and merge gate. |
+| [`release-notes-1.2.0.md`](release-notes-1.2.0.md) | Internal v1.2.0 Action Bridge release notes. |
+| [`release-manifest-1.2.0.md`](release-manifest-1.2.0.md) | Internal v1.2.0 Action Bridge manifest and validation expectations. |
 | [`release-plan-1.1.0.md`](release-plan-1.1.0.md) | Internal v1.1.0 Integration Foundation release plan and merge gate. |
 | [`release-notes-1.1.0.md`](release-notes-1.1.0.md) | Internal v1.1.0 Integration Foundation release notes. |
 | [`release-manifest-1.1.0.md`](release-manifest-1.1.0.md) | Internal v1.1.0 Integration Foundation manifest and validation expectations. |
@@ -60,7 +64,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
-Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `sdk-structure.md`, `game-profiles.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
+Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `action-bridge.md`, `sdk-structure.md`, `game-profiles.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
 
 ---
 
