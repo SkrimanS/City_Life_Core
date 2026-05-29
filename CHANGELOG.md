@@ -8,6 +8,12 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added the v1.2.0 local Action Bridge API for transport-agnostic `external action -> validation -> runtime mutation -> result/events` flows.
+- Added `clc::sim::RuntimeAction`, `RuntimeActionParseResult`, `RuntimeActionResult`, `parse_runtime_action_json`, `validate_runtime_action`, `dispatch_runtime_action`, `dispatch_runtime_action_json` and `runtime_action_result_to_json`.
+- Added Action Bridge support for `add_resource`, `remove_resource`, `transfer_resource` and `advance_days` actions.
+- Added `examples/action_bridge.cpp` as the C++ Action Bridge example.
+- Added `tests/action_bridge_tests.cpp` with valid, invalid, malformed, no-mutation and result JSON coverage.
+- Added `docs/action-bridge.md`, `docs/release-plan-1.2.0.md`, `docs/release-notes-1.2.0.md` and `docs/release-manifest-1.2.0.md`.
 - Added non-throwing C# / Unity `TryCreate` and `TryGetEvent` helpers for gameplay-oriented world creation and event inspection flows.
 - Added non-throwing C# / Unity `TryAdvance*` helpers for native world advancement in gameplay-oriented flows.
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can report and reject native libraries older than the required C interface version.
@@ -30,6 +36,8 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Updated the SDK umbrella header to expose the Action Bridge C++ API through `clc/CityLifeCore.hpp`.
+- Updated the documentation index to include Action Bridge docs and v1.2.0 release-gate files.
 - Updated the C# / Unity smoke-test script to use non-throwing `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` helpers and log Unity errors on failed operations.
 - Updated the C# / Unity smoke-test script to log actual and required C ABI versions before creating a native world.
 - Hardened C ABI world destruction, accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
@@ -118,10 +126,4 @@ Status: **released / v1.0.0**.
 ### Compatibility
 
 - Existing day-based route, caravan, and contract APIs remain available.
-- Existing C ABI version/time functions remain available under C interface version `3`.
-- The `clc_world` and read-only world event C ABI surface is intentionally minimal and does not expose full runtime, registries, containers, save/load, callbacks, mutable event payload APIs, caravans, contracts, or economy workflows.
-- Older world-state saves without explicit runtime `time` are still accepted and synchronize runtime clock from saved `current_day`.
-- Older contract rows without `due_ticks` are still accepted and derive `due_ticks` from `due_day`.
-- C++ API compatibility is source-first; binary ABI stability is not promised for the C++ API.
-
-Pre-1.0 development history is intentionally not expanded here. The 1.0.0 release notes and public documentation are the source of truth for the supported SDK surface.
+- Existing save files without explicit runtime time are still loaded by deriving runtime ticks from saved `current_day`.
