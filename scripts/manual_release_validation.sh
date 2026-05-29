@@ -9,18 +9,18 @@ Runs the local release validation flow:
   - configure/build with tests, examples and benchmarks enabled
   - ctest
   - shared core build with BUILD_SHARED_LIBS=ON
-  - C# wrapper compile validation
+  - C# wrapper compile validation from the source tree
   - benchmark runner
   - cmake --install into a local prefix
   - installed C++ find_package consumer
   - installed C ABI consumer
-  - installed C# wrapper compile-check project presence
+  - installed C# wrapper compile-check project presence and build
   - installed validation script presence
   - CPack ZIP package
   - SHA256SUMS.txt generation
   - unpacked ZIP C++ consumer
   - unpacked ZIP C ABI consumer
-  - unpacked ZIP C# wrapper compile-check project presence
+  - unpacked ZIP C# wrapper compile-check project presence and build
   - unpacked ZIP validation script presence
 
 The optional build-dir defaults to build-manual-release-validation.
@@ -132,6 +132,7 @@ if [[ -z "${installed_csharp_project}" ]]; then
   exit 1
 fi
 require_file "${installed_csharp_project}" "installed C# wrapper compile-check project"
+run dotnet build "${installed_csharp_project}" -c Release
 require_installed_script "${install_prefix}" "validate_csharp_wrapper.sh" "installed C# wrapper validation shell script"
 require_installed_script "${install_prefix}" "validate_csharp_wrapper.ps1" "installed C# wrapper validation PowerShell script"
 
@@ -178,6 +179,7 @@ if [[ -z "${zip_csharp_project}" ]]; then
   exit 1
 fi
 require_file "${zip_csharp_project}" "unpacked SDK C# wrapper compile-check project"
+run dotnet build "${zip_csharp_project}" -c Release
 require_installed_script "${sdk_prefix}" "validate_csharp_wrapper.sh" "unpacked SDK C# wrapper validation shell script"
 require_installed_script "${sdk_prefix}" "validate_csharp_wrapper.ps1" "unpacked SDK C# wrapper validation PowerShell script"
 
