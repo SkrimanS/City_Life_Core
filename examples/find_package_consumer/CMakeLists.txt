@@ -20,6 +20,18 @@ if(NOT DEFINED CityLifeCore_EXAMPLES_DIR OR NOT EXISTS "${CityLifeCore_EXAMPLES_
     message(FATAL_ERROR "CityLifeCore_EXAMPLES_DIR is not defined or does not exist")
 endif()
 
+if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeCoreNative.cs")
+    message(FATAL_ERROR "CityLifeCoreNative.cs is missing from CityLifeCore_EXAMPLES_DIR")
+endif()
+
+if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeWorldSafeAccess.cs")
+    message(FATAL_ERROR "CityLifeWorldSafeAccess.cs is missing from CityLifeCore_EXAMPLES_DIR")
+endif()
+
+if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeCoreNative.CompileCheck.csproj")
+    message(FATAL_ERROR "CityLifeCoreNative.CompileCheck.csproj is missing from CityLifeCore_EXAMPLES_DIR")
+endif()
+
 if(NOT DEFINED CityLifeCore_SCRIPTS_DIR OR NOT EXISTS "${CityLifeCore_SCRIPTS_DIR}")
     message(FATAL_ERROR "CityLifeCore_SCRIPTS_DIR is not defined or does not exist")
 endif()
