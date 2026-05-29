@@ -151,4 +151,9 @@ install(
     DESTINATION ${CLC_INSTALL_CMAKEDIR}
 )
 
+set(CPACK_PACKAGE_NAME "city-life-core-sdk")
+set(CPACK_PACKAGE_VENDOR "SkrimanS")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_FILE_NAME "city-life-core-sdk-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}")
+
 include(CPack)
