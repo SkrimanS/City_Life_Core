@@ -14,6 +14,7 @@ data::ValidationReport ResourceStorage::add(std::string resource_id, std::uint64
     }
 
     if (amount == 0) {
+        report.add_error("storage." + resource_id, "amount must be greater than zero");
         return report;
     }
 
@@ -87,6 +88,10 @@ data::ValidationReport transfer(ResourceStorage& from, ResourceStorage& to, std:
     data::ValidationReport report;
     if (resource_id.empty()) {
         report.add_error("storage.transfer", "resource_id must not be empty");
+        return report;
+    }
+    if (amount == 0) {
+        report.add_error("storage.transfer." + std::string{resource_id}, "amount must be greater than zero");
         return report;
     }
 
