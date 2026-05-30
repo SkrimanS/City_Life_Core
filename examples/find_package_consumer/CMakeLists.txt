@@ -8,8 +8,16 @@ if(NOT DEFINED CityLifeCore_INCLUDE_DIR OR NOT EXISTS "${CityLifeCore_INCLUDE_DI
     message(FATAL_ERROR "CityLifeCore_INCLUDE_DIR is not defined or does not exist")
 endif()
 
+if(NOT EXISTS "${CityLifeCore_INCLUDE_DIR}/clc/sim/ActionBridge.hpp")
+    message(FATAL_ERROR "clc/sim/ActionBridge.hpp is missing from CityLifeCore_INCLUDE_DIR")
+endif()
+
 if(NOT DEFINED CityLifeCore_DOCS_DIR OR NOT EXISTS "${CityLifeCore_DOCS_DIR}")
     message(FATAL_ERROR "CityLifeCore_DOCS_DIR is not defined or does not exist")
+endif()
+
+if(NOT EXISTS "${CityLifeCore_DOCS_DIR}/action-bridge.md")
+    message(FATAL_ERROR "action-bridge.md is missing from CityLifeCore_DOCS_DIR")
 endif()
 
 if(NOT DEFINED CityLifeCore_DATA_DIR OR NOT EXISTS "${CityLifeCore_DATA_DIR}")
@@ -18,6 +26,10 @@ endif()
 
 if(NOT DEFINED CityLifeCore_EXAMPLES_DIR OR NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}")
     message(FATAL_ERROR "CityLifeCore_EXAMPLES_DIR is not defined or does not exist")
+endif()
+
+if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/action_bridge.cpp")
+    message(FATAL_ERROR "action_bridge.cpp is missing from CityLifeCore_EXAMPLES_DIR")
 endif()
 
 if(NOT EXISTS "${CityLifeCore_EXAMPLES_DIR}/csharp_unity/CityLifeCoreNative.cs")
