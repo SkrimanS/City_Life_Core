@@ -64,14 +64,24 @@ An SDK ZIP package should generally contain the installed SDK layout:
 - CMake package config files;
 - documentation;
 - examples;
+- scripts;
 - example `.clcd` data packs.
 
-Integration examples may include:
+Integration examples and docs may include:
 
 ```text
+examples/action_bridge.cpp
 examples/find_package_consumer/
 examples/c_abi_consumer/
 examples/csharp_unity/
+docs/action-bridge.md
+```
+
+Validation scripts may include:
+
+```text
+scripts/validate_csharp_wrapper.sh
+scripts/validate_csharp_wrapper.ps1
 ```
 
 The C# / Unity files are wrappers and smoke-test examples. They do not replace the native shared library required by Unity or another host runtime.
@@ -109,6 +119,8 @@ cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/p
 cmake --build build-consumer --config Release
 ```
 
+This consumer should validate normal C++ package usage, installed Action Bridge header/docs/example availability and C# wrapper validation script availability.
+
 Verify C ABI consumption:
 
 ```bash
@@ -130,6 +142,8 @@ Typical files:
 
 ```text
 examples/csharp_unity/CityLifeCoreNative.cs
+examples/csharp_unity/CityLifeWorldSafeAccess.cs
+examples/csharp_unity/CityLifeNativeDiagnostics.cs
 examples/csharp_unity/CityLifeSmokeTest.cs
 examples/csharp_unity/README.md
 ```
@@ -154,5 +168,6 @@ Do not treat a release as browser-ready unless it explicitly includes a document
 - [CI artifact review](ci-artifact-review.md)
 - [SDK ZIP package](sdk-zip-package.md)
 - [Integration validation](integration-validation.md)
+- [Action Bridge](action-bridge.md)
 - [C# and Unity integration](csharp-unity.md)
 - [Browser and WebAssembly integration](browser-wasm.md)
