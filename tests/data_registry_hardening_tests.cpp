@@ -28,6 +28,16 @@ bool contains_message(const clc::data::ValidationReport& report, clc::data::Vali
 int main() {
     clc::data::DataRegistry registry;
 
+    const auto invalid_resource_value = registry.add(clc::data::ResourceDefinition{
+        .id = "worthless",
+        .display_name = "Worthless Resource",
+        .category = "test",
+        .base_value = 0,
+    });
+    require(!invalid_resource_value.ok(), "resource base_value zero should fail");
+    require(contains_message(invalid_resource_value, clc::data::ValidationSeverity::error, "base_value"), "invalid resource should explain base_value requirement");
+    require(registry.resource_count() == 0, "invalid resource should not be inserted");
+
     auto resource_warning = registry.add(clc::data::ResourceDefinition{
         .id = "grain",
         .display_name = "Grain",
@@ -86,13 +96,23 @@ int main() {
     require(registry.settlement_count() == 1, "warning-only settlement should be inserted");
 
     const auto invalid_building = registry.add(clc::data::BuildingDefinition{
+        .id = "empty_workshop",
+        .display_name = "Empty Workshop",
+        .category = "production",
+        .worker_slots = 0,
+    });
+    require(!invalid_building.ok(), "building worker_slots zero should fail");
+    require(contains_message(invalid_building, clc::data::ValidationSeverity::error, "worker_slots"), "invalid building should explain worker_slots requirement");
+    require(registry.building_count() == 0, "invalid building should not be inserted");
+
+    const auto empty_building_identity = registry.add(clc::data::BuildingDefinition{
         .id = "",
         .display_name = "",
         .category = "production",
         .worker_slots = 1,
     });
-    require(!invalid_building.ok(), "empty building id and name should fail");
-    require(registry.building_count() == 0, "invalid building should not be inserted");
+    require(!empty_building_identity.ok(), "empty building id and name should fail");
+    require(registry.building_count() == 0, "invalid building identity should not be inserted");
 
     const auto broken_refs_building = registry.add(clc::data::BuildingDefinition{
         .id = "mystery_workshop",
