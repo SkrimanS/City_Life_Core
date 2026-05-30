@@ -28,15 +28,15 @@ bool contains_message(const clc::data::ValidationReport& report, clc::data::Vali
 int main() {
     clc::data::DataRegistry registry;
 
-    const auto invalid_resource_value = registry.add(clc::data::ResourceDefinition{
+    const auto zero_value_resource = registry.add(clc::data::ResourceDefinition{
         .id = "worthless",
         .display_name = "Worthless Resource",
         .category = "test",
         .base_value = 0,
     });
-    require(!invalid_resource_value.ok(), "resource base_value zero should fail");
-    require(contains_message(invalid_resource_value, clc::data::ValidationSeverity::error, "base_value"), "invalid resource should explain base_value requirement");
-    require(registry.resource_count() == 0, "invalid resource should not be inserted");
+    require(zero_value_resource.ok(), "source-level resource base_value zero should remain compatible");
+    require(contains_message(zero_value_resource, clc::data::ValidationSeverity::warning, "base_value"), "zero base_value resource should warn");
+    require(registry.resource_count() == 1, "warning-only resource should be inserted");
 
     auto resource_warning = registry.add(clc::data::ResourceDefinition{
         .id = "grain",
@@ -47,7 +47,7 @@ int main() {
     require(resource_warning.ok(), "resource category warning should not block insertion");
     require(resource_warning.warning_count() == 1, "resource with empty category should produce one warning");
     require(resource_warning.error_count() == 0, "resource warning should not produce errors");
-    require(registry.resource_count() == 1, "warning-only resource should be inserted");
+    require(registry.resource_count() == 2, "warning-only resource should be inserted");
     require(registry.resource("grain") != nullptr, "warning-only resource should be findable");
 
     const auto duplicate_resource = registry.add(clc::data::ResourceDefinition{
@@ -58,7 +58,7 @@ int main() {
     });
     require(!duplicate_resource.ok(), "duplicate resource id should fail");
     require(contains_message(duplicate_resource, clc::data::ValidationSeverity::error, "duplicate id"), "duplicate resource should explain duplicate id");
-    require(registry.resource_count() == 1, "duplicate resource should not be inserted");
+    require(registry.resource_count() == 2, "duplicate resource should not be inserted");
 
     const auto invalid_currency = registry.add(clc::data::CurrencyDefinition{
         .id = "coin",
@@ -95,15 +95,15 @@ int main() {
     require(settlement_warning.warning_count() == 1, "zero-population settlement should warn");
     require(registry.settlement_count() == 1, "warning-only settlement should be inserted");
 
-    const auto invalid_building = registry.add(clc::data::BuildingDefinition{
+    const auto zero_worker_building = registry.add(clc::data::BuildingDefinition{
         .id = "empty_workshop",
         .display_name = "Empty Workshop",
         .category = "production",
         .worker_slots = 0,
     });
-    require(!invalid_building.ok(), "building worker_slots zero should fail");
-    require(contains_message(invalid_building, clc::data::ValidationSeverity::error, "worker_slots"), "invalid building should explain worker_slots requirement");
-    require(registry.building_count() == 0, "invalid building should not be inserted");
+    require(zero_worker_building.ok(), "source-level building worker_slots zero should remain compatible");
+    require(contains_message(zero_worker_building, clc::data::ValidationSeverity::warning, "worker_slots"), "zero worker_slots building should warn");
+    require(registry.building_count() == 1, "warning-only building should be inserted");
 
     const auto empty_building_identity = registry.add(clc::data::BuildingDefinition{
         .id = "",
@@ -112,7 +112,7 @@ int main() {
         .worker_slots = 1,
     });
     require(!empty_building_identity.ok(), "empty building id and name should fail");
-    require(registry.building_count() == 0, "invalid building identity should not be inserted");
+    require(registry.building_count() == 1, "invalid building identity should not be inserted");
 
     const auto broken_refs_building = registry.add(clc::data::BuildingDefinition{
         .id = "mystery_workshop",
@@ -124,7 +124,7 @@ int main() {
         .output_resource_ids = {"unknown_output"},
     });
     require(broken_refs_building.ok(), "building insertion should allow deferred reference validation");
-    require(registry.building_count() == 1, "building with deferred broken refs should be inserted");
+    require(registry.building_count() == 2, "building with deferred broken refs should be inserted");
 
     const auto reference_report = registry.validate_references();
     require(!reference_report.ok(), "broken building references should fail reference validation");
