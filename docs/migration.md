@@ -4,7 +4,7 @@ Version: **1.0.0**
 
 Use this guide when updating an older City Life Core integration to the current documentation, package layout and integration strategy.
 
-City Life Core is now documented as an English-primary, headless native SDK with a source-first C++ API, a minimal C ABI, initial Unity/C# guidance and planned Browser/WebAssembly support.
+City Life Core is now documented as an English-primary, headless native SDK with a source-first C++ API, a local Action Bridge, a minimal C ABI, initial Unity/C# guidance and planned Browser/WebAssembly support.
 
 ---
 
@@ -68,6 +68,40 @@ For C++ consumers, prefer the umbrella include:
 This is the recommended entry point for normal C++ integrations.
 
 The public C++ API is source-first. Rebuild downstream projects against the SDK version they consume. Do not assume stable C++ binary ABI across compilers, standard libraries or build configurations.
+
+---
+
+## Action Bridge migration
+
+If an older integration sends external commands directly into runtime internals, migrate those flows toward the local Action Bridge when the operation fits the supported action model.
+
+Recommended C++ include:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
+or:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Use the Action Bridge for:
+
+- local JSON action input;
+- pre-mutation validation;
+- rejected-action no-mutation behavior;
+- stable status and error-code handling;
+- produced event and diagnostic output.
+
+Do not treat the Action Bridge as a network protocol. HTTP, WebSocket, accounts, auth, matchmaking, multiplayer, MMO and UI layers remain downstream product code.
+
+Related docs:
+
+- [Action Bridge](action-bridge.md)
+- [Public API status](public-api-status.md)
+- [Integration targets](integration-targets.md)
 
 ---
 
@@ -142,6 +176,8 @@ Use the initial wrapper examples:
 
 ```text
 examples/csharp_unity/CityLifeCoreNative.cs
+examples/csharp_unity/CityLifeWorldSafeAccess.cs
+examples/csharp_unity/CityLifeNativeDiagnostics.cs
 examples/csharp_unity/CityLifeSmokeTest.cs
 ```
 
@@ -238,6 +274,7 @@ Do not treat save/load and replay compatibility as automatic. Validate them expl
 When migrating downstream docs or project references:
 
 - update links to lower-kebab-case docs;
+- link to `docs/action-bridge.md` when discussing local external action dispatch;
 - link to `docs/integration-targets.md` when discussing platform support;
 - link to `docs/game-profiles.md` when discussing game type support;
 - link to `docs/c-abi-expansion-plan.md` when requesting new bindings;
@@ -251,27 +288,10 @@ When migrating downstream docs or project references:
 - [ ] Use `find_package(CityLifeCore CONFIG REQUIRED)` for installed consumers.
 - [ ] Link against `CityLifeCore::core`.
 - [ ] Prefer `#include "clc/CityLifeCore.hpp"` for C++ consumers.
+- [ ] Use the local Action Bridge for supported external action-style flows.
 - [ ] Prefer tick-based APIs for server-authoritative or real-time simulation flows.
 - [ ] Use the C ABI for C, C#, Unity, WebAssembly and other non-C++ integration layers.
 - [ ] Do not bind foreign-language wrappers to private C++ internals.
 - [ ] Build shared libraries for native plug-in scenarios such as Unity.
 - [ ] Validate save/load and replay behavior before upgrading production data.
 - [ ] Update docs and changelog for public-facing migration changes.
-
----
-
-## Related documents
-
-- [Architecture](architecture.md)
-- [CMake package](cmake-package.md)
-- [Packaging](packaging.md)
-- [SDK ZIP package](sdk-zip-package.md)
-- [Build and linking policy](build-and-linking-policy.md)
-- [Public API](public-api.md)
-- [Compatibility](compatibility.md)
-- [C ABI](c-abi.md)
-- [C ABI expansion plan](c-abi-expansion-plan.md)
-- [C# and Unity integration](csharp-unity.md)
-- [Browser and WebAssembly integration](browser-wasm.md)
-- [Game integration profiles](game-profiles.md)
-- [Integration validation](integration-validation.md)
