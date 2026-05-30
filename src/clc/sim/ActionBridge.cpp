@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -153,19 +154,28 @@ bool find_string_field(std::string_view json, std::string_view field, std::strin
     return false;
 }
 
+bool is_number_terminator(std::string_view json, std::size_t index) {
+    const auto terminal = skip_ws(json, index);
+    return terminal >= json.size() || json[terminal] == ',' || json[terminal] == '}';
+}
+
 bool find_uint_field(std::string_view json, std::string_view field, std::uint64_t& out) {
     auto start = skip_ws(json, find_field_value_start(json, field));
     auto end = start;
     while (end < json.size() && std::isdigit(static_cast<unsigned char>(json[end])) != 0) {
         ++end;
     }
-    if (end == start) {
+    if (end == start || !is_number_terminator(json, end)) {
         return false;
     }
 
     std::uint64_t value = 0;
     for (auto index = start; index < end; ++index) {
-        value = value * 10 + static_cast<std::uint64_t>(json[index] - '0');
+        const auto digit = static_cast<std::uint64_t>(json[index] - '0');
+        if (value > (std::numeric_limits<std::uint64_t>::max() - digit) / 10) {
+            return false;
+        }
+        value = value * 10 + digit;
     }
     out = value;
     return true;
