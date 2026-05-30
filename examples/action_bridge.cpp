@@ -15,6 +15,11 @@ int main() {
         engine,
         R"({"action_id":"example-add","type":"add_resource","actor_id":"tool","payload":{"target_id":"riverwatch","resource_id":"grain","amount":10}})"
     );
+    if (!add_result.accepted) {
+        std::cerr << "add_resource action was rejected\n";
+        std::cout << clc::sim::runtime_action_result_to_json(add_result) << '\n';
+        return 1;
+    }
 
     std::cout << clc::sim::runtime_action_result_to_json(add_result) << '\n';
 
@@ -22,6 +27,11 @@ int main() {
         engine,
         R"({"action_id":"example-advance","type":"advance_days","actor_id":"tool","payload":{"days":1}})"
     );
+    if (!advance_result.accepted) {
+        std::cerr << "advance_days action was rejected\n";
+        std::cout << clc::sim::runtime_action_result_to_json(advance_result) << '\n';
+        return 1;
+    }
 
     std::cout << clc::sim::runtime_action_result_to_json(advance_result) << '\n';
     std::cout << "riverwatch grain=" << engine.settlement_resource_amount("riverwatch", "grain") << '\n';
