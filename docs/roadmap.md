@@ -19,6 +19,8 @@ Public Git tags and GitHub Releases are reserved for major public milestones onl
 
 Minor version names such as `v1.1.0`, `v1.2.0`, `v2.1.0` and similar labels are **internal development milestones**. They may be used as branch names, planning notes, issues and pull requests, but they are not public release tags.
 
+Internal milestone history is tracked in `CHANGELOG.md` and current documentation, not separate per-minor release-note or release-manifest files.
+
 Bug fixes are handled separately from the milestone branches. When a bug fix is ready, it should be merged into `main` and recorded in `CHANGELOG.md` under `Unreleased`.
 
 See [`versioning.md`](versioning.md) for the full release and versioning policy.
@@ -46,7 +48,7 @@ Each stage branch may contain many focused commits and tasks. After a stage is r
 ## Roadmap shape
 
 ```text
-v1.x  -> base polish and SDK preparation
+v1.x  -> base polish, SDK preparation and integration foundations
 v2.x  -> start of global mechanics deepening
 v3.x  -> expansion, stabilization and production hardening of deeper systems
 v4.0  -> transition to a deeply developed simulation core
@@ -67,34 +69,56 @@ Primary themes:
 4. Start the foundation for MMO and server-authoritative games.
 5. Harden runtime, validation, persistence, replay, packaging, documentation, examples and the C ABI.
 6. Add first-class integration guidance for C# and Unity through the C ABI without making the core Unity-specific.
+7. Provide a local Action Bridge for transport-agnostic external action validation and runtime mutation.
 
 ---
 
 ## Internal v1.x milestones
 
-### v1.1.0 - Core polish
+### v1.1.0 - Integration Foundation Update
 
 Branch: `v1.1.0`
 
-Focus: improve the quality, consistency and maintainability of the current 1.0.0 codebase without changing the overall product direction.
+Focus: improve SDK integration foundations after the `v1.0.0` baseline, including initial Unity/C# support through the C ABI.
 
 Planned work:
 
 - Audit public headers, includes and namespace layout.
-- Remove avoidable duplication and simplify common helper paths.
-- Tighten validation messages and error reporting consistency.
-- Expand regression coverage for known edge cases.
 - Improve examples so they represent recommended integration patterns.
 - Add initial C# / Unity integration guidance through the existing C ABI and P/Invoke.
-- Review runtime APIs for clarity before larger data/runtime work starts.
-- Keep source compatibility in mind for current 1.x users.
+- Add C ABI world advancement helpers required by the initial managed wrapper.
+- Add shared-library build support needed by native plug-in style integrations.
+- Improve installed SDK and ZIP package validation for examples, scripts and integration files.
 - Keep documentation aligned with the English-primary structure and `docs/ru` entry point.
 
-Expected outcome: a cleaner and safer core baseline for later runtime, data, Unity/C# and MMO-oriented work.
+Expected outcome: a cleaner and safer integration baseline for Unity/C#, C ABI, installed SDK and ZIP package consumers.
 
-### v1.2.0 - Runtime and data hardening
+### v1.2.0 - Action Bridge Update
 
 Branch: `v1.2.0`
+
+Focus: add a local, transport-agnostic action layer:
+
+```text
+external action -> validation -> runtime mutation -> result/events
+```
+
+Planned work:
+
+- Add a public C++ Action Bridge API.
+- Define stable action type, status and error-code constants.
+- Add JSON action input parsing for supported local actions.
+- Add JSON action result output with command, event and diagnostic details.
+- Add runtime dispatch that validates before mutation and rejects invalid actions without mutation.
+- Add tests for valid actions, invalid action types, malformed JSON, missing fields, runtime rejection, deterministic results and invalid numeric payloads.
+- Add a C++ Action Bridge example.
+- Document the Action Bridge as local and transport-agnostic, explicitly excluding HTTP, WebSocket, accounts, auth, matchmaking, multiplayer, MMO and UI.
+
+Expected outcome: a reusable local action bridge that external game layers, tools and future server-authoritative adapters can build around without coupling directly to runtime internals.
+
+### v1.3.0 - Runtime and data hardening
+
+Branch: `v1.3.0`
 
 Focus: make runtime data, validation and deterministic behavior more robust.
 
@@ -110,9 +134,9 @@ Planned work:
 
 Expected outcome: safer data ingestion and more predictable runtime behavior.
 
-### v1.3.0 - Game profiles
+### v1.4.0 - Game profiles
 
-Branch: `v1.3.0`
+Branch: `v1.4.0`
 
 Focus: make the core easier to adopt for different game styles.
 
@@ -132,9 +156,9 @@ Planned work:
 
 Expected outcome: clearer adoption paths for external developers building different types of games and tools.
 
-### v1.4.0 - Platform and integration layer
+### v1.5.0 - Platform and integration layer
 
-Branch: `v1.4.0`
+Branch: `v1.5.0`
 
 Focus: improve SDK embedding across platforms, engines and backend environments.
 
@@ -151,15 +175,15 @@ Planned work:
 
 Expected outcome: a cleaner integration surface for games, tools, Unity projects and backend services.
 
-### v1.5.0 - MMO foundation I
+### v1.6.0 - MMO foundation I
 
-Branch: `v1.5.0`
+Branch: `v1.6.0`
 
 Focus: start the first explicit foundation for server-authoritative and MMO-like runtime use.
 
 Planned work:
 
-- Define command-oriented runtime flows suitable for authoritative servers.
+- Deepen command-oriented runtime flows suitable for authoritative servers.
 - Separate simulation state concepts from player/session concepts.
 - Improve deterministic replay and command validation requirements.
 - Clarify world partitioning, shard-friendly assumptions and server ownership boundaries.
@@ -168,9 +192,9 @@ Planned work:
 
 Expected outcome: a practical foundation for larger server-controlled simulations without coupling the SDK to a specific network stack.
 
-### v1.6.0 - Economy, factions and contracts depth
+### v1.7.0 - Economy, factions and contracts depth
 
-Branch: `v1.6.0`
+Branch: `v1.7.0`
 
 Focus: deepen the systems that make settlement and resource simulations feel connected.
 
@@ -185,9 +209,9 @@ Planned work:
 
 Expected outcome: deeper connected gameplay primitives while preserving the SDK's headless, embeddable design.
 
-### v1.7.0 - Persistence, replay and migration
+### v1.8.0 - Persistence, replay and migration
 
-Branch: `v1.7.0`
+Branch: `v1.8.0`
 
 Focus: make saved data and replay workflows more reliable for real projects.
 
@@ -202,11 +226,11 @@ Planned work:
 
 Expected outcome: safer long-term data handling and better replay-based debugging.
 
-### v1.8.0 - Performance and scale
+### v1.9.0 - Performance, scale and v2 preparation
 
-Branch: `v1.8.0`
+Branch: `v1.9.0`
 
-Focus: prepare the core for larger simulations and more demanding server/tool scenarios.
+Focus: prepare the core for larger simulations and for the public `v2.0.0` milestone.
 
 Planned work:
 
@@ -216,17 +240,6 @@ Planned work:
 - Reduce unnecessary allocations and redundant lookups where practical.
 - Improve diagnostics for scale limits and slow validation paths.
 - Document practical scale expectations and integration tradeoffs.
-
-Expected outcome: a more scalable foundation for bigger worlds and longer-running simulations.
-
-### v1.9.0 - v2 preparation
-
-Branch: `v1.9.0`
-
-Focus: prepare `main` for the public `v2.0.0` milestone.
-
-Planned work:
-
 - Freeze the intended `v2.0.0` public surface.
 - Review compatibility, migration and release documentation.
 - Finalize release notes and release manifest drafts.
@@ -234,7 +247,7 @@ Planned work:
 - Confirm known limitations and post-v2 priorities.
 - Run final release validation before tagging `v2.0.0`.
 
-Expected outcome: a release-ready `main` branch for the next public major milestone.
+Expected outcome: a more scalable and release-ready `main` branch for the next public major milestone.
 
 ---
 
@@ -258,81 +271,51 @@ Starting with `v2.0.0`, City Life Core moves from the **stable SDK foundation** 
 
 If `v1.x` is about polishing the base, API, runtime, documentation, packaging and the first steps toward multiple game types and MMO/server-authoritative foundations, then `v2.x` and `v3.x` should gradually turn the core into a deeper, more flexible and more useful system for real projects.
 
-From `v2.0.0` to `v4.0.0`, the main task is to:
+Main post-`v2.0.0` themes:
 
-- deepen existing mechanics;
-- expand settlement, resource, economy, faction, contract and runtime systems;
-- add more links between systems;
-- prepare the core for large worlds, server scenarios and MMO-like use;
-- improve tools, validation, replay, persistence and diagnostics;
-- make the core convenient for different genres and platforms;
-- avoid merely adding surface-level features and instead make systems deeper, more reliable and more useful.
-
-`v2.x` and `v3.x` are the foundation for a mature simulation core.
-
----
-
-## v2.x internal milestones
-
-The v2.x line starts the global deepening of mechanics introduced and stabilized before `v2.0.0`.
-
-Likely work areas:
-
-- richer settlement growth and lifecycle rules;
-- more detailed resource production, consumption and transformation chains;
-- stronger economy balancing primitives;
-- faction relationships, influence, reputation and ownership depth;
-- contract generation, contract negotiation and failure consequences;
-- runtime events that connect economy, factions, settlements and logistics;
-- better tools-facing validation and data-authoring feedback.
-
-Minor v2.x labels remain internal planning milestones unless the release policy changes.
+- deeper settlement simulation;
+- richer resource and production chains;
+- more realistic economy, market, pricing and trade behavior;
+- stronger faction, ownership, diplomacy and reputation systems;
+- deeper contract, task and event lifecycle;
+- larger-world runtime support;
+- better server-authoritative and MMO-like workflows;
+- stronger validation, diagnostics, persistence, replay and migration;
+- better tools and integration APIs;
+- performance and scale improvements.
 
 ---
 
-## v3.0.0 - Deepening production systems
+## v3.0.0 - Deep mechanics and production hardening
 
-`v3.0.0` should develop what was prepared in `v2.x`: runtime, economy, factions, settlements, persistence, replay, MMO foundation, tools and diagnostics.
+`v3.0.0` is a planned public Git tag and GitHub Release.
 
-The focus of `v3.x` is not just new features. It is system connectedness, scale, integration quality and preparation for `v4.0.0`.
+By `v3.0.0`, the core should have substantially deeper connected systems than `v2.0.0` while staying stable enough to use in serious projects.
 
----
+Expected direction:
 
-## v3.x internal milestones
-
-The v3.x line should expand, stabilize and harden deeper production systems for large worlds and server-centric scenarios.
-
-Likely work areas:
-
-- large data-set validation and faster content iteration;
-- persistent world operations and long-running simulation diagnostics;
-- stronger replay, rollback and audit workflows;
-- large-scale logistics and cross-region simulation;
-- better observability for servers and tools;
-- stronger migration guarantees for shipped games;
-- improved C ABI, C# or other foreign-language integration where the API is stable enough.
-
-Minor v3.x labels remain internal planning milestones unless the release policy changes.
+- deeper settlements, professions, buildings and production flows;
+- richer resource chains, scarcity, spoilage or quality rules where useful;
+- more connected market and pricing behavior;
+- deeper faction reputation, ownership, diplomacy and conflict hooks;
+- richer contract/task chains and failure behavior;
+- larger simulation scenarios;
+- improved persistence, replay, diagnostics and migration;
+- stronger integration APIs for tools, servers and non-C++ users.
 
 ---
 
-## v4.0.0 and beyond - Deep mechanics and large project readiness
+## v4.0.0 - Maximum mechanics depth baseline
 
-`v4.0.0` opens the stage of maximum mechanics deepening. After this version, City Life Core should evolve as a serious core for large projects, complex game worlds, server-authoritative architectures and MMO-like simulations.
+`v4.0.0` is a planned public Git tag and GitHub Release.
 
-Before `v4.0.0`, the core gradually strengthens its base, expands systems and prepares the foundation. Starting with `v4.0.0`, it should become not only an SDK foundation but a deeply developed simulation core.
+By `v4.0.0`, City Life Core should be useful as a deep simulation foundation for large projects, complex worlds and MMO-like runtime environments.
 
-The main goal after `v4.0.0` is to:
+Expected direction:
 
-- deepen gameplay mechanics as much as possible;
-- develop complex economy, production, logistics and consumption chains;
-- expand settlement, faction, contract, ownership and event behavior;
-- improve scalability for large worlds;
-- strengthen MMO/server-authoritative support;
-- add more complex simulation layers;
-- improve analysis, balancing, debugging and replay tools;
-- make the core useful not only for small games, but also for large production projects.
-
-`v4.0.0` is not the finish line. It is the transition into deep mechanics development.
-
-The core should remain headless, portable and embeddable. Rendering, UI and networking should remain outside the core unless a future policy explicitly changes that boundary.
+- deeply developed settlement, economy, faction, logistics and contract systems;
+- production-ready persistence and migration workflows;
+- large-world and long-running simulation guidance;
+- stronger server-authoritative and MMO-like assumptions;
+- improved diagnostics, telemetry-friendly outputs and tooling hooks;
+- stable public documentation, release notes and migration guidance.
