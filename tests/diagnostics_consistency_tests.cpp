@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <string_view>
 
 namespace {
@@ -13,6 +14,10 @@ void require(bool condition, std::string_view message) {
         std::cerr << "Test failed: " << message << '\n';
         std::exit(1);
     }
+}
+
+std::string_view view_string(const std::string& value) {
+    return std::string_view{value.data(), value.size()};
 }
 
 void require_diagnostics_are_useful(const clc::data::ValidationReport& report, std::string_view message) {
@@ -55,8 +60,8 @@ base_value=0
         );
 
         require(!rejected.accepted, "runtime-rejected action should not be accepted");
-        require(rejected.validation_status == clc::sim::runtime_action_status_rejected, "runtime-rejected action should use rejected status");
-        require(rejected.error_code == clc::sim::runtime_action_error_action_rejected, "runtime-rejected action should use action_rejected error code");
+        require(view_string(rejected.validation_status) == clc::sim::runtime_action_status_rejected, "runtime-rejected action should use rejected status");
+        require(view_string(rejected.error_code) == clc::sim::runtime_action_error_action_rejected, "runtime-rejected action should use action_rejected error code");
         require_diagnostics_are_useful(rejected.validation, "runtime-rejected action should provide useful diagnostics");
 
         const auto result_json = clc::sim::runtime_action_result_to_json(rejected);
