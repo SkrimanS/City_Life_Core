@@ -87,6 +87,12 @@ int main() {
     require(!rejected.validation.ok(), "runtime-rejected action did not return diagnostics");
     require(engine.settlement_resource_amount("riverwatch", "grain") == before_rejected, "runtime-rejected action mutated runtime");
 
+    const auto rejected_json = clc::sim::runtime_action_result_to_json(rejected);
+    require(rejected_json.find("\"diagnostics_detail\":[") != std::string::npos, "rejected result JSON missing diagnostics detail array");
+    require(rejected_json.find("\"severity\":\"error\"") != std::string::npos, "rejected result JSON missing diagnostic severity");
+    require(rejected_json.find("\"path\":") != std::string::npos, "rejected result JSON missing diagnostic path");
+    require(rejected_json.find("not enough resource") != std::string::npos, "rejected result JSON missing diagnostic message");
+
     auto transfer_engine = make_engine();
     const auto riverwatch_before = transfer_engine.settlement_resource_amount("riverwatch", "grain");
     const auto hillford_before = transfer_engine.settlement_resource_amount("hillford", "grain");
@@ -122,6 +128,11 @@ int main() {
     require(json.find("\"validation_status\":\"accepted\"") != std::string::npos, "result JSON missing validation status");
     require(json.find("\"action_id\":\"a8\"") != std::string::npos, "result JSON missing action id");
     require(json.find("\"diagnostics\":0") != std::string::npos, "result JSON missing diagnostics count");
+    require(json.find("\"events_detail\":[") != std::string::npos, "result JSON missing events detail array");
+    require(json.find("\"day\":") != std::string::npos, "result JSON missing event day");
+    require(json.find("\"type\":") != std::string::npos, "result JSON missing event type");
+    require(json.find("\"message\":") != std::string::npos, "result JSON missing event message");
+    require(json.find("\"diagnostics_detail\":[]") != std::string::npos, "accepted result JSON missing empty diagnostics detail array");
 
     return 0;
 }
