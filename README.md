@@ -25,6 +25,7 @@ The SDK provides:
 - delivery contracts and reward flows;
 - market, wallet, trade and ledger primitives;
 - runtime workflows for server-authoritative logic;
+- local Action Bridge dispatch for external action validation and mutation flows;
 - persistence, save/load validation and deterministic replay diagnostics;
 - CMake install/export package for external projects;
 - a minimal C interface for version/time utilities, an opaque world handle and read-only world event access;
@@ -40,6 +41,12 @@ For most C++ integrations:
 #include "clc/CityLifeCore.hpp"
 ```
 
+For local external-action dispatch:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
 For the minimal C interface:
 
 ```c
@@ -48,7 +55,7 @@ For the minimal C interface:
 
 The C interface exposes version utilities, time utilities, a minimal opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement and read-only world event inspection by index. Full runtime integration is provided by the C++ API.
 
-For Unity and C# integrations, use the C ABI through P/Invoke. See [`docs/csharp-unity.md`](docs/csharp-unity.md). For browser and WebAssembly planning, see [`docs/browser-wasm.md`](docs/browser-wasm.md). For the staged C ABI expansion plan, see [`docs/c-abi-expansion-plan.md`](docs/c-abi-expansion-plan.md). For choosing an integration style, see [`docs/game-profiles.md`](docs/game-profiles.md).
+For Action Bridge usage, see [`docs/action-bridge.md`](docs/action-bridge.md). For Unity and C# integrations, use the C ABI through P/Invoke. See [`docs/csharp-unity.md`](docs/csharp-unity.md). For browser and WebAssembly planning, see [`docs/browser-wasm.md`](docs/browser-wasm.md). For the staged C ABI expansion plan, see [`docs/c-abi-expansion-plan.md`](docs/c-abi-expansion-plan.md). For choosing an integration style, see [`docs/game-profiles.md`](docs/game-profiles.md).
 
 ---
 
@@ -168,6 +175,28 @@ int main() {
 
 ---
 
+## Minimal Action Bridge scenario
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+
+int main() {
+    auto bootstrap = clc::sim::make_basic_runtime_scenario();
+    if (!bootstrap.ok()) {
+        return 1;
+    }
+
+    auto result = clc::sim::dispatch_runtime_action_json(
+        bootstrap.runtime.engine,
+        R"({"action_id":"a1","type":"advance_days","payload":{"days":1}})"
+    );
+
+    return result.accepted ? 0 : 1;
+}
+```
+
+---
+
 ## Documentation
 
 Start here:
@@ -177,6 +206,7 @@ Start here:
 - [Architecture](docs/architecture.md)
 - [Public API](docs/public-api.md)
 - [Public API status](docs/public-api-status.md)
+- [Action Bridge](docs/action-bridge.md)
 - [Game integration profiles](docs/game-profiles.md)
 - [C interface](docs/c-abi.md)
 - [C ABI expansion plan](docs/c-abi-expansion-plan.md)
