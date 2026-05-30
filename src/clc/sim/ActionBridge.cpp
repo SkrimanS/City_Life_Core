@@ -244,6 +244,10 @@ std::string copy_string(std::string_view value) {
     return std::string{value};
 }
 
+std::string_view view_string(const std::string& value) {
+    return std::string_view{value.data(), value.size()};
+}
+
 std::string validation_status_for(const data::ValidationReport& validation, bool accepted) {
     if (!validation.ok()) {
         return copy_string(runtime_action_status_invalid);
@@ -273,8 +277,10 @@ RuntimeActionResult rejected_result(const RuntimeAction& action, data::Validatio
     };
 }
 
-RuntimeActionResult rejected_parse_result(data::ValidationReport validation, std::string error_code, std::string message) {
+RuntimeActionResult rejected_parse_result(const RuntimeAction& action, data::ValidationReport validation, std::string error_code, std::string message) {
     return RuntimeActionResult{
+        .action_id = action.action_id,
+        .type = action.type,
         .accepted = false,
         .validation_status = validation_status_for(validation, false),
         .error_code = std::move(error_code),
@@ -365,7 +371,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         return report;
     }
 
-    const auto action_type = std::string_view{action.type};
+    const auto action_type = view_string(action.type);
     if (action_type == runtime_action_type_add_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for add_resource");
@@ -418,7 +424,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
     }
 
     const auto event_start = engine.events().size();
-    const auto action_type = std::string_view{action.type};
+    const auto action_type = view_string(action.type);
 
     if (action_type == runtime_action_type_add_resource) {
         return command_result_to_action_result(
@@ -468,7 +474,7 @@ RuntimeActionResult dispatch_runtime_action_json(SimulationEngine& engine, std::
     auto parsed = parse_runtime_action_json(json);
     if (!parsed.validation.ok()) {
         const auto message = first_validation_message(parsed.validation);
-        return rejected_parse_result(std::move(parsed.validation), copy_string(runtime_action_error_malformed_json), message);
+        return rejected_parse_result(parsed.action, std::move(parsed.validation), copy_string(runtime_action_error_malformed_json), message);
     }
     return dispatch_runtime_action(engine, parsed.action);
 }
