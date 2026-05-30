@@ -14,6 +14,19 @@ int main() {
         return 1;
     }
 
+    const auto action_result = clc::sim::dispatch_runtime_action_json(
+        runtime.engine,
+        R"({"action_id":"consumer-a1","type":"advance_days","payload":{"days":1}})"
+    );
+    if (!action_result.accepted) {
+        return 1;
+    }
+
+    const auto action_json = clc::sim::runtime_action_result_to_json(action_result);
+    if (action_json.find("\"validation_status\":\"accepted\"") == std::string::npos) {
+        return 1;
+    }
+
     std::cout << clc::core_version_string() << " " << runtime.time.current_tick() << "\n";
     return 0;
 }
