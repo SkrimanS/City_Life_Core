@@ -1,6 +1,7 @@
 #include "clc/CityLifeCore.hpp"
 
 #include <iostream>
+#include <string>
 
 int main() {
     auto bootstrap = clc::sim::make_basic_runtime_scenario();
