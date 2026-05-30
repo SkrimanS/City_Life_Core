@@ -46,12 +46,19 @@ starting_population=10
     require(engine.create_settlement("riverwatch").ok(), "engine should create source settlement");
     require(engine.create_settlement("hillford").ok(), "engine should create target settlement");
 
+    require(!engine.add_resource_to_settlement("riverwatch", "unknown", 1).ok(), "add should reject unknown resource id");
+    require(engine.settlement_resource_amount("riverwatch", "unknown") == 0, "unknown resource add should not mutate storage");
+    require(!engine.add_resource_to_settlement("riverwatch", "grain", 0).ok(), "add should reject zero amount");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == 0, "zero add should not mutate storage");
+
     require(engine.add_resource_to_settlement("riverwatch", "grain", 10).ok(), "engine should add grain to source settlement");
     require(engine.add_resource_to_settlement("hillford", "grain", 2).ok(), "engine should add grain to target settlement");
 
     require(!engine.remove_resource_from_settlement("", "grain", 1).ok(), "remove should reject empty settlement id");
     require(!engine.remove_resource_from_settlement("missing", "grain", 1).ok(), "remove should reject unknown settlement id");
     require(!engine.remove_resource_from_settlement("riverwatch", "", 1).ok(), "remove should reject empty resource id");
+    require(!engine.remove_resource_from_settlement("riverwatch", "unknown", 1).ok(), "remove should reject unknown resource id");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == 10, "unknown resource remove should not mutate existing storage");
     require(!engine.remove_resource_from_settlement("riverwatch", "grain", 0).ok(), "remove should reject zero amount");
     require(!engine.remove_resource_from_settlement("riverwatch", "grain", 100).ok(), "remove should reject over-removal");
     require(engine.remove_resource_from_settlement("riverwatch", "grain", 3).ok(), "remove should debit settlement storage");
@@ -68,6 +75,9 @@ starting_population=10
     require(!engine.transfer_resource_between_settlements("missing", "hillford", "grain", 1).ok(), "transfer should reject unknown source");
     require(!engine.transfer_resource_between_settlements("riverwatch", "missing", "grain", 1).ok(), "transfer should reject unknown target");
     require(!engine.transfer_resource_between_settlements("riverwatch", "hillford", "", 1).ok(), "transfer should reject empty resource id");
+    require(!engine.transfer_resource_between_settlements("riverwatch", "hillford", "unknown", 1).ok(), "transfer should reject unknown resource id");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == 7, "unknown resource transfer should not debit source");
+    require(engine.settlement_resource_amount("hillford", "grain") == 2, "unknown resource transfer should not credit target");
     require(!engine.transfer_resource_between_settlements("riverwatch", "hillford", "grain", 0).ok(), "transfer should reject zero amount");
     require(!engine.transfer_resource_between_settlements("hillford", "riverwatch", "grain", 100).ok(), "transfer should reject insufficient source resources");
     require(engine.transfer_resource_between_settlements("riverwatch", "hillford", "grain", 4).ok(), "transfer should move resources between settlements");
