@@ -10,6 +10,15 @@
 
 namespace clc::sim {
 
+inline constexpr std::string_view runtime_action_status_accepted = "accepted";
+inline constexpr std::string_view runtime_action_status_invalid = "invalid";
+inline constexpr std::string_view runtime_action_status_rejected = "rejected";
+
+inline constexpr std::string_view runtime_action_error_malformed_json = "malformed_json";
+inline constexpr std::string_view runtime_action_error_invalid_action = "invalid_action";
+inline constexpr std::string_view runtime_action_error_action_rejected = "action_rejected";
+inline constexpr std::string_view runtime_action_error_unsupported_action_type = "unsupported_action_type";
+
 struct RuntimeAction final {
     std::string action_id{};
     std::string type{};
