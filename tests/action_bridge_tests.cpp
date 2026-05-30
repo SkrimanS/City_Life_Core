@@ -38,6 +38,14 @@ int main() {
     require(engine.settlement_resource_amount("riverwatch", "grain") == before_grain + 5, "valid action did not mutate runtime");
     require(!valid.events.empty(), "valid action did not report produced events");
 
+    const auto valid_json = clc::sim::runtime_action_result_to_json(valid);
+    require(valid_json.find("\"command_detail\":{") != std::string::npos, "valid result JSON missing command detail object");
+    require(valid_json.find("\"command\":\"add_resource_to_settlement\"") != std::string::npos, "valid result JSON missing command name");
+    require(valid_json.find("\"ok\":true") != std::string::npos, "valid result JSON missing command ok state");
+    require(valid_json.find("\"subject_id\":\"riverwatch\"") != std::string::npos, "valid result JSON missing command subject id");
+    require(valid_json.find("\"resource_id\":\"grain\"") != std::string::npos, "valid result JSON missing command resource id");
+    require(valid_json.find("\"amount\":5") != std::string::npos, "valid result JSON missing command amount");
+
     const auto before_invalid = engine.settlement_resource_amount("riverwatch", "grain");
     const auto invalid_type = clc::sim::dispatch_runtime_action_json(
         engine,
@@ -88,6 +96,8 @@ int main() {
     require(engine.settlement_resource_amount("riverwatch", "grain") == before_rejected, "runtime-rejected action mutated runtime");
 
     const auto rejected_json = clc::sim::runtime_action_result_to_json(rejected);
+    require(rejected_json.find("\"command_detail\":{") != std::string::npos, "rejected result JSON missing command detail object");
+    require(rejected_json.find("\"ok\":false") != std::string::npos, "rejected result JSON missing failed command ok state");
     require(rejected_json.find("\"diagnostics_detail\":[") != std::string::npos, "rejected result JSON missing diagnostics detail array");
     require(rejected_json.find("\"severity\":\"error\"") != std::string::npos, "rejected result JSON missing diagnostic severity");
     require(rejected_json.find("\"path\":") != std::string::npos, "rejected result JSON missing diagnostic path");
@@ -128,6 +138,7 @@ int main() {
     require(json.find("\"validation_status\":\"accepted\"") != std::string::npos, "result JSON missing validation status");
     require(json.find("\"action_id\":\"a8\"") != std::string::npos, "result JSON missing action id");
     require(json.find("\"diagnostics\":0") != std::string::npos, "result JSON missing diagnostics count");
+    require(json.find("\"command_detail\":null") != std::string::npos, "advance result JSON should have null command detail");
     require(json.find("\"events_detail\":[") != std::string::npos, "result JSON missing events detail array");
     require(json.find("\"day\":") != std::string::npos, "result JSON missing event day");
     require(json.find("\"type\":") != std::string::npos, "result JSON missing event type");
