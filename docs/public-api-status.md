@@ -35,7 +35,7 @@ Source compatibility is prioritized for the 1.x line where practical. C++ binary
 
 ## Action Bridge C++ surface
 
-The Action Bridge is a v1.2.0 C++ SDK surface for local action dispatch:
+The Action Bridge is a C++ SDK surface for local action dispatch:
 
 ```text
 external action -> validation -> runtime mutation -> result/events
@@ -61,7 +61,7 @@ Status:
 - not a multiplayer/session/account system;
 - not part of the C ABI yet.
 
-The canonical v1.2.0 action input format uses `action_id`, `type`, optional `actor_id` and an action-specific JSON `payload` object. Results expose `accepted`, `validation_status`, stable `error_code`, diagnostics and produced events.
+The canonical action input format uses `action_id`, `type`, optional `actor_id` and an action-specific JSON `payload` object. Results expose `accepted`, `validation_status`, stable `error_code`, `command_detail`, `events_detail` and `diagnostics_detail`.
 
 ---
 
@@ -153,7 +153,7 @@ Do not treat these as stable public API:
 - C++ binary ABI stability is not promised across arbitrary compilers, standard libraries or build configurations.
 - C ABI compatibility should be treated separately and versioned through the C interface version when needed.
 - C# / Unity and future Browser/WASM wrappers should follow the C ABI rather than private C++ internals.
-- The v1.2.0 Action Bridge is a local C++ SDK surface; networking, sessions, auth and multiplayer behavior are future layers, not part of the bridge.
+- The Action Bridge is a local C++ SDK surface; networking, sessions, auth and multiplayer behavior are future layers, not part of the bridge.
 - Prefer rebuilding consumers against the installed SDK package.
 
 ---
