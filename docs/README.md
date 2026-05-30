@@ -16,6 +16,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`core-concepts.md`](core-concepts.md) | Main systems: registry, runtime, ticks, settlements, caravans, economy, contracts, events and persistence. |
 | [`architecture.md`](architecture.md) | Architecture overview for core layers, public C++ API, C ABI, integration layers and non-goals. |
 | [`public-api.md`](public-api.md) | Public SDK API, recommended include, validation model, workflows and usage rules. |
+| [`data-packs.md`](data-packs.md) | `.clcd` data pack format, required fields, strict loader validation and diagnostics. |
 | [`action-bridge.md`](action-bridge.md) | Local JSON action bridge for external tools, game layers and future server-authoritative adapters. |
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | [`game-profiles.md`](game-profiles.md) | Recommended integration profiles for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
@@ -61,7 +62,7 @@ Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in the c
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
-Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `action-bridge.md`, `sdk-structure.md`, `game-profiles.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
+Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `data-packs.md`, `action-bridge.md`, `sdk-structure.md`, `game-profiles.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
 
 ---
 
