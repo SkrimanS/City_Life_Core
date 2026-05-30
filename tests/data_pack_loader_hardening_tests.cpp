@@ -76,6 +76,22 @@ base_value=10
 
     {
         clc::data::DataRegistry registry;
+        const auto report = loader.load_string("missing-resource-value", R"CLC(
+schema_version=0.2.2
+
+[resource]
+id=missing_value
+display_name=Missing Value Resource
+category=test
+)CLC", registry);
+
+        require(!report.ok(), "missing base_value resource should fail through loader");
+        require(contains_message(report, "base_value is required"), "missing base_value should be reported");
+        require(registry.resource_count() == 0, "resource missing base_value should not be registered through loader");
+    }
+
+    {
+        clc::data::DataRegistry registry;
         const auto report = loader.load_string("invalid-resource-value", R"CLC(
 schema_version=0.2.2
 
@@ -89,6 +105,38 @@ base_value=0
         require(!report.ok(), "zero base_value resource should fail through loader");
         require(contains_message(report, "base_value"), "zero base_value should be reported");
         require(registry.resource_count() == 0, "invalid resource should not be registered through loader");
+    }
+
+    {
+        clc::data::DataRegistry registry;
+        const auto report = loader.load_string("missing-building-workers", R"CLC(
+schema_version=0.2.2
+
+[resource]
+id=grain
+display_name=Grain
+category=food
+base_value=10
+
+[profession]
+id=farmer
+display_name=Farmer
+category=food
+
+[building]
+id=empty_workshop
+display_name=Empty Workshop
+category=production
+required_profession_id=farmer
+input_resource_ids=grain
+output_resource_ids=grain
+)CLC", registry);
+
+        require(!report.ok(), "missing worker_slots building should fail through loader");
+        require(contains_message(report, "worker_slots is required"), "missing worker_slots should be reported");
+        require(registry.resource_count() == 1, "valid resource before invalid building should remain registered");
+        require(registry.profession_count() == 1, "valid profession before invalid building should remain registered");
+        require(registry.building_count() == 0, "building missing worker_slots should not be registered through loader");
     }
 
     {
