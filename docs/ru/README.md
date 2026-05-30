@@ -1,7 +1,7 @@
 # Документация City Life Core
 
 Версия: **1.0.0**  
-Статус: **released / v1.0.0**
+Статус: **released / v1.0.0, internal v1.2.0 in progress**
 
 Эта папка содержит русскоязычную точку входа в документацию City Life Core. Основная документация ведётся на английском языке в [`../README.md`](../README.md); русские страницы и справочные материалы размещаются в `docs/ru/`.
 
@@ -14,6 +14,7 @@
 | [Core concepts](../core-concepts.md) | Основные системы: registry, runtime, ticks, settlements, caravans, economy, contracts, events и persistence. |
 | [Architecture](../architecture.md) | Обзор архитектуры: core layers, C++ API, C ABI, integration layers и non-goals. |
 | [Public API](../public-api.md) | Публичный SDK API, рекомендуемые include, validation model и правила использования. |
+| [Action Bridge](../action-bridge.md) | Локальный JSON action bridge для external tools, game layers и будущих server-authoritative adapters. |
 | [SDK structure](../sdk-structure.md) | Структура репозитория, установленного SDK, CMake options и integration modes. |
 | [Game integration profiles](../game-profiles.md) | Профили интеграции для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
 | [Packaging](../packaging.md) | Сборка, установка и подключение SDK через CMake. |
@@ -44,6 +45,12 @@
 | --- | --- |
 | [Roadmap](../roadmap.md) | Направление проекта, внутренние milestones и план v2/v3/v4. |
 | [Versioning and release policy](../versioning.md) | Политика версий, веток, тегов и релизов. |
+| [Release plan 1.2.0](../release-plan-1.2.0.md) | Internal v1.2.0 Action Bridge release plan и merge gate. |
+| [Release notes 1.2.0](../release-notes-1.2.0.md) | Internal v1.2.0 Action Bridge release notes. |
+| [Release manifest 1.2.0](../release-manifest-1.2.0.md) | Internal v1.2.0 Action Bridge manifest и validation expectations. |
+| [Release plan 1.1.0](../release-plan-1.1.0.md) | Internal v1.1.0 Integration Foundation release plan и merge gate. |
+| [Release notes 1.1.0](../release-notes-1.1.0.md) | Internal v1.1.0 Integration Foundation release notes. |
+| [Release manifest 1.1.0](../release-manifest-1.1.0.md) | Internal v1.1.0 Integration Foundation manifest и validation expectations. |
 | [Release notes 1.0.0](../release-notes-1.0.0.md) | Финальные заметки релиза 1.0.0. |
 | [Release manifest 1.0.0](../release-manifest-1.0.0.md) | Финальный manifest релиза и validation summary. |
 | [Readiness status](../readiness-status.md) | Срез готовности подсистем для линии 1.0.0. |
@@ -65,6 +72,12 @@ target_link_libraries(my_app PRIVATE CityLifeCore::core)
 
 ```cpp
 #include "clc/CityLifeCore.hpp"
+```
+
+Action Bridge include:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
 ```
 
 Минимальный C interface include:
