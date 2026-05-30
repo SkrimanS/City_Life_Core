@@ -22,6 +22,15 @@ clc::data::DataRegistry make_registry() {
     return registry;
 }
 
+void require_original_runtime_preserved(const clc::sim::SimulationRuntime& runtime) {
+    require(runtime.engine.has_settlement("riverwatch"), "failed restore should preserve original settlement");
+    require(!runtime.engine.has_settlement("hillford"), "failed restore should not partially apply new settlement");
+    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 7, "failed restore should preserve original resources");
+    require(runtime.wallet.coins == 42, "failed restore should preserve wallet");
+    require(runtime.time.current_tick() == 123, "failed restore should preserve runtime time");
+    require(runtime.ledger.entries().empty(), "failed restore should preserve original ledger");
+}
+
 } // namespace
 
 int main() {
@@ -48,15 +57,23 @@ int main() {
 
     const auto report = clc::sim::restore_simulation_runtime_from_world_state(state, runtime);
     require(!report.ok(), "restore should reject non-contiguous ledger sequence");
-
-    require(runtime.engine.has_settlement("riverwatch"), "failed restore should preserve original settlement");
-    require(!runtime.engine.has_settlement("hillford"), "failed restore should not partially apply new settlement");
-    require(runtime.engine.settlement_resource_amount("riverwatch", "grain") == 7, "failed restore should preserve original resources");
-    require(runtime.wallet.coins == 42, "failed restore should preserve wallet");
-    require(runtime.time.current_tick() == 123, "failed restore should preserve runtime time");
-    require(runtime.ledger.entries().empty(), "failed restore should preserve original ledger");
+    require_original_runtime_preserved(runtime);
 
     state.ledger_entries.clear();
+
+    auto invalid_storage_state = state;
+    require(invalid_storage_state.engine.settlements[0].storage.add("grain", 1).ok(), "invalid storage setup should add valid grain first");
+    require(invalid_storage_state.engine.settlements[0].storage.add("unknown_resource", 1).ok(), "invalid storage setup should allow raw unknown resource in captured state");
+    const auto invalid_storage_report = clc::sim::restore_simulation_runtime_from_world_state(invalid_storage_state, runtime);
+    require(!invalid_storage_report.ok(), "restore should reject storage with unknown resource");
+    require_original_runtime_preserved(runtime);
+
+    auto invalid_market_state = state;
+    invalid_market_state.engine.market_demands.push_back(clc::sim::SimulationMarketDemand{.resource_id = "unknown_resource", .demand = 5});
+    const auto invalid_market_report = clc::sim::restore_simulation_runtime_from_world_state(invalid_market_state, runtime);
+    require(!invalid_market_report.ok(), "restore should reject market demand with unknown resource");
+    require_original_runtime_preserved(runtime);
+
     const auto valid_report = clc::sim::restore_simulation_runtime_from_world_state(state, runtime);
     require(valid_report.ok(), "valid restore should succeed");
     require(!runtime.engine.has_settlement("riverwatch"), "valid restore should replace old settlement");
