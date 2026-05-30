@@ -1,7 +1,7 @@
 # City Life Core Documentation
 
 Version: **1.0.0**  
-Status: **released / v1.0.0, internal v1.2.0 in progress**
+Status: **released / v1.0.0, internal v1.x milestones in development**
 
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
@@ -42,25 +42,22 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 
 ---
 
-## Roadmap and release documents
+## Roadmap, changelog and release documents
 
 | Document | Purpose |
 | --- | --- |
 | [`roadmap.md`](roadmap.md) | Project direction, internal milestone plan and v2/v3/v4 roadmap. |
 | [`versioning.md`](versioning.md) | Versioning, branch, tag and release policy. |
-| [`release-plan-1.2.0.md`](release-plan-1.2.0.md) | Internal v1.2.0 Action Bridge release plan and merge gate. |
-| [`release-notes-1.2.0.md`](release-notes-1.2.0.md) | Internal v1.2.0 Action Bridge release notes. |
-| [`release-manifest-1.2.0.md`](release-manifest-1.2.0.md) | Internal v1.2.0 Action Bridge manifest and validation expectations. |
-| [`release-plan-1.1.0.md`](release-plan-1.1.0.md) | Internal v1.1.0 Integration Foundation release plan and merge gate. |
-| [`release-notes-1.1.0.md`](release-notes-1.1.0.md) | Internal v1.1.0 Integration Foundation release notes. |
-| [`release-manifest-1.1.0.md`](release-manifest-1.1.0.md) | Internal v1.1.0 Integration Foundation manifest and validation expectations. |
+| [`../CHANGELOG.md`](../CHANGELOG.md) | Internal milestone history and public release change history. |
 | [`release-notes-1.0.0.md`](release-notes-1.0.0.md) | Final 1.0.0 release notes. |
 | [`release-manifest-1.0.0.md`](release-manifest-1.0.0.md) | Final 1.0.0 release manifest and reviewed local validation data. |
 | [`readiness-status.md`](readiness-status.md) | Subsystem readiness estimate for the 1.0.0 line. |
 | [`verifying-releases.md`](verifying-releases.md) | Release verification guide. |
 | [`ci-artifact-review.md`](ci-artifact-review.md) | Manual CI, benchmark artifact and SDK ZIP artifact review guide. |
-| [`release-manifest-template.md`](release-manifest-template.md) | Template for future release manifests. |
+| [`release-manifest-template.md`](release-manifest-template.md) | Template for future public major release manifests. |
 | [`protection-strategy.md`](protection-strategy.md) | Project protection and distribution strategy. |
+
+Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in the changelog and current documentation instead of separate per-milestone release-note files. Versioned release documents are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
