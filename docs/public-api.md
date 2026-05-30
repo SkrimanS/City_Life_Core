@@ -34,6 +34,48 @@ The C++ API is the richest API surface today. It is source-first: downstream pro
 
 ---
 
+## Action Bridge C++ API
+
+v1.2.0 adds a local Action Bridge for external game layers, tools and future server-authoritative adapters:
+
+```text
+external action -> validation -> runtime mutation -> result/events
+```
+
+Use:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The bridge accepts JSON actions with:
+
+- `action_id`;
+- `type`;
+- optional `actor_id`;
+- action-specific `payload` object.
+
+It returns action results with:
+
+- `accepted`;
+- `validation_status`;
+- stable `error_code`;
+- message;
+- validation diagnostics;
+- produced events.
+
+The Action Bridge is local and transport-agnostic. It is not HTTP, WebSocket, accounts, auth, matchmaking, multiplayer, MMO or UI.
+
+See [`action-bridge.md`](action-bridge.md).
+
+---
+
 ## C ABI entry point
 
 Use the C interface header for C consumers and foreign-language binding layers:
@@ -64,6 +106,7 @@ For the staged expansion plan, see [`c-abi-expansion-plan.md`](c-abi-expansion-p
 - Treat installed headers under `include/clc` as the supported SDK surface.
 - Use `clc/CityLifeCore.hpp` as the normal C++ include.
 - Use `clc/c/CityLifeCoreC.h` for C ABI consumers and foreign-language bindings.
+- Use the local Action Bridge when an external tool/game layer needs action validation and dispatch without becoming coupled to runtime internals.
 - Do not bind C#, Unity, Browser/WASM or scripting integrations directly to C++ implementation details.
 - Validate registries and runtime state before relying on loaded content.
 - Prefer tick-based helpers for server-authoritative, real-time or MMO-like runtime flows.
@@ -86,6 +129,23 @@ clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
 ```
 
 For real integrations, prefer explicit registry and runtime construction over demo bootstrap helpers once the project has its own data and workflows.
+
+---
+
+## Common Action Bridge workflow
+
+```cpp
+auto bootstrap = clc::sim::make_basic_runtime_scenario();
+if (!bootstrap.ok()) {
+    return;
+}
+
+auto& engine = bootstrap.runtime.engine;
+const auto result = clc::sim::dispatch_runtime_action_json(
+    engine,
+    R"({"action_id":"a1","type":"advance_days","payload":{"days":1}})"
+);
+```
 
 ---
 
@@ -155,6 +215,7 @@ Do not rely on:
 ## Related documents
 
 - [Public API status](public-api-status.md)
+- [Action Bridge](action-bridge.md)
 - [C interface](c-abi.md)
 - [C ABI expansion plan](c-abi-expansion-plan.md)
 - [C# and Unity integration](csharp-unity.md)
