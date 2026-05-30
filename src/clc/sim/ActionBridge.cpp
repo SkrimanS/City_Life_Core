@@ -55,25 +55,53 @@ std::size_t skip_ws(std::string_view json, std::size_t index) {
     return index;
 }
 
+std::size_t find_string_end(std::string_view json, std::size_t quote_index) {
+    bool escaping = false;
+    for (auto index = quote_index + 1; index < json.size(); ++index) {
+        const auto ch = json[index];
+        if (escaping) {
+            escaping = false;
+            continue;
+        }
+        if (ch == '\\') {
+            escaping = true;
+            continue;
+        }
+        if (ch == '"') {
+            return index;
+        }
+    }
+    return std::string_view::npos;
+}
+
 std::size_t find_field_value_start(std::string_view json, std::string_view field) {
     std::size_t depth = 0;
-    bool in_string = false;
-    bool escaping = false;
 
     for (std::size_t index = 0; index < json.size(); ++index) {
         const auto ch = json[index];
-        if (in_string) {
-            if (escaping) {
-                escaping = false;
+        if (ch == '"') {
+            const auto key_end = find_string_end(json, index);
+            if (key_end == std::string_view::npos) {
+                return std::string_view::npos;
+            }
+
+            if (depth != 1) {
+                index = key_end;
                 continue;
             }
-            if (ch == '\\') {
-                escaping = true;
+
+            const auto colon = skip_ws(json, key_end + 1);
+            if (colon >= json.size() || json[colon] != ':') {
+                index = key_end;
                 continue;
             }
-            if (ch == '"') {
-                in_string = false;
+
+            const auto raw_key = json.substr(index + 1, key_end - index - 1);
+            if (unescape_json_string(raw_key) == field) {
+                return colon + 1;
             }
+
+            index = key_end;
             continue;
         }
 
@@ -87,47 +115,6 @@ std::size_t find_field_value_start(std::string_view json, std::string_view field
             }
             continue;
         }
-        if (ch != '"' || depth != 1) {
-            continue;
-        }
-
-        std::string raw_key;
-        bool key_escaping = false;
-        std::size_t key_end = std::string_view::npos;
-        for (auto key_index = index + 1; key_index < json.size(); ++key_index) {
-            const auto key_ch = json[key_index];
-            if (key_escaping) {
-                raw_key.push_back('\\');
-                raw_key.push_back(key_ch);
-                key_escaping = false;
-                continue;
-            }
-            if (key_ch == '\\') {
-                key_escaping = true;
-                continue;
-            }
-            if (key_ch == '"') {
-                key_end = key_index;
-                break;
-            }
-            raw_key.push_back(key_ch);
-        }
-
-        if (key_end == std::string_view::npos) {
-            return std::string_view::npos;
-        }
-
-        auto colon = skip_ws(json, key_end + 1);
-        if (colon >= json.size() || json[colon] != ':') {
-            index = key_end;
-            continue;
-        }
-
-        if (unescape_json_string(raw_key) == field) {
-            return colon + 1;
-        }
-
-        index = key_end;
     }
 
     return std::string_view::npos;
