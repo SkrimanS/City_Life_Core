@@ -20,8 +20,16 @@ int main() {
     clc::sim::ResourceStorage source;
     clc::sim::ResourceStorage target;
 
+    require(!source.add("grain", 0).ok(), "storage add should reject zero amount");
+    require(source.empty(), "zero add should not mutate storage");
+
     require(source.add("grain", 10).ok(), "source should accept grain");
     require(target.add("grain", 5).ok(), "target should accept grain");
+
+    const auto zero_transfer = clc::sim::transfer(source, target, "grain", 0);
+    require(!zero_transfer.ok(), "transfer should reject zero amount");
+    require(source.amount("grain") == 10, "zero transfer should not debit source");
+    require(target.amount("grain") == 5, "zero transfer should not credit target");
 
     const auto transfer_report = clc::sim::transfer(source, target, "grain", 4);
     require(transfer_report.ok(), "valid transfer should succeed");
