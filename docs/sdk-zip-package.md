@@ -4,7 +4,7 @@ Version: **1.0.0**
 
 The SDK ZIP package is an install-layout archive produced by CPack.
 
-It is intended to be unpacked and consumed through CMake with `find_package(CityLifeCore CONFIG REQUIRED)`. It also carries documentation and examples, including C ABI and initial C# / Unity integration examples.
+It is intended to be unpacked and consumed through CMake with `find_package(CityLifeCore CONFIG REQUIRED)`. It also carries documentation and examples, including Action Bridge, C ABI and initial C# / Unity integration examples.
 
 ## Build ZIP package
 
@@ -24,6 +24,8 @@ find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
 
+The installed package consumer also validates that installed Action Bridge headers, docs and examples are available through the SDK layout.
+
 ## Expected contents
 
 The ZIP package should contain the installed SDK layout:
@@ -33,13 +35,31 @@ The ZIP package should contain the installed SDK layout:
 - CMake package config files;
 - documentation;
 - examples;
+- scripts;
 - example data packs.
 
 Integration examples should include:
 
 ```text
+examples/action_bridge.cpp
 examples/c_abi_consumer/
 examples/csharp_unity/
+```
+
+Important integration documents should include:
+
+```text
+docs/action-bridge.md
+docs/c-abi.md
+docs/csharp-unity.md
+docs/browser-wasm.md
+```
+
+Validation scripts should include:
+
+```text
+scripts/validate_csharp_wrapper.sh
+scripts/validate_csharp_wrapper.ps1
 ```
 
 The C# / Unity files are source examples and wrappers. Unity still needs the native shared library built for the target platform and copied into `Assets/Plugins`.
@@ -59,6 +79,7 @@ cpack --config build-sdk-zip-shared/CPackConfig.cmake -G ZIP
 - [Packaging](packaging.md)
 - [CMake package](cmake-package.md)
 - [SDK structure](sdk-structure.md)
+- [Action Bridge](action-bridge.md)
 - [Integration targets](integration-targets.md)
 - [C# and Unity integration](csharp-unity.md)
 - [Browser and WebAssembly integration](browser-wasm.md)
