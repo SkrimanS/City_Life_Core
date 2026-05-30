@@ -4,7 +4,7 @@ Version: **1.0.0**
 
 City Life Core installs a CMake package config for external consumers.
 
-The installed package is the recommended way for native C++ projects, C ABI consumers, tools, servers and packaging workflows to consume the SDK.
+The installed package is the recommended way for native C++ projects, Action Bridge consumers, C ABI consumers, tools, servers and packaging workflows to consume the SDK.
 
 ---
 
@@ -31,6 +31,12 @@ Recommended C++ include:
 
 ```cpp
 #include "clc/CityLifeCore.hpp"
+```
+
+For local JSON action dispatch:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
 ```
 
 The C++ API is source-first. Rebuild the consumer against the SDK version it uses.
@@ -67,11 +73,26 @@ The package config exposes install-layout paths used by consumers and examples.
 Expected variables include:
 
 ```cmake
+CityLifeCore_INCLUDE_DIR
+CityLifeCore_DOCS_DIR
 CityLifeCore_DATA_DIR
 CityLifeCore_EXAMPLES_DIR
+CityLifeCore_SCRIPTS_DIR
 ```
 
-Use these for installed example data and example source discovery instead of assuming repository-relative paths.
+Use these for installed headers, documentation, example data, example source discovery and validation scripts instead of assuming repository-relative paths.
+
+The standalone installed package consumer validates these variables and checks for installed integration files such as:
+
+```text
+include/clc/sim/ActionBridge.hpp
+docs/action-bridge.md
+docs/ru/README.md
+examples/action_bridge.cpp
+examples/csharp_unity/CityLifeCoreNative.cs
+scripts/validate_csharp_wrapper.sh
+scripts/validate_csharp_wrapper.ps1
+```
 
 ---
 
@@ -80,12 +101,13 @@ Use these for installed example data and example source discovery instead of ass
 Installed examples may include:
 
 ```text
+examples/action_bridge.cpp
 examples/find_package_consumer/
 examples/c_abi_consumer/
 examples/csharp_unity/
 ```
 
-The C# / Unity files are wrappers and smoke-test scripts. They still require a native City Life Core library for the target platform.
+The Action Bridge example demonstrates local C++ JSON action validation and dispatch. The C# / Unity files are wrappers and smoke-test scripts. They still require a native City Life Core library for the target platform.
 
 ---
 
@@ -118,6 +140,7 @@ Future WebAssembly work should define its own CMake configure/build guidance and
 
 ## Related documents
 
+- [Action Bridge](action-bridge.md)
 - [Packaging](packaging.md)
 - [SDK structure](sdk-structure.md)
 - [SDK ZIP package](sdk-zip-package.md)
