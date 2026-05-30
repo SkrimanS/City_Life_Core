@@ -62,6 +62,7 @@ Checklist:
 - [ ] Configure passed.
 - [ ] Build passed.
 - [ ] Tests passed or accepted failures are documented.
+- [ ] Action Bridge tests pass if included in this public release.
 - [ ] Benchmarks were reviewed or explicitly skipped.
 - [ ] Manual release validation was run or CI equivalent was accepted.
 
@@ -87,9 +88,11 @@ Checklist:
 
 - [ ] `CityLifeCore::core` is found by external consumers.
 - [ ] C++ installed package consumer builds.
+- [ ] C++ installed package consumer validates installed Action Bridge header/docs/example availability when Action Bridge is included.
 - [ ] C ABI installed package consumer builds.
 - [ ] Installed package variables are usable where expected.
 - [ ] Installed examples are present.
+- [ ] Installed validation scripts are present when wrapper examples are included.
 
 ---
 
@@ -108,9 +111,13 @@ Expected contents:
 - [ ] CMake package config files.
 - [ ] Documentation.
 - [ ] Example `.clcd` data packs.
+- [ ] `examples/action_bridge.cpp`, if Action Bridge is included for this release.
+- [ ] `docs/action-bridge.md`, if Action Bridge is included for this release.
 - [ ] `examples/find_package_consumer/`.
 - [ ] `examples/c_abi_consumer/`.
 - [ ] `examples/csharp_unity/`, if C# / Unity examples are included for this release.
+- [ ] `scripts/validate_csharp_wrapper.sh`, if C# / Unity examples are included for this release.
+- [ ] `scripts/validate_csharp_wrapper.ps1`, if C# / Unity examples are included for this release.
 
 Notes:
 
@@ -140,6 +147,7 @@ cmake -E sha256sum city-life-core-sdk-*.zip
 Document changes to:
 
 - [ ] Public C++ API.
+- [ ] Action Bridge API and result format.
 - [ ] C ABI.
 - [ ] C interface version.
 - [ ] C# / Unity wrapper examples.
@@ -157,12 +165,28 @@ paste API and integration notes here
 
 ---
 
+## Action Bridge review
+
+If Action Bridge is included:
+
+- [ ] `include/clc/sim/ActionBridge.hpp` is installed.
+- [ ] `examples/action_bridge.cpp` is installed or included in the SDK ZIP.
+- [ ] `docs/action-bridge.md` documents input format, result format, stable statuses and stable error codes.
+- [ ] Invalid actions are rejected without runtime mutation.
+- [ ] Runtime-rejected actions return diagnostics without unintended mutation.
+- [ ] Produced events and diagnostics are represented in result output.
+
+---
+
 ## C# / Unity review
 
 If C# / Unity examples are included:
 
 - [ ] `examples/csharp_unity/CityLifeCoreNative.cs` matches the C ABI header.
+- [ ] `examples/csharp_unity/CityLifeWorldSafeAccess.cs` is present when world-safe access helpers are included.
+- [ ] `examples/csharp_unity/CityLifeNativeDiagnostics.cs` is present when diagnostics helpers are included.
 - [ ] `examples/csharp_unity/CityLifeSmokeTest.cs` is present and smoke-test oriented.
+- [ ] `examples/csharp_unity/CityLifeCoreNative.CompileCheck.csproj` builds.
 - [ ] `examples/csharp_unity/README.md` explains native plug-in requirements.
 - [ ] Release notes do not imply a full Unity package unless one is actually included.
 - [ ] Platform-specific native plug-in artifacts are documented if provided.
@@ -217,6 +241,7 @@ paste compatibility notes here
 
 - [Release verification](verifying-releases.md)
 - [CI artifact review](ci-artifact-review.md)
+- [Action Bridge](action-bridge.md)
 - [SDK ZIP package](sdk-zip-package.md)
 - [Integration validation](integration-validation.md)
 - [Compatibility](compatibility.md)
