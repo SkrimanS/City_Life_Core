@@ -365,7 +365,8 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         return report;
     }
 
-    if (action.type == runtime_action_type_add_resource) {
+    const auto action_type = std::string_view{action.type};
+    if (action_type == runtime_action_type_add_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for add_resource");
         }
@@ -375,7 +376,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         if (action.amount == 0) {
             report.add_error("action.payload.amount", "amount must be greater than zero for add_resource");
         }
-    } else if (action.type == runtime_action_type_remove_resource) {
+    } else if (action_type == runtime_action_type_remove_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for remove_resource");
         }
@@ -385,7 +386,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         if (action.amount == 0) {
             report.add_error("action.payload.amount", "amount must be greater than zero for remove_resource");
         }
-    } else if (action.type == runtime_action_type_transfer_resource) {
+    } else if (action_type == runtime_action_type_transfer_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for transfer_resource");
         }
@@ -398,7 +399,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         if (action.amount == 0) {
             report.add_error("action.payload.amount", "amount must be greater than zero for transfer_resource");
         }
-    } else if (action.type == runtime_action_type_advance_days) {
+    } else if (action_type == runtime_action_type_advance_days) {
         if (action.days == 0) {
             report.add_error("action.payload.days", "days must be greater than zero for advance_days");
         }
@@ -417,8 +418,9 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
     }
 
     const auto event_start = engine.events().size();
+    const auto action_type = std::string_view{action.type};
 
-    if (action.type == runtime_action_type_add_resource) {
+    if (action_type == runtime_action_type_add_resource) {
         return command_result_to_action_result(
             action,
             engine,
@@ -426,7 +428,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             event_start
         );
     }
-    if (action.type == runtime_action_type_remove_resource) {
+    if (action_type == runtime_action_type_remove_resource) {
         return command_result_to_action_result(
             action,
             engine,
@@ -434,7 +436,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             event_start
         );
     }
-    if (action.type == runtime_action_type_transfer_resource) {
+    if (action_type == runtime_action_type_transfer_resource) {
         return command_result_to_action_result(
             action,
             engine,
@@ -442,7 +444,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             event_start
         );
     }
-    if (action.type == runtime_action_type_advance_days) {
+    if (action_type == runtime_action_type_advance_days) {
         const auto reports = engine.run_days(action.days);
         std::vector<SimulationEvent> events;
         for (const auto& report : reports) {
