@@ -2,6 +2,8 @@
 
 All notable changes to City Life Core are tracked here.
 
+Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
+
 ## Unreleased
 
 Changes merged into `main` after the latest public release are recorded here.
@@ -9,15 +11,18 @@ Changes merged into `main` after the latest public release are recorded here.
 ### Added
 
 - Added the v1.2.0 local Action Bridge API for transport-agnostic `external action -> validation -> runtime mutation -> result/events` flows.
+- Added stable Action Bridge type constants for `add_resource`, `remove_resource`, `transfer_resource` and `advance_days`.
+- Added stable Action Bridge status constants for `accepted`, `invalid` and `rejected`.
+- Added stable Action Bridge error-code constants for `malformed_json`, `invalid_action`, `action_rejected` and `unsupported_action_type`.
 - Added `clc::sim::RuntimeAction`, `RuntimeActionParseResult`, `RuntimeActionResult`, `parse_runtime_action_json`, `validate_runtime_action`, `dispatch_runtime_action`, `dispatch_runtime_action_json` and `runtime_action_result_to_json`.
 - Added Action Bridge support for `add_resource`, `remove_resource`, `transfer_resource` and `advance_days` actions.
+- Added Action Bridge result JSON fields for `command_detail`, `events_detail` and `diagnostics_detail`.
 - Added `examples/action_bridge.cpp` as the C++ Action Bridge example.
-- Added `tests/action_bridge_tests.cpp` with valid, invalid, malformed, no-mutation and result JSON coverage.
-- Added `docs/action-bridge.md`, `docs/release-plan-1.2.0.md`, `docs/release-notes-1.2.0.md` and `docs/release-manifest-1.2.0.md`.
+- Added `tests/action_bridge_tests.cpp` with valid, invalid, malformed, malformed payload, malformed numeric value, runtime rejected, no-mutation, parser edge-case and result JSON coverage.
+- Added `docs/action-bridge.md` as the current Action Bridge integration guide.
 - Added non-throwing C# / Unity `TryCreate` and `TryGetEvent` helpers for gameplay-oriented world creation and event inspection flows.
 - Added non-throwing C# / Unity `TryAdvance*` helpers for native world advancement in gameplay-oriented flows.
 - Added C# / Unity C ABI compatibility guard helpers so the wrapper can report and reject native libraries older than the required C interface version.
-- Added `docs/release-plan-1.1.0.md`, `docs/release-notes-1.1.0.md` and `docs/release-manifest-1.1.0.md` as internal release-gate files for the `v1.1.0` Integration Foundation milestone.
 - Added C ABI world time-advance helpers for advancing opaque world handles by seconds, minutes, hours or days, and bumped the C interface version to `4`.
 - Added C and C# / Unity example coverage for the new C ABI world time-advance helpers.
 - Added C ABI smoke-test coverage for the new world time-advance helpers, including null-handle, extreme invalid-index and zero-duration failure behavior.
@@ -37,7 +42,8 @@ Changes merged into `main` after the latest public release are recorded here.
 ### Changed
 
 - Updated the SDK umbrella header to expose the Action Bridge C++ API through `clc/CityLifeCore.hpp`.
-- Updated the documentation index to include Action Bridge docs and v1.2.0 release-gate files.
+- Updated the documentation policy so internal milestones use current docs plus `CHANGELOG.md`; versioned release documents are reserved for public major releases.
+- Updated the documentation index and Russian documentation index to point to current Action Bridge docs and changelog-based internal milestone history.
 - Updated the C# / Unity smoke-test script to use non-throwing `TryCreate`, `TryAdvanceMinutes` and `TryGetEvent` helpers and log Unity errors on failed operations.
 - Updated the C# / Unity smoke-test script to log actual and required C ABI versions before creating a native world.
 - Hardened C ABI world destruction, accessors and time-advance helpers so exceptions are caught at the C boundary and converted to safe fallback results.
@@ -51,8 +57,8 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/compatibility.md` to split compatibility expectations across C++ source compatibility, C ABI compatibility, C# / Unity wrapper expectations, planned Browser/WASM support, save/load, replay, data validation and packaging.
 - Updated `docs/migration.md` with migration guidance for lower-kebab-case docs, CMake package usage, source-first C++ API, C ABI adoption, Unity/C# wrapper migration, planned Browser/WASM support, game profiles, save/load and replay checks.
 - Updated `docs/protection-strategy.md` to document canonical source verification, major-only public release protection, archive provenance, API boundary protection, integration claim protection and downstream responsibility.
-- Updated `docs/public-api.md` to explain the C++ API, C ABI, Unity/C# wrapper path, planned Browser/WASM boundary, examples/adapters and unsupported internals.
-- Updated `docs/public-api-status.md` to classify the public C++ API, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
+- Updated `docs/public-api.md` to explain the C++ API, C ABI, Unity/C# wrapper path, planned Browser/WASM boundary, examples/adapters, Action Bridge and unsupported internals.
+- Updated `docs/public-api-status.md` to classify the public C++ API, local Action Bridge, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
 - Updated `docs/readiness-status.md` to separate the `v1.0.0` release snapshot from post-1.0.0 integration readiness for C ABI, Unity/C#, Browser/WASM, game profiles, server-authoritative runtime, MMO-like support and tooling workflows.
 - Updated `docs/release-manifest-1.0.0.md` and `docs/release-notes-1.0.0.md` to clarify that newer integration planning docs belong to post-1.0.0 internal development unless included in a future public release manifest.
 - Updated `docs/release-manifest-template.md` to include major-only release policy, installed package validation, SDK ZIP contents, C ABI review, C# / Unity review, Browser/WASM status, compatibility and migration sections.
@@ -60,12 +66,16 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity and browser/WebAssembly links.
+- Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity, browser/WebAssembly and Action Bridge links.
 - Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
 - Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
 - Updated SDK install rules so C# example sources are included with installed examples.
 - Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
+
+### Removed
+
+- Removed per-internal-milestone `v1.1.0` and `v1.2.0` release plan, release notes and release manifest documents. Internal milestone history now lives in `CHANGELOG.md`; versioned release documents are reserved for public major releases.
 
 ## 1.0.0 - 2026-05-23
 
