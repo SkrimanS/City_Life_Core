@@ -38,6 +38,20 @@ int main() {
     require(engine.settlement_resource_amount("riverwatch", "grain") == before_grain + 5, "valid action did not mutate runtime");
     require(!valid.events.empty(), "valid action did not report produced events");
 
+    clc::sim::RuntimeAction direct_action{
+        .action_id = "direct-a1",
+        .type = std::string{clc::sim::runtime_action_type_add_resource},
+        .actor_id = "tester",
+        .target_id = "riverwatch",
+        .resource_id = "grain",
+        .amount = 1,
+    };
+    const auto before_direct = engine.settlement_resource_amount("riverwatch", "grain");
+    const auto direct = clc::sim::dispatch_runtime_action(engine, direct_action);
+    require(direct.accepted, "direct RuntimeAction with public type constant was rejected");
+    require(direct.validation_status == clc::sim::runtime_action_status_accepted, "direct RuntimeAction had wrong validation_status");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_direct + 1, "direct RuntimeAction did not mutate runtime");
+
     const auto valid_json = clc::sim::runtime_action_result_to_json(valid);
     require(valid_json.find("\"command_detail\":{") != std::string::npos, "valid result JSON missing command detail object");
     require(valid_json.find("\"command\":\"add_resource_to_settlement\"") != std::string::npos, "valid result JSON missing command name");
