@@ -33,7 +33,10 @@ function Invoke-PowerShellScript {
     Write-Host ""
     Write-Host "+ $ScriptPath"
     & $ScriptPath
-    if ($LASTEXITCODE -ne 0) {
+    if (-not $?) {
+        throw "PowerShell script failed: $ScriptPath"
+    }
+    if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) {
         throw "PowerShell script failed with exit code $($LASTEXITCODE): $ScriptPath"
     }
 }
