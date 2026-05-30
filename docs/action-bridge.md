@@ -174,6 +174,8 @@ Required fields:
 
 For `advance_days`, `command_detail` is `null` because the action advances runtime days directly instead of wrapping a `SimulationCommandResult`.
 
+For parse-level failures, the result preserves `action_id` and `type` when those fields were successfully parsed before the failure. For example, an action with a non-object `payload` is rejected as `malformed_json`, but its parsed action identity can still be returned for caller-side correlation.
+
 `validation_status` is one of:
 
 - `accepted` — validation passed and the action was applied;
