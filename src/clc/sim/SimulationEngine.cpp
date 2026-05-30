@@ -521,6 +521,19 @@ data::ValidationReport SimulationEngine::restore_state(SimulationEngineState sta
         if (!settlement_ids.insert(settlement.id).second) {
             report.add_error("simulation.state.settlement." + settlement.id, "duplicate settlement id");
         }
+
+        for (const auto& [resource_id, amount] : settlement.storage.entries()) {
+            if (resource_id.empty()) {
+                report.add_error("simulation.state.settlement." + settlement.id + ".storage", "resource_id must not be empty");
+                continue;
+            }
+            if (amount == 0) {
+                report.add_error("simulation.state.settlement." + settlement.id + ".storage." + resource_id, "amount must be greater than zero");
+            }
+            if (registry_.resource(resource_id) == nullptr) {
+                report.add_error("simulation.state.settlement." + settlement.id + ".storage." + resource_id, "unknown resource");
+            }
+        }
     }
 
     std::unordered_set<std::string> demand_resource_ids;
@@ -532,6 +545,25 @@ data::ValidationReport SimulationEngine::restore_state(SimulationEngineState sta
         if (!demand_resource_ids.insert(demand.resource_id).second) {
             report.add_error("simulation.state.market." + demand.resource_id, "duplicate market demand resource id");
         }
+        if (registry_.resource(demand.resource_id) == nullptr) {
+            report.add_error("simulation.state.market." + demand.resource_id, "unknown resource");
+        }
+    }
+
+    if (!report.ok()) {
+        return report;
+    }
+
+    economy::MarketState staged_market{};
+    for (auto& demand : state.market_demands) {
+        const auto demand_report = staged_market.set_demand(std::move(demand.resource_id), demand.demand);
+        for (const auto& message : demand_report.messages()) {
+            if (message.severity == data::ValidationSeverity::error) {
+                report.add_error(message.path, message.message);
+            } else {
+                report.add_warning(message.path, message.message);
+            }
+        }
     }
 
     if (!report.ok()) {
@@ -541,17 +573,7 @@ data::ValidationReport SimulationEngine::restore_state(SimulationEngineState sta
     current_day_ = state.current_day;
     settlements_ = std::move(state.settlements);
     events_ = std::move(state.events);
-    market_ = economy::MarketState{};
-    for (auto& demand : state.market_demands) {
-        const auto demand_report = market_.set_demand(std::move(demand.resource_id), demand.demand);
-        for (const auto& message : demand_report.messages()) {
-            if (message.severity == data::ValidationSeverity::error) {
-                report.add_error(message.path, message.message);
-            } else {
-                report.add_warning(message.path, message.message);
-            }
-        }
-    }
+    market_ = std::move(staged_market);
     return report;
 }
 
