@@ -34,6 +34,7 @@ The same core systems should remain reusable across profiles:
 - contracts;
 - economy and ledgers;
 - events;
+- local Action Bridge dispatch;
 - persistence and replay.
 
 ---
@@ -43,13 +44,13 @@ The same core systems should remain reusable across profiles:
 | Profile | Current status | Main integration boundary | Notes |
 | --- | --- | --- | --- |
 | Native C++ game | Supported | C++ API | Richest integration path today. |
-| Native C++ server/tool | Supported | C++ API and CMake package | Good fit for backend services and tools. |
+| Native C++ server/tool | Supported | C++ API, Action Bridge and CMake package | Good fit for backend services, tools and local action dispatch. |
 | C consumer | Minimal supported | C ABI | Useful as a stable FFI baseline. |
 | Unity / C# client or tool | Initial support | C ABI + P/Invoke | Wrapper and smoke test exist; full Unity package does not. |
 | Browser / WebAssembly game/tool | Planned | Future WASM + JS/TS adapter | Planning documented; not implemented. |
-| Server-authoritative game | Partially supported | C++ API and runtime workflows | More command/replay/persistence hardening planned. |
-| MMO-like simulation | Planned / early foundation | C++ API first, later stable boundaries | Needs shard/partition, command and replay depth. |
-| Editor / balancing tool | Partially supported | C++ API, C ABI, validation docs | Needs richer diagnostics and data-authoring APIs. |
+| Server-authoritative game | Partially supported | C++ API, Action Bridge and runtime workflows | More replay/persistence/server hardening planned. |
+| MMO-like simulation | Planned / early foundation | C++ API first, local Action Bridge where useful, later stable boundaries | Needs shard/partition and deeper replay/persistence/diagnostics. |
+| Editor / balancing tool | Partially supported | C++ API, Action Bridge, C ABI, validation docs | Needs richer data-authoring APIs and bindable diagnostics. |
 
 ---
 
@@ -81,6 +82,7 @@ Recommended systems:
 - factions and ownership;
 - contracts;
 - economy, wallet and ledger;
+- local Action Bridge for external action-style integration;
 - persistence and replay when save/debug workflows are needed.
 
 ---
@@ -102,6 +104,8 @@ Current files:
 
 ```text
 examples/csharp_unity/CityLifeCoreNative.cs
+examples/csharp_unity/CityLifeWorldSafeAccess.cs
+examples/csharp_unity/CityLifeNativeDiagnostics.cs
 examples/csharp_unity/CityLifeSmokeTest.cs
 docs/csharp-unity.md
 ```
@@ -113,14 +117,15 @@ Current scope:
 - tick helpers;
 - opaque world create/destroy;
 - simple tick advancement;
-- read-only event access.
+- read-only event access;
+- diagnostics helpers.
 
 Not yet included:
 
-- full Unity package layout;
-- generated managed API;
+- official Unity package layout;
 - prebuilt native plug-ins;
 - Unity editor validation tools;
+- high-level managed gameplay API;
 - full runtime, registry, persistence, economy, faction or contract coverage.
 
 Unity should remain a consumer of the core. The C++ core should not include Unity-specific code.
@@ -166,14 +171,18 @@ Recommended boundary today:
 
 ```text
 Server code
-  -> C++ API
-  -> SimulationRuntime
+  -> local transport/session layer owned by the product
+  -> Action Bridge for local action validation and dispatch
+  -> C++ API / SimulationRuntime
   -> validation / persistence / replay
 ```
 
 Current fit:
 
 - deterministic tick runtime;
+- local JSON action input through Action Bridge;
+- pre-mutation validation and rejected-action no-mutation behavior;
+- action result status, command detail, events and diagnostics;
 - world events;
 - persistence and replay foundations;
 - runtime validation;
@@ -181,10 +190,9 @@ Current fit:
 
 Needed depth:
 
-- command validation model;
 - player/session separation from simulation state;
+- permission and authorization layers outside the core;
 - stable replay and audit workflows;
-- better diagnostics for invalid commands;
 - clearer shard/partition assumptions;
 - stronger persistence/migration guarantees.
 
@@ -198,7 +206,7 @@ Current status: early foundation.
 
 The core should support MMO-like scenarios by deepening:
 
-- deterministic command processing;
+- deterministic command processing and Action Bridge workflows;
 - long-running tick simulation;
 - persistence and migrations;
 - replay and audit logs;
@@ -217,6 +225,7 @@ Use when City Life Core is embedded in a tool for content authoring, balancing, 
 Recommended boundary:
 
 - C++ API for native tools;
+- Action Bridge for action-style tool operations;
 - C ABI for foreign-language tools;
 - future managed/JS adapters when stable enough.
 
@@ -224,6 +233,7 @@ Useful systems:
 
 - data registry loading;
 - validation diagnostics;
+- local Action Bridge dispatch and result diagnostics;
 - simulation tick stepping;
 - event inspection;
 - economy and resource reporting;
@@ -248,6 +258,7 @@ Before `v2.0.0`, profiles should remain mostly adoption guidance and integration
 Focus:
 
 - keep native C++ support strong;
+- keep Action Bridge local and transport-agnostic;
 - keep C ABI safe and small;
 - document Unity/C# and Browser/WASM paths;
 - identify missing APIs for real external integrations;
@@ -273,6 +284,7 @@ After `v4.0.0`, profiles should become useful for large production projects, com
 
 ## Related documents
 
+- [Action Bridge](action-bridge.md)
 - [Integration targets](integration-targets.md)
 - [Integration validation](integration-validation.md)
 - [C ABI expansion plan](c-abi-expansion-plan.md)
