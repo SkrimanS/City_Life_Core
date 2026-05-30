@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -239,7 +240,7 @@ RuntimeActionResult command_result_to_action_result(
         .action_id = action.action_id,
         .type = action.type,
         .accepted = command.ok,
-        .validation_status = validation_status_for(validation, command.ok),
+        .validation_status = command.ok ? std::string{"accepted"} : std::string{"rejected"},
         .error_code = command.ok ? std::string{} : std::string{"action_rejected"},
         .message = command.ok ? std::string{"accepted"} : first_validation_message(validation),
         .validation = std::move(validation),
