@@ -101,9 +101,9 @@ int main() {
     const auto current_day = transfer_engine.current_day();
     const auto advance = clc::sim::dispatch_runtime_action_json(
         transfer_engine,
-        R"({"action_id":"a8","type":"advance_days","payload":{"days":2}})"
+        R"({"action_id":"a8","type":"advance_days","payload":{"days":2,"metadata":{"note":"ignore { braces } in nested strings"}}})"
     );
-    require(advance.accepted, "valid advance_days action was rejected");
+    require(advance.accepted, "valid advance_days action with nested metadata was rejected");
     require(advance.validation_status == "accepted", "advance_days had wrong validation_status");
     require(transfer_engine.current_day() == current_day + 2, "advance_days did not advance runtime");
 
