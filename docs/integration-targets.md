@@ -17,6 +17,7 @@ The project should instead provide a stable native simulation core and thin inte
 ```text
 City Life Core native simulation core
   -> C++ API for native C++ games, tools, servers and editors
+  -> local Action Bridge for transport-agnostic action validation and dispatch
   -> C ABI as the foreign-function boundary
       -> C consumers
       -> C# / Unity P/Invoke wrapper
@@ -24,7 +25,7 @@ City Life Core native simulation core
       -> future engine or language bindings
 ```
 
-The staged plan for growing the C ABI is documented in `c-abi-expansion-plan.md`.
+The staged plan for growing the C ABI is documented in `c-abi-expansion-plan.md`. The local Action Bridge is documented in `action-bridge.md`.
 
 This keeps the core reusable while allowing different platforms to use the same simulation logic through platform-specific adapters.
 
@@ -35,12 +36,13 @@ This keeps the core reusable while allowing different platforms to use the same 
 | Target | Status | Current path | Notes |
 | --- | --- | --- | --- |
 | Native C++ game/tool/server | Supported | Public C++ API and CMake package | Best-supported integration path. |
+| Local external action dispatch | Supported | C++ Action Bridge and `examples/action_bridge.cpp` | Transport-agnostic local validation and mutation; not networking or multiplayer. |
 | Native C consumer | Minimal supported | C ABI and `examples/c_abi_consumer/` | Good foreign-function base, but intentionally small. |
 | Unity / C# | Initial support | C ABI + P/Invoke wrapper in `examples/csharp_unity/` | Usable as a smoke-test wrapper; not yet a full Unity package. |
 | Browser / WebAssembly | Planned | Future Emscripten/WASM build and JavaScript adapter; see `browser-wasm.md` | Not yet implemented. |
 | Other engines | Planned | Future adapters through C ABI or engine-specific bindings | Godot, Unreal or custom engines should not call unstable C++ ABI directly. |
-| Backend service / MMO server | Partially supported | Native C++ API and runtime workflows | More server-authoritative command/replay/persistence work is planned. |
-| Editor / balancing tools | Partially supported | Native C++ API, C ABI, validation docs | More diagnostics and data-authoring support is planned. |
+| Backend service / MMO server | Partially supported | Native C++ API, Action Bridge and runtime workflows | More server-authoritative command/replay/persistence work is planned. |
+| Editor / balancing tools | Partially supported | Native C++ API, Action Bridge, C ABI, validation docs | More diagnostics and data-authoring support is planned. |
 
 ---
 
@@ -63,6 +65,30 @@ Recommended for:
 - offline simulation or validation tools.
 
 This is the richest API surface today.
+
+### Local Action Bridge integrations
+
+External game layers, tools, editors and future server-authoritative adapters can use the local Action Bridge:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
+It provides:
+
+- JSON action input;
+- validation before mutation;
+- stable action statuses and error codes;
+- runtime command dispatch;
+- result JSON with command, event and diagnostic details.
+
+It does not provide HTTP, WebSocket, accounts, auth, matchmaking, multiplayer, MMO or UI behavior.
+
+Guidance:
+
+```text
+docs/action-bridge.md
+```
 
 ### Native C ABI integrations
 
@@ -174,6 +200,7 @@ These integrations should normally build on the C ABI or another intentionally s
 Before `v2.0.0`, integration work should focus on making the core easier to embed:
 
 - keep the C++ API clean;
+- keep the local Action Bridge transport-agnostic and clearly separated from networking/auth/multiplayer layers;
 - keep the C ABI safe and small;
 - document the C ABI expansion plan;
 - document C# / Unity integration through P/Invoke;
@@ -209,6 +236,7 @@ City Life Core should not become:
 - a Unity-only SDK;
 - a browser-only SDK;
 - a networking framework;
-- an engine-specific gameplay framework.
+- an engine-specific gameplay framework;
+- an account, auth, matchmaking or multiplayer service.
 
 The core should remain a portable simulation SDK with clear integration boundaries.
