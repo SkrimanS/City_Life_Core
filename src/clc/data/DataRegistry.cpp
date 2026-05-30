@@ -40,6 +40,9 @@ ValidationReport DataRegistry::add(ResourceDefinition definition) {
     if (definition.category.empty()) {
         report.add_warning("resource." + definition.id, "category is empty");
     }
+    if (definition.base_value == 0) {
+        report.add_error("resource." + definition.id, "base_value must be greater than zero");
+    }
     if (!report.ok()) {
         return report;
     }
@@ -65,6 +68,9 @@ ValidationReport DataRegistry::add(BuildingDefinition definition) {
     add_duplicate_error_if_needed(report, buildings_, "building", definition.id);
     if (definition.category.empty()) {
         report.add_warning("building." + definition.id, "category is empty");
+    }
+    if (definition.worker_slots == 0) {
+        report.add_error("building." + definition.id, "worker_slots must be greater than zero");
     }
     if (!report.ok()) {
         return report;
