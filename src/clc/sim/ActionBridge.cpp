@@ -48,18 +48,98 @@ std::string unescape_json_string(std::string_view value) {
     return output;
 }
 
+std::size_t skip_ws(std::string_view json, std::size_t index) {
+    while (index < json.size() && std::isspace(static_cast<unsigned char>(json[index])) != 0) {
+        ++index;
+    }
+    return index;
+}
+
+std::size_t find_field_value_start(std::string_view json, std::string_view field) {
+    std::size_t depth = 0;
+    bool in_string = false;
+    bool escaping = false;
+
+    for (std::size_t index = 0; index < json.size(); ++index) {
+        const auto ch = json[index];
+        if (in_string) {
+            if (escaping) {
+                escaping = false;
+                continue;
+            }
+            if (ch == '\\') {
+                escaping = true;
+                continue;
+            }
+            if (ch == '"') {
+                in_string = false;
+            }
+            continue;
+        }
+
+        if (ch == '{') {
+            ++depth;
+            continue;
+        }
+        if (ch == '}') {
+            if (depth > 0) {
+                --depth;
+            }
+            continue;
+        }
+        if (ch != '"' || depth != 1) {
+            continue;
+        }
+
+        std::string raw_key;
+        bool key_escaping = false;
+        std::size_t key_end = std::string_view::npos;
+        for (auto key_index = index + 1; key_index < json.size(); ++key_index) {
+            const auto key_ch = json[key_index];
+            if (key_escaping) {
+                raw_key.push_back('\\');
+                raw_key.push_back(key_ch);
+                key_escaping = false;
+                continue;
+            }
+            if (key_ch == '\\') {
+                key_escaping = true;
+                continue;
+            }
+            if (key_ch == '"') {
+                key_end = key_index;
+                break;
+            }
+            raw_key.push_back(key_ch);
+        }
+
+        if (key_end == std::string_view::npos) {
+            return std::string_view::npos;
+        }
+
+        auto colon = skip_ws(json, key_end + 1);
+        if (colon >= json.size() || json[colon] != ':') {
+            index = key_end;
+            continue;
+        }
+
+        if (unescape_json_string(raw_key) == field) {
+            return colon + 1;
+        }
+
+        index = key_end;
+    }
+
+    return std::string_view::npos;
+}
+
+bool has_field(std::string_view json, std::string_view field) {
+    return find_field_value_start(json, field) != std::string_view::npos;
+}
+
 bool find_string_field(std::string_view json, std::string_view field, std::string& out) {
-    const std::string needle = "\"" + std::string{field} + "\"";
-    const auto key = json.find(needle);
-    if (key == std::string_view::npos) {
-        return false;
-    }
-    const auto colon = json.find(':', key + needle.size());
-    if (colon == std::string_view::npos) {
-        return false;
-    }
-    auto quote = json.find('"', colon + 1);
-    if (quote == std::string_view::npos) {
+    auto quote = skip_ws(json, find_field_value_start(json, field));
+    if (quote >= json.size() || json[quote] != '"') {
         return false;
     }
 
@@ -87,19 +167,7 @@ bool find_string_field(std::string_view json, std::string_view field, std::strin
 }
 
 bool find_uint_field(std::string_view json, std::string_view field, std::uint64_t& out) {
-    const std::string needle = "\"" + std::string{field} + "\"";
-    const auto key = json.find(needle);
-    if (key == std::string_view::npos) {
-        return false;
-    }
-    const auto colon = json.find(':', key + needle.size());
-    if (colon == std::string_view::npos) {
-        return false;
-    }
-    auto start = colon + 1;
-    while (start < json.size() && std::isspace(static_cast<unsigned char>(json[start])) != 0) {
-        ++start;
-    }
+    auto start = skip_ws(json, find_field_value_start(json, field));
     auto end = start;
     while (end < json.size() && std::isdigit(static_cast<unsigned char>(json[end])) != 0) {
         ++end;
@@ -117,19 +185,7 @@ bool find_uint_field(std::string_view json, std::string_view field, std::uint64_
 }
 
 bool find_object_field(std::string_view json, std::string_view field, std::string& out) {
-    const std::string needle = "\"" + std::string{field} + "\"";
-    const auto key = json.find(needle);
-    if (key == std::string_view::npos) {
-        return false;
-    }
-    const auto colon = json.find(':', key + needle.size());
-    if (colon == std::string_view::npos) {
-        return false;
-    }
-    auto start = colon + 1;
-    while (start < json.size() && std::isspace(static_cast<unsigned char>(json[start])) != 0) {
-        ++start;
-    }
+    auto start = skip_ws(json, find_field_value_start(json, field));
     if (start >= json.size() || json[start] != '{') {
         return false;
     }
@@ -281,7 +337,7 @@ RuntimeActionParseResult parse_runtime_action_json(std::string_view json) {
     if (result.action.type.empty()) {
         result.validation.add_error("action.type", "type must not be empty");
     }
-    if (trimmed.find("\"payload\"") != std::string::npos && result.action.payload_json.empty()) {
+    if (has_field(trimmed, "payload") && result.action.payload_json.empty()) {
         result.validation.add_error("action.payload", "payload must be a JSON object when present");
     }
 
