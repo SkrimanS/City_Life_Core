@@ -46,12 +46,12 @@ Run:
 
 Source: `examples/action_bridge.cpp`
 
-Shows the v1.2.0 local Action Bridge flow:
+Shows the local Action Bridge flow:
 
 - accept a JSON action with `action_id`, `type`, optional `actor_id` and `payload`;
 - validate the action before mutation;
 - dispatch it into the runtime engine;
-- return compact JSON result status, diagnostics count and produced event count;
+- return JSON result status plus command, event and diagnostic details;
 - keep the bridge local and transport-agnostic, without HTTP, WebSocket, accounts, multiplayer or UI.
 
 Run:
