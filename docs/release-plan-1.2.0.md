@@ -16,15 +16,19 @@ This is preparation for future server-authoritative workflows, but it is not net
 
 Implemented scope:
 
-- action model;
-- JSON action input format;
-- JSON result summary format;
+- action model with `action_id`, `type`, optional `actor_id`, parsed target fields and raw `payload_json`;
+- canonical payload-first JSON action input format;
+- compact JSON action result summary format;
+- explicit `validation_status` values: `accepted`, `invalid`, `rejected`;
 - stable action error-code categories;
-- runtime dispatcher;
-- rejected action no-mutation behavior;
+- runtime command dispatcher;
+- validate action before mutation;
+- reject invalid or malformed actions without runtime mutation;
 - produced event reporting;
+- diagnostic count reporting;
 - C++ example;
-- tests for valid, invalid and malformed actions;
+- tests for valid, invalid, malformed, missing-field and malformed-payload actions;
+- deterministic result JSON basics;
 - documentation.
 
 ## Non-goals
@@ -49,6 +53,8 @@ Before merging v1.2.0 to `main`:
 - ctest passes;
 - action bridge example builds;
 - manual release validation passes;
+- invalid actions do not mutate runtime state;
+- action result format is documented;
 - docs are updated;
 - release notes are updated;
 - release manifest is updated.
