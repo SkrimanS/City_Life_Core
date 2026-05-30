@@ -1,7 +1,7 @@
 # Документация City Life Core
 
 Версия: **1.0.0**  
-Статус: **released / v1.0.0, internal v1.2.0 in progress**
+Статус: **released / v1.0.0, internal v1.x milestones in development**
 
 Эта папка содержит русскоязычную точку входа в документацию City Life Core. Основная документация ведётся на английском языке в [`../README.md`](../README.md); русские страницы и справочные материалы размещаются в `docs/ru/`.
 
@@ -39,25 +39,22 @@
 
 ---
 
-## Roadmap и релизные документы
+## Roadmap, changelog и релизные документы
 
 | Документ | Назначение |
 | --- | --- |
 | [Roadmap](../roadmap.md) | Направление проекта, внутренние milestones и план v2/v3/v4. |
 | [Versioning and release policy](../versioning.md) | Политика версий, веток, тегов и релизов. |
-| [Release plan 1.2.0](../release-plan-1.2.0.md) | Internal v1.2.0 Action Bridge release plan и merge gate. |
-| [Release notes 1.2.0](../release-notes-1.2.0.md) | Internal v1.2.0 Action Bridge release notes. |
-| [Release manifest 1.2.0](../release-manifest-1.2.0.md) | Internal v1.2.0 Action Bridge manifest и validation expectations. |
-| [Release plan 1.1.0](../release-plan-1.1.0.md) | Internal v1.1.0 Integration Foundation release plan и merge gate. |
-| [Release notes 1.1.0](../release-notes-1.1.0.md) | Internal v1.1.0 Integration Foundation release notes. |
-| [Release manifest 1.1.0](../release-manifest-1.1.0.md) | Internal v1.1.0 Integration Foundation manifest и validation expectations. |
+| [CHANGELOG](../../CHANGELOG.md) | История internal milestones и public releases. |
 | [Release notes 1.0.0](../release-notes-1.0.0.md) | Финальные заметки релиза 1.0.0. |
 | [Release manifest 1.0.0](../release-manifest-1.0.0.md) | Финальный manifest релиза и validation summary. |
 | [Readiness status](../readiness-status.md) | Срез готовности подсистем для линии 1.0.0. |
 | [Verifying releases](../verifying-releases.md) | Проверка официальных релизов. |
 | [CI artifact review](../ci-artifact-review.md) | Проверка CI, benchmark artifacts и SDK ZIP artifacts. |
-| [Release manifest template](../release-manifest-template.md) | Шаблон будущих release manifests. |
+| [Release manifest template](../release-manifest-template.md) | Шаблон будущих public major release manifests. |
 | [Protection strategy](../protection-strategy.md) | Стратегия защиты и распространения проекта. |
+
+Internal milestones вроде `v1.1.0`, `v1.2.0` и `v1.3.0` ведутся через changelog и актуальную документацию, без отдельных release-plan/notes/manifest файлов. Versioned release documents остаются только для public major releases: `v1.0.0`, `v2.0.0`, `v3.0.0`, `v4.0.0`.
 
 ---
 
