@@ -4,7 +4,7 @@ Status: **active checklist for v1.x integration work**
 
 This document describes how to validate City Life Core integration surfaces before merging integration-related changes.
 
-It is not a replacement for automated tests. It is a checklist for reviewing SDK packaging, C ABI consumers, C# / Unity wrapper examples and future Browser/WebAssembly work.
+It is not a replacement for automated tests. It is a checklist for reviewing SDK packaging, C ABI consumers, C# / Unity wrapper examples, Action Bridge dispatch and future Browser/WebAssembly work.
 
 ---
 
@@ -14,6 +14,7 @@ Integration validation should confirm that:
 
 - the native C++ SDK still builds and installs;
 - installed CMake consumers can still use `CityLifeCore::core`;
+- installed CMake consumers can still include and use the local Action Bridge through the installed SDK;
 - the C ABI remains callable from a C consumer;
 - C# / Unity examples remain aligned with the C ABI header;
 - SDK ZIP packages include the expected docs, examples and data;
@@ -26,7 +27,7 @@ Integration validation should confirm that:
 
 Before validating integration work, confirm:
 
-- the work is on the correct internal stage branch, for example `v1.1.0`;
+- the work is on the correct internal stage branch, for example `v1.2.0`;
 - `main` remains aligned with the latest public release until the stage is ready to merge;
 - no public tag is created for an internal minor milestone;
 - no GitHub Release is created except for the planned public milestones: `v1.0.0`, `v2.0.0`, `v3.0.0`, `v4.0.0`.
@@ -43,7 +44,7 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-This validates the normal source-tree flow.
+This validates the normal source-tree flow, including Action Bridge tests and examples when the relevant build options are enabled.
 
 ---
 
@@ -64,7 +65,7 @@ cmake -S examples/find_package_consumer -B build-consumer -DCMAKE_PREFIX_PATH=/t
 cmake --build build-consumer --config Release
 ```
 
-Expected result: the external consumer finds `CityLifeCore::core` and links successfully.
+Expected result: the external consumer finds `CityLifeCore::core`, links successfully, can include the aggregate header and validates installed Action Bridge header, documentation and example files.
 
 ---
 
@@ -155,10 +156,13 @@ Review expected contents:
 - native library artifacts for the chosen build configuration;
 - CMake package config files;
 - documentation;
+- `docs/action-bridge.md`;
 - examples;
+- `examples/action_bridge.cpp`;
 - example data packs;
 - C ABI consumer example;
-- C# / Unity example source files.
+- C# / Unity example source files;
+- C# wrapper validation scripts.
 
 For Unity/native plug-in scenarios, also test a shared-library package configuration:
 
@@ -176,6 +180,7 @@ For integration-related changes, review these documents as needed:
 
 ```text
 docs/integration-targets.md
+docs/action-bridge.md
 docs/c-abi.md
 docs/c-abi-expansion-plan.md
 docs/csharp-unity.md
