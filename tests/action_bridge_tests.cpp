@@ -76,12 +76,23 @@ int main() {
     );
     require(remove.accepted, "valid remove_resource action was rejected");
 
+    const auto before_rejected = engine.settlement_resource_amount("riverwatch", "grain");
+    const auto rejected = clc::sim::dispatch_runtime_action_json(
+        engine,
+        R"({"action_id":"a6","type":"remove_resource","payload":{"target_id":"riverwatch","resource_id":"grain","amount":999999}})"
+    );
+    require(!rejected.accepted, "runtime-rejected action was accepted");
+    require(rejected.validation_status == "rejected", "runtime-rejected action had wrong validation_status");
+    require(rejected.error_code == "action_rejected", "runtime-rejected action returned wrong error_code");
+    require(!rejected.validation.ok(), "runtime-rejected action did not return diagnostics");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_rejected, "runtime-rejected action mutated runtime");
+
     auto transfer_engine = make_engine();
     const auto riverwatch_before = transfer_engine.settlement_resource_amount("riverwatch", "grain");
     const auto hillford_before = transfer_engine.settlement_resource_amount("hillford", "grain");
     const auto transfer = clc::sim::dispatch_runtime_action_json(
         transfer_engine,
-        R"({"action_id":"a6","type":"transfer_resource","payload":{"target_id":"riverwatch","secondary_target_id":"hillford","resource_id":"grain","amount":2}})"
+        R"({"action_id":"a7","type":"transfer_resource","payload":{"target_id":"riverwatch","secondary_target_id":"hillford","resource_id":"grain","amount":2}})"
     );
     require(transfer.accepted, "valid transfer_resource action was rejected");
     require(transfer_engine.settlement_resource_amount("riverwatch", "grain") == riverwatch_before - 2, "transfer did not debit source");
@@ -90,7 +101,7 @@ int main() {
     const auto current_day = transfer_engine.current_day();
     const auto advance = clc::sim::dispatch_runtime_action_json(
         transfer_engine,
-        R"({"action_id":"a7","type":"advance_days","payload":{"days":2}})"
+        R"({"action_id":"a8","type":"advance_days","payload":{"days":2}})"
     );
     require(advance.accepted, "valid advance_days action was rejected");
     require(advance.validation_status == "accepted", "advance_days had wrong validation_status");
@@ -99,7 +110,7 @@ int main() {
     const auto json = clc::sim::runtime_action_result_to_json(advance);
     require(json.find("\"accepted\":true") != std::string::npos, "result JSON missing accepted status");
     require(json.find("\"validation_status\":\"accepted\"") != std::string::npos, "result JSON missing validation status");
-    require(json.find("\"action_id\":\"a7\"") != std::string::npos, "result JSON missing action id");
+    require(json.find("\"action_id\":\"a8\"") != std::string::npos, "result JSON missing action id");
     require(json.find("\"diagnostics\":0") != std::string::npos, "result JSON missing diagnostics count");
 
     return 0;
