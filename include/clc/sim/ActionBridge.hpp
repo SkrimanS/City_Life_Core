@@ -10,6 +10,11 @@
 
 namespace clc::sim {
 
+inline constexpr std::string_view runtime_action_type_add_resource = "add_resource";
+inline constexpr std::string_view runtime_action_type_remove_resource = "remove_resource";
+inline constexpr std::string_view runtime_action_type_transfer_resource = "transfer_resource";
+inline constexpr std::string_view runtime_action_type_advance_days = "advance_days";
+
 inline constexpr std::string_view runtime_action_status_accepted = "accepted";
 inline constexpr std::string_view runtime_action_status_invalid = "invalid";
 inline constexpr std::string_view runtime_action_status_rejected = "rejected";
