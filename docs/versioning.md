@@ -4,7 +4,7 @@ Status: **active policy after v1.0.0**
 
 City Life Core uses version numbers for planning, documentation and public releases, but not every planned version number becomes a public Git tag or GitHub Release.
 
-This document is the source of truth for the current tag, release and milestone policy.
+This document is the source of truth for the current tag, release, milestone and versioned-documentation policy.
 
 ---
 
@@ -27,9 +27,9 @@ Minor version labels are internal development milestones.
 
 Examples:
 
-- `v1.1.0` - core polish
-- `v1.2.0` - runtime/data hardening
-- `v1.3.0` - game profiles
+- `v1.1.0` - Integration Foundation Update
+- `v1.2.0` - Action Bridge Update
+- `v1.3.0` - game profiles and integration expansion
 - `v1.4.0` - platform/integration layer
 - `v1.5.0` - MMO foundation I
 - `v1.6.0` - economy/factions/contracts depth
@@ -72,6 +72,25 @@ Do not create a public tag or GitHub Release for the internal stage after mergin
 
 ---
 
+## Documentation policy
+
+Current developer documentation should describe the current SDK state. Internal milestones do not get separate per-version release-plan, release-notes or release-manifest documents.
+
+Internal milestone history belongs in:
+
+- `CHANGELOG.md`;
+- current feature documentation such as `docs/action-bridge.md`;
+- roadmap/status documents when they describe future direction.
+
+Versioned release documents are reserved for public major releases, for example:
+
+- `docs/release-notes-1.0.0.md`;
+- `docs/release-manifest-1.0.0.md`.
+
+Future public release notes and manifests should follow the lower-kebab-case naming convention.
+
+---
+
 ## Development direction by release line
 
 Before `v2.0.0`, the project focuses on polishing the base, stabilizing the SDK, improving API/runtime/docs/packaging and preparing the first foundations for different game types and MMO/server-authoritative scenarios.
@@ -99,16 +118,16 @@ Bug fixes do not automatically create patch release tags. Public patch releases 
 
 ## Changelog policy
 
-`CHANGELOG.md` tracks notable changes that have landed in `main`.
+`CHANGELOG.md` tracks notable internal milestone and public release changes.
 
 Use `Unreleased` for work that has been merged after the latest public major release and before the next public major release.
+
+For internal milestones, update `CHANGELOG.md` and the current docs instead of creating version-specific release notes or manifests.
 
 For public major releases, create or update release-specific notes and manifests, for example:
 
 - `docs/release-notes-1.0.0.md`
 - `docs/release-manifest-1.0.0.md`
-
-Future public release notes and manifests should follow the lower-kebab-case naming convention.
 
 ---
 
@@ -127,6 +146,7 @@ Internal minor milestones should avoid unnecessary breakage, but they are planni
 ## Related documents
 
 - [Roadmap](roadmap.md)
+- [Changelog](../CHANGELOG.md)
 - [Compatibility](compatibility.md)
 - [Migration](migration.md)
 - [Release notes 1.0.0](release-notes-1.0.0.md)
