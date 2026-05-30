@@ -252,15 +252,18 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
 
     for (const auto& record : document.resources) {
         std::uint64_t base_value{};
-        if (const auto* raw = find_field(record, "base_value"); raw != nullptr) {
-            if (!parse_u64(*raw, base_value)) {
-                report.add_error(std::string{source_name}, "resource base_value must be a non-negative integer");
-                continue;
-            }
-            if (base_value == 0) {
-                report.add_error(std::string{source_name}, "resource base_value must be greater than zero");
-                continue;
-            }
+        const auto* raw_base_value = find_field(record, "base_value");
+        if (raw_base_value == nullptr) {
+            report.add_error(std::string{source_name}, "resource base_value is required");
+            continue;
+        }
+        if (!parse_u64(*raw_base_value, base_value)) {
+            report.add_error(std::string{source_name}, "resource base_value must be a non-negative integer");
+            continue;
+        }
+        if (base_value == 0) {
+            report.add_error(std::string{source_name}, "resource base_value must be greater than zero");
+            continue;
         }
 
         append_messages(report, registry.add(ResourceDefinition{
@@ -287,15 +290,18 @@ ValidationReport DataPackLoader::register_document(std::string_view source_name,
 
     for (const auto& record : document.buildings) {
         std::uint32_t worker_slots{};
-        if (const auto* raw = find_field(record, "worker_slots"); raw != nullptr) {
-            if (!parse_u32(*raw, worker_slots)) {
-                report.add_error(std::string{source_name}, "building worker_slots must be a non-negative integer");
-                continue;
-            }
-            if (worker_slots == 0) {
-                report.add_error(std::string{source_name}, "building worker_slots must be greater than zero");
-                continue;
-            }
+        const auto* raw_worker_slots = find_field(record, "worker_slots");
+        if (raw_worker_slots == nullptr) {
+            report.add_error(std::string{source_name}, "building worker_slots is required");
+            continue;
+        }
+        if (!parse_u32(*raw_worker_slots, worker_slots)) {
+            report.add_error(std::string{source_name}, "building worker_slots must be a non-negative integer");
+            continue;
+        }
+        if (worker_slots == 0) {
+            report.add_error(std::string{source_name}, "building worker_slots must be greater than zero");
+            continue;
         }
 
         append_messages(report, registry.add(BuildingDefinition{
