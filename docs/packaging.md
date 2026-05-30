@@ -4,7 +4,7 @@ Version: **1.0.0**
 
 City Life Core can be built from source, installed as a CMake package and packaged as an SDK ZIP archive.
 
-The installed SDK is intended for native C++ consumers first. It also includes documentation and examples for C ABI and initial C# / Unity integration guidance.
+The installed SDK is intended for native C++ consumers first. It also includes documentation, Action Bridge examples, C ABI examples and initial C# / Unity integration guidance.
 
 ## Build and test
 
@@ -27,8 +27,9 @@ The install step provides:
 - public C++ and C headers;
 - the `CityLifeCore::core` CMake target;
 - CMake package config files;
-- documentation;
-- example source files, including C++, C and initial C# / Unity examples;
+- documentation, including Action Bridge docs;
+- example source files, including C++, Action Bridge, C and initial C# / Unity examples;
+- validation scripts for C# wrapper checks;
 - example `.clcd` data packs.
 
 ## Consume after install
@@ -37,6 +38,24 @@ The install step provides:
 find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
+
+The installed package consumer validates both normal C++ SDK usage and installed Action Bridge header/docs/example availability.
+
+## Action Bridge note
+
+Native C++ integrations can use the installed Action Bridge through:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
+or the aggregate SDK header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+For usage details, see [Action Bridge](action-bridge.md).
 
 ## C ABI and C# / Unity notes
 
@@ -70,6 +89,7 @@ Typical shared library names:
 
 ## Related documents
 
+- [Action Bridge](action-bridge.md)
 - [CMake package](cmake-package.md)
 - [SDK ZIP package](sdk-zip-package.md)
 - [SDK structure](sdk-structure.md)
