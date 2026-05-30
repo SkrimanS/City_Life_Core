@@ -1,6 +1,7 @@
 #include "clc/CityLifeCore.hpp"
 
 #include <iostream>
+#include <string>
 #include <string_view>
 
 namespace {
@@ -12,6 +13,10 @@ bool contains_message(const clc::data::ValidationReport& report, std::string_vie
         }
     }
     return false;
+}
+
+std::string_view view_string(const std::string& value) {
+    return std::string_view{value.data(), value.size()};
 }
 
 } // namespace
@@ -51,7 +56,7 @@ base_value=0
         R"({"action_id":"hardening-unknown-resource","type":"add_resource","actor_id":"example","payload":{"target_id":"riverwatch","resource_id":"unknown_resource","amount":5}})"
     );
 
-    if (rejected.accepted || rejected.validation_status != clc::sim::runtime_action_status_rejected) {
+    if (rejected.accepted || view_string(rejected.validation_status) != clc::sim::runtime_action_status_rejected) {
         std::cerr << "expected runtime action rejection\n";
         return 1;
     }
