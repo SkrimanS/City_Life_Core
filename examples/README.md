@@ -1,8 +1,8 @@
 # City Life Core SDK Examples / Примеры SDK
 
-These examples demonstrate the recommended public C++ API entry points without introducing a separate framework, renderer, or game client.
+These examples demonstrate the recommended public C++ API entry points without introducing a separate framework, renderer, network server, or game client.
 
-Эти примеры показывают рекомендуемые точки входа публичного C++ API без отдельного фреймворка, рендера или игрового клиента.
+Эти примеры показывают рекомендуемые точки входа публичного C++ API без отдельного фреймворка, рендера, сетевого сервера или игрового клиента.
 
 ---
 
@@ -40,6 +40,24 @@ Run:
 
 ```bash
 ./build/clc_example_basic_runtime
+```
+
+### `clc_example_action_bridge`
+
+Source: `examples/action_bridge.cpp`
+
+Shows the v1.2.0 local Action Bridge flow:
+
+- accept a JSON action with `action_id`, `type`, optional `actor_id` and `payload`;
+- validate the action before mutation;
+- dispatch it into the runtime engine;
+- return compact JSON result status, diagnostics count and produced event count;
+- keep the bridge local and transport-agnostic, without HTTP, WebSocket, accounts, multiplayer or UI.
+
+Run:
+
+```bash
+./build/clc_example_action_bridge
 ```
 
 ### `clc_example_tick_runtime`
@@ -225,6 +243,13 @@ Recommended include:
 #include "clc/CityLifeCore.hpp"
 ```
 
+Start with the Action Bridge if an external game layer, editor, tool or future server adapter needs to send actions without reaching into runtime internals:
+
+```text
+examples/action_bridge.cpp
+docs/action-bridge.md
+```
+
 Start with custom game data if you want to define your own resources/buildings/settlements:
 
 ```text
@@ -257,4 +282,4 @@ auto bootstrap = clc::sim::make_basic_runtime_scenario();
 auto& runtime = bootstrap.runtime;
 ```
 
-Then add routes, caravans, contracts, ticks, persistence and validation through the runtime workflow APIs.
+Then add routes, caravans, contracts, ticks, persistence, validation and Action Bridge dispatch through the runtime workflow APIs.
