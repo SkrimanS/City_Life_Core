@@ -245,6 +245,16 @@ std::string validation_status_for(const data::ValidationReport& validation, bool
     return copy_status(accepted ? runtime_action_status_accepted : runtime_action_status_rejected);
 }
 
+std::string validation_severity_to_string(data::ValidationSeverity severity) {
+    switch (severity) {
+    case data::ValidationSeverity::warning:
+        return "warning";
+    case data::ValidationSeverity::error:
+        return "error";
+    }
+    return "error";
+}
+
 RuntimeActionResult rejected_result(const RuntimeAction& action, data::ValidationReport validation, std::string error_code, std::string message) {
     return RuntimeActionResult{
         .action_id = action.action_id,
@@ -465,7 +475,36 @@ std::string runtime_action_result_to_json(const RuntimeActionResult& result) {
     output << "\"error_code\":\"" << escape_json_string(result.error_code) << "\",";
     output << "\"message\":\"" << escape_json_string(result.message) << "\",";
     output << "\"events\":" << result.events.size() << ',';
-    output << "\"diagnostics\":" << result.validation.messages().size();
+    output << "\"diagnostics\":" << result.validation.messages().size() << ',';
+
+    output << "\"events_detail\":[";
+    for (std::size_t index = 0; index < result.events.size(); ++index) {
+        const auto& event = result.events[index];
+        if (index != 0) {
+            output << ',';
+        }
+        output << '{';
+        output << "\"day\":" << event.day << ',';
+        output << "\"type\":\"" << escape_json_string(event.type) << "\",";
+        output << "\"message\":\"" << escape_json_string(event.message) << "\"";
+        output << '}';
+    }
+    output << "],";
+
+    const auto& diagnostics = result.validation.messages();
+    output << "\"diagnostics_detail\":[";
+    for (std::size_t index = 0; index < diagnostics.size(); ++index) {
+        const auto& diagnostic = diagnostics[index];
+        if (index != 0) {
+            output << ',';
+        }
+        output << '{';
+        output << "\"severity\":\"" << validation_severity_to_string(diagnostic.severity) << "\",";
+        output << "\"path\":\"" << escape_json_string(diagnostic.path) << "\",";
+        output << "\"message\":\"" << escape_json_string(diagnostic.message) << "\"";
+        output << '}';
+    }
+    output << ']';
     output << '}';
     return output.str();
 }
