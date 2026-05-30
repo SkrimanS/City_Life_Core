@@ -230,11 +230,19 @@ std::string escape_json_string(std::string_view value) {
     return output;
 }
 
+std::string copy_status(std::string_view status) {
+    return std::string{status};
+}
+
+std::string copy_error(std::string_view error_code) {
+    return std::string{error_code};
+}
+
 std::string validation_status_for(const data::ValidationReport& validation, bool accepted) {
     if (!validation.ok()) {
-        return "invalid";
+        return copy_status(runtime_action_status_invalid);
     }
-    return accepted ? "accepted" : "rejected";
+    return copy_status(accepted ? runtime_action_status_accepted : runtime_action_status_rejected);
 }
 
 RuntimeActionResult rejected_result(const RuntimeAction& action, data::ValidationReport validation, std::string error_code, std::string message) {
@@ -283,8 +291,8 @@ RuntimeActionResult command_result_to_action_result(
         .action_id = action.action_id,
         .type = action.type,
         .accepted = command.ok,
-        .validation_status = command.ok ? std::string{"accepted"} : std::string{"rejected"},
-        .error_code = command.ok ? std::string{} : std::string{"action_rejected"},
+        .validation_status = copy_status(command.ok ? runtime_action_status_accepted : runtime_action_status_rejected),
+        .error_code = command.ok ? std::string{} : copy_error(runtime_action_error_action_rejected),
         .message = command.ok ? std::string{"accepted"} : first_validation_message(validation),
         .validation = std::move(validation),
         .command = std::move(command),
@@ -389,7 +397,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
     auto validation = validate_runtime_action(action);
     if (!validation.ok()) {
         const auto message = first_validation_message(validation);
-        return rejected_result(action, std::move(validation), "invalid_action", message);
+        return rejected_result(action, std::move(validation), copy_error(runtime_action_error_invalid_action), message);
     }
 
     const auto event_start = engine.events().size();
@@ -428,21 +436,21 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             .action_id = action.action_id,
             .type = action.type,
             .accepted = true,
-            .validation_status = "accepted",
+            .validation_status = copy_status(runtime_action_status_accepted),
             .message = "accepted",
             .validation = std::move(validation),
             .events = std::move(events),
         };
     }
 
-    return rejected_result(action, std::move(validation), "unsupported_action_type", "unsupported action type");
+    return rejected_result(action, std::move(validation), copy_error(runtime_action_error_unsupported_action_type), "unsupported action type");
 }
 
 RuntimeActionResult dispatch_runtime_action_json(SimulationEngine& engine, std::string_view json) {
     auto parsed = parse_runtime_action_json(json);
     if (!parsed.validation.ok()) {
         const auto message = first_validation_message(parsed.validation);
-        return rejected_parse_result(std::move(parsed.validation), "malformed_json", message);
+        return rejected_parse_result(std::move(parsed.validation), copy_error(runtime_action_error_malformed_json), message);
     }
     return dispatch_runtime_action(engine, parsed.action);
 }
