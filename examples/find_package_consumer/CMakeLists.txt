@@ -20,6 +20,10 @@ if(NOT EXISTS "${CityLifeCore_DOCS_DIR}/action-bridge.md")
     message(FATAL_ERROR "action-bridge.md is missing from CityLifeCore_DOCS_DIR")
 endif()
 
+if(NOT EXISTS "${CityLifeCore_DOCS_DIR}/ru/README.md")
+    message(FATAL_ERROR "ru/README.md is missing from CityLifeCore_DOCS_DIR")
+endif()
+
 if(NOT DEFINED CityLifeCore_DATA_DIR OR NOT EXISTS "${CityLifeCore_DATA_DIR}")
     message(FATAL_ERROR "CityLifeCore_DATA_DIR is not defined or does not exist")
 endif()
