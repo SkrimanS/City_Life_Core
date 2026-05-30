@@ -230,19 +230,15 @@ std::string escape_json_string(std::string_view value) {
     return output;
 }
 
-std::string copy_status(std::string_view status) {
-    return std::string{status};
-}
-
-std::string copy_error(std::string_view error_code) {
-    return std::string{error_code};
+std::string copy_string(std::string_view value) {
+    return std::string{value};
 }
 
 std::string validation_status_for(const data::ValidationReport& validation, bool accepted) {
     if (!validation.ok()) {
-        return copy_status(runtime_action_status_invalid);
+        return copy_string(runtime_action_status_invalid);
     }
-    return copy_status(accepted ? runtime_action_status_accepted : runtime_action_status_rejected);
+    return copy_string(accepted ? runtime_action_status_accepted : runtime_action_status_rejected);
 }
 
 std::string validation_severity_to_string(data::ValidationSeverity severity) {
@@ -301,8 +297,8 @@ RuntimeActionResult command_result_to_action_result(
         .action_id = action.action_id,
         .type = action.type,
         .accepted = command.ok,
-        .validation_status = copy_status(command.ok ? runtime_action_status_accepted : runtime_action_status_rejected),
-        .error_code = command.ok ? std::string{} : copy_error(runtime_action_error_action_rejected),
+        .validation_status = copy_string(command.ok ? runtime_action_status_accepted : runtime_action_status_rejected),
+        .error_code = command.ok ? std::string{} : copy_string(runtime_action_error_action_rejected),
         .message = command.ok ? std::string{"accepted"} : first_validation_message(validation),
         .validation = std::move(validation),
         .command = std::move(command),
@@ -359,7 +355,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         return report;
     }
 
-    if (action.type == "add_resource") {
+    if (action.type == runtime_action_type_add_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for add_resource");
         }
@@ -369,7 +365,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         if (action.amount == 0) {
             report.add_error("action.payload.amount", "amount must be greater than zero for add_resource");
         }
-    } else if (action.type == "remove_resource") {
+    } else if (action.type == runtime_action_type_remove_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for remove_resource");
         }
@@ -379,7 +375,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         if (action.amount == 0) {
             report.add_error("action.payload.amount", "amount must be greater than zero for remove_resource");
         }
-    } else if (action.type == "transfer_resource") {
+    } else if (action.type == runtime_action_type_transfer_resource) {
         if (action.target_id.empty()) {
             report.add_error("action.payload.target_id", "target_id must not be empty for transfer_resource");
         }
@@ -392,7 +388,7 @@ data::ValidationReport validate_runtime_action(const RuntimeAction& action) {
         if (action.amount == 0) {
             report.add_error("action.payload.amount", "amount must be greater than zero for transfer_resource");
         }
-    } else if (action.type == "advance_days") {
+    } else if (action.type == runtime_action_type_advance_days) {
         if (action.days == 0) {
             report.add_error("action.payload.days", "days must be greater than zero for advance_days");
         }
@@ -407,12 +403,12 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
     auto validation = validate_runtime_action(action);
     if (!validation.ok()) {
         const auto message = first_validation_message(validation);
-        return rejected_result(action, std::move(validation), copy_error(runtime_action_error_invalid_action), message);
+        return rejected_result(action, std::move(validation), copy_string(runtime_action_error_invalid_action), message);
     }
 
     const auto event_start = engine.events().size();
 
-    if (action.type == "add_resource") {
+    if (action.type == runtime_action_type_add_resource) {
         return command_result_to_action_result(
             action,
             engine,
@@ -420,7 +416,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             event_start
         );
     }
-    if (action.type == "remove_resource") {
+    if (action.type == runtime_action_type_remove_resource) {
         return command_result_to_action_result(
             action,
             engine,
@@ -428,7 +424,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             event_start
         );
     }
-    if (action.type == "transfer_resource") {
+    if (action.type == runtime_action_type_transfer_resource) {
         return command_result_to_action_result(
             action,
             engine,
@@ -436,7 +432,7 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             event_start
         );
     }
-    if (action.type == "advance_days") {
+    if (action.type == runtime_action_type_advance_days) {
         const auto reports = engine.run_days(action.days);
         std::vector<SimulationEvent> events;
         for (const auto& report : reports) {
@@ -446,21 +442,21 @@ RuntimeActionResult dispatch_runtime_action(SimulationEngine& engine, const Runt
             .action_id = action.action_id,
             .type = action.type,
             .accepted = true,
-            .validation_status = copy_status(runtime_action_status_accepted),
+            .validation_status = copy_string(runtime_action_status_accepted),
             .message = "accepted",
             .validation = std::move(validation),
             .events = std::move(events),
         };
     }
 
-    return rejected_result(action, std::move(validation), copy_error(runtime_action_error_unsupported_action_type), "unsupported action type");
+    return rejected_result(action, std::move(validation), copy_string(runtime_action_error_unsupported_action_type), "unsupported action type");
 }
 
 RuntimeActionResult dispatch_runtime_action_json(SimulationEngine& engine, std::string_view json) {
     auto parsed = parse_runtime_action_json(json);
     if (!parsed.validation.ok()) {
         const auto message = first_validation_message(parsed.validation);
-        return rejected_parse_result(std::move(parsed.validation), copy_error(runtime_action_error_malformed_json), message);
+        return rejected_parse_result(std::move(parsed.validation), copy_string(runtime_action_error_malformed_json), message);
     }
     return dispatch_runtime_action(engine, parsed.action);
 }
