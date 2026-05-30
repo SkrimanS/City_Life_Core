@@ -7,6 +7,7 @@ City Life Core 1.x prioritizes source compatibility for supported public headers
 Compatibility is intentionally split by boundary:
 
 - public C++ API;
+- local Action Bridge C++ API;
 - C ABI;
 - C# / Unity wrapper;
 - future Browser/WebAssembly adapter;
@@ -34,6 +35,29 @@ Not guaranteed by default:
 
 ---
 
+## Action Bridge compatibility
+
+The Action Bridge is a local C++ source-level SDK surface, not a network protocol and not part of the C ABI.
+
+Header:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
+Expectations:
+
+- stable action type, status and error-code constants should remain suitable for source-level C++ consumers;
+- JSON input and result formats should be documented when changed;
+- invalid actions should be rejected before runtime mutation;
+- runtime-rejected actions should preserve diagnostics and avoid unintended mutation;
+- result fields such as `validation_status`, `error_code`, `command_detail`, `events_detail` and `diagnostics_detail` should remain predictable for documented workflows;
+- networking, auth, accounts, matchmaking, multiplayer, queues and UI remain downstream layers.
+
+Action Bridge compatibility is tracked through C++ source compatibility and documentation, not C ABI versioning.
+
+---
+
 ## C ABI compatibility
 
 The C ABI is the intended stable foreign-function boundary for C, C# / Unity, Browser/WASM and future language/engine bindings.
@@ -57,7 +81,7 @@ Expectations:
 - C ABI changes should update the C interface version when consumers need to detect them;
 - C ABI changes should be reflected in `docs/c-abi.md` and `docs/c-abi-expansion-plan.md`.
 
-The C ABI is not yet a full replacement for the C++ runtime API.
+The C ABI is not yet a full replacement for the C++ runtime API and does not expose the Action Bridge in v1.2.0.
 
 ---
 
@@ -159,7 +183,9 @@ Expectations:
 
 - consumers should use `CityLifeCore::core` instead of hard-coded library paths;
 - installed headers, docs and examples should stay discoverable;
+- installed Action Bridge header, docs and example files should be present when Action Bridge is part of the SDK;
 - SDK ZIP archives should preserve the install-layout assumptions;
+- validation scripts should be included when wrapper examples are included;
 - C# example sources may be included with examples, but they do not replace native plug-in libraries.
 
 ---
@@ -182,6 +208,7 @@ Internal minor milestones such as `v1.1.0` and `v1.2.0` are development branches
 - Cross-compiler C++ binary compatibility.
 - ABI stability for the full C++ API.
 - Compatibility for internal implementation details under `src`.
+- C ABI exposure for the Action Bridge in v1.2.0.
 - Stable Unity package layout.
 - Browser/WebAssembly compatibility before a real adapter exists.
 - Compatibility for undocumented behavior or private helper APIs.
@@ -191,6 +218,7 @@ Internal minor milestones such as `v1.1.0` and `v1.2.0` are development branches
 ## Related documents
 
 - [Public API status](public-api-status.md)
+- [Action Bridge](action-bridge.md)
 - [Build and linking policy](build-and-linking-policy.md)
 - [C ABI](c-abi.md)
 - [C ABI expansion plan](c-abi-expansion-plan.md)
