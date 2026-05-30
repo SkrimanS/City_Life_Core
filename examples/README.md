@@ -60,6 +60,23 @@ Run:
 ./build/clc_example_action_bridge
 ```
 
+### `clc_example_validation_hardening`
+
+Source: `examples/validation_hardening.cpp`
+
+Shows the v1.3.0 validation-hardening flow:
+
+- reject malformed or invalid data-pack input before use;
+- reject invalid Action Bridge runtime actions;
+- return useful diagnostics;
+- confirm rejected actions do not mutate runtime state.
+
+Run:
+
+```bash
+./build/clc_example_validation_hardening
+```
+
 ### `clc_example_tick_runtime`
 
 Source: `examples/tick_runtime.cpp`
@@ -248,6 +265,12 @@ Start with the Action Bridge if an external game layer, editor, tool or future s
 ```text
 examples/action_bridge.cpp
 docs/action-bridge.md
+```
+
+Start with validation hardening if you need to inspect rejected data/action diagnostics and no-mutation behavior:
+
+```text
+examples/validation_hardening.cpp
 ```
 
 Start with custom game data if you want to define your own resources/buildings/settlements:
