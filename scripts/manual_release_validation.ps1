@@ -23,6 +23,21 @@ function Invoke-Step {
     }
 }
 
+function Invoke-PowerShellScript {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptPath
+    )
+
+    Require-File -Path $ScriptPath -Description "PowerShell script"
+    Write-Host ""
+    Write-Host "+ $ScriptPath"
+    & $ScriptPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "PowerShell script failed with exit code $($LASTEXITCODE): $ScriptPath"
+    }
+}
+
 function Find-Executable {
     param(
         [Parameter(Mandatory = $true)]
@@ -155,7 +170,7 @@ Invoke-Step cmake -S $RepoRoot -B $SharedBuildPath `
     -DCLC_BUILD_TOOLS=OFF
 Invoke-Step cmake --build $SharedBuildPath --config Release
 
-Invoke-Step bash (Join-Path $RepoRoot "scripts/validate_csharp_wrapper.sh")
+Invoke-PowerShellScript -ScriptPath (Join-Path $RepoRoot "scripts/validate_csharp_wrapper.ps1")
 
 $BenchmarkExe = Find-Executable @(
     (Join-Path $BuildPath "Release/clc_core_benchmarks.exe"),
