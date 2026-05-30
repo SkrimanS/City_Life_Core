@@ -112,6 +112,25 @@ int main() {
     require(view_string(negative_amount.error_code) == clc::sim::runtime_action_error_invalid_action, "negative amount returned wrong error_code");
     require(engine.settlement_resource_amount("riverwatch", "grain") == before_invalid, "negative amount action mutated runtime");
 
+    const auto unknown_resource = clc::sim::dispatch_runtime_action_json(
+        engine,
+        R"({"action_id":"a4-unknown-resource","type":"add_resource","payload":{"target_id":"riverwatch","resource_id":"unknown_resource","amount":5}})"
+    );
+    require(!unknown_resource.accepted, "unknown resource action was accepted");
+    require(view_string(unknown_resource.validation_status) == clc::sim::runtime_action_status_rejected, "unknown resource action had wrong validation_status");
+    require(view_string(unknown_resource.error_code) == clc::sim::runtime_action_error_action_rejected, "unknown resource action returned wrong error_code");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_invalid, "unknown resource action mutated existing resource storage");
+    require(engine.settlement_resource_amount("riverwatch", "unknown_resource") == 0, "unknown resource action inserted unknown resource");
+
+    const auto unknown_target = clc::sim::dispatch_runtime_action_json(
+        engine,
+        R"({"action_id":"a4-unknown-target","type":"add_resource","payload":{"target_id":"missing_settlement","resource_id":"grain","amount":5}})"
+    );
+    require(!unknown_target.accepted, "unknown target action was accepted");
+    require(view_string(unknown_target.validation_status) == clc::sim::runtime_action_status_rejected, "unknown target action had wrong validation_status");
+    require(view_string(unknown_target.error_code) == clc::sim::runtime_action_error_action_rejected, "unknown target action returned wrong error_code");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_invalid, "unknown target action mutated existing settlement storage");
+
     const auto remove = clc::sim::dispatch_runtime_action_json(
         engine,
         R"({"action_id":"a5","type":"remove_resource","payload":{"target_id":"riverwatch","resource_id":"grain","amount":1}})"
