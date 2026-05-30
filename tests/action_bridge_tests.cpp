@@ -92,6 +92,22 @@ int main() {
     require(missing_fields.validation_status == clc::sim::runtime_action_status_invalid, "missing fields action had wrong validation_status");
     require(engine.settlement_resource_amount("riverwatch", "grain") == before_invalid, "missing fields action mutated runtime");
 
+    const auto float_amount = clc::sim::dispatch_runtime_action_json(
+        engine,
+        R"({"action_id":"a4-float","type":"add_resource","payload":{"target_id":"riverwatch","resource_id":"grain","amount":5.5}})"
+    );
+    require(!float_amount.accepted, "float amount action was accepted");
+    require(float_amount.error_code == clc::sim::runtime_action_error_invalid_action, "float amount returned wrong error_code");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_invalid, "float amount action mutated runtime");
+
+    const auto negative_amount = clc::sim::dispatch_runtime_action_json(
+        engine,
+        R"({"action_id":"a4-negative","type":"add_resource","payload":{"target_id":"riverwatch","resource_id":"grain","amount":-5}})"
+    );
+    require(!negative_amount.accepted, "negative amount action was accepted");
+    require(negative_amount.error_code == clc::sim::runtime_action_error_invalid_action, "negative amount returned wrong error_code");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_invalid, "negative amount action mutated runtime");
+
     const auto remove = clc::sim::dispatch_runtime_action_json(
         engine,
         R"({"action_id":"a5","type":"remove_resource","payload":{"target_id":"riverwatch","resource_id":"grain","amount":1}})"
