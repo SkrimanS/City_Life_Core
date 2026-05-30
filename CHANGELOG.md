@@ -41,6 +41,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Updated the Action Bridge parser and parse-level rejection path so rejected results preserve parsed `action_id` and `type` when those fields are available.
 - Updated the SDK umbrella header to expose the Action Bridge C++ API through `clc/CityLifeCore.hpp`.
 - Updated the documentation policy so internal milestones use current docs plus `CHANGELOG.md`; versioned release documents are reserved for public major releases.
 - Updated the documentation index and Russian documentation index to point to current Action Bridge docs and changelog-based internal milestone history.
