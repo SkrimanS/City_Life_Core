@@ -107,6 +107,16 @@ int main() {
     require(advance.validation_status == "accepted", "advance_days had wrong validation_status");
     require(transfer_engine.current_day() == current_day + 2, "advance_days did not advance runtime");
 
+    auto legacy_engine = make_engine();
+    const auto legacy_day = legacy_engine.current_day();
+    const auto payload_word = clc::sim::dispatch_runtime_action_json(
+        legacy_engine,
+        R"({"action_id":"a9","type":"advance_days","actor_id":"payload","days":1})"
+    );
+    require(payload_word.accepted, "string value named payload was treated as malformed payload field");
+    require(payload_word.validation_status == "accepted", "payload word legacy action had wrong validation_status");
+    require(legacy_engine.current_day() == legacy_day + 1, "payload word legacy action did not advance runtime");
+
     const auto json = clc::sim::runtime_action_result_to_json(advance);
     require(json.find("\"accepted\":true") != std::string::npos, "result JSON missing accepted status");
     require(json.find("\"validation_status\":\"accepted\"") != std::string::npos, "result JSON missing validation status");
