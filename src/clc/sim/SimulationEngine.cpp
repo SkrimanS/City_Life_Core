@@ -287,6 +287,18 @@ data::ValidationReport SimulationEngine::add_resource_to_settlement(std::string 
         report.add_error("simulation.add_resource", "settlement_id must not be empty");
         return report;
     }
+    if (resource_id.empty()) {
+        report.add_error("simulation.add_resource", "resource_id must not be empty");
+        return report;
+    }
+    if (amount == 0) {
+        report.add_error("simulation.add_resource", "amount must be greater than zero");
+        return report;
+    }
+    if (registry_.resource(resource_id) == nullptr) {
+        report.add_error("simulation.resource." + resource_id, "unknown resource");
+        return report;
+    }
 
     for (auto& settlement : settlements_) {
         if (settlement.id == settlement_id) {
@@ -310,6 +322,10 @@ data::ValidationReport SimulationEngine::remove_resource_from_settlement(std::st
     }
     if (amount == 0) {
         report.add_error("simulation.remove_resource", "amount must be greater than zero");
+        return report;
+    }
+    if (registry_.resource(resource_id) == nullptr) {
+        report.add_error("simulation.resource." + resource_id, "unknown resource");
         return report;
     }
 
@@ -350,6 +366,10 @@ data::ValidationReport SimulationEngine::transfer_resource_between_settlements(
     }
     if (amount == 0) {
         report.add_error("simulation.transfer_resource", "amount must be greater than zero");
+        return report;
+    }
+    if (registry_.resource(resource_id) == nullptr) {
+        report.add_error("simulation.resource." + resource_id, "unknown resource");
         return report;
     }
 
