@@ -2,9 +2,9 @@
 
 Version: **1.0.0**
 
-City Life Core is designed for source-first C++ integrations, installed CMake package integrations and controlled foreign-language integrations through the C ABI.
+City Life Core is designed for source-first C++ integrations, installed CMake package integrations, local Action Bridge dispatch and controlled foreign-language integrations through the C ABI.
 
-This document describes the intended build and linking rules for native games, tools, servers, C ABI consumers, Unity/C# wrappers and future Browser/WebAssembly adapters.
+This document describes the intended build and linking rules for native games, tools, servers, local Action Bridge consumers, C ABI consumers, Unity/C# wrappers and future Browser/WebAssembly adapters.
 
 ---
 
@@ -14,6 +14,7 @@ This document describes the intended build and linking rules for native games, t
 - Use the installed `CityLifeCore::core` target instead of hard-coded library paths.
 - Treat headers under `include/clc` as the supported public include surface.
 - Treat the C++ API as source-first; C++ binary ABI stability is not promised.
+- Use the local Action Bridge through the public C++ API for transport-agnostic external action validation and dispatch.
 - Use the C ABI for C, C#, Unity, WebAssembly and other foreign-language bindings.
 - Keep engine-specific and platform-specific adapters outside the native core.
 - Use shared-library builds when a host runtime needs to load City Life Core as a native plug-in.
@@ -38,6 +39,24 @@ Recommended consumption:
 find_package(CityLifeCore CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE CityLifeCore::core)
 ```
+
+---
+
+## Local Action Bridge policy
+
+Native C++ game layers, tools, editors and future server-authoritative adapters can use the local Action Bridge through:
+
+```cpp
+#include "clc/sim/ActionBridge.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The Action Bridge is part of the source-first C++ SDK surface. It is local and transport-agnostic; HTTP, WebSocket, auth, accounts, matchmaking, multiplayer and UI belong outside this layer.
 
 ---
 
@@ -142,9 +161,10 @@ The installed SDK should provide:
 - CMake package config files;
 - documentation;
 - examples;
+- validation scripts;
 - example data packs.
 
-Installed examples may include native C++ consumers, C ABI consumers and initial C# / Unity wrapper files.
+Installed examples may include native C++ consumers, Action Bridge examples, C ABI consumers and initial C# / Unity wrapper files.
 
 For SDK ZIP packaging, see [`sdk-zip-package.md`](sdk-zip-package.md).
 
@@ -153,6 +173,7 @@ For SDK ZIP packaging, see [`sdk-zip-package.md`](sdk-zip-package.md).
 ## Compatibility notes
 
 - C++ source compatibility is preferred over C++ binary ABI guarantees.
+- The local Action Bridge is a C++ source-level SDK surface, not a C ABI or network protocol.
 - The C ABI should be versioned and kept intentionally stable where possible.
 - C ABI surface changes should be reflected in the C interface version when consumers need to detect them.
 - C# / Unity and future Browser/WASM wrappers should track the C ABI, not private C++ internals.
@@ -168,6 +189,7 @@ This policy does not promise:
 - Unity package distribution yet;
 - WebAssembly support yet;
 - prebuilt native binaries for every platform;
+- HTTP/WebSocket/auth/multiplayer behavior inside the local Action Bridge;
 - engine-specific build systems inside the core.
 
 ---
@@ -175,6 +197,7 @@ This policy does not promise:
 ## Related documents
 
 - [Public API status](public-api-status.md)
+- [Action Bridge](action-bridge.md)
 - [Compatibility](compatibility.md)
 - [CMake package](cmake-package.md)
 - [Packaging](packaging.md)
