@@ -15,6 +15,7 @@ Game / tool / server / editor / client
   -> integration profile
   -> integration boundary
       -> public C++ API
+      -> local Action Bridge
       -> C ABI
           -> C consumer
           -> C# / Unity wrapper
@@ -40,6 +41,18 @@ Recommended include:
 ```
 
 The public API should remain source-first. C++ binary ABI stability is not promised.
+
+### Local Action Bridge layer
+
+The Action Bridge is a local C++ integration layer for external tools, game layers and future server-authoritative adapters:
+
+```text
+external action -> validation -> runtime mutation -> result/events
+```
+
+It accepts JSON actions, validates them before mutation, dispatches supported runtime operations and returns stable result status, command details, produced events and diagnostics. It deliberately does not provide HTTP, WebSocket, accounts, auth, matchmaking, multiplayer or UI.
+
+See [`action-bridge.md`](action-bridge.md).
 
 ### C ABI layer
 
@@ -110,9 +123,10 @@ The packaging layer exports the SDK through:
 - native library artifacts;
 - documentation;
 - examples;
+- validation scripts;
 - optional SDK ZIP archives.
 
-Installed examples include native C++ consumers, C ABI consumers and initial C# / Unity wrapper examples.
+Installed examples include native C++ consumers, Action Bridge examples, C ABI consumers and initial C# / Unity wrapper examples.
 
 ---
 
@@ -123,6 +137,12 @@ Installed examples include native C++ consumers, C ABI consumers and initial C# 
 Native C++ integrations should use the public C++ API and CMake package.
 
 This is the best-supported path today.
+
+### Local Action Bridge integrations
+
+Tools, editors, gameplay layers and future server adapters can use the local Action Bridge when they need to submit actions without coupling directly to runtime internals.
+
+The bridge is intentionally transport-agnostic. Downstream applications may put HTTP, WebSocket, permissions, sessions or queues around it, but those layers are outside City Life Core v1.2.0 scope.
 
 ### C and foreign-language integrations
 
@@ -157,7 +177,7 @@ Browser APIs should not enter the native core.
 
 ### Server-authoritative and MMO-like integrations
 
-Server-authoritative and MMO-like integrations should initially use the C++ API and runtime workflows.
+Server-authoritative and MMO-like integrations should initially use the C++ API, the local Action Bridge and runtime workflows.
 
 Over time, stable parts may be exposed through the C ABI where useful for tooling or foreign-language services.
 
@@ -170,6 +190,7 @@ The core should not become a networking framework. Transport, authentication, re
 - Keep the SDK headless and renderer/UI/network agnostic.
 - Prefer deterministic runtime operations and explicit validation.
 - Keep the C++ API source-first.
+- Use the local Action Bridge for transport-agnostic external action validation and dispatch.
 - Use the C ABI as the stable foreign-function boundary.
 - Keep handles opaque across the C ABI.
 - Keep native memory ownership explicit.
@@ -190,7 +211,8 @@ City Life Core should not become:
 - a Unity-only SDK;
 - a browser-only SDK;
 - a networking framework;
-- an engine-specific gameplay framework.
+- an engine-specific gameplay framework;
+- an account, auth, matchmaking or multiplayer service.
 
 The goal is a reusable simulation core with clear integration boundaries.
 
@@ -200,6 +222,7 @@ The goal is a reusable simulation core with clear integration boundaries.
 
 - [Core concepts](core-concepts.md)
 - [Public API](public-api.md)
+- [Action Bridge](action-bridge.md)
 - [C ABI](c-abi.md)
 - [C ABI expansion plan](c-abi-expansion-plan.md)
 - [Game integration profiles](game-profiles.md)
