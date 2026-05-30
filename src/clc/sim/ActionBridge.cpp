@@ -477,6 +477,21 @@ std::string runtime_action_result_to_json(const RuntimeActionResult& result) {
     output << "\"events\":" << result.events.size() << ',';
     output << "\"diagnostics\":" << result.validation.messages().size() << ',';
 
+    output << "\"command_detail\":";
+    if (result.command.command.empty()) {
+        output << "null";
+    } else {
+        output << '{';
+        output << "\"command\":\"" << escape_json_string(result.command.command) << "\",";
+        output << "\"ok\":" << (result.command.ok ? "true" : "false") << ',';
+        output << "\"subject_id\":\"" << escape_json_string(result.command.subject_id) << "\",";
+        output << "\"target_id\":\"" << escape_json_string(result.command.target_id) << "\",";
+        output << "\"resource_id\":\"" << escape_json_string(result.command.resource_id) << "\",";
+        output << "\"amount\":" << result.command.amount;
+        output << '}';
+    }
+    output << ',';
+
     output << "\"events_detail\":[";
     for (std::size_t index = 0; index < result.events.size(); ++index) {
         const auto& event = result.events[index];
