@@ -49,8 +49,75 @@ function Remove-TreeIfExists {
     }
 }
 
+function Require-File {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+
+    if (!(Test-Path $Path)) {
+        throw "Missing ${Description}: ${Path}"
+    }
+}
+
+function Find-CSharpCompileProject {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Prefix
+    )
+
+    $Projects = @(Get-ChildItem -Path $Prefix -Recurse -File -Filter "CityLifeCoreNative.CompileCheck.csproj" -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -like "*examples*csharp_unity*" } |
+        Select-Object -First 1)
+
+    if ($Projects.Count -eq 0) {
+        return $null
+    }
+
+    return $Projects[0].FullName
+}
+
+function Find-InstalledScript {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Prefix,
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptName
+    )
+
+    $Scripts = @(Get-ChildItem -Path $Prefix -Recurse -File -Filter $ScriptName -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -like "*scripts*$ScriptName" } |
+        Select-Object -First 1)
+
+    if ($Scripts.Count -eq 0) {
+        return $null
+    }
+
+    return $Scripts[0].FullName
+}
+
+function Require-InstalledScript {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Prefix,
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptName,
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+
+    $ScriptPath = Find-InstalledScript -Prefix $Prefix -ScriptName $ScriptName
+    if ([string]::IsNullOrWhiteSpace($ScriptPath)) {
+        throw "Missing ${Description} under ${Prefix}"
+    }
+    Require-File -Path $ScriptPath -Description $Description
+}
+
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $BuildPath = Join-Path $RepoRoot $BuildDir
+$SharedBuildPath = Join-Path $BuildPath "shared-build"
 $InstallPrefix = Join-Path $BuildPath "install-prefix"
 $ConsumerBuild = Join-Path $BuildPath "consumer-build"
 $CAbiConsumerBuild = Join-Path $BuildPath "c-abi-consumer-build"
@@ -60,16 +127,35 @@ $ZipCAbiConsumerBuild = Join-Path $BuildPath "zip-c-abi-consumer-build"
 $BenchmarkOutput = Join-Path $BuildPath "benchmark-output.txt"
 $ChecksumsFile = Join-Path $BuildPath "SHA256SUMS.txt"
 
+if ($BuildPath -eq $RepoRoot -or $BuildPath -eq (Split-Path -Path $RepoRoot -Parent)) {
+    throw "Refusing to clean unsafe build directory: $BuildPath"
+}
+
+Remove-TreeIfExists $BuildPath
+New-Item -ItemType Directory -Path $BuildPath | Out-Null
+
 Write-Host "Repository: $RepoRoot"
 Write-Host "Build dir:  $BuildPath"
 
 Invoke-Step cmake -S $RepoRoot -B $BuildPath `
+    -DCMAKE_BUILD_TYPE=Release `
     -DCLC_BUILD_TESTS=ON `
     -DCLC_BUILD_EXAMPLES=ON `
     -DCLC_BUILD_BENCHMARKS=ON
 
 Invoke-Step cmake --build $BuildPath --config Release
 Invoke-Step ctest --test-dir $BuildPath --output-on-failure -C Release
+
+Invoke-Step cmake -S $RepoRoot -B $SharedBuildPath `
+    -DCMAKE_BUILD_TYPE=Release `
+    -DBUILD_SHARED_LIBS=ON `
+    -DCLC_BUILD_TESTS=OFF `
+    -DCLC_BUILD_EXAMPLES=OFF `
+    -DCLC_BUILD_BENCHMARKS=OFF `
+    -DCLC_BUILD_TOOLS=OFF
+Invoke-Step cmake --build $SharedBuildPath --config Release
+
+Invoke-Step bash (Join-Path $RepoRoot "scripts/validate_csharp_wrapper.sh")
 
 $BenchmarkExe = Find-Executable @(
     (Join-Path $BuildPath "Release/clc_core_benchmarks.exe"),
@@ -84,24 +170,23 @@ if ($LASTEXITCODE -ne 0) {
     throw "Benchmark runner failed with exit code $($LASTEXITCODE)"
 }
 
-Remove-TreeIfExists $InstallPrefix
-Remove-TreeIfExists $ConsumerBuild
-Remove-TreeIfExists $CAbiConsumerBuild
-Remove-TreeIfExists $ZipExtractDir
-Remove-TreeIfExists $ZipConsumerBuild
-Remove-TreeIfExists $ZipCAbiConsumerBuild
-Remove-Item -Force $ChecksumsFile -ErrorAction SilentlyContinue
-Get-ChildItem -Path $BuildPath -Filter "city-life-core-sdk-*.zip" -File -ErrorAction SilentlyContinue | Remove-Item -Force
-
 Invoke-Step cmake --install $BuildPath --config Release --prefix $InstallPrefix
 
 $InstalledConfig = Join-Path $InstallPrefix "lib/cmake/CityLifeCore/CityLifeCoreConfig.cmake"
-if (!(Test-Path $InstalledConfig)) {
-    throw "Installed CMake package config not found: $InstalledConfig"
+Require-File -Path $InstalledConfig -Description "installed CMake package config"
+
+$InstalledCSharpProject = Find-CSharpCompileProject -Prefix $InstallPrefix
+if ([string]::IsNullOrWhiteSpace($InstalledCSharpProject)) {
+    throw "Installed C# wrapper compile-check project was not found under $InstallPrefix"
 }
+Require-File -Path $InstalledCSharpProject -Description "installed C# wrapper compile-check project"
+Invoke-Step dotnet build $InstalledCSharpProject -c Release
+Require-InstalledScript -Prefix $InstallPrefix -ScriptName "validate_csharp_wrapper.sh" -Description "installed C# wrapper validation shell script"
+Require-InstalledScript -Prefix $InstallPrefix -ScriptName "validate_csharp_wrapper.ps1" -Description "installed C# wrapper validation PowerShell script"
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/find_package_consumer") `
     -B $ConsumerBuild `
+    -DCMAKE_BUILD_TYPE=Release `
     "-DCMAKE_PREFIX_PATH=$InstallPrefix"
 Invoke-Step cmake --build $ConsumerBuild --config Release
 $ConsumerExe = Find-Executable @(
@@ -113,6 +198,7 @@ Invoke-Step $ConsumerExe
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/c_abi_consumer") `
     -B $CAbiConsumerBuild `
+    -DCMAKE_BUILD_TYPE=Release `
     "-DCMAKE_PREFIX_PATH=$InstallPrefix"
 Invoke-Step cmake --build $CAbiConsumerBuild --config Release
 $CAbiConsumerExe = Find-Executable @(
@@ -144,12 +230,20 @@ if ($SdkPrefixes.Count -ne 1) {
 $SdkPrefixPath = $SdkPrefixes[0].FullName
 
 $UnpackedConfig = Join-Path $SdkPrefixPath "lib/cmake/CityLifeCore/CityLifeCoreConfig.cmake"
-if (!(Test-Path $UnpackedConfig)) {
-    throw "Unpacked CMake package config not found: $UnpackedConfig"
+Require-File -Path $UnpackedConfig -Description "unpacked CMake package config"
+
+$ZipCSharpProject = Find-CSharpCompileProject -Prefix $SdkPrefixPath
+if ([string]::IsNullOrWhiteSpace($ZipCSharpProject)) {
+    throw "Unpacked SDK C# wrapper compile-check project was not found under $SdkPrefixPath"
 }
+Require-File -Path $ZipCSharpProject -Description "unpacked SDK C# wrapper compile-check project"
+Invoke-Step dotnet build $ZipCSharpProject -c Release
+Require-InstalledScript -Prefix $SdkPrefixPath -ScriptName "validate_csharp_wrapper.sh" -Description "unpacked SDK C# wrapper validation shell script"
+Require-InstalledScript -Prefix $SdkPrefixPath -ScriptName "validate_csharp_wrapper.ps1" -Description "unpacked SDK C# wrapper validation PowerShell script"
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/find_package_consumer") `
     -B $ZipConsumerBuild `
+    -DCMAKE_BUILD_TYPE=Release `
     "-DCMAKE_PREFIX_PATH=$SdkPrefixPath"
 Invoke-Step cmake --build $ZipConsumerBuild --config Release
 $ZipConsumerExe = Find-Executable @(
@@ -161,6 +255,7 @@ Invoke-Step $ZipConsumerExe
 
 Invoke-Step cmake -S (Join-Path $RepoRoot "examples/c_abi_consumer") `
     -B $ZipCAbiConsumerBuild `
+    -DCMAKE_BUILD_TYPE=Release `
     "-DCMAKE_PREFIX_PATH=$SdkPrefixPath"
 Invoke-Step cmake --build $ZipCAbiConsumerBuild --config Release
 $ZipCAbiConsumerExe = Find-Executable @(
@@ -176,3 +271,5 @@ Write-Host "Benchmark output: $BenchmarkOutput"
 Write-Host "Checksums:        $ChecksumsFile"
 Write-Host "SDK ZIP:          $ZipFile"
 Write-Host "Unpacked prefix:  $SdkPrefixPath"
+Write-Host "Shared build:     $SharedBuildPath"
+Write-Host "C# check project: $InstalledCSharpProject"
