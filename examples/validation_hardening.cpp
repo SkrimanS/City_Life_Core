@@ -1,4 +1,5 @@
 #include "clc/CityLifeCore.hpp"
+#include "clc/data/DataPackLoader.hpp"
 
 #include <iostream>
 #include <string>
