@@ -6,20 +6,25 @@ City Life Core v1.2.0 adds a local, transport-agnostic action bridge:
 external action -> validation -> runtime mutation -> result/events
 ```
 
-The bridge is intended for external games, editor tools, server backends, tests and future network adapters. It is not an HTTP API, WebSocket server, account system or multiplayer layer.
+The bridge is intended for external games, editor tools, server backends, tests and future server-authoritative adapters. It is not an HTTP API, WebSocket server, account system, auth layer, matchmaking layer, multiplayer layer, MMO system or UI framework.
 
 ## Scope
 
 Implemented in v1.2.0:
 
 - `clc::sim::RuntimeAction`;
+- `clc::sim::RuntimeActionParseResult`;
+- `clc::sim::RuntimeActionResult`;
+- stable action type constants;
+- stable validation status constants;
+- stable error-code constants;
 - JSON action parsing with `parse_runtime_action_json`;
 - action validation with `validate_runtime_action`;
 - dispatch with `dispatch_runtime_action` and `dispatch_runtime_action_json`;
 - result serialization with `runtime_action_result_to_json`;
 - explicit result `validation_status`;
 - rejected actions do not mutate runtime state;
-- produced command/runtime events and diagnostic counts are returned in the result.
+- produced command/runtime events and validation diagnostics are returned in the result.
 
 ## Action model
 
@@ -29,9 +34,38 @@ The public action model contains:
 - `type` — action type;
 - `actor_id` — optional caller, player, tool or service identity;
 - `payload` — action-specific JSON object;
-- parsed payload fields such as `target_id`, `secondary_target_id`, `resource_id`, `amount` and `days`.
+- parsed payload fields such as `target_id`, `secondary_target_id`, `resource_id`, `amount` and `days`;
+- raw `payload_json` for callers that need to preserve the submitted action payload.
 
 Top-level legacy fields are still parsed for simple callers, but the canonical v1.2.0 JSON format is payload-first.
+
+## Stable constants
+
+Action type constants:
+
+```cpp
+clc::sim::runtime_action_type_add_resource;
+clc::sim::runtime_action_type_remove_resource;
+clc::sim::runtime_action_type_transfer_resource;
+clc::sim::runtime_action_type_advance_days;
+```
+
+Validation status constants:
+
+```cpp
+clc::sim::runtime_action_status_accepted;
+clc::sim::runtime_action_status_invalid;
+clc::sim::runtime_action_status_rejected;
+```
+
+Error-code constants:
+
+```cpp
+clc::sim::runtime_action_error_malformed_json;
+clc::sim::runtime_action_error_invalid_action;
+clc::sim::runtime_action_error_action_rejected;
+clc::sim::runtime_action_error_unsupported_action_type;
+```
 
 ## Supported action types
 
@@ -101,9 +135,13 @@ Required fields:
 }
 ```
 
+## Numeric payload values
+
+`amount` and `days` must be unsigned integer JSON values. Partial numeric values such as `5.5`, negative values such as `-5`, non-numeric values and values that overflow `std::uint64_t` are rejected before runtime mutation.
+
 ## Result format
 
-`runtime_action_result_to_json` returns a compact JSON summary:
+`runtime_action_result_to_json` returns a compact JSON summary plus command/event/diagnostic details:
 
 ```json
 {
@@ -114,9 +152,27 @@ Required fields:
   "error_code": "",
   "message": "accepted",
   "events": 1,
-  "diagnostics": 0
+  "diagnostics": 0,
+  "command_detail": {
+    "command": "add_resource_to_settlement",
+    "ok": true,
+    "subject_id": "riverwatch",
+    "target_id": "",
+    "resource_id": "grain",
+    "amount": 5
+  },
+  "events_detail": [
+    {
+      "day": 0,
+      "type": "resource.added",
+      "message": "added resource"
+    }
+  ],
+  "diagnostics_detail": []
 }
 ```
+
+For `advance_days`, `command_detail` is `null` because the action advances runtime days directly instead of wrapping a `SimulationCommandResult`.
 
 `validation_status` is one of:
 
@@ -133,9 +189,9 @@ Rejected actions use stable error-code categories:
 
 ## No-mutation rule
 
-Validation happens before runtime mutation. Invalid action type, missing fields, zero amounts, malformed JSON and malformed payloads are rejected before dispatching to runtime commands.
+Validation happens before runtime mutation. Invalid action type, missing fields, zero amounts, malformed JSON, malformed payloads, invalid numeric values and overflowing numeric values are rejected before dispatching to runtime commands.
 
-Runtime command failures also return a rejected result and preserve the command validation diagnostics.
+Runtime command failures also return a rejected result and preserve command validation diagnostics.
 
 ## Example
 
