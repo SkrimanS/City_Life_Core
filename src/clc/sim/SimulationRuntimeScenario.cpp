@@ -27,6 +27,32 @@ data::DataRegistry make_basic_runtime_scenario_registry() {
     });
     (void)report;
 
+    report = registry.add(data::ResourceDefinition{
+        .id = "wood",
+        .display_name = "Wood",
+        .category = "construction",
+        .base_value = 6,
+    });
+    (void)report;
+
+    report = registry.add(data::ProfessionDefinition{
+        .id = "farmer",
+        .display_name = "Farmer",
+        .category = "production",
+    });
+    (void)report;
+
+    report = registry.add(data::BuildingDefinition{
+        .id = "farm",
+        .display_name = "Farm",
+        .category = "production",
+        .worker_slots = 4,
+        .required_profession_id = "farmer",
+        .input_resource_ids = {"wood"},
+        .output_resource_ids = {"grain"},
+    });
+    (void)report;
+
     report = registry.add(data::SettlementDefinition{
         .id = "riverwatch",
         .display_name = "Riverwatch",
