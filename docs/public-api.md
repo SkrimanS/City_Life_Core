@@ -59,6 +59,7 @@ The profile API exposes:
 - profile descriptors for native C++, Unity/C#, Browser/WASM, backend-service, MMO-like and tooling workflows;
 - support status and integration-boundary metadata;
 - required/optional system lists and non-goals;
+- catalog summary helpers for support, C ABI, Action Bridge and server-authoritative counts;
 - query helpers for C ABI, Action Bridge, server-authoritative and required-system filtering;
 - catalog validation helpers for SDK review;
 - scenario recommendations backed by `SimulationScenarioPreset`;
@@ -178,6 +179,7 @@ if (profile == nullptr) {
     return;
 }
 
+const auto summary = clc::sim::game_integration_profile_catalog_summary();
 const auto validation = clc::sim::validate_game_profile_catalog();
 const auto adoption = clc::sim::make_game_profile_adoption_report(*profile);
 const auto checklist = clc::sim::make_game_profile_checklist(*profile);
