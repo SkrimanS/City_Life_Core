@@ -117,10 +117,14 @@ A profile adoption report gives an integration-facing summary that can be displa
 ```cpp
 const auto report = clc::sim::make_game_profile_adoption_report("backend_service");
 clc::sim::game_profile_adoption_report_digest(report);
+
+const auto adoption_summary = clc::sim::game_profile_adoption_summary(report);
+clc::sim::game_profile_adoption_summary_digest(adoption_summary);
+
 clc::sim::game_profile_adoption_report_markdown(report);
 ```
 
-The markdown report includes support status, integration boundary, required systems, optional systems, non-goals and recommended scenario presets.
+The markdown report includes support status, integration boundary, required systems, optional systems, non-goals and recommended scenario presets. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts plus the C ABI, Action Bridge and server-authoritative flags.
 
 ### Adoption checklists
 
