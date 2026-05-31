@@ -2,7 +2,7 @@
 
 All notable changes to City Life Core are tracked here.
 
-Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
+Internal milestones such as `v1.1.0`, `v1.2.0`, `v1.3.0` and `v1.4.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
 
 ## Unreleased
 
@@ -10,6 +10,9 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
+- Added `examples/game_profiles.cpp` to show profile discovery, backend-service recommendations and profile digest output.
+- Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage and server-authoritative boundaries.
 - Added `docs/data-packs.md` with `.clcd` schema, required fields, strict loader validation rules and diagnostics guidance.
 - Added `examples/validation_hardening.cpp` to demonstrate rejected data-pack input, rejected Action Bridge actions and no-mutation behavior.
 - Added data-pack loader hardening tests for missing schema, unknown sections, duplicate keys, missing/zero numeric fields and broken references.
@@ -49,6 +52,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Exposed the game integration profile catalog through the recommended SDK umbrella header.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
 - Kept source-level `DataRegistry::add(...)` compatible for zero numeric defaults by reporting warnings instead of errors for direct C++ construction.
 - Hardened `ResourceStorage` so zero-amount add, direct remove and transfer operations are rejected without mutation.
@@ -78,80 +82,3 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/public-api.md` to explain the C++ API, C ABI, Unity/C# wrapper path, planned Browser/WASM boundary, examples/adapters, Action Bridge and unsupported internals.
 - Updated `docs/public-api-status.md` to classify the public C++ API, local Action Bridge, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
 - Updated `docs/readiness-status.md` to separate the `v1.0.0` release snapshot from post-1.0.0 integration readiness for C ABI, Unity/C#, Browser/WASM, game profiles, server-authoritative runtime, MMO-like support and tooling workflows.
-- Updated `docs/release-manifest-1.0.0.md` and `docs/release-notes-1.0.0.md` to clarify that newer integration planning docs belong to post-1.0.0 internal development unless included in a future public release manifest.
-- Updated `docs/release-manifest-template.md` to include major-only release policy, installed package validation, SDK ZIP contents, C ABI review, C# / Unity review, Browser/WASM status, compatibility and migration sections.
-- Updated `docs/verifying-releases.md` to document the major-only public release policy, archive checksum checks, expected SDK ZIP contents, installed C++ and C ABI consumer verification, Unity/C# example caveats and planned Browser/WASM release caveats.
-- Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
-- Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
-- Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity, browser/WebAssembly and Action Bridge links.
-- Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
-- Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
-- Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
-- Updated SDK install rules so C# example sources are included with installed examples.
-- Linked the roadmap and release policy from the root README, documentation index and Russian documentation index.
-
-### Removed
-
-- Removed per-internal-milestone `v1.1.0` and `v1.2.0` release plan, release notes and release manifest documents. Internal milestone history now lives in `CHANGELOG.md`; versioned release documents are reserved for public major releases.
-
-## 1.0.0 - 2026-05-23
-
-Status: **released / v1.0.0**.
-
-### Added
-
-- Added C++ SDK umbrella header `clc/CityLifeCore.hpp` as the recommended first include for C++ consumers.
-- Added C ABI header `clc/c/CityLifeCoreC.h` with version/time utilities, minimal opaque `clc_world` world-handle functions and read-only world event accessors.
-- Added C ABI bridge implementation with C interface version `3` for the `clc_world` and read-only event accessor surface.
-- Added C ABI smoke coverage for version/time utilities, null-safe `clc_world` access, create/destroy, state access, tick advancement, event ids, event ticks, event types and event payloads.
-- Added standalone installed-package C ABI consumer coverage through `examples/c_abi_consumer/`.
-- Added standalone installed-package C++ `find_package(CityLifeCore CONFIG REQUIRED)` consumer coverage through `examples/find_package_consumer/`.
-- Added CPack ZIP SDK package generation with `SHA256SUMS.txt` checksum output.
-- Added CI validation shape for tests, benchmarks, installed SDK consumers, unpacked ZIP consumers, SDK ZIP artifacts, and benchmark artifacts.
-- Added benchmark runner and benchmark artifact upload flow.
-- Added manual release-validation scripts:
-  - `scripts/manual_release_validation.sh`;
-  - `scripts/manual_release_validation.ps1`.
-- Added release-gate documentation and tracking:
-  - `docs/readiness-status.md`;
-  - `docs/release-notes-1.0.0.md`;
-  - `docs/ci-artifact-review.md`;
-  - `docs/release-manifest-1.0.0.md`.
-- Added public SDK/release documentation for CMake packages, SDK ZIP packages, C ABI, compatibility, versioning, migration, release verification, protection strategy, release manifests and release checklist.
-- Added hardening tests for market edge cases, data registry validation, faction/ownership mutation guards, storage, ledger, settlement arithmetic, runtime workflows, and persistence failure paths.
-- Added tick-based runtime clock persistence through `SimulationRuntime::time` and `SimulationWorldState::time`.
-- Added tick-based route, caravan, and contract deadline support for real-time, MMO, and non-turn-based games.
-- Added high-level tick runtime helpers:
-  - `run_runtime_ticks(...)`;
-  - `run_runtime_until_first_caravan_arrival_by_ticks(...)`;
-  - `run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(...)`.
-- Added tick-based contract deadline APIs and tests for `due_ticks` without daily engine advancement.
-- Added runtime save/load coverage for `runtime.time`, `due_ticks`, caravan tick progress, and settlement tick remainders.
-- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit `time` is missing.
-- Added tick-based runtime diagnostics and event-log helpers:
-  - `runtime.tick.completed`;
-  - tick-run event-log append helpers;
-  - absolute tick checks for fulfilled and failed contract events.
-- Added safer cargo event-log overloads that read timestamps from `SimulationRuntime::time` instead of requiring callers to pass a raw tick.
-- Added regression tests for absolute event ticks, runtime clock drift, tick-only caravan loading, tick-run arrival, tick-run fulfillment, and tick event logs.
-
-### Changed
-
-- Bumped project version to `1.0.0` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
-- Updated C++ and C ABI smoke tests to expect `1.0.0`.
-- Updated public package documentation to reflect the C ABI v3 `clc_world` handle and read-only event accessors instead of describing the C ABI as version/time-only.
-- Updated release checklist, PR gate and blocker issue references to require release documentation and validation review before merge/release.
-- Updated CODEOWNERS coverage for release-validation scripts and release-governance docs.
-- Updated contribution documentation to keep contributions restricted until the final license and contribution model are chosen.
-- Changed runtime event log timestamps from day numbers to absolute runtime ticks.
-- Changed runtime save/load overloads to preserve `SimulationRuntime::time` through the runtime-specific world-state bridge.
-- Changed runtime caravan loading checks to use tick progress instead of day-only progress, preventing cargo loading after tick-based departure.
-- Kept day-based APIs as compatibility wrappers while making tick-based APIs the preferred path for real-time games.
-- Removed obsolete version-specific release notes for pre-1.0 preparation layers.
-- Converted public documentation to an English-primary structure with Russian entry point under `docs/ru/` and lower-kebab-case document filenames.
-
-### Compatibility
-
-- Existing day-based route, caravan, and contract APIs remain available.
-- Existing save files without explicit runtime time are still loaded by deriving runtime ticks from saved `current_day`.
