@@ -26,6 +26,11 @@ int main() {
     require(source.add("grain", 10).ok(), "source should accept grain");
     require(target.add("grain", 5).ok(), "target should accept grain");
 
+    require(!source.try_remove("grain", 0), "storage remove should reject zero amount");
+    require(source.amount("grain") == 10, "zero remove should not mutate storage");
+    require(source.remove_up_to("grain", 0) == 0, "remove_up_to zero amount should remove nothing");
+    require(source.amount("grain") == 10, "zero remove_up_to should not mutate storage");
+
     const auto zero_transfer = clc::sim::transfer(source, target, "grain", 0);
     require(!zero_transfer.ok(), "transfer should reject zero amount");
     require(source.amount("grain") == 10, "zero transfer should not debit source");
