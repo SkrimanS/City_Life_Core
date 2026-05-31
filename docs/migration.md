@@ -96,8 +96,8 @@ Migration checklist:
 1. Replace hard-coded profile tables in native tools with `game_integration_profiles()` where useful.
 2. Use `validate_game_profile_catalog()` in SDK review or tool smoke checks.
 3. Use query helpers such as `game_integration_profiles_needing_c_abi()` and `game_integration_profiles_server_authoritative()` instead of duplicating profile filters.
-4. Use scenario recommendations when choosing lightweight smoke windows for profile-specific checks.
-5. Use adoption reports or checklists for generated tool output, review dashboards or integration notes.
+4. Use scenario recommendations and scenario summary helpers when choosing lightweight smoke windows for profile-specific checks.
+5. Use adoption reports, profile-specific adoption summaries, checklists and profile-specific checklist summaries for generated tool output, review dashboards or integration notes.
 
 The profile API is descriptive. It does not create engine-specific adapters, runtime modes, networking behavior, managed APIs or C ABI bindings.
 
@@ -326,7 +326,7 @@ When migrating downstream docs or project references:
 - [ ] Use `find_package(CityLifeCore CONFIG REQUIRED)` for installed consumers.
 - [ ] Link against `CityLifeCore::core`.
 - [ ] Prefer `#include "clc/CityLifeCore.hpp"` for C++ consumers.
-- [ ] Use game profile catalog/adoption helpers for native integration planning where useful.
+- [ ] Use game profile catalog, scenario summary, adoption summary and checklist summary helpers for native integration planning where useful.
 - [ ] Use the local Action Bridge for supported external action-style flows.
 - [ ] Prefer tick-based APIs for server-authoritative or real-time simulation flows.
 - [ ] Use the C ABI for C, C#, Unity, WebAssembly and other non-C++ integration layers.
