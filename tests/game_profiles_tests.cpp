@@ -152,8 +152,32 @@ int main() {
         require(!clc::sim::game_profile_scenario_recommendation_digest(recommendation).empty(), "scenario recommendation digest should not be empty");
     }
 
+    const auto recommendation_summary = clc::sim::game_profile_scenario_recommendation_summary();
+    require(recommendation_summary.recommendations == 7, "scenario recommendation summary should report recommendation count");
+    require(recommendation_summary.total_day_count == 101, "scenario recommendation summary should report total day count");
+    require(recommendation_summary.min_day_count == 3, "scenario recommendation summary should report minimum day count");
+    require(recommendation_summary.max_day_count == 30, "scenario recommendation summary should report maximum day count");
+    require(
+        clc::sim::game_profile_scenario_recommendation_summary_digest(recommendation_summary)
+            == "game_profile_scenario_summary recommendations=7 total_days=101 min_days=3 max_days=30",
+        "scenario recommendation summary digest should be stable"
+    );
+
     const auto backend_recommendations = clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service");
     require(contains_recommendation(backend_recommendations, "backend_replay_window_10d"), "backend scenario recommendations should include replay window preset");
+    const auto backend_recommendation_summary = clc::sim::game_profile_scenario_recommendation_summary(backend_recommendations);
+    require(backend_recommendation_summary.recommendations == 1, "backend scenario recommendation summary should report recommendation count");
+    require(backend_recommendation_summary.total_day_count == 10, "backend scenario recommendation summary should report total day count");
+    require(backend_recommendation_summary.min_day_count == 10, "backend scenario recommendation summary should report minimum day count");
+    require(backend_recommendation_summary.max_day_count == 10, "backend scenario recommendation summary should report maximum day count");
+
+    const auto empty_recommendation_summary = clc::sim::game_profile_scenario_recommendation_summary(
+        clc::sim::game_profile_scenario_recommendations_for_profile_id("browser_wasm")
+    );
+    require(empty_recommendation_summary.recommendations == 0, "empty scenario recommendation summary should report zero recommendations");
+    require(empty_recommendation_summary.total_day_count == 0, "empty scenario recommendation summary should report zero total days");
+    require(empty_recommendation_summary.min_day_count == 0, "empty scenario recommendation summary should report zero minimum days");
+    require(empty_recommendation_summary.max_day_count == 0, "empty scenario recommendation summary should report zero maximum days");
 
     const auto mmo_recommendations = clc::sim::game_profile_scenario_recommendations_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative);
     require(contains_recommendation(mmo_recommendations, "mmo_authoritative_soak_30d"), "MMO scenario recommendations should include soak preset");
