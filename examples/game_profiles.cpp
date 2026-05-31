@@ -26,6 +26,14 @@ void print_profile_scenarios(
     }
 }
 
+void print_profile_checklist(const clc::sim::GameProfileChecklist& checklist) {
+    std::cout << "\nBackend adoption checklist:\n";
+    std::cout << clc::sim::game_profile_checklist_digest(checklist) << '\n';
+    for (const auto& item : checklist.items) {
+        std::cout << "- [" << (item.required ? "required" : "optional") << "] " << item.id << ": " << item.title << '\n';
+    }
+}
+
 } // namespace
 
 int main() {
@@ -88,6 +96,8 @@ int main() {
     std::cout << clc::sim::game_profile_adoption_report_digest(backend_report) << '\n';
     std::cout << "\nBackend adoption markdown:\n";
     std::cout << clc::sim::game_profile_adoption_report_markdown(backend_report) << '\n';
+
+    print_profile_checklist(clc::sim::make_game_profile_checklist("backend_service"));
 
     return 0;
 }
