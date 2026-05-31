@@ -176,6 +176,16 @@ int main() {
     require(view_string(advance.validation_status) == clc::sim::runtime_action_status_accepted, "advance_days had wrong validation_status");
     require(transfer_engine.current_day() == current_day + 2, "advance_days did not advance runtime");
 
+    const auto before_zero_day = transfer_engine.current_day();
+    const auto zero_day = clc::sim::dispatch_runtime_action_json(
+        transfer_engine,
+        R"({"action_id":"a8-zero","type":"advance_days","payload":{"days":0}})"
+    );
+    require(!zero_day.accepted, "zero-day advance action was accepted");
+    require(view_string(zero_day.validation_status) == clc::sim::runtime_action_status_invalid, "zero-day advance action had wrong validation_status");
+    require(view_string(zero_day.error_code) == clc::sim::runtime_action_error_invalid_action, "zero-day advance returned wrong error_code");
+    require(transfer_engine.current_day() == before_zero_day, "zero-day advance mutated current day");
+
     auto legacy_engine = make_engine();
     const auto legacy_day = legacy_engine.current_day();
     const auto payload_word = clc::sim::dispatch_runtime_action_json(
