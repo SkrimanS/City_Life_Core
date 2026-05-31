@@ -196,6 +196,51 @@ inline void validate_game_profile_adoption_summary(
     }
 }
 
+inline void validate_game_profile_scenario_recommendation_summary(
+    clc::data::ValidationReport& report,
+    const std::vector<GameProfileScenarioRecommendation>& recommendations,
+    const GameProfileScenarioRecommendationSummary& summary,
+    std::string_view path
+) {
+    if (summary.recommendations != recommendations.size()) {
+        report.add_error(std::string{path} + ".recommendations", "scenario summary recommendation count must match recommendations");
+    }
+
+    int total_day_count = 0;
+    int min_day_count = 0;
+    int max_day_count = 0;
+    if (!recommendations.empty()) {
+        min_day_count = recommendations.front().preset.day_count;
+        max_day_count = recommendations.front().preset.day_count;
+    }
+
+    for (const auto& recommendation : recommendations) {
+        const auto day_count = recommendation.preset.day_count;
+        total_day_count += day_count;
+        if (day_count < min_day_count) {
+            min_day_count = day_count;
+        }
+        if (day_count > max_day_count) {
+            max_day_count = day_count;
+        }
+    }
+
+    if (summary.total_day_count != total_day_count) {
+        report.add_error(std::string{path} + ".total_day_count", "scenario summary total day count must match recommendations");
+    }
+    if (summary.min_day_count != min_day_count) {
+        report.add_error(std::string{path} + ".min_day_count", "scenario summary minimum day count must match recommendations");
+    }
+    if (summary.max_day_count != max_day_count) {
+        report.add_error(std::string{path} + ".max_day_count", "scenario summary maximum day count must match recommendations");
+    }
+
+    const auto digest = game_profile_scenario_recommendation_summary_digest(summary);
+    if (digest.empty()) {
+        report.add_error(std::string{path} + ".digest", "scenario summary digest must not be empty");
+    }
+}
+
 inline void validate_game_profile_adoption_report(
     clc::data::ValidationReport& report,
     const GameIntegrationProfileDescriptor& profile,
@@ -349,8 +394,16 @@ inline void validate_game_profile_adoption_report(
         );
     }
 
+    const auto& scenario_recommendations = game_profile_scenario_recommendations();
+    validate_game_profile_scenario_recommendation_summary(
+        report,
+        scenario_recommendations,
+        game_profile_scenario_recommendation_summary(scenario_recommendations),
+        "game_profile_scenarios.summary"
+    );
+
     std::vector<std::string_view> scenario_ids;
-    for (const auto& recommendation : game_profile_scenario_recommendations()) {
+    for (const auto& recommendation : scenario_recommendations) {
         const std::string preset_id_for_path = recommendation.preset.id.empty() ? std::string{"<empty>"} : recommendation.preset.id;
         const std::string path = "game_profile_scenarios." + preset_id_for_path;
 
