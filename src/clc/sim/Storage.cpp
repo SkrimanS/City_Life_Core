@@ -35,7 +35,7 @@ data::ValidationReport ResourceStorage::add(std::string resource_id, std::uint64
 
 bool ResourceStorage::try_remove(std::string_view resource_id, std::uint64_t amount) {
     if (amount == 0) {
-        return true;
+        return false;
     }
 
     auto it = entries_.find(std::string{resource_id});
