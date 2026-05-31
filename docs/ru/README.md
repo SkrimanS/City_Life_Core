@@ -71,6 +71,13 @@ target_link_libraries(my_app PRIVATE CityLifeCore::core)
 #include "clc/CityLifeCore.hpp"
 ```
 
+Game profile API для выбора integration path, adoption reports и checklist:
+
+```cpp
+#include "clc/sim/GameProfiles.hpp"
+#include "clc/sim/GameProfileValidation.hpp"
+```
+
 Action Bridge include:
 
 ```cpp
