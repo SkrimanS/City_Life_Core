@@ -81,6 +81,11 @@ int main() {
     require(!clc::sim::add_contract(catalog, valid_contract).ok(), "duplicate contract id should be rejected");
     require(!clc::sim::add_contract(catalog, empty_contract).ok(), "invalid contract should not add");
 
+    auto fulfilled_input_contract = make_contract("already_fulfilled_input");
+    fulfilled_input_contract.status = clc::sim::ContractStatus::fulfilled;
+    require(!clc::sim::add_contract(catalog, fulfilled_input_contract).ok(), "new fulfilled contract input should be rejected");
+    require(clc::sim::contract_by_id(catalog, "already_fulfilled_input") == nullptr, "rejected fulfilled contract input should not be inserted");
+
     const auto* found = clc::sim::contract_by_id(catalog, "grain_delivery_001");
     require(found != nullptr, "contract lookup should find inserted contract");
     require(found->resource_id == "grain", "contract resource should be preserved");
