@@ -64,11 +64,16 @@ Run:
 
 Source: `examples/game_profiles.cpp`
 
-Shows the v1.4.0 game-profile catalog:
+Shows the v1.4.0 game-profile source-level C++ guidance API:
 
 - enumerate supported and planned integration profiles;
 - print profile support status, integration boundary and system counts;
+- validate profile catalog consistency;
 - inspect required systems and non-goals for the backend service profile;
+- list C ABI, Action Bridge, server-authoritative and persistence-oriented profile groups;
+- inspect recommended scenario presets for backend and MMO-like profiles;
+- generate adoption report digest and markdown output;
+- generate a required/optional integration checklist;
 - use the public umbrella header `clc/CityLifeCore.hpp` for profile discovery.
 
 Run:
