@@ -38,6 +38,29 @@ namespace clc::sim {
         report.add_error("game_profiles", "profile catalog must not be empty");
     }
 
+    const auto summary = game_integration_profile_catalog_summary();
+    if (summary.total_profiles != profiles.size()) {
+        report.add_error("game_profiles.summary.total", "profile summary total must match profile catalog size");
+    }
+    if (
+        summary.supported_profiles
+            + summary.partially_supported_profiles
+            + summary.initial_support_profiles
+            + summary.planned_profiles
+        != summary.total_profiles
+    ) {
+        report.add_error("game_profiles.summary.support", "profile support counts must add up to the total profile count");
+    }
+    if (summary.c_abi_profiles != game_integration_profiles_needing_c_abi().size()) {
+        report.add_error("game_profiles.summary.c_abi", "C ABI summary count must match C ABI profile query count");
+    }
+    if (summary.action_bridge_profiles != game_integration_profiles_using_action_bridge().size()) {
+        report.add_error("game_profiles.summary.action_bridge", "Action Bridge summary count must match Action Bridge profile query count");
+    }
+    if (summary.server_authoritative_profiles != game_integration_profiles_server_authoritative().size()) {
+        report.add_error("game_profiles.summary.server_authoritative", "server-authoritative summary count must match server-authoritative profile query count");
+    }
+
     std::vector<std::string_view> profile_ids;
     for (const auto& profile : profiles) {
         const std::string profile_id_for_path = profile.id.empty() ? std::string{"<empty>"} : std::string{profile.id};
