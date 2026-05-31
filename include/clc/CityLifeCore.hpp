@@ -25,6 +25,7 @@
 #include "clc/sim/ContractRewards.hpp"
 #include "clc/sim/Contracts.hpp"
 #include "clc/sim/Factions.hpp"
+#include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/Ownership.hpp"
 #include "clc/sim/Routes.hpp"
 #include "clc/sim/Settlement.hpp"
