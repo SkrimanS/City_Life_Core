@@ -34,6 +34,43 @@ The C++ API is the richest API surface today. It is source-first: downstream pro
 
 ---
 
+## Game profile C++ API
+
+v1.4.0 adds a descriptive game-profile API for integration planning and SDK adoption review.
+
+Use:
+
+```cpp
+#include "clc/sim/GameProfiles.hpp"
+#include "clc/sim/GameProfileValidation.hpp"
+#include "clc/sim/GameProfileScenarios.hpp"
+#include "clc/sim/GameProfileAdoption.hpp"
+#include "clc/sim/GameProfileChecklist.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The profile API exposes:
+
+- profile descriptors for native C++, Unity/C#, Browser/WASM, backend-service, MMO-like and tooling workflows;
+- support status and integration-boundary metadata;
+- required/optional system lists and non-goals;
+- query helpers for C ABI, Action Bridge, server-authoritative and required-system filtering;
+- catalog validation helpers for SDK review;
+- scenario recommendations backed by `SimulationScenarioPreset`;
+- adoption report helpers with digest and markdown output;
+- integration checklist helpers for host-side review.
+
+The profile API is descriptive. It does not add a runtime mode, engine adapter, networking layer, UI framework or product-specific gameplay system.
+
+See [`game-profiles.md`](game-profiles.md).
+
+---
+
 ## Action Bridge C++ API
 
 v1.2.0 adds a local Action Bridge for external game layers, tools and future server-authoritative adapters:
@@ -107,6 +144,7 @@ For the staged expansion plan, see [`c-abi-expansion-plan.md`](c-abi-expansion-p
 - Use `clc/CityLifeCore.hpp` as the normal C++ include.
 - Use `clc/c/CityLifeCoreC.h` for C ABI consumers and foreign-language bindings.
 - Use the local Action Bridge when an external tool/game layer needs action validation and dispatch without becoming coupled to runtime internals.
+- Use the game-profile API as descriptive integration guidance, not as a separate product mode or runtime fork.
 - Do not bind C#, Unity, Browser/WASM or scripting integrations directly to C++ implementation details.
 - Validate registries and runtime state before relying on loaded content.
 - Prefer tick-based helpers for server-authoritative, real-time or MMO-like runtime flows.
@@ -129,6 +167,21 @@ clc::sim::advance_runtime_ticks(runtime, clc::minutes_to_ticks(5));
 ```
 
 For real integrations, prefer explicit registry and runtime construction over demo bootstrap helpers once the project has its own data and workflows.
+
+---
+
+## Common game profile workflow
+
+```cpp
+const auto* profile = clc::sim::game_integration_profile_by_id("backend_service");
+if (profile == nullptr) {
+    return;
+}
+
+const auto validation = clc::sim::validate_game_profile_catalog();
+const auto adoption = clc::sim::make_game_profile_adoption_report(*profile);
+const auto checklist = clc::sim::make_game_profile_checklist(*profile);
+```
 
 ---
 
