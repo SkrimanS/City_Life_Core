@@ -177,9 +177,21 @@ inline void validate_game_profile_adoption_summary(
     if (summary.non_goals != adoption.non_goals.size()) {
         report.add_error(std::string{path} + ".non_goals", "profile adoption summary non-goal count must match adoption report");
     }
-    if (summary.scenario_recommendations != adoption.scenario_recommendations.size()) {
+
+    const auto scenario_summary = game_profile_scenario_recommendation_summary(adoption.scenario_recommendations);
+    if (summary.scenario_recommendations != scenario_summary.recommendations) {
         report.add_error(std::string{path} + ".scenario_recommendations", "profile adoption summary scenario-recommendation count must match adoption report");
     }
+    if (summary.scenario_total_day_count != scenario_summary.total_day_count) {
+        report.add_error(std::string{path} + ".scenario_total_day_count", "profile adoption summary scenario total day count must match adoption report");
+    }
+    if (summary.scenario_min_day_count != scenario_summary.min_day_count) {
+        report.add_error(std::string{path} + ".scenario_min_day_count", "profile adoption summary scenario minimum day count must match adoption report");
+    }
+    if (summary.scenario_max_day_count != scenario_summary.max_day_count) {
+        report.add_error(std::string{path} + ".scenario_max_day_count", "profile adoption summary scenario maximum day count must match adoption report");
+    }
+
     if (summary.needs_c_abi != adoption.needs_c_abi) {
         report.add_error(std::string{path} + ".needs_c_abi", "profile adoption summary C ABI flag must match adoption report");
     }
