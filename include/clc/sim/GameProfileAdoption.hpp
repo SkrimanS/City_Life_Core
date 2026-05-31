@@ -186,6 +186,20 @@ struct GameProfileAdoptionSummary final {
     return digest;
 }
 
+[[nodiscard]] inline std::string game_profile_adoption_report_digest(
+    const GameIntegrationProfileDescriptor& profile
+) {
+    return game_profile_adoption_report_digest(make_game_profile_adoption_report(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_adoption_report_digest(GameIntegrationProfile profile) {
+    return game_profile_adoption_report_digest(make_game_profile_adoption_report(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_adoption_report_digest(std::string_view profile_id) {
+    return game_profile_adoption_report_digest(make_game_profile_adoption_report(profile_id));
+}
+
 [[nodiscard]] inline std::string game_profile_adoption_report_markdown(const GameProfileAdoptionReport& report) {
     if (!report.found) {
         return "# Game Profile Adoption Report\n\nProfile not found: `" + report.profile_id + "`\n";
@@ -248,6 +262,20 @@ struct GameProfileAdoptionSummary final {
     }
 
     return output;
+}
+
+[[nodiscard]] inline std::string game_profile_adoption_report_markdown(
+    const GameIntegrationProfileDescriptor& profile
+) {
+    return game_profile_adoption_report_markdown(make_game_profile_adoption_report(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_adoption_report_markdown(GameIntegrationProfile profile) {
+    return game_profile_adoption_report_markdown(make_game_profile_adoption_report(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_adoption_report_markdown(std::string_view profile_id) {
+    return game_profile_adoption_report_markdown(make_game_profile_adoption_report(profile_id));
 }
 
 } // namespace clc::sim
