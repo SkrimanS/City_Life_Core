@@ -209,7 +209,16 @@ int main() {
     require(backend_report.server_authoritative, "backend adoption report should preserve server-authoritative flag");
     require(!backend_report.scenario_recommendations.empty(), "backend adoption report should include scenario recommendations");
     const auto backend_adoption_summary = clc::sim::game_profile_adoption_summary(backend_report);
+    const auto backend_adoption_summary_from_descriptor = clc::sim::game_profile_adoption_summary(*backend);
+    const auto backend_adoption_summary_by_id = clc::sim::game_profile_adoption_summary("backend_service");
+    const auto backend_adoption_summary_by_enum = clc::sim::game_profile_adoption_summary(clc::sim::GameIntegrationProfile::backend_service);
     require(backend_adoption_summary.found, "backend adoption summary should be found");
+    require(backend_adoption_summary_from_descriptor.found, "backend adoption summary from descriptor should be found");
+    require(backend_adoption_summary_by_id.found, "backend adoption summary by id should be found");
+    require(backend_adoption_summary_by_enum.found, "backend adoption summary by enum should be found");
+    require(backend_adoption_summary_from_descriptor.required_systems == backend_adoption_summary.required_systems, "backend adoption summary from descriptor should match report summary required count");
+    require(backend_adoption_summary_by_id.optional_systems == backend_adoption_summary.optional_systems, "backend adoption summary by id should match report summary optional count");
+    require(backend_adoption_summary_by_enum.scenario_total_day_count == backend_adoption_summary.scenario_total_day_count, "backend adoption summary by enum should match report summary scenario total days");
     require(backend_adoption_summary.required_systems == 6, "backend adoption summary should report required system count");
     require(backend_adoption_summary.optional_systems == 5, "backend adoption summary should report optional system count");
     require(backend_adoption_summary.non_goals == 4, "backend adoption summary should report non-goal count");
@@ -269,7 +278,9 @@ int main() {
     require(!missing_report.found, "missing adoption report should not be found");
     require(clc::sim::game_profile_adoption_report_digest(missing_report).find("found=no") != std::string::npos, "missing adoption digest should report not found");
     const auto missing_adoption_summary = clc::sim::game_profile_adoption_summary(missing_report);
+    const auto missing_adoption_summary_by_id = clc::sim::game_profile_adoption_summary("missing_profile");
     require(!missing_adoption_summary.found, "missing adoption summary should not be found");
+    require(!missing_adoption_summary_by_id.found, "missing adoption summary by id should not be found");
     require(
         clc::sim::game_profile_adoption_summary_digest(missing_adoption_summary) == "game_profile_adoption_summary found=no",
         "missing adoption summary digest should report not found"
