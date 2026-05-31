@@ -126,6 +126,22 @@ struct GameProfileScenarioRecommendationSummary final {
     return game_profile_scenario_recommendation_summary(game_profile_scenario_recommendations());
 }
 
+[[nodiscard]] inline GameProfileScenarioRecommendationSummary game_profile_scenario_recommendation_summary_for_profile(
+    GameIntegrationProfile profile
+) {
+    return game_profile_scenario_recommendation_summary(
+        game_profile_scenario_recommendations_for_profile(profile)
+    );
+}
+
+[[nodiscard]] inline GameProfileScenarioRecommendationSummary game_profile_scenario_recommendation_summary_for_profile_id(
+    std::string_view profile_id
+) {
+    return game_profile_scenario_recommendation_summary(
+        game_profile_scenario_recommendations_for_profile_id(profile_id)
+    );
+}
+
 [[nodiscard]] inline std::string game_profile_scenario_recommendation_summary_digest(
     const GameProfileScenarioRecommendationSummary& summary
 ) {
