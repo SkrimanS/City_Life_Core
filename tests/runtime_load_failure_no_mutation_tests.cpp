@@ -51,17 +51,18 @@ int main() {
     require(!malformed.validation.ok(), "malformed runtime load should return diagnostics");
     require_runtime_preserved(runtime);
 
-    const auto incomplete_path = directory / "incomplete.clcs";
+    const auto incomplete_path = directory / "incomplete-row.clcs";
     {
         std::ofstream incomplete_file{incomplete_path};
         incomplete_file << "CLC_SIM_WORLD_STATE\t1\n";
         incomplete_file << "time\t999999\n";
         incomplete_file << "wallet\t999999\n";
+        incomplete_file << "settlement\tbroken_only_has_id\n";
     }
 
     const auto incomplete = clc::sim::load_simulation_runtime_from_file(incomplete_path, runtime);
-    require(!incomplete.ok(), "incomplete runtime load should fail");
-    require(!incomplete.validation.ok(), "incomplete runtime load should return diagnostics");
+    require(!incomplete.ok(), "incomplete row runtime load should fail");
+    require(!incomplete.validation.ok(), "incomplete row runtime load should return diagnostics");
     require_runtime_preserved(runtime);
 
     std::filesystem::remove_all(directory);
