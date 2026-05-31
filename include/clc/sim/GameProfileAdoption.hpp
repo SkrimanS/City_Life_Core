@@ -134,7 +134,7 @@ struct GameProfileAdoptionReport final {
     for (const auto& recommendation : report.scenario_recommendations) {
         output += "- `";
         output += recommendation.preset.id;
-        output += "` — ";
+        output += "` - ";
         output += recommendation.purpose;
         output += " (";
         output += std::to_string(recommendation.preset.day_count);
