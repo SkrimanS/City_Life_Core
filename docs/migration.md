@@ -256,3 +256,81 @@ Browser app
   -> C ABI / exported functions
   -> native C++ core
 ```
+
+For now:
+
+- keep browser-specific code outside the native core;
+- avoid adding DOM, canvas, WebGL, WebGPU or browser storage dependencies to the core;
+- design new C ABI functions with future WebAssembly export in mind where practical;
+- document memory, string and buffer ownership when WebAssembly work begins.
+
+Related docs:
+
+- [Browser and WebAssembly integration](browser-wasm.md)
+- [C ABI expansion plan](c-abi-expansion-plan.md)
+- [Integration targets](integration-targets.md)
+
+---
+
+## Game profile selection migration
+
+If an older integration assumed that City Life Core is only a C++ library, review the game profile document and choose the intended profile:
+
+- native C++ game;
+- native C++ server/tool;
+- C consumer;
+- Unity/C# client or tool;
+- browser/WASM game or tool;
+- server-authoritative game;
+- MMO-like simulation;
+- editor/balancing tool.
+
+Each profile should use the correct integration boundary. Do not add engine-specific dependencies to the core to support a profile.
+
+Related doc:
+
+- [Game integration profiles](game-profiles.md)
+
+---
+
+## Save/load and replay migration
+
+For integrations that ship persistent worlds or rely on deterministic replay:
+
+- validate old saves against the new SDK version;
+- confirm tick/time fields load as expected;
+- compare replay outputs before and after migration;
+- document any changed event ordering or timestamp assumptions;
+- update migration notes if save shapes change.
+
+Do not treat save/load and replay compatibility as automatic. Validate them explicitly for your product.
+
+---
+
+## Documentation and changelog migration
+
+When migrating downstream docs or project references:
+
+- update links to lower-kebab-case docs;
+- link to `docs/action-bridge.md` when discussing local external action dispatch;
+- link to `docs/integration-targets.md` when discussing platform support;
+- link to `docs/game-profiles.md` when discussing game type support;
+- link to `docs/c-abi-expansion-plan.md` when requesting new bindings;
+- update `CHANGELOG.md` for public-facing changes.
+
+---
+
+## Migration checklist
+
+- [ ] Update documentation links to lower-kebab-case paths.
+- [ ] Use `find_package(CityLifeCore CONFIG REQUIRED)` for installed consumers.
+- [ ] Link against `CityLifeCore::core`.
+- [ ] Prefer `#include "clc/CityLifeCore.hpp"` for C++ consumers.
+- [ ] Use game profile catalog/adoption helpers for native integration planning where useful.
+- [ ] Use the local Action Bridge for supported external action-style flows.
+- [ ] Prefer tick-based APIs for server-authoritative or real-time simulation flows.
+- [ ] Use the C ABI for C, C#, Unity, WebAssembly and other non-C++ integration layers.
+- [ ] Do not bind foreign-language wrappers to private C++ internals.
+- [ ] Build shared libraries for native plug-in scenarios such as Unity.
+- [ ] Validate save/load and replay behavior before upgrading production data.
+- [ ] Update docs and changelog for public-facing migration changes.
