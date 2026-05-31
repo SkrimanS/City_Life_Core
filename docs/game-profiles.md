@@ -125,13 +125,15 @@ A profile adoption report gives an integration-facing summary that can be displa
 const auto report = clc::sim::make_game_profile_adoption_report("backend_service");
 clc::sim::game_profile_adoption_report_digest(report);
 
-const auto adoption_summary = clc::sim::game_profile_adoption_summary(report);
+const auto adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
+clc::sim::game_profile_adoption_summary(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_adoption_summary(*profile);
 clc::sim::game_profile_adoption_summary_digest(adoption_summary);
 
 clc::sim::game_profile_adoption_report_markdown(report);
 ```
 
-The markdown report includes support status, integration boundary, required systems, optional systems, non-goals, recommended scenario presets and the scenario recommendation day window. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts, scenario total/min/max day windows, plus the C ABI, Action Bridge and server-authoritative flags.
+The markdown report includes support status, integration boundary, required systems, optional systems, non-goals, recommended scenario presets and the scenario recommendation day window. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts, scenario total/min/max day windows, plus the C ABI, Action Bridge and server-authoritative flags. Profile-specific adoption summary helpers provide the same counts for a profile id, enum or descriptor without requiring callers to first build an adoption report.
 
 ### Adoption checklists
 
@@ -141,11 +143,13 @@ Profiles can also generate host-side checklist items for integration review:
 const auto checklist = clc::sim::make_game_profile_checklist("backend_service");
 clc::sim::game_profile_checklist_digest(checklist);
 
-const auto checklist_summary = clc::sim::game_profile_checklist_summary(checklist);
+const auto checklist_summary = clc::sim::game_profile_checklist_summary("backend_service");
+clc::sim::game_profile_checklist_summary(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_checklist_summary(*profile);
 clc::sim::game_profile_checklist_summary_digest(checklist_summary);
 ```
 
-Checklist items mark required and optional review steps. Checklist summaries report total, required and optional item counts. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
+Checklist items mark required and optional review steps. Checklist summaries report total, required and optional item counts. Profile-specific checklist summary helpers provide those counts for a profile id, enum or descriptor without requiring callers to first build a checklist. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
 
 See also:
 
