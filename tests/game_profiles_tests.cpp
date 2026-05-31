@@ -171,7 +171,24 @@ int main() {
     require(backend_report.uses_action_bridge, "backend adoption report should preserve Action Bridge flag");
     require(backend_report.server_authoritative, "backend adoption report should preserve server-authoritative flag");
     require(!backend_report.scenario_recommendations.empty(), "backend adoption report should include scenario recommendations");
-    require(!clc::sim::game_profile_adoption_report_digest(backend_report).empty(), "backend adoption report digest should be non-empty");
+    const auto backend_adoption_summary = clc::sim::game_profile_adoption_summary(backend_report);
+    require(backend_adoption_summary.found, "backend adoption summary should be found");
+    require(backend_adoption_summary.required_systems == 6, "backend adoption summary should report required system count");
+    require(backend_adoption_summary.optional_systems == 5, "backend adoption summary should report optional system count");
+    require(backend_adoption_summary.non_goals == 4, "backend adoption summary should report non-goal count");
+    require(backend_adoption_summary.scenario_recommendations == 1, "backend adoption summary should report scenario recommendation count");
+    require(backend_adoption_summary.uses_action_bridge, "backend adoption summary should preserve Action Bridge flag");
+    require(backend_adoption_summary.server_authoritative, "backend adoption summary should preserve server-authoritative flag");
+    require(
+        clc::sim::game_profile_adoption_summary_digest(backend_adoption_summary)
+            == "game_profile_adoption_summary found=yes required=6 optional=5 non_goals=4 scenarios=1 c_abi=no action_bridge=yes server_authoritative=yes",
+        "backend adoption summary digest should be stable"
+    );
+    require(
+        clc::sim::game_profile_adoption_report_digest(backend_report)
+            == "game_profile_adoption id=backend_service found=yes status=partially_supported required=6 optional=5 non_goals=4 scenarios=1 c_abi=no action_bridge=yes server_authoritative=yes",
+        "backend adoption report digest should be stable"
+    );
     require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("backend_replay_window_10d") != std::string::npos, "backend markdown report should mention scenario preset");
 
     const auto backend_checklist = clc::sim::make_game_profile_checklist("backend_service");
@@ -210,6 +227,12 @@ int main() {
     const auto missing_report = clc::sim::make_game_profile_adoption_report("missing_profile");
     require(!missing_report.found, "missing adoption report should not be found");
     require(clc::sim::game_profile_adoption_report_digest(missing_report).find("found=no") != std::string::npos, "missing adoption digest should report not found");
+    const auto missing_adoption_summary = clc::sim::game_profile_adoption_summary(missing_report);
+    require(!missing_adoption_summary.found, "missing adoption summary should not be found");
+    require(
+        clc::sim::game_profile_adoption_summary_digest(missing_adoption_summary) == "game_profile_adoption_summary found=no",
+        "missing adoption summary digest should report not found"
+    );
     require(clc::sim::game_profile_adoption_report_markdown(missing_report).find("Profile not found") != std::string::npos, "missing markdown report should explain missing profile");
 
     require(clc::sim::game_integration_profile_by_id("missing_profile") == nullptr, "missing profile lookup should return null");
