@@ -101,6 +101,24 @@ struct GameProfileAdoptionSummary final {
     };
 }
 
+[[nodiscard]] inline GameProfileAdoptionSummary game_profile_adoption_summary(
+    const GameIntegrationProfileDescriptor& profile
+) {
+    return game_profile_adoption_summary(make_game_profile_adoption_report(profile));
+}
+
+[[nodiscard]] inline GameProfileAdoptionSummary game_profile_adoption_summary(
+    GameIntegrationProfile profile
+) {
+    return game_profile_adoption_summary(make_game_profile_adoption_report(profile));
+}
+
+[[nodiscard]] inline GameProfileAdoptionSummary game_profile_adoption_summary(
+    std::string_view profile_id
+) {
+    return game_profile_adoption_summary(make_game_profile_adoption_report(profile_id));
+}
+
 [[nodiscard]] inline std::string game_profile_adoption_summary_digest(
     const GameProfileAdoptionSummary& summary
 ) {
