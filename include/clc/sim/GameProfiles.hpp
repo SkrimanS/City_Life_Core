@@ -40,6 +40,17 @@ struct GameIntegrationProfileDescriptor final {
     bool server_authoritative{false};
 };
 
+struct GameIntegrationProfileCatalogSummary final {
+    std::size_t total_profiles{0};
+    std::size_t supported_profiles{0};
+    std::size_t partially_supported_profiles{0};
+    std::size_t initial_support_profiles{0};
+    std::size_t planned_profiles{0};
+    std::size_t c_abi_profiles{0};
+    std::size_t action_bridge_profiles{0};
+    std::size_t server_authoritative_profiles{0};
+};
+
 [[nodiscard]] inline std::string_view game_integration_profile_support_name(GameIntegrationProfileSupport support) noexcept {
     switch (support) {
     case GameIntegrationProfileSupport::supported:
@@ -261,6 +272,60 @@ struct GameIntegrationProfileDescriptor final {
         }
     }
     return matches;
+}
+
+[[nodiscard]] inline GameIntegrationProfileCatalogSummary game_integration_profile_catalog_summary() {
+    GameIntegrationProfileCatalogSummary summary;
+    for (const auto& profile : game_integration_profiles()) {
+        ++summary.total_profiles;
+        switch (profile.support) {
+        case GameIntegrationProfileSupport::supported:
+            ++summary.supported_profiles;
+            break;
+        case GameIntegrationProfileSupport::partially_supported:
+            ++summary.partially_supported_profiles;
+            break;
+        case GameIntegrationProfileSupport::initial_support:
+            ++summary.initial_support_profiles;
+            break;
+        case GameIntegrationProfileSupport::planned:
+            ++summary.planned_profiles;
+            break;
+        }
+
+        if (profile.needs_c_abi) {
+            ++summary.c_abi_profiles;
+        }
+        if (profile.uses_action_bridge) {
+            ++summary.action_bridge_profiles;
+        }
+        if (profile.server_authoritative) {
+            ++summary.server_authoritative_profiles;
+        }
+    }
+    return summary;
+}
+
+[[nodiscard]] inline std::string game_integration_profile_catalog_summary_digest(
+    const GameIntegrationProfileCatalogSummary& summary
+) {
+    std::string digest = "game_profile_catalog_summary total=";
+    digest += std::to_string(summary.total_profiles);
+    digest += " supported=";
+    digest += std::to_string(summary.supported_profiles);
+    digest += " partial=";
+    digest += std::to_string(summary.partially_supported_profiles);
+    digest += " initial=";
+    digest += std::to_string(summary.initial_support_profiles);
+    digest += " planned=";
+    digest += std::to_string(summary.planned_profiles);
+    digest += " c_abi=";
+    digest += std::to_string(summary.c_abi_profiles);
+    digest += " action_bridge=";
+    digest += std::to_string(summary.action_bridge_profiles);
+    digest += " server_authoritative=";
+    digest += std::to_string(summary.server_authoritative_profiles);
+    return digest;
 }
 
 [[nodiscard]] inline std::string game_integration_profile_digest(const GameIntegrationProfileDescriptor& profile) {
