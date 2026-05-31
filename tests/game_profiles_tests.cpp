@@ -66,6 +66,21 @@ int main() {
         "profile catalog validation digest should be stable"
     );
 
+    const auto catalog_summary = clc::sim::game_integration_profile_catalog_summary();
+    require(catalog_summary.total_profiles == 9, "profile catalog summary should report total profile count");
+    require(catalog_summary.supported_profiles == 3, "profile catalog summary should report supported profile count");
+    require(catalog_summary.partially_supported_profiles == 3, "profile catalog summary should report partial profile count");
+    require(catalog_summary.initial_support_profiles == 1, "profile catalog summary should report initial profile count");
+    require(catalog_summary.planned_profiles == 2, "profile catalog summary should report planned profile count");
+    require(catalog_summary.c_abi_profiles == 3, "profile catalog summary should report C ABI profile count");
+    require(catalog_summary.action_bridge_profiles == 4, "profile catalog summary should report Action Bridge profile count");
+    require(catalog_summary.server_authoritative_profiles == 2, "profile catalog summary should report server-authoritative profile count");
+    require(
+        clc::sim::game_integration_profile_catalog_summary_digest(catalog_summary)
+            == "game_profile_catalog_summary total=9 supported=3 partial=3 initial=1 planned=2 c_abi=3 action_bridge=4 server_authoritative=2",
+        "profile catalog summary digest should be stable"
+    );
+
     const auto& profiles = clc::sim::game_integration_profiles();
     require(profiles.size() >= 8, "profile catalog should expose the planned v1.4 adoption profiles");
 
