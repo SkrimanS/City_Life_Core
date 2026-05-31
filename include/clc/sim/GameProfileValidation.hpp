@@ -1,6 +1,7 @@
 #pragma once
 
 #include "clc/data/Validation.hpp"
+#include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileChecklist.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfiles.hpp"
@@ -113,6 +114,66 @@ inline void validate_game_profile_checklist(
     }
 }
 
+inline void validate_game_profile_adoption_report(
+    clc::data::ValidationReport& report,
+    const GameIntegrationProfileDescriptor& profile,
+    const GameProfileAdoptionReport& adoption,
+    std::string_view path
+) {
+    if (!adoption.found) {
+        report.add_error(std::string{path}, "profile adoption report should be generated");
+        return;
+    }
+
+    if (adoption.profile_id != profile.id) {
+        report.add_error(std::string{path} + ".profile_id", "profile adoption report id must match descriptor id");
+    }
+    if (adoption.display_name != profile.display_name) {
+        report.add_error(std::string{path} + ".display_name", "profile adoption report display name must match descriptor display name");
+    }
+    if (adoption.support != game_integration_profile_support_name(profile.support)) {
+        report.add_error(std::string{path} + ".support", "profile adoption report support must match descriptor support");
+    }
+    if (adoption.integration_boundary != profile.integration_boundary) {
+        report.add_error(std::string{path} + ".integration_boundary", "profile adoption report boundary must match descriptor boundary");
+    }
+    if (adoption.required_systems != profile.required_systems) {
+        report.add_error(std::string{path} + ".required_systems", "profile adoption report required systems must match descriptor required systems");
+    }
+    if (adoption.optional_systems != profile.optional_systems) {
+        report.add_error(std::string{path} + ".optional_systems", "profile adoption report optional systems must match descriptor optional systems");
+    }
+    if (adoption.non_goals != profile.non_goals) {
+        report.add_error(std::string{path} + ".non_goals", "profile adoption report non-goals must match descriptor non-goals");
+    }
+    if (adoption.needs_c_abi != profile.needs_c_abi) {
+        report.add_error(std::string{path} + ".needs_c_abi", "profile adoption report C ABI flag must match descriptor C ABI flag");
+    }
+    if (adoption.uses_action_bridge != profile.uses_action_bridge) {
+        report.add_error(std::string{path} + ".uses_action_bridge", "profile adoption report Action Bridge flag must match descriptor Action Bridge flag");
+    }
+    if (adoption.server_authoritative != profile.server_authoritative) {
+        report.add_error(std::string{path} + ".server_authoritative", "profile adoption report server-authoritative flag must match descriptor server-authoritative flag");
+    }
+
+    const auto expected_recommendations = game_profile_scenario_recommendations_for_profile(profile.profile);
+    if (adoption.scenario_recommendations.size() != expected_recommendations.size()) {
+        report.add_error(std::string{path} + ".scenario_recommendations", "profile adoption report scenario recommendation count must match profile recommendations");
+    }
+
+    const auto digest = game_profile_adoption_report_digest(adoption);
+    if (digest.empty()) {
+        report.add_error(std::string{path} + ".digest", "profile adoption report digest must not be empty");
+    }
+
+    const auto markdown = game_profile_adoption_report_markdown(adoption);
+    if (markdown.empty()) {
+        report.add_error(std::string{path} + ".markdown", "profile adoption report markdown must not be empty");
+    } else if (markdown.find(std::string{profile.id}) == std::string::npos) {
+        report.add_error(std::string{path} + ".markdown", "profile adoption report markdown must mention profile id");
+    }
+}
+
 [[nodiscard]] inline clc::data::ValidationReport validate_game_profile_catalog() {
     clc::data::ValidationReport report;
 
@@ -184,6 +245,12 @@ inline void validate_game_profile_checklist(
             report.add_error(path + ".lookup", "profile lookup by enum should resolve to the catalog entry");
         }
 
+        validate_game_profile_adoption_report(
+            report,
+            profile,
+            make_game_profile_adoption_report(profile),
+            path + ".adoption_report"
+        );
         validate_game_profile_checklist(
             report,
             make_game_profile_checklist(profile),
