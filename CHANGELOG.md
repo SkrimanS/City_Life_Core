@@ -13,7 +13,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
 - Added game profile catalog summary helpers for support-status, C ABI, Action Bridge and server-authoritative profile counts.
-- Added game profile catalog validation helpers to verify descriptor lookup consistency, required fields, scenario references, preset validity and checklist generation.
+- Added game profile catalog validation helpers to verify descriptor id uniqueness, enum uniqueness, lookup consistency, summary count consistency, required fields, scenario references, preset validity and checklist generation.
 - Added game profile scenario recommendation helpers that expose lightweight `SimulationScenarioPreset` catalogs per profile.
 - Added game profile adoption report helpers with digest and markdown output for integration-facing tooling and documentation.
 - Added game profile checklist helpers for required/optional host-side integration review steps per profile.
