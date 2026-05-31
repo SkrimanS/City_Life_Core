@@ -27,9 +27,43 @@ Stable-for-source-use areas include:
 - faction, ownership and contract APIs where documented;
 - persistence and save/load validation helpers;
 - event and replay-related helpers where documented;
-- local Action Bridge APIs for transport-agnostic external action dispatch.
+- local Action Bridge APIs for transport-agnostic external action dispatch;
+- game profile catalog, validation, scenario recommendation, adoption report and checklist helpers.
 
 Source compatibility is prioritized for the 1.x line where practical. C++ binary ABI stability is not the primary compatibility contract.
+
+---
+
+## Game profile C++ surface
+
+The game profile API is a descriptive C++ SDK surface for integration planning, profile discovery and adoption review.
+
+Headers:
+
+```cpp
+#include "clc/sim/GameProfiles.hpp"
+#include "clc/sim/GameProfileValidation.hpp"
+#include "clc/sim/GameProfileScenarios.hpp"
+#include "clc/sim/GameProfileAdoption.hpp"
+#include "clc/sim/GameProfileChecklist.hpp"
+```
+
+Recommended aggregate include:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- public for C++ source use;
+- descriptive and adoption-oriented;
+- useful for native games, Unity/C# planning, Browser/WASM planning, backend services, MMO-like services and editor/tooling workflows;
+- not a runtime mode switch;
+- not engine-specific adapter code;
+- not part of the C ABI.
+
+The profile surface exposes profile descriptors, support status, required/optional systems, non-goals, query helpers, catalog validation, scenario recommendations, adoption reports and integration checklists.
 
 ---
 
@@ -85,7 +119,7 @@ Current C ABI scope:
 - simple tick advancement;
 - read-only world event inspection.
 
-The C ABI is intentionally small today. It does not yet expose the full runtime, registry, validation, persistence, economy, faction, contract or Action Bridge systems.
+The C ABI is intentionally small today. It does not yet expose the full runtime, registry, validation, persistence, economy, faction, contract, profile catalog or Action Bridge systems.
 
 Expansion should follow:
 
@@ -106,6 +140,7 @@ examples/find_package_consumer/
 examples/c_abi_consumer/
 examples/csharp_unity/
 examples/action_bridge.cpp
+examples/game_profiles.cpp
 ```
 
 Status:
@@ -114,6 +149,7 @@ Status:
 - `examples/c_abi_consumer/` demonstrates minimal C ABI usage.
 - `examples/csharp_unity/` demonstrates initial C# / Unity P/Invoke usage.
 - `examples/action_bridge.cpp` demonstrates local C++ Action Bridge dispatch.
+- `examples/game_profiles.cpp` demonstrates game profile discovery, catalog validation, scenario recommendations, adoption reports and checklists.
 
 The C# / Unity wrapper is an initial integration example. It should track the C ABI and should not be treated as a complete managed SDK yet.
 
@@ -154,6 +190,7 @@ Do not treat these as stable public API:
 - C ABI compatibility should be treated separately and versioned through the C interface version when needed.
 - C# / Unity and future Browser/WASM wrappers should follow the C ABI rather than private C++ internals.
 - The Action Bridge is a local C++ SDK surface; networking, sessions, auth and multiplayer behavior are future layers, not part of the bridge.
+- The game profile API is a source-level C++ guidance surface; it does not define a C ABI or foreign-language contract.
 - Prefer rebuilding consumers against the installed SDK package.
 
 ---
@@ -161,6 +198,7 @@ Do not treat these as stable public API:
 ## Related documents
 
 - [Public API](public-api.md)
+- [Game integration profiles](game-profiles.md)
 - [Action Bridge](action-bridge.md)
 - [C ABI](c-abi.md)
 - [C ABI expansion plan](c-abi-expansion-plan.md)
