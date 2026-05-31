@@ -6,6 +6,7 @@
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfiles.hpp"
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -114,6 +115,46 @@ inline void validate_game_profile_checklist(
     }
 }
 
+inline void validate_game_profile_adoption_report_recommendations(
+    clc::data::ValidationReport& report,
+    const GameProfileAdoptionReport& adoption,
+    const std::vector<GameProfileScenarioRecommendation>& expected_recommendations,
+    std::string_view path
+) {
+    if (adoption.scenario_recommendations.size() != expected_recommendations.size()) {
+        report.add_error(std::string{path}, "profile adoption report scenario recommendation count must match profile recommendations");
+    }
+
+    const auto comparable_count = adoption.scenario_recommendations.size() < expected_recommendations.size()
+        ? adoption.scenario_recommendations.size()
+        : expected_recommendations.size();
+
+    for (std::size_t index = 0; index < comparable_count; ++index) {
+        const auto& actual = adoption.scenario_recommendations[index];
+        const auto& expected = expected_recommendations[index];
+        const auto index_path = std::string{path} + "." + std::to_string(index);
+
+        if (actual.profile != expected.profile) {
+            report.add_error(index_path + ".profile", "profile adoption report scenario profile enum must match expected recommendation");
+        }
+        if (actual.profile_id != expected.profile_id) {
+            report.add_error(index_path + ".profile_id", "profile adoption report scenario profile id must match expected recommendation");
+        }
+        if (actual.preset.id != expected.preset.id) {
+            report.add_error(index_path + ".preset.id", "profile adoption report scenario preset id must match expected recommendation");
+        }
+        if (actual.preset.display_name != expected.preset.display_name) {
+            report.add_error(index_path + ".preset.display_name", "profile adoption report scenario preset display name must match expected recommendation");
+        }
+        if (actual.preset.day_count != expected.preset.day_count) {
+            report.add_error(index_path + ".preset.day_count", "profile adoption report scenario preset day count must match expected recommendation");
+        }
+        if (actual.purpose != expected.purpose) {
+            report.add_error(index_path + ".purpose", "profile adoption report scenario purpose must match expected recommendation");
+        }
+    }
+}
+
 inline void validate_game_profile_adoption_report(
     clc::data::ValidationReport& report,
     const GameIntegrationProfileDescriptor& profile,
@@ -156,10 +197,12 @@ inline void validate_game_profile_adoption_report(
         report.add_error(std::string{path} + ".server_authoritative", "profile adoption report server-authoritative flag must match descriptor server-authoritative flag");
     }
 
-    const auto expected_recommendations = game_profile_scenario_recommendations_for_profile(profile.profile);
-    if (adoption.scenario_recommendations.size() != expected_recommendations.size()) {
-        report.add_error(std::string{path} + ".scenario_recommendations", "profile adoption report scenario recommendation count must match profile recommendations");
-    }
+    validate_game_profile_adoption_report_recommendations(
+        report,
+        adoption,
+        game_profile_scenario_recommendations_for_profile(profile.profile),
+        std::string{path} + ".scenario_recommendations"
+    );
 
     const auto digest = game_profile_adoption_report_digest(adoption);
     if (digest.empty()) {
