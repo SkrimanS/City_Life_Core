@@ -248,9 +248,15 @@ int main() {
     require(contains_checklist_item(backend_checklist, "server_boundary"), "backend checklist should include server boundary item");
     require(contains_checklist_item(backend_checklist, "replay_persistence"), "backend checklist should include replay/persistence item");
     const auto backend_checklist_summary = clc::sim::game_profile_checklist_summary(backend_checklist);
+    const auto backend_checklist_summary_from_descriptor = clc::sim::game_profile_checklist_summary(*backend);
+    const auto backend_checklist_summary_by_id = clc::sim::game_profile_checklist_summary("backend_service");
+    const auto backend_checklist_summary_by_enum = clc::sim::game_profile_checklist_summary(clc::sim::GameIntegrationProfile::backend_service);
     require(backend_checklist_summary.total_items == 7, "backend checklist should report total item count");
     require(backend_checklist_summary.required_items == 6, "backend checklist should report required item count");
     require(backend_checklist_summary.optional_items == 1, "backend checklist should report optional item count");
+    require(backend_checklist_summary_from_descriptor.total_items == backend_checklist_summary.total_items, "backend checklist summary from descriptor should match checklist summary total count");
+    require(backend_checklist_summary_by_id.required_items == backend_checklist_summary.required_items, "backend checklist summary by id should match checklist summary required count");
+    require(backend_checklist_summary_by_enum.optional_items == backend_checklist_summary.optional_items, "backend checklist summary by enum should match checklist summary optional count");
     require(
         clc::sim::game_profile_checklist_summary_digest(backend_checklist_summary)
             == "game_profile_checklist_summary items=7 required=6 optional=1",
@@ -270,9 +276,13 @@ int main() {
     require(!missing_checklist.found, "missing checklist should not be found");
     require(clc::sim::game_profile_checklist_digest(missing_checklist).find("found=no") != std::string::npos, "missing checklist digest should report not found");
     const auto missing_checklist_summary = clc::sim::game_profile_checklist_summary(missing_checklist);
+    const auto missing_checklist_summary_by_id = clc::sim::game_profile_checklist_summary("missing_profile");
     require(missing_checklist_summary.total_items == 0, "missing checklist summary should report zero total items");
     require(missing_checklist_summary.required_items == 0, "missing checklist summary should report zero required items");
     require(missing_checklist_summary.optional_items == 0, "missing checklist summary should report zero optional items");
+    require(missing_checklist_summary_by_id.total_items == 0, "missing checklist summary by id should report zero total items");
+    require(missing_checklist_summary_by_id.required_items == 0, "missing checklist summary by id should report zero required items");
+    require(missing_checklist_summary_by_id.optional_items == 0, "missing checklist summary by id should report zero optional items");
 
     const auto missing_report = clc::sim::make_game_profile_adoption_report("missing_profile");
     require(!missing_report.found, "missing adoption report should not be found");
