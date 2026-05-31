@@ -148,6 +148,9 @@ Profiles can also generate host-side checklist items for integration review:
 ```cpp
 const auto checklist = clc::sim::make_game_profile_checklist("backend_service");
 clc::sim::game_profile_checklist_digest(checklist);
+clc::sim::game_profile_checklist_digest("backend_service");
+clc::sim::game_profile_checklist_digest(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_checklist_digest(*profile);
 
 const auto checklist_summary = clc::sim::game_profile_checklist_summary("backend_service");
 clc::sim::game_profile_checklist_summary(clc::sim::GameIntegrationProfile::backend_service);
@@ -155,7 +158,7 @@ clc::sim::game_profile_checklist_summary(*profile);
 clc::sim::game_profile_checklist_summary_digest(checklist_summary);
 ```
 
-Checklist items mark required and optional review steps. Checklist summaries report total, required and optional item counts. Profile-specific checklist summary helpers provide those counts for a profile id, enum or descriptor without requiring callers to first build a checklist. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
+Checklist items mark required and optional review steps. Checklist summaries report total, required and optional item counts. Profile-specific checklist digest helpers provide digest output for a profile id, enum or descriptor without requiring callers to first build a checklist. Profile-specific checklist summary helpers provide item counts for a profile id, enum or descriptor without requiring callers to first build a checklist. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
 
 See also:
 
