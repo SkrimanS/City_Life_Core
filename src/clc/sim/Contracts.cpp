@@ -1,6 +1,7 @@
 #include "clc/sim/Contracts.hpp"
 
 #include <limits>
+#include <string>
 #include <utility>
 
 namespace clc::sim {
