@@ -22,6 +22,12 @@ struct GameProfileChecklist final {
     bool found{false};
 };
 
+struct GameProfileChecklistSummary final {
+    std::size_t total_items{0};
+    std::size_t required_items{0};
+    std::size_t optional_items{0};
+};
+
 [[nodiscard]] inline std::vector<GameProfileChecklistItem> make_game_profile_checklist_items(
     const GameIntegrationProfileDescriptor& profile
 ) {
@@ -116,6 +122,37 @@ struct GameProfileChecklist final {
     return make_game_profile_checklist(*descriptor);
 }
 
+[[nodiscard]] inline GameProfileChecklistSummary game_profile_checklist_summary(
+    const GameProfileChecklist& checklist
+) noexcept {
+    GameProfileChecklistSummary summary;
+    if (!checklist.found) {
+        return summary;
+    }
+
+    for (const auto& item : checklist.items) {
+        ++summary.total_items;
+        if (item.required) {
+            ++summary.required_items;
+        } else {
+            ++summary.optional_items;
+        }
+    }
+    return summary;
+}
+
+[[nodiscard]] inline std::string game_profile_checklist_summary_digest(
+    const GameProfileChecklistSummary& summary
+) {
+    std::string digest = "game_profile_checklist_summary items=";
+    digest += std::to_string(summary.total_items);
+    digest += " required=";
+    digest += std::to_string(summary.required_items);
+    digest += " optional=";
+    digest += std::to_string(summary.optional_items);
+    return digest;
+}
+
 [[nodiscard]] inline std::string game_profile_checklist_digest(const GameProfileChecklist& checklist) {
     std::string digest = "game_profile_checklist id=";
     digest += checklist.profile_id;
@@ -125,17 +162,13 @@ struct GameProfileChecklist final {
         return digest;
     }
 
-    std::size_t required_count = 0;
-    for (const auto& item : checklist.items) {
-        if (item.required) {
-            ++required_count;
-        }
-    }
-
+    const auto summary = game_profile_checklist_summary(checklist);
     digest += " items=";
-    digest += std::to_string(checklist.items.size());
+    digest += std::to_string(summary.total_items);
     digest += " required=";
-    digest += std::to_string(required_count);
+    digest += std::to_string(summary.required_items);
+    digest += " optional=";
+    digest += std::to_string(summary.optional_items);
     return digest;
 }
 
