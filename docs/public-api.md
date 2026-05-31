@@ -63,7 +63,9 @@ The profile API exposes:
 - query helpers for C ABI, Action Bridge, server-authoritative and required-system filtering;
 - catalog validation helpers for SDK review;
 - scenario recommendations backed by `SimulationScenarioPreset`;
+- scenario summary helpers with recommendation counts and day-window totals;
 - adoption report helpers with digest and markdown output;
+- profile-specific adoption summary helpers with scenario day-window counts;
 - integration checklist helpers for host-side review.
 
 The profile API is descriptive. It does not add a runtime mode, engine adapter, networking layer, UI framework or product-specific gameplay system.
@@ -182,6 +184,7 @@ if (profile == nullptr) {
 const auto summary = clc::sim::game_integration_profile_catalog_summary();
 const auto validation = clc::sim::validate_game_profile_catalog();
 const auto adoption = clc::sim::make_game_profile_adoption_report(*profile);
+const auto adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
 const auto checklist = clc::sim::make_game_profile_checklist(*profile);
 ```
 
