@@ -13,7 +13,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
 - Added game profile catalog summary helpers for support-status, C ABI, Action Bridge and server-authoritative profile counts.
-- Added game profile catalog validation helpers to verify descriptor id uniqueness, enum uniqueness, lookup consistency, summary count consistency, required/system-list consistency, required/optional system overlap, scenario references, preset validity, checklist generation, checklist summary consistency and generated checklist item ids/titles/details.
+- Added game profile catalog validation helpers to verify descriptor id uniqueness, enum uniqueness, lookup consistency, summary count consistency, required/system-list consistency, required/optional system overlap, scenario references, preset validity, adoption report descriptor consistency, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details.
 - Added game profile scenario recommendation helpers that expose lightweight `SimulationScenarioPreset` catalogs per profile.
 - Added game profile adoption report helpers with digest and markdown output for integration-facing tooling and documentation.
 - Added game profile checklist helpers for required/optional host-side integration review steps and checklist summary counts per profile.
@@ -164,3 +164,4 @@ Status: **released / v1.0.0**.
 ### Compatibility
 
 - Existing day-based route, caravan, and contract APIs remain available.
+- Existing save files without explicit runtime time are still loaded by deriving runtime ticks from saved `current_day`.
