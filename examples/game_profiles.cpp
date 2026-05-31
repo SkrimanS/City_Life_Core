@@ -83,5 +83,11 @@ int main() {
     const auto all_scenarios = clc::sim::make_all_game_profile_scenario_preset_catalog();
     std::cout << "\nAll profile scenario presets=" << clc::sim::scenario_preset_count(all_scenarios) << '\n';
 
+    const auto backend_report = clc::sim::make_game_profile_adoption_report("backend_service");
+    std::cout << "\nBackend adoption digest:\n";
+    std::cout << clc::sim::game_profile_adoption_report_digest(backend_report) << '\n';
+    std::cout << "\nBackend adoption markdown:\n";
+    std::cout << clc::sim::game_profile_adoption_report_markdown(backend_report) << '\n';
+
     return 0;
 }
