@@ -46,5 +46,27 @@ int main() {
     const auto caravan_result = clc::sim::deserialize_simulation_world_state(caravan_overflow);
     require(!caravan_result.validation.ok(), "deserialization should reject caravan cargo overflow rows");
 
+    const auto settlement_zero_amount = std::string{}
+        + "CLC_SIM_WORLD_STATE\t1\n"
+        + "day\t0\n"
+        + "time\t0\n"
+        + "wallet\t0\n"
+        + "settlement\triverwatch\tRiverwatch\t10\n"
+        + "settlement_storage\triverwatch\tgrain\t0\n";
+
+    const auto settlement_zero_result = clc::sim::deserialize_simulation_world_state(settlement_zero_amount);
+    require(!settlement_zero_result.validation.ok(), "deserialization should reject zero-amount settlement storage rows");
+
+    const auto caravan_zero_amount = std::string{}
+        + "CLC_SIM_WORLD_STATE\t1\n"
+        + "day\t0\n"
+        + "time\t0\n"
+        + "wallet\t0\n"
+        + "caravan\tc1\tCaravan\tr1\ta\tb\t1\t1\t86400\t86400\n"
+        + "caravan_cargo\tc1\tgrain\t0\n";
+
+    const auto caravan_zero_result = clc::sim::deserialize_simulation_world_state(caravan_zero_amount);
+    require(!caravan_zero_result.validation.ok(), "deserialization should reject zero-amount caravan cargo rows");
+
     return 0;
 }
