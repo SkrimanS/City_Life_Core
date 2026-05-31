@@ -102,6 +102,17 @@ clc::sim::game_profile_adoption_report_markdown(report);
 
 The markdown report includes support status, integration boundary, required systems, optional systems, non-goals and recommended scenario presets.
 
+### Adoption checklists
+
+Profiles can also generate host-side checklist items for integration review:
+
+```cpp
+const auto checklist = clc::sim::make_game_profile_checklist("backend_service");
+clc::sim::game_profile_checklist_digest(checklist);
+```
+
+Checklist items mark required and optional review steps. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
+
 See also:
 
 ```text
