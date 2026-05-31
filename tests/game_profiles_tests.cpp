@@ -1,6 +1,7 @@
 #include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileChecklist.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
+#include "clc/sim/GameProfileValidation.hpp"
 #include "clc/sim/GameProfiles.hpp"
 
 #include <cstdlib>
@@ -58,6 +59,13 @@ bool contains_checklist_item(
 } // namespace
 
 int main() {
+    const auto catalog_report = clc::sim::validate_game_profile_catalog();
+    require(catalog_report.ok(), "profile catalog validation should pass");
+    require(
+        clc::sim::game_profile_catalog_validation_digest(catalog_report) == "game_profile_catalog_validation ok=yes errors=0 warnings=0",
+        "profile catalog validation digest should be stable"
+    );
+
     const auto& profiles = clc::sim::game_integration_profiles();
     require(profiles.size() >= 8, "profile catalog should expose the planned v1.4 adoption profiles");
 
