@@ -77,6 +77,17 @@ clc::sim::game_integration_profile_mentions_system(profile, "diagnostics");
 
 The catalog is intentionally descriptive. It helps external integrations choose an adoption path, but it does not create a framework, runtime mode, networking layer or engine-specific subsystem.
 
+### Catalog validation
+
+The catalog can validate its own descriptor and scenario consistency:
+
+```cpp
+const auto validation = clc::sim::validate_game_profile_catalog();
+clc::sim::game_profile_catalog_validation_digest(validation);
+```
+
+Validation checks descriptor ids, lookup consistency, required profile fields, scenario references, scenario preset validity and checklist generation. It is intended for SDK tests, diagnostics and release review.
+
 ### Scenario recommendations
 
 Profiles can expose recommended scenario presets for smoke tests, replay windows, balancing probes or long-running soak checks:
