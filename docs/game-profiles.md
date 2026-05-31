@@ -129,9 +129,12 @@ Profiles can also generate host-side checklist items for integration review:
 ```cpp
 const auto checklist = clc::sim::make_game_profile_checklist("backend_service");
 clc::sim::game_profile_checklist_digest(checklist);
+
+const auto checklist_summary = clc::sim::game_profile_checklist_summary(checklist);
+clc::sim::game_profile_checklist_summary_digest(checklist_summary);
 ```
 
-Checklist items mark required and optional review steps. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
+Checklist items mark required and optional review steps. Checklist summaries report total, required and optional item counts. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
 
 See also:
 
