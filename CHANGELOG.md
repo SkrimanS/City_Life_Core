@@ -13,7 +13,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
 - Added game profile catalog summary helpers for support-status, C ABI, Action Bridge and server-authoritative profile counts.
-- Added game profile catalog validation helpers to verify descriptor id uniqueness, enum uniqueness, lookup consistency, summary count consistency, required/system-list consistency, required/optional system overlap, scenario references, preset validity, adoption report descriptor consistency, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details.
+- Added game profile catalog validation helpers to verify descriptor id uniqueness, enum uniqueness, lookup consistency, summary count consistency, required/system-list consistency, required/optional system overlap, scenario references, preset validity, adoption report descriptor consistency, adoption report scenario content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details.
 - Added game profile scenario recommendation helpers that expose lightweight `SimulationScenarioPreset` catalogs per profile.
 - Added game profile adoption report helpers with digest and markdown output for integration-facing tooling and documentation.
 - Added game profile checklist helpers for required/optional host-side integration review steps and checklist summary counts per profile.
@@ -138,7 +138,7 @@ Status: **released / v1.0.0**.
   - `run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(...)`.
 - Added tick-based contract deadline APIs and tests for `due_ticks` without daily engine advancement.
 - Added runtime save/load coverage for `runtime.time`, `due_ticks`, caravan tick progress, and settlement tick remainders.
-- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit `time` is missing.
+- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit runtime time is missing.
 - Added tick-based runtime diagnostics and event-log helpers:
   - `runtime.tick.completed`;
   - tick-run event-log append helpers;
