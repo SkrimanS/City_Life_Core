@@ -1,3 +1,4 @@
+#include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfiles.hpp"
 
@@ -126,6 +127,20 @@ int main() {
 
     const auto all_catalog = clc::sim::make_all_game_profile_scenario_preset_catalog();
     require(clc::sim::scenario_preset_count(all_catalog) == recommendations.size(), "all profile scenario catalog should include every recommendation");
+
+    const auto backend_report = clc::sim::make_game_profile_adoption_report("backend_service");
+    require(backend_report.found, "backend adoption report should be found");
+    require(backend_report.profile_id == "backend_service", "backend adoption report should preserve id");
+    require(backend_report.uses_action_bridge, "backend adoption report should preserve Action Bridge flag");
+    require(backend_report.server_authoritative, "backend adoption report should preserve server-authoritative flag");
+    require(!backend_report.scenario_recommendations.empty(), "backend adoption report should include scenario recommendations");
+    require(!clc::sim::game_profile_adoption_report_digest(backend_report).empty(), "backend adoption report digest should be non-empty");
+    require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("backend_replay_window_10d") != std::string::npos, "backend markdown report should mention scenario preset");
+
+    const auto missing_report = clc::sim::make_game_profile_adoption_report("missing_profile");
+    require(!missing_report.found, "missing adoption report should not be found");
+    require(clc::sim::game_profile_adoption_report_digest(missing_report).find("found=no") != std::string::npos, "missing adoption digest should report not found");
+    require(clc::sim::game_profile_adoption_report_markdown(missing_report).find("Profile not found") != std::string::npos, "missing markdown report should explain missing profile");
 
     require(clc::sim::game_integration_profile_by_id("missing_profile") == nullptr, "missing profile lookup should return null");
     require(clc::sim::game_integration_profile_support_name(clc::sim::GameIntegrationProfileSupport::supported) == "supported", "support names should be stable");
