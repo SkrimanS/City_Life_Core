@@ -137,6 +137,16 @@ int main() {
     );
     require(remove.accepted, "valid remove_resource action was rejected");
 
+    const auto before_zero_remove = engine.settlement_resource_amount("riverwatch", "grain");
+    const auto zero_remove = clc::sim::dispatch_runtime_action_json(
+        engine,
+        R"({"action_id":"a5-zero","type":"remove_resource","payload":{"target_id":"riverwatch","resource_id":"grain","amount":0}})"
+    );
+    require(!zero_remove.accepted, "zero-amount remove action was accepted");
+    require(view_string(zero_remove.validation_status) == clc::sim::runtime_action_status_invalid, "zero-amount remove action had wrong validation_status");
+    require(view_string(zero_remove.error_code) == clc::sim::runtime_action_error_invalid_action, "zero-amount remove returned wrong error_code");
+    require(engine.settlement_resource_amount("riverwatch", "grain") == before_zero_remove, "zero-amount remove mutated runtime");
+
     const auto before_rejected = engine.settlement_resource_amount("riverwatch", "grain");
     const auto rejected = clc::sim::dispatch_runtime_action_json(
         engine,
