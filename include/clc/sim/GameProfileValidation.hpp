@@ -30,6 +30,18 @@ namespace clc::sim {
     return game_profile_validation_vector_contains(ids, id);
 }
 
+[[nodiscard]] inline bool game_profile_validation_profile_vector_contains(
+    const std::vector<GameIntegrationProfile>& values,
+    GameIntegrationProfile value
+) noexcept {
+    for (const auto candidate : values) {
+        if (candidate == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 [[nodiscard]] inline clc::data::ValidationReport validate_game_profile_catalog() {
     clc::data::ValidationReport report;
 
@@ -62,6 +74,7 @@ namespace clc::sim {
     }
 
     std::vector<std::string_view> profile_ids;
+    std::vector<GameIntegrationProfile> profile_enums;
     for (const auto& profile : profiles) {
         const std::string profile_id_for_path = profile.id.empty() ? std::string{"<empty>"} : std::string{profile.id};
         const std::string path = "game_profiles." + profile_id_for_path;
@@ -72,6 +85,12 @@ namespace clc::sim {
             report.add_error(path + ".id", "profile id must be unique");
         } else {
             profile_ids.push_back(profile.id);
+        }
+
+        if (game_profile_validation_profile_vector_contains(profile_enums, profile.profile)) {
+            report.add_error(path + ".profile", "profile enum value must be unique");
+        } else {
+            profile_enums.push_back(profile.profile);
         }
 
         if (profile.display_name.empty()) {
