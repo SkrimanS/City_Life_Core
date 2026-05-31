@@ -155,6 +155,47 @@ inline void validate_game_profile_adoption_report_recommendations(
     }
 }
 
+inline void validate_game_profile_adoption_summary(
+    clc::data::ValidationReport& report,
+    const GameProfileAdoptionReport& adoption,
+    const GameProfileAdoptionSummary& summary,
+    std::string_view path
+) {
+    if (summary.found != adoption.found) {
+        report.add_error(std::string{path} + ".found", "profile adoption summary found flag must match adoption report found flag");
+    }
+    if (!adoption.found) {
+        return;
+    }
+
+    if (summary.required_systems != adoption.required_systems.size()) {
+        report.add_error(std::string{path} + ".required_systems", "profile adoption summary required-system count must match adoption report");
+    }
+    if (summary.optional_systems != adoption.optional_systems.size()) {
+        report.add_error(std::string{path} + ".optional_systems", "profile adoption summary optional-system count must match adoption report");
+    }
+    if (summary.non_goals != adoption.non_goals.size()) {
+        report.add_error(std::string{path} + ".non_goals", "profile adoption summary non-goal count must match adoption report");
+    }
+    if (summary.scenario_recommendations != adoption.scenario_recommendations.size()) {
+        report.add_error(std::string{path} + ".scenario_recommendations", "profile adoption summary scenario-recommendation count must match adoption report");
+    }
+    if (summary.needs_c_abi != adoption.needs_c_abi) {
+        report.add_error(std::string{path} + ".needs_c_abi", "profile adoption summary C ABI flag must match adoption report");
+    }
+    if (summary.uses_action_bridge != adoption.uses_action_bridge) {
+        report.add_error(std::string{path} + ".uses_action_bridge", "profile adoption summary Action Bridge flag must match adoption report");
+    }
+    if (summary.server_authoritative != adoption.server_authoritative) {
+        report.add_error(std::string{path} + ".server_authoritative", "profile adoption summary server-authoritative flag must match adoption report");
+    }
+
+    const auto digest = game_profile_adoption_summary_digest(summary);
+    if (digest.empty()) {
+        report.add_error(std::string{path} + ".digest", "profile adoption summary digest must not be empty");
+    }
+}
+
 inline void validate_game_profile_adoption_report(
     clc::data::ValidationReport& report,
     const GameIntegrationProfileDescriptor& profile,
@@ -196,6 +237,13 @@ inline void validate_game_profile_adoption_report(
     if (adoption.server_authoritative != profile.server_authoritative) {
         report.add_error(std::string{path} + ".server_authoritative", "profile adoption report server-authoritative flag must match descriptor server-authoritative flag");
     }
+
+    validate_game_profile_adoption_summary(
+        report,
+        adoption,
+        game_profile_adoption_summary(adoption),
+        std::string{path} + ".summary"
+    );
 
     validate_game_profile_adoption_report_recommendations(
         report,
