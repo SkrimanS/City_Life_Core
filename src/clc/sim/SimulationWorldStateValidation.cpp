@@ -28,6 +28,18 @@ void validate_unique_id(data::ValidationReport& report, std::unordered_set<std::
     }
 }
 
+void validate_storage_entries(data::ValidationReport& report, const ResourceStorage& storage, const std::string& path_prefix) {
+    for (const auto& [resource_id, amount] : storage.entries()) {
+        const auto path = resource_id.empty() ? path_prefix + ".storage" : path_prefix + ".storage." + resource_id;
+        if (resource_id.empty()) {
+            report.add_error(path, "storage resource_id must not be empty");
+        }
+        if (amount == 0) {
+            report.add_error(path, "storage amount must be greater than zero");
+        }
+    }
+}
+
 void validate_settlement_tick_remainders(data::ValidationReport& report, const SettlementState& settlement) {
     std::unordered_set<std::string> remainder_keys;
     for (const auto& remainder : settlement.tick_remainders) {
@@ -51,6 +63,7 @@ data::ValidationReport validate_simulation_world_state(const SimulationWorldStat
     std::unordered_set<std::string> settlement_ids;
     for (const auto& settlement : state.engine.settlements) {
         validate_unique_id(report, settlement_ids, settlement.id, "simulation.world_state.settlement." + settlement.id, "duplicate settlement id");
+        validate_storage_entries(report, settlement.storage, "simulation.world_state.settlement." + settlement.id);
         validate_settlement_tick_remainders(report, settlement);
     }
 
@@ -63,6 +76,7 @@ data::ValidationReport validate_simulation_world_state(const SimulationWorldStat
     std::unordered_set<std::string> caravan_ids;
     for (const auto& caravan : state.caravans.caravans) {
         validate_unique_id(report, caravan_ids, caravan.id, "simulation.world_state.caravan." + caravan.id, "duplicate caravan id");
+        validate_storage_entries(report, caravan.cargo, "simulation.world_state.caravan." + caravan.id + ".cargo");
         const auto* route = settlement_route_by_id(state.routes, caravan.route_id);
         if (route == nullptr) {
             append_report(report, validate_caravan(caravan));
