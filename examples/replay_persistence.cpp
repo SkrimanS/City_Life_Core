@@ -39,7 +39,12 @@ bool prepare_runtime(clc::sim::SimulationRuntime& runtime) {
     }
 
     const auto reports = runtime.engine.run_days(1);
-    return reports.size() == 1;
+    if (reports.size() != 1) {
+        return false;
+    }
+
+    runtime.time.advance(clc::ticks_per_day());
+    return true;
 }
 
 bool finish_runtime(clc::sim::SimulationRuntime& runtime) {
