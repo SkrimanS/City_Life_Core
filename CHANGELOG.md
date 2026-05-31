@@ -14,8 +14,10 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `examples/validation_hardening.cpp` to demonstrate rejected data-pack input, rejected Action Bridge actions and no-mutation behavior.
 - Added data-pack loader hardening tests for missing schema, unknown sections, duplicate keys, missing/zero numeric fields and broken references.
 - Added Action Bridge deterministic sequence tests to verify identical action sequences produce identical result/state/event digests.
+- Added Action Bridge zero-day rejection coverage to ensure `advance_days` with `days=0` is invalid and does not mutate runtime time.
 - Added diagnostics consistency tests for data-pack and Action Bridge rejection diagnostics with severity/path/message coverage.
 - Added runtime load failure no-mutation tests for malformed and incomplete runtime save files.
+- Added world-state validation and deserialization hardening tests for zero-amount settlement storage and caravan cargo rows.
 - Added the v1.2.0 local Action Bridge API for transport-agnostic `external action -> validation -> runtime mutation -> result/events` flows.
 - Added stable Action Bridge type constants for `add_resource`, `remove_resource`, `transfer_resource` and `advance_days`.
 - Added stable Action Bridge status constants for `accepted`, `invalid` and `rejected`.
@@ -52,6 +54,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Hardened `ResourceStorage` so zero-amount add and transfer operations are rejected without mutation.
 - Hardened `SimulationEngine` resource mutations so unknown resource ids are rejected before settlement storage mutation.
 - Hardened `SimulationEngine::restore_state(...)` validation for settlement storage and market demand resources, with staged market restore before commit.
+- Hardened world-state validation so settlement storage and caravan cargo entries reject empty resource ids and zero amounts before restore/load commit.
 - Hardened runtime load failure coverage so malformed or incomplete runtime saves preserve the existing runtime state.
 - Updated examples and documentation indexes to include the v1.3.0 validation-hardening example and data-pack documentation.
 - Updated the Action Bridge parser and parse-level rejection path so rejected results preserve parsed `action_id` and `type` when those fields are available.
