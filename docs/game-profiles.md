@@ -108,11 +108,14 @@ clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service"
 const auto scenario_summary = clc::sim::game_profile_scenario_recommendation_summary();
 clc::sim::game_profile_scenario_recommendation_summary_digest(scenario_summary);
 
+const auto backend_scenario_summary = clc::sim::game_profile_scenario_recommendation_summary_for_profile_id("backend_service");
+clc::sim::game_profile_scenario_recommendation_summary_for_profile(clc::sim::GameIntegrationProfile::backend_service);
+
 clc::sim::make_game_profile_scenario_preset_catalog("backend_service");
 clc::sim::make_all_game_profile_scenario_preset_catalog();
 ```
 
-Scenario recommendations are intentionally lightweight. They reuse `SimulationScenarioPreset` and do not create a separate game mode. Scenario recommendation summaries report recommendation count, total day count and min/max day windows.
+Scenario recommendations are intentionally lightweight. They reuse `SimulationScenarioPreset` and do not create a separate game mode. Scenario recommendation summaries report recommendation count, total day count and min/max day windows. Profile-specific summary helpers provide the same counts for one profile id or enum without requiring callers to first build a recommendation vector.
 
 ### Adoption reports
 
