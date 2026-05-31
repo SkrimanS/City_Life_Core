@@ -60,6 +60,23 @@ Run:
 ./build/clc_example_action_bridge
 ```
 
+### `clc_example_game_profiles`
+
+Source: `examples/game_profiles.cpp`
+
+Shows the v1.4.0 game-profile catalog:
+
+- enumerate supported and planned integration profiles;
+- print profile support status, integration boundary and system counts;
+- inspect required systems and non-goals for the backend service profile;
+- use the public umbrella header `clc/CityLifeCore.hpp` for profile discovery.
+
+Run:
+
+```bash
+./build/clc_example_game_profiles
+```
+
 ### `clc_example_validation_hardening`
 
 Source: `examples/validation_hardening.cpp`
@@ -259,50 +276,3 @@ Recommended include:
 ```cpp
 #include "clc/CityLifeCore.hpp"
 ```
-
-Start with the Action Bridge if an external game layer, editor, tool or future server adapter needs to send actions without reaching into runtime internals:
-
-```text
-examples/action_bridge.cpp
-docs/action-bridge.md
-```
-
-Start with validation hardening if you need to inspect rejected data/action diagnostics and no-mutation behavior:
-
-```text
-examples/validation_hardening.cpp
-```
-
-Start with custom game data if you want to define your own resources/buildings/settlements:
-
-```text
-examples/custom_data_registry.cpp
-```
-
-Start with the explicit flow if you want to integrate your own runtime world:
-
-```text
-examples/full_runtime_flow.cpp
-```
-
-Start with faction and ownership permissions if your game has faction-owned settlements/caravans:
-
-```text
-examples/faction_ownership_contracts.cpp
-```
-
-Start with the C ABI if you are integrating from C, C#, Unity or another language/runtime that should not call the C++ API directly:
-
-```text
-examples/c_abi_consumer/
-examples/csharp_unity/
-```
-
-Start with the basic bootstrap if you want a minimal smoke test:
-
-```cpp
-auto bootstrap = clc::sim::make_basic_runtime_scenario();
-auto& runtime = bootstrap.runtime;
-```
-
-Then add routes, caravans, contracts, ticks, persistence, validation and Action Bridge dispatch through the runtime workflow APIs.
