@@ -158,7 +158,7 @@ struct GameIntegrationProfileDescriptor final {
     return profiles;
 }
 
-[[nodiscard]] inline const GameIntegrationProfileDescriptor* game_integration_profile_by_id(std::string_view profile_id) noexcept {
+[[nodiscard]] inline const GameIntegrationProfileDescriptor* game_integration_profile_by_id(std::string_view profile_id) {
     for (const auto& profile : game_integration_profiles()) {
         if (profile.id == profile_id) {
             return &profile;
@@ -167,13 +167,99 @@ struct GameIntegrationProfileDescriptor final {
     return nullptr;
 }
 
-[[nodiscard]] inline const GameIntegrationProfileDescriptor* game_integration_profile_descriptor(GameIntegrationProfile selected_profile) noexcept {
+[[nodiscard]] inline const GameIntegrationProfileDescriptor* game_integration_profile_descriptor(GameIntegrationProfile selected_profile) {
     for (const auto& profile : game_integration_profiles()) {
         if (profile.profile == selected_profile) {
             return &profile;
         }
     }
     return nullptr;
+}
+
+[[nodiscard]] inline bool game_integration_profile_has_required_system(
+    const GameIntegrationProfileDescriptor& profile,
+    std::string_view system_id
+) noexcept {
+    for (const auto required_system : profile.required_systems) {
+        if (required_system == system_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+[[nodiscard]] inline bool game_integration_profile_has_optional_system(
+    const GameIntegrationProfileDescriptor& profile,
+    std::string_view system_id
+) noexcept {
+    for (const auto optional_system : profile.optional_systems) {
+        if (optional_system == system_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+[[nodiscard]] inline bool game_integration_profile_mentions_system(
+    const GameIntegrationProfileDescriptor& profile,
+    std::string_view system_id
+) noexcept {
+    return game_integration_profile_has_required_system(profile, system_id)
+        || game_integration_profile_has_optional_system(profile, system_id);
+}
+
+[[nodiscard]] inline std::vector<const GameIntegrationProfileDescriptor*> game_integration_profiles_by_support(
+    GameIntegrationProfileSupport support
+) {
+    std::vector<const GameIntegrationProfileDescriptor*> matches;
+    for (const auto& profile : game_integration_profiles()) {
+        if (profile.support == support) {
+            matches.push_back(&profile);
+        }
+    }
+    return matches;
+}
+
+[[nodiscard]] inline std::vector<const GameIntegrationProfileDescriptor*> game_integration_profiles_requiring_system(
+    std::string_view system_id
+) {
+    std::vector<const GameIntegrationProfileDescriptor*> matches;
+    for (const auto& profile : game_integration_profiles()) {
+        if (game_integration_profile_has_required_system(profile, system_id)) {
+            matches.push_back(&profile);
+        }
+    }
+    return matches;
+}
+
+[[nodiscard]] inline std::vector<const GameIntegrationProfileDescriptor*> game_integration_profiles_needing_c_abi() {
+    std::vector<const GameIntegrationProfileDescriptor*> matches;
+    for (const auto& profile : game_integration_profiles()) {
+        if (profile.needs_c_abi) {
+            matches.push_back(&profile);
+        }
+    }
+    return matches;
+}
+
+[[nodiscard]] inline std::vector<const GameIntegrationProfileDescriptor*> game_integration_profiles_using_action_bridge() {
+    std::vector<const GameIntegrationProfileDescriptor*> matches;
+    for (const auto& profile : game_integration_profiles()) {
+        if (profile.uses_action_bridge) {
+            matches.push_back(&profile);
+        }
+    }
+    return matches;
+}
+
+[[nodiscard]] inline std::vector<const GameIntegrationProfileDescriptor*> game_integration_profiles_server_authoritative() {
+    std::vector<const GameIntegrationProfileDescriptor*> matches;
+    for (const auto& profile : game_integration_profiles()) {
+        if (profile.server_authoritative) {
+            matches.push_back(&profile);
+        }
+    }
+    return matches;
 }
 
 [[nodiscard]] inline std::string game_integration_profile_digest(const GameIntegrationProfileDescriptor& profile) {
@@ -193,6 +279,26 @@ struct GameIntegrationProfileDescriptor final {
     digest += profile.uses_action_bridge ? "yes" : "no";
     digest += " server_authoritative=";
     digest += profile.server_authoritative ? "yes" : "no";
+    return digest;
+}
+
+[[nodiscard]] inline std::string game_integration_profile_systems_digest(const GameIntegrationProfileDescriptor& profile) {
+    std::string digest = "game_profile_systems id=";
+    digest += profile.id;
+    digest += " required=";
+    for (std::size_t index = 0; index < profile.required_systems.size(); ++index) {
+        if (index != 0) {
+            digest += ",";
+        }
+        digest += profile.required_systems[index];
+    }
+    digest += " optional=";
+    for (std::size_t index = 0; index < profile.optional_systems.size(); ++index) {
+        if (index != 0) {
+            digest += ",";
+        }
+        digest += profile.optional_systems[index];
+    }
     return digest;
 }
 
