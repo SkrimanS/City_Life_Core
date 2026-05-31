@@ -40,7 +40,8 @@ namespace clc::sim {
 
     std::vector<std::string_view> profile_ids;
     for (const auto& profile : profiles) {
-        const std::string path = "game_profiles." + std::string{profile.id.empty() ? "<empty>" : profile.id};
+        const std::string profile_id_for_path = profile.id.empty() ? std::string{"<empty>"} : std::string{profile.id};
+        const std::string path = "game_profiles." + profile_id_for_path;
 
         if (profile.id.empty()) {
             report.add_error(path + ".id", "profile id must not be empty");
@@ -77,7 +78,8 @@ namespace clc::sim {
 
     std::vector<std::string_view> scenario_ids;
     for (const auto& recommendation : game_profile_scenario_recommendations()) {
-        const std::string path = "game_profile_scenarios." + std::string{recommendation.preset.id.empty() ? "<empty>" : recommendation.preset.id};
+        const std::string preset_id_for_path = recommendation.preset.id.empty() ? std::string{"<empty>"} : recommendation.preset.id;
+        const std::string path = "game_profile_scenarios." + preset_id_for_path;
 
         if (recommendation.profile_id.empty()) {
             report.add_error(path + ".profile_id", "scenario recommendation profile id must not be empty");
