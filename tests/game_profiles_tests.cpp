@@ -233,13 +233,21 @@ int main() {
             == "game_profile_adoption_summary found=yes required=6 optional=5 non_goals=4 scenarios=1 scenario_days=10 scenario_min_days=10 scenario_max_days=10 c_abi=no action_bridge=yes server_authoritative=yes",
         "backend adoption summary digest should be stable"
     );
+    const auto backend_adoption_report_digest = clc::sim::game_profile_adoption_report_digest(backend_report);
     require(
-        clc::sim::game_profile_adoption_report_digest(backend_report)
+        backend_adoption_report_digest
             == "game_profile_adoption id=backend_service found=yes status=partially_supported required=6 optional=5 non_goals=4 scenarios=1 scenario_days=10 scenario_min_days=10 scenario_max_days=10 c_abi=no action_bridge=yes server_authoritative=yes",
         "backend adoption report digest should be stable"
     );
-    require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("backend_replay_window_10d") != std::string::npos, "backend markdown report should mention scenario preset");
-    require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("scenario day window: 10-10 days, total 10 days") != std::string::npos, "backend markdown report should mention scenario day window");
+    require(clc::sim::game_profile_adoption_report_digest(*backend) == backend_adoption_report_digest, "backend adoption report digest from descriptor should match report digest");
+    require(clc::sim::game_profile_adoption_report_digest("backend_service") == backend_adoption_report_digest, "backend adoption report digest by id should match report digest");
+    require(clc::sim::game_profile_adoption_report_digest(clc::sim::GameIntegrationProfile::backend_service) == backend_adoption_report_digest, "backend adoption report digest by enum should match report digest");
+    const auto backend_adoption_report_markdown = clc::sim::game_profile_adoption_report_markdown(backend_report);
+    require(backend_adoption_report_markdown.find("backend_replay_window_10d") != std::string::npos, "backend markdown report should mention scenario preset");
+    require(backend_adoption_report_markdown.find("scenario day window: 10-10 days, total 10 days") != std::string::npos, "backend markdown report should mention scenario day window");
+    require(clc::sim::game_profile_adoption_report_markdown(*backend) == backend_adoption_report_markdown, "backend adoption report markdown from descriptor should match report markdown");
+    require(clc::sim::game_profile_adoption_report_markdown("backend_service") == backend_adoption_report_markdown, "backend adoption report markdown by id should match report markdown");
+    require(clc::sim::game_profile_adoption_report_markdown(clc::sim::GameIntegrationProfile::backend_service) == backend_adoption_report_markdown, "backend adoption report markdown by enum should match report markdown");
 
     const auto backend_checklist = clc::sim::make_game_profile_checklist("backend_service");
     require(backend_checklist.found, "backend checklist should be found");
@@ -287,6 +295,7 @@ int main() {
     const auto missing_report = clc::sim::make_game_profile_adoption_report("missing_profile");
     require(!missing_report.found, "missing adoption report should not be found");
     require(clc::sim::game_profile_adoption_report_digest(missing_report).find("found=no") != std::string::npos, "missing adoption digest should report not found");
+    require(clc::sim::game_profile_adoption_report_digest("missing_profile").find("found=no") != std::string::npos, "missing adoption digest by id should report not found");
     const auto missing_adoption_summary = clc::sim::game_profile_adoption_summary(missing_report);
     const auto missing_adoption_summary_by_id = clc::sim::game_profile_adoption_summary("missing_profile");
     require(!missing_adoption_summary.found, "missing adoption summary should not be found");
@@ -296,6 +305,7 @@ int main() {
         "missing adoption summary digest should report not found"
     );
     require(clc::sim::game_profile_adoption_report_markdown(missing_report).find("Profile not found") != std::string::npos, "missing markdown report should explain missing profile");
+    require(clc::sim::game_profile_adoption_report_markdown("missing_profile").find("Profile not found") != std::string::npos, "missing markdown report by id should explain missing profile");
 
     require(clc::sim::game_integration_profile_by_id("missing_profile") == nullptr, "missing profile lookup should return null");
     require(clc::sim::game_integration_profile_support_name(clc::sim::GameIntegrationProfileSupport::supported) == "supported", "support names should be stable");
