@@ -1,3 +1,4 @@
+#include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfiles.hpp"
 
 #include <cstdlib>
@@ -21,6 +22,18 @@ bool contains_descriptor(
 ) {
     for (const auto* candidate : values) {
         if (candidate != nullptr && candidate->id == profile_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool contains_recommendation(
+    const std::vector<clc::sim::GameProfileScenarioRecommendation>& values,
+    std::string_view preset_id
+) {
+    for (const auto& candidate : values) {
+        if (candidate.preset.id == preset_id) {
             return true;
         }
     }
@@ -91,6 +104,28 @@ int main() {
     const auto persistence_profiles = clc::sim::game_integration_profiles_requiring_system("persistence");
     require(contains_descriptor(persistence_profiles, "backend_service"), "persistence-required profiles should include backend service");
     require(contains_descriptor(persistence_profiles, "mmo_server_authoritative"), "persistence-required profiles should include MMO");
+
+    const auto& recommendations = clc::sim::game_profile_scenario_recommendations();
+    require(!recommendations.empty(), "profile scenario recommendations should not be empty");
+    for (const auto& recommendation : recommendations) {
+        require(clc::sim::game_integration_profile_by_id(recommendation.profile_id) != nullptr, "scenario recommendation should reference known profile");
+        require(clc::sim::validate_scenario_preset(recommendation.preset).ok(), "scenario recommendation preset should validate");
+        require(!recommendation.purpose.empty(), "scenario recommendation purpose should not be empty");
+        require(!clc::sim::game_profile_scenario_recommendation_digest(recommendation).empty(), "scenario recommendation digest should not be empty");
+    }
+
+    const auto backend_recommendations = clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service");
+    require(contains_recommendation(backend_recommendations, "backend_replay_window_10d"), "backend scenario recommendations should include replay window preset");
+
+    const auto mmo_recommendations = clc::sim::game_profile_scenario_recommendations_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative);
+    require(contains_recommendation(mmo_recommendations, "mmo_authoritative_soak_30d"), "MMO scenario recommendations should include soak preset");
+
+    const auto backend_catalog = clc::sim::make_game_profile_scenario_preset_catalog("backend_service");
+    require(clc::sim::scenario_preset_count(backend_catalog) == backend_recommendations.size(), "backend scenario catalog should match backend recommendation count");
+    require(clc::sim::scenario_preset_by_id(backend_catalog, "backend_replay_window_10d") != nullptr, "backend catalog should contain replay preset");
+
+    const auto all_catalog = clc::sim::make_all_game_profile_scenario_preset_catalog();
+    require(clc::sim::scenario_preset_count(all_catalog) == recommendations.size(), "all profile scenario catalog should include every recommendation");
 
     require(clc::sim::game_integration_profile_by_id("missing_profile") == nullptr, "missing profile lookup should return null");
     require(clc::sim::game_integration_profile_support_name(clc::sim::GameIntegrationProfileSupport::supported) == "supported", "support names should be stable");
