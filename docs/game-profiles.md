@@ -57,6 +57,15 @@ clc::sim::game_integration_profile_digest(profile);
 clc::sim::game_integration_profile_systems_digest(profile);
 ```
 
+Catalog summary helpers:
+
+```cpp
+const auto summary = clc::sim::game_integration_profile_catalog_summary();
+clc::sim::game_integration_profile_catalog_summary_digest(summary);
+```
+
+The summary reports total profiles, support-status counts, C ABI profile count, Action Bridge profile count and server-authoritative profile count.
+
 Query helpers:
 
 ```cpp
