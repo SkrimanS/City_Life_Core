@@ -30,6 +30,8 @@ void print_profile_scenarios(
 void print_profile_checklist(const clc::sim::GameProfileChecklist& checklist) {
     std::cout << "\nBackend adoption checklist:\n";
     std::cout << clc::sim::game_profile_checklist_digest(checklist) << '\n';
+    const auto summary = clc::sim::game_profile_checklist_summary(checklist);
+    std::cout << clc::sim::game_profile_checklist_summary_digest(summary) << '\n';
     for (const auto& item : checklist.items) {
         std::cout << "- [" << (item.required ? "required" : "optional") << "] " << item.id << ": " << item.title << '\n';
     }
