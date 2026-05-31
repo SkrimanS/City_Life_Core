@@ -14,8 +14,9 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
 - Added game profile scenario recommendation helpers that expose lightweight `SimulationScenarioPreset` catalogs per profile.
 - Added game profile adoption report helpers with digest and markdown output for integration-facing tooling and documentation.
-- Added `examples/game_profiles.cpp` to show profile discovery, backend-service recommendations, scenario presets and adoption report output.
-- Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage, server-authoritative boundaries, scenario recommendations and adoption reports.
+- Added game profile checklist helpers for required/optional host-side integration review steps per profile.
+- Added `examples/game_profiles.cpp` to show profile discovery, backend-service recommendations, scenario presets, adoption reports and checklist output.
+- Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage, server-authoritative boundaries, scenario recommendations, adoption reports and checklists.
 - Added `docs/data-packs.md` with `.clcd` schema, required fields, strict loader validation rules and diagnostics guidance.
 - Added `examples/validation_hardening.cpp` to demonstrate rejected data-pack input, rejected Action Bridge actions and no-mutation behavior.
 - Added data-pack loader hardening tests for missing schema, unknown sections, duplicate keys, missing/zero numeric fields and broken references.
@@ -55,7 +56,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
-- Exposed the game integration profile catalog, profile scenario recommendations and adoption reports through the recommended SDK umbrella header.
+- Exposed the game integration profile catalog, profile scenario recommendations, adoption reports and checklists through the recommended SDK umbrella header.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
 - Kept source-level `DataRegistry::add(...)` compatible for zero numeric defaults by reporting warnings instead of errors for direct C++ construction.
 - Hardened `ResourceStorage` so zero-amount add, direct remove and transfer operations are rejected without mutation.
