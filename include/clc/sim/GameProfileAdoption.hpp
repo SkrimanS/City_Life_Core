@@ -30,6 +30,9 @@ struct GameProfileAdoptionSummary final {
     std::size_t optional_systems{0};
     std::size_t non_goals{0};
     std::size_t scenario_recommendations{0};
+    int scenario_total_day_count{0};
+    int scenario_min_day_count{0};
+    int scenario_max_day_count{0};
     bool found{false};
     bool needs_c_abi{false};
     bool uses_action_bridge{false};
@@ -82,11 +85,15 @@ struct GameProfileAdoptionSummary final {
         return {};
     }
 
+    const auto scenario_summary = game_profile_scenario_recommendation_summary(report.scenario_recommendations);
     return GameProfileAdoptionSummary{
         .required_systems = report.required_systems.size(),
         .optional_systems = report.optional_systems.size(),
         .non_goals = report.non_goals.size(),
-        .scenario_recommendations = report.scenario_recommendations.size(),
+        .scenario_recommendations = scenario_summary.recommendations,
+        .scenario_total_day_count = scenario_summary.total_day_count,
+        .scenario_min_day_count = scenario_summary.min_day_count,
+        .scenario_max_day_count = scenario_summary.max_day_count,
         .found = true,
         .needs_c_abi = report.needs_c_abi,
         .uses_action_bridge = report.uses_action_bridge,
@@ -111,6 +118,12 @@ struct GameProfileAdoptionSummary final {
     digest += std::to_string(summary.non_goals);
     digest += " scenarios=";
     digest += std::to_string(summary.scenario_recommendations);
+    digest += " scenario_days=";
+    digest += std::to_string(summary.scenario_total_day_count);
+    digest += " scenario_min_days=";
+    digest += std::to_string(summary.scenario_min_day_count);
+    digest += " scenario_max_days=";
+    digest += std::to_string(summary.scenario_max_day_count);
     digest += " c_abi=";
     digest += summary.needs_c_abi ? "yes" : "no";
     digest += " action_bridge=";
@@ -140,6 +153,12 @@ struct GameProfileAdoptionSummary final {
     digest += std::to_string(summary.non_goals);
     digest += " scenarios=";
     digest += std::to_string(summary.scenario_recommendations);
+    digest += " scenario_days=";
+    digest += std::to_string(summary.scenario_total_day_count);
+    digest += " scenario_min_days=";
+    digest += std::to_string(summary.scenario_min_day_count);
+    digest += " scenario_max_days=";
+    digest += std::to_string(summary.scenario_max_day_count);
     digest += " c_abi=";
     digest += summary.needs_c_abi ? "yes" : "no";
     digest += " action_bridge=";
@@ -154,6 +173,7 @@ struct GameProfileAdoptionSummary final {
         return "# Game Profile Adoption Report\n\nProfile not found: `" + report.profile_id + "`\n";
     }
 
+    const auto summary = game_profile_adoption_summary(report);
     std::string output = "# Game Profile Adoption Report\n\n";
     output += "## ";
     output += report.display_name;
@@ -166,6 +186,16 @@ struct GameProfileAdoptionSummary final {
     output += report.needs_c_abi ? "- needs C ABI: yes\n" : "- needs C ABI: no\n";
     output += report.uses_action_bridge ? "- uses Action Bridge: yes\n" : "- uses Action Bridge: no\n";
     output += report.server_authoritative ? "- server-authoritative: yes\n" : "- server-authoritative: no\n";
+    output += "- scenario recommendations: ";
+    output += std::to_string(summary.scenario_recommendations);
+    output += "\n";
+    output += "- scenario day window: ";
+    output += std::to_string(summary.scenario_min_day_count);
+    output += "-";
+    output += std::to_string(summary.scenario_max_day_count);
+    output += " days, total ";
+    output += std::to_string(summary.scenario_total_day_count);
+    output += " days\n";
 
     output += "\n### Required systems\n\n";
     for (const auto system : report.required_systems) {
