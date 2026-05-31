@@ -19,10 +19,10 @@ void print_profile_ids(
 
 void print_profile_scenarios(
     const char* title,
-    const std::vector<clc::sim::GameProfileScenarioRecommendation>& recommendations
+    const std::vector<clc::sim::GameProfileScenarioRecommendation>& recommendations,
+    const clc::sim::GameProfileScenarioRecommendationSummary& summary
 ) {
     std::cout << '\n' << title << ":\n";
-    const auto summary = clc::sim::game_profile_scenario_recommendation_summary(recommendations);
     std::cout << clc::sim::game_profile_scenario_recommendation_summary_digest(summary) << '\n';
     for (const auto& recommendation : recommendations) {
         std::cout << "- " << clc::sim::game_profile_scenario_recommendation_digest(recommendation) << '\n';
@@ -95,11 +95,13 @@ int main() {
 
     print_profile_scenarios(
         "Backend service scenario presets",
-        clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service")
+        clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service"),
+        clc::sim::game_profile_scenario_recommendation_summary_for_profile_id("backend_service")
     );
     print_profile_scenarios(
         "MMO-like scenario presets",
-        clc::sim::game_profile_scenario_recommendations_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative)
+        clc::sim::game_profile_scenario_recommendations_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative),
+        clc::sim::game_profile_scenario_recommendation_summary_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative)
     );
 
     const auto all_scenarios = clc::sim::make_all_game_profile_scenario_preset_catalog();
