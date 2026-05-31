@@ -22,6 +22,8 @@ void print_profile_scenarios(
     const std::vector<clc::sim::GameProfileScenarioRecommendation>& recommendations
 ) {
     std::cout << '\n' << title << ":\n";
+    const auto summary = clc::sim::game_profile_scenario_recommendation_summary(recommendations);
+    std::cout << clc::sim::game_profile_scenario_recommendation_summary_digest(summary) << '\n';
     for (const auto& recommendation : recommendations) {
         std::cout << "- " << clc::sim::game_profile_scenario_recommendation_digest(recommendation) << '\n';
     }
@@ -47,6 +49,9 @@ int main() {
 
     const auto catalog_summary = clc::sim::game_integration_profile_catalog_summary();
     std::cout << clc::sim::game_integration_profile_catalog_summary_digest(catalog_summary) << '\n';
+
+    const auto scenario_summary = clc::sim::game_profile_scenario_recommendation_summary();
+    std::cout << clc::sim::game_profile_scenario_recommendation_summary_digest(scenario_summary) << '\n';
 
     for (const auto& profile : clc::sim::game_integration_profiles()) {
         std::cout << clc::sim::game_integration_profile_digest(profile) << '\n';
