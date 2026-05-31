@@ -39,6 +39,53 @@ The same core systems should remain reusable across profiles:
 
 ---
 
+## Public profile catalog API
+
+The v1.4.0 profile catalog is available from the recommended SDK umbrella header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Main profile API:
+
+```cpp
+clc::sim::game_integration_profiles();
+clc::sim::game_integration_profile_by_id("backend_service");
+clc::sim::game_integration_profile_descriptor(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_integration_profile_digest(profile);
+clc::sim::game_integration_profile_systems_digest(profile);
+```
+
+Query helpers:
+
+```cpp
+clc::sim::game_integration_profiles_by_support(clc::sim::GameIntegrationProfileSupport::supported);
+clc::sim::game_integration_profiles_requiring_system("persistence");
+clc::sim::game_integration_profiles_needing_c_abi();
+clc::sim::game_integration_profiles_using_action_bridge();
+clc::sim::game_integration_profiles_server_authoritative();
+```
+
+System helpers:
+
+```cpp
+clc::sim::game_integration_profile_has_required_system(profile, "simulation_runtime");
+clc::sim::game_integration_profile_has_optional_system(profile, "action_bridge");
+clc::sim::game_integration_profile_mentions_system(profile, "diagnostics");
+```
+
+The catalog is intentionally descriptive. It helps external integrations choose an adoption path, but it does not create a framework, runtime mode, networking layer or engine-specific subsystem.
+
+See also:
+
+```text
+examples/game_profiles.cpp
+tests/game_profiles_tests.cpp
+```
+
+---
+
 ## Current profile support summary
 
 | Profile | Current status | Main integration boundary | Notes |
