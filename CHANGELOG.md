@@ -18,7 +18,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added game profile adoption report helpers with digest, summary and markdown output for integration-facing tooling and documentation.
 - Added game profile checklist helpers for required/optional host-side integration review steps and checklist summary counts per profile.
 - Added `examples/game_profiles.cpp` to show profile discovery, backend-service recommendations, catalog summary, catalog validation, scenario presets, scenario summary output, adoption reports, adoption summary output, checklist output and checklist summary output.
-- Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage, server-authoritative boundaries, catalog summary, catalog validation, scenario recommendations, scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries.
+- Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage, server-authoritative boundaries, catalog summary, catalog validation, scenario recommendations, scenario summaries, profile-specific scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries.
 - Added `docs/data-packs.md` with `.clcd` schema, required fields, strict loader validation rules and diagnostics guidance.
 - Added `examples/validation_hardening.cpp` to demonstrate rejected data-pack input, rejected Action Bridge actions and no-mutation behavior.
 - Added data-pack loader hardening tests for missing schema, unknown sections, duplicate keys, missing/zero numeric fields and broken references.
