@@ -42,6 +42,35 @@ namespace clc::sim {
     return false;
 }
 
+inline void validate_game_profile_system_list(
+    clc::data::ValidationReport& report,
+    const std::vector<std::string_view>& systems,
+    std::string_view path
+) {
+    std::vector<std::string_view> seen;
+    for (const auto system : systems) {
+        if (system.empty()) {
+            report.add_error(std::string{path}, "profile system id must not be empty");
+        } else if (game_profile_validation_vector_contains(seen, system)) {
+            report.add_error(std::string{path} + "." + std::string{system}, "profile system id must be unique in its list");
+        } else {
+            seen.push_back(system);
+        }
+    }
+}
+
+inline void validate_game_profile_system_overlap(
+    clc::data::ValidationReport& report,
+    const GameIntegrationProfileDescriptor& profile,
+    std::string_view path
+) {
+    for (const auto required_system : profile.required_systems) {
+        if (game_integration_profile_has_optional_system(profile, required_system)) {
+            report.add_error(std::string{path} + "." + std::string{required_system}, "profile system must not be both required and optional");
+        }
+    }
+}
+
 [[nodiscard]] inline clc::data::ValidationReport validate_game_profile_catalog() {
     clc::data::ValidationReport report;
 
@@ -102,6 +131,10 @@ namespace clc::sim {
         if (profile.required_systems.empty()) {
             report.add_error(path + ".required_systems", "profile should describe required systems");
         }
+        validate_game_profile_system_list(report, profile.required_systems, path + ".required_systems");
+        validate_game_profile_system_list(report, profile.optional_systems, path + ".optional_systems");
+        validate_game_profile_system_overlap(report, profile, path + ".systems");
+
         if (game_integration_profile_by_id(profile.id) != &profile) {
             report.add_error(path + ".lookup", "profile lookup by id should resolve to the catalog entry");
         }
