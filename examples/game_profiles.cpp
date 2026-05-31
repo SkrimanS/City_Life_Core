@@ -1,6 +1,7 @@
 #include "clc/CityLifeCore.hpp"
 
 #include <iostream>
+#include <vector>
 
 namespace {
 
