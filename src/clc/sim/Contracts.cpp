@@ -128,6 +128,11 @@ data::ValidationReport add_contract(ContractCatalog& catalog, ResourceDeliveryCo
         return report;
     }
 
+    if (!contract_is_open(contract)) {
+        report.add_error("simulation.contract." + contract.id, "new contract must be open");
+        return report;
+    }
+
     if (contract_by_id(catalog, contract.id) != nullptr) {
         report.add_error("simulation.contract." + contract.id, "duplicate contract id");
         return report;
