@@ -1,4 +1,5 @@
 #include "clc/sim/GameProfileAdoption.hpp"
+#include "clc/sim/GameProfileChecklist.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfiles.hpp"
 
@@ -35,6 +36,18 @@ bool contains_recommendation(
 ) {
     for (const auto& candidate : values) {
         if (candidate.preset.id == preset_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool contains_checklist_item(
+    const clc::sim::GameProfileChecklist& checklist,
+    std::string_view item_id
+) {
+    for (const auto& item : checklist.items) {
+        if (item.id == item_id) {
             return true;
         }
     }
@@ -136,6 +149,22 @@ int main() {
     require(!backend_report.scenario_recommendations.empty(), "backend adoption report should include scenario recommendations");
     require(!clc::sim::game_profile_adoption_report_digest(backend_report).empty(), "backend adoption report digest should be non-empty");
     require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("backend_replay_window_10d") != std::string::npos, "backend markdown report should mention scenario preset");
+
+    const auto backend_checklist = clc::sim::make_game_profile_checklist("backend_service");
+    require(backend_checklist.found, "backend checklist should be found");
+    require(contains_checklist_item(backend_checklist, "boundary"), "backend checklist should include boundary item");
+    require(contains_checklist_item(backend_checklist, "action_bridge"), "backend checklist should include Action Bridge item");
+    require(contains_checklist_item(backend_checklist, "server_boundary"), "backend checklist should include server boundary item");
+    require(contains_checklist_item(backend_checklist, "replay_persistence"), "backend checklist should include replay/persistence item");
+    require(clc::sim::game_profile_checklist_digest(backend_checklist).find("found=yes") != std::string::npos, "backend checklist digest should report found");
+
+    const auto unity_checklist = clc::sim::make_game_profile_checklist("unity_csharp_client");
+    require(unity_checklist.found, "Unity checklist should be found");
+    require(contains_checklist_item(unity_checklist, "c_abi_version"), "Unity checklist should include C ABI version item");
+
+    const auto missing_checklist = clc::sim::make_game_profile_checklist("missing_profile");
+    require(!missing_checklist.found, "missing checklist should not be found");
+    require(clc::sim::game_profile_checklist_digest(missing_checklist).find("found=no") != std::string::npos, "missing checklist digest should report not found");
 
     const auto missing_report = clc::sim::make_game_profile_adoption_report("missing_profile");
     require(!missing_report.found, "missing adoption report should not be found");
