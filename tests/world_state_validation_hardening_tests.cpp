@@ -32,10 +32,10 @@ int main() {
         .population = 10,
     });
 
-    require(validate_simulation_world_state(state).ok(), "minimal settlement world state should validate");
+    require(clc::sim::validate_simulation_world_state(state).ok(), "minimal settlement world state should validate");
 
     auto empty_settlement_storage = state;
-    require(empty_settlement_storage.engine.settlements[0].storage.add("", 1).ok() == false, "storage API rejects empty resource id directly");
+    require(!empty_settlement_storage.engine.settlements[0].storage.add("", 1).ok(), "storage API rejects empty resource id directly");
 
     auto zero_settlement_storage = state;
     zero_settlement_storage.engine.settlements[0].storage = clc::sim::ResourceStorage{};
