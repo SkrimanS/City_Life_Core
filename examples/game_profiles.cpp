@@ -40,6 +40,9 @@ void print_profile_checklist(const clc::sim::GameProfileChecklist& checklist) {
 int main() {
     std::cout << "City Life Core game integration profiles\n";
 
+    const auto catalog_validation = clc::sim::validate_game_profile_catalog();
+    std::cout << clc::sim::game_profile_catalog_validation_digest(catalog_validation) << '\n';
+
     for (const auto& profile : clc::sim::game_integration_profiles()) {
         std::cout << clc::sim::game_integration_profile_digest(profile) << '\n';
     }
