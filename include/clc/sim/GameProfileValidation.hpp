@@ -71,6 +71,48 @@ inline void validate_game_profile_system_overlap(
     }
 }
 
+inline void validate_game_profile_checklist(
+    clc::data::ValidationReport& report,
+    const GameProfileChecklist& checklist,
+    std::string_view path
+) {
+    if (!checklist.found) {
+        report.add_error(std::string{path}, "profile checklist should be generated");
+        return;
+    }
+    if (checklist.items.empty()) {
+        report.add_error(std::string{path}, "profile checklist should contain review items");
+        return;
+    }
+
+    const auto summary = game_profile_checklist_summary(checklist);
+    if (summary.total_items != checklist.items.size()) {
+        report.add_error(std::string{path} + ".summary.total", "checklist summary total must match checklist item count");
+    }
+    if (summary.required_items + summary.optional_items != summary.total_items) {
+        report.add_error(std::string{path} + ".summary.required_optional", "checklist required and optional counts must add up to total count");
+    }
+
+    std::vector<std::string_view> checklist_ids;
+    for (const auto& item : checklist.items) {
+        if (item.id.empty()) {
+            report.add_error(std::string{path} + ".item", "checklist item id must not be empty");
+        } else if (game_profile_validation_has_duplicate_id(checklist_ids, item.id)) {
+            report.add_error(std::string{path} + "." + std::string{item.id}, "checklist item id must be unique");
+        } else {
+            checklist_ids.push_back(item.id);
+        }
+
+        const std::string item_path = std::string{path} + "." + std::string{item.id.empty() ? std::string_view{"<empty>"} : item.id};
+        if (item.title.empty()) {
+            report.add_error(item_path + ".title", "checklist item title must not be empty");
+        }
+        if (item.detail.empty()) {
+            report.add_error(item_path + ".detail", "checklist item detail must not be empty");
+        }
+    }
+}
+
 [[nodiscard]] inline clc::data::ValidationReport validate_game_profile_catalog() {
     clc::data::ValidationReport report;
 
@@ -142,13 +184,11 @@ inline void validate_game_profile_system_overlap(
             report.add_error(path + ".lookup", "profile lookup by enum should resolve to the catalog entry");
         }
 
-        const auto checklist = make_game_profile_checklist(profile);
-        if (!checklist.found) {
-            report.add_error(path + ".checklist", "profile checklist should be generated");
-        }
-        if (checklist.items.empty()) {
-            report.add_error(path + ".checklist", "profile checklist should contain review items");
-        }
+        validate_game_profile_checklist(
+            report,
+            make_game_profile_checklist(profile),
+            path + ".checklist"
+        );
     }
 
     std::vector<std::string_view> scenario_ids;
