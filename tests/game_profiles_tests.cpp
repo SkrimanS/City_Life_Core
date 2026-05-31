@@ -180,7 +180,20 @@ int main() {
     require(contains_checklist_item(backend_checklist, "action_bridge"), "backend checklist should include Action Bridge item");
     require(contains_checklist_item(backend_checklist, "server_boundary"), "backend checklist should include server boundary item");
     require(contains_checklist_item(backend_checklist, "replay_persistence"), "backend checklist should include replay/persistence item");
-    require(clc::sim::game_profile_checklist_digest(backend_checklist).find("found=yes") != std::string::npos, "backend checklist digest should report found");
+    const auto backend_checklist_summary = clc::sim::game_profile_checklist_summary(backend_checklist);
+    require(backend_checklist_summary.total_items == 7, "backend checklist should report total item count");
+    require(backend_checklist_summary.required_items == 6, "backend checklist should report required item count");
+    require(backend_checklist_summary.optional_items == 1, "backend checklist should report optional item count");
+    require(
+        clc::sim::game_profile_checklist_summary_digest(backend_checklist_summary)
+            == "game_profile_checklist_summary items=7 required=6 optional=1",
+        "backend checklist summary digest should be stable"
+    );
+    require(
+        clc::sim::game_profile_checklist_digest(backend_checklist)
+            == "game_profile_checklist id=backend_service found=yes items=7 required=6 optional=1",
+        "backend checklist digest should be stable"
+    );
 
     const auto unity_checklist = clc::sim::make_game_profile_checklist("unity_csharp_client");
     require(unity_checklist.found, "Unity checklist should be found");
@@ -189,6 +202,10 @@ int main() {
     const auto missing_checklist = clc::sim::make_game_profile_checklist("missing_profile");
     require(!missing_checklist.found, "missing checklist should not be found");
     require(clc::sim::game_profile_checklist_digest(missing_checklist).find("found=no") != std::string::npos, "missing checklist digest should report not found");
+    const auto missing_checklist_summary = clc::sim::game_profile_checklist_summary(missing_checklist);
+    require(missing_checklist_summary.total_items == 0, "missing checklist summary should report zero total items");
+    require(missing_checklist_summary.required_items == 0, "missing checklist summary should report zero required items");
+    require(missing_checklist_summary.optional_items == 0, "missing checklist summary should report zero optional items");
 
     const auto missing_report = clc::sim::make_game_profile_adoption_report("missing_profile");
     require(!missing_report.found, "missing adoption report should not be found");
