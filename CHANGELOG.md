@@ -52,6 +52,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
 - Kept source-level `DataRegistry::add(...)` compatible for zero numeric defaults by reporting warnings instead of errors for direct C++ construction.
 - Hardened `ResourceStorage` so zero-amount add, direct remove and transfer operations are rejected without mutation.
+- Hardened contract insertion so new contracts must be open and terminal contract states cannot be inserted as direct input mutations.
 - Hardened `SimulationEngine` resource mutations so unknown resource ids are rejected before settlement storage mutation.
 - Hardened `SimulationEngine::restore_state(...)` validation for settlement storage and market demand resources, with staged market restore before commit.
 - Hardened world-state validation so settlement storage and caravan cargo entries reject empty resource ids and zero amounts before restore/load commit.
