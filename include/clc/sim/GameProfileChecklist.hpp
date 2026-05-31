@@ -141,6 +141,20 @@ struct GameProfileChecklistSummary final {
     return summary;
 }
 
+[[nodiscard]] inline GameProfileChecklistSummary game_profile_checklist_summary(
+    const GameIntegrationProfileDescriptor& profile
+) {
+    return game_profile_checklist_summary(make_game_profile_checklist(profile));
+}
+
+[[nodiscard]] inline GameProfileChecklistSummary game_profile_checklist_summary(GameIntegrationProfile profile) {
+    return game_profile_checklist_summary(make_game_profile_checklist(profile));
+}
+
+[[nodiscard]] inline GameProfileChecklistSummary game_profile_checklist_summary(std::string_view profile_id) {
+    return game_profile_checklist_summary(make_game_profile_checklist(profile_id));
+}
+
 [[nodiscard]] inline std::string game_profile_checklist_summary_digest(
     const GameProfileChecklistSummary& summary
 ) {
