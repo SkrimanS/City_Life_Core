@@ -270,11 +270,15 @@ int main() {
             == "game_profile_checklist_summary items=7 required=6 optional=1",
         "backend checklist summary digest should be stable"
     );
+    const auto backend_checklist_digest = clc::sim::game_profile_checklist_digest(backend_checklist);
     require(
-        clc::sim::game_profile_checklist_digest(backend_checklist)
+        backend_checklist_digest
             == "game_profile_checklist id=backend_service found=yes items=7 required=6 optional=1",
         "backend checklist digest should be stable"
     );
+    require(clc::sim::game_profile_checklist_digest(*backend) == backend_checklist_digest, "backend checklist digest from descriptor should match checklist digest");
+    require(clc::sim::game_profile_checklist_digest("backend_service") == backend_checklist_digest, "backend checklist digest by id should match checklist digest");
+    require(clc::sim::game_profile_checklist_digest(clc::sim::GameIntegrationProfile::backend_service) == backend_checklist_digest, "backend checklist digest by enum should match checklist digest");
 
     const auto unity_checklist = clc::sim::make_game_profile_checklist("unity_csharp_client");
     require(unity_checklist.found, "Unity checklist should be found");
@@ -283,6 +287,7 @@ int main() {
     const auto missing_checklist = clc::sim::make_game_profile_checklist("missing_profile");
     require(!missing_checklist.found, "missing checklist should not be found");
     require(clc::sim::game_profile_checklist_digest(missing_checklist).find("found=no") != std::string::npos, "missing checklist digest should report not found");
+    require(clc::sim::game_profile_checklist_digest("missing_profile").find("found=no") != std::string::npos, "missing checklist digest by id should report not found");
     const auto missing_checklist_summary = clc::sim::game_profile_checklist_summary(missing_checklist);
     const auto missing_checklist_summary_by_id = clc::sim::game_profile_checklist_summary("missing_profile");
     require(missing_checklist_summary.total_items == 0, "missing checklist summary should report zero total items");
