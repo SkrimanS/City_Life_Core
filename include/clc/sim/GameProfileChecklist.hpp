@@ -186,4 +186,18 @@ struct GameProfileChecklistSummary final {
     return digest;
 }
 
+[[nodiscard]] inline std::string game_profile_checklist_digest(
+    const GameIntegrationProfileDescriptor& profile
+) {
+    return game_profile_checklist_digest(make_game_profile_checklist(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_checklist_digest(GameIntegrationProfile profile) {
+    return game_profile_checklist_digest(make_game_profile_checklist(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_checklist_digest(std::string_view profile_id) {
+    return game_profile_checklist_digest(make_game_profile_checklist(profile_id));
+}
+
 } // namespace clc::sim
