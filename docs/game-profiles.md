@@ -95,7 +95,7 @@ const auto validation = clc::sim::validate_game_profile_catalog();
 clc::sim::game_profile_catalog_validation_digest(validation);
 ```
 
-Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, adoption report descriptor consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. It is intended for SDK tests, diagnostics and release review.
+Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, adoption report descriptor consistency, adoption summary count/flag consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. It is intended for SDK tests, diagnostics and release review.
 
 ### Scenario recommendations
 
