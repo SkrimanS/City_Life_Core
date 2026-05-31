@@ -47,7 +47,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `docs/game-profiles.md` with recommended integration profiles for native C++ games, Unity/C#, Browser/WASM, server-authoritative games, MMO-like services and editor/tooling workflows.
 - Added `docs/c-abi-expansion-plan.md` with a staged plan for expanding the C ABI for Unity/C#, browser/WASM, tools and other foreign-language integrations.
 - Added `docs/integration-targets.md` to clarify supported, initial and planned integration targets across C++, C ABI, Unity/C#, browser/WASM, other engines, backend/MMO and tooling scenarios.
-- Added `docs/integration-validation.md` with validation checklists for C++ package, installed consumer, C ABI, C# / Unity, SDK ZIP and future Browser/WASM integration work.
+- Added `docs/integration-validation.md` with validation checklists for C++ package, C ABI, Unity/C#, SDK ZIP and future Browser/WASM integration work.
 - Added `docs/browser-wasm.md` with the planned browser and WebAssembly integration path for web games, web tools and browser-hosted demos.
 - Added `docs/csharp-unity.md` with initial C# and Unity integration guidance through the C ABI and P/Invoke, including native plug-in troubleshooting notes.
 - Added `examples/csharp_unity/` with a C# P/Invoke wrapper, Unity `MonoBehaviour` smoke test and Unity-oriented usage notes for the current minimal C ABI.
@@ -93,7 +93,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity, browser/WebAssembly and Action Bridge links.
+- Updated root README, documentation index, Russian documentation index and examples index with game profile API pointers, updated game-profile example details, architecture, integration target, C ABI expansion, C# / Unity, browser/WebAssembly and Action Bridge links.
 - Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
 - Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
@@ -163,4 +163,3 @@ Status: **released / v1.0.0**.
 ### Compatibility
 
 - Existing day-based route, caravan, and contract APIs remain available.
-- Existing save files without explicit runtime time are still loaded by deriving runtime ticks from saved `current_day`.
