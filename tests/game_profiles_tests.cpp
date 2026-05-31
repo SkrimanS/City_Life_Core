@@ -214,19 +214,23 @@ int main() {
     require(backend_adoption_summary.optional_systems == 5, "backend adoption summary should report optional system count");
     require(backend_adoption_summary.non_goals == 4, "backend adoption summary should report non-goal count");
     require(backend_adoption_summary.scenario_recommendations == 1, "backend adoption summary should report scenario recommendation count");
+    require(backend_adoption_summary.scenario_total_day_count == 10, "backend adoption summary should report scenario total day count");
+    require(backend_adoption_summary.scenario_min_day_count == 10, "backend adoption summary should report scenario minimum day count");
+    require(backend_adoption_summary.scenario_max_day_count == 10, "backend adoption summary should report scenario maximum day count");
     require(backend_adoption_summary.uses_action_bridge, "backend adoption summary should preserve Action Bridge flag");
     require(backend_adoption_summary.server_authoritative, "backend adoption summary should preserve server-authoritative flag");
     require(
         clc::sim::game_profile_adoption_summary_digest(backend_adoption_summary)
-            == "game_profile_adoption_summary found=yes required=6 optional=5 non_goals=4 scenarios=1 c_abi=no action_bridge=yes server_authoritative=yes",
+            == "game_profile_adoption_summary found=yes required=6 optional=5 non_goals=4 scenarios=1 scenario_days=10 scenario_min_days=10 scenario_max_days=10 c_abi=no action_bridge=yes server_authoritative=yes",
         "backend adoption summary digest should be stable"
     );
     require(
         clc::sim::game_profile_adoption_report_digest(backend_report)
-            == "game_profile_adoption id=backend_service found=yes status=partially_supported required=6 optional=5 non_goals=4 scenarios=1 c_abi=no action_bridge=yes server_authoritative=yes",
+            == "game_profile_adoption id=backend_service found=yes status=partially_supported required=6 optional=5 non_goals=4 scenarios=1 scenario_days=10 scenario_min_days=10 scenario_max_days=10 c_abi=no action_bridge=yes server_authoritative=yes",
         "backend adoption report digest should be stable"
     );
     require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("backend_replay_window_10d") != std::string::npos, "backend markdown report should mention scenario preset");
+    require(clc::sim::game_profile_adoption_report_markdown(backend_report).find("scenario day window: 10-10 days, total 10 days") != std::string::npos, "backend markdown report should mention scenario day window");
 
     const auto backend_checklist = clc::sim::make_game_profile_checklist("backend_service");
     require(backend_checklist.found, "backend checklist should be found");
