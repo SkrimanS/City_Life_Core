@@ -26,6 +26,7 @@
 #include "clc/sim/Contracts.hpp"
 #include "clc/sim/Factions.hpp"
 #include "clc/sim/GameProfileAdoption.hpp"
+#include "clc/sim/GameProfileChecklist.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/Ownership.hpp"
