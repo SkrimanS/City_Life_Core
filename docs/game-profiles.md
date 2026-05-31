@@ -124,6 +124,9 @@ A profile adoption report gives an integration-facing summary that can be displa
 ```cpp
 const auto report = clc::sim::make_game_profile_adoption_report("backend_service");
 clc::sim::game_profile_adoption_report_digest(report);
+clc::sim::game_profile_adoption_report_digest("backend_service");
+clc::sim::game_profile_adoption_report_digest(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_adoption_report_digest(*profile);
 
 const auto adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
 clc::sim::game_profile_adoption_summary(clc::sim::GameIntegrationProfile::backend_service);
@@ -131,9 +134,12 @@ clc::sim::game_profile_adoption_summary(*profile);
 clc::sim::game_profile_adoption_summary_digest(adoption_summary);
 
 clc::sim::game_profile_adoption_report_markdown(report);
+clc::sim::game_profile_adoption_report_markdown("backend_service");
+clc::sim::game_profile_adoption_report_markdown(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_adoption_report_markdown(*profile);
 ```
 
-The markdown report includes support status, integration boundary, required systems, optional systems, non-goals, recommended scenario presets and the scenario recommendation day window. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts, scenario total/min/max day windows, plus the C ABI, Action Bridge and server-authoritative flags. Profile-specific adoption summary helpers provide the same counts for a profile id, enum or descriptor without requiring callers to first build an adoption report.
+The markdown report includes support status, integration boundary, required systems, optional systems, non-goals, recommended scenario presets and the scenario recommendation day window. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts, scenario total/min/max day windows, plus the C ABI, Action Bridge and server-authoritative flags. Profile-specific adoption report output helpers provide digest and markdown output for a profile id, enum or descriptor without requiring callers to first build an adoption report. Profile-specific adoption summary helpers provide the same counts for a profile id, enum or descriptor without requiring callers to first build an adoption report.
 
 ### Adoption checklists
 
