@@ -109,6 +109,40 @@ base_value=0
 
     {
         clc::data::DataRegistry registry;
+        const auto report = loader.load_string("malformed-resource-value", R"CLC(
+schema_version=0.2.2
+
+[resource]
+id=bad_numeric
+display_name=Bad Numeric Resource
+category=test
+base_value=1.5
+)CLC", registry);
+
+        require(!report.ok(), "non-integer base_value resource should fail through loader");
+        require(contains_message(report, "base_value must be a non-negative integer"), "non-integer base_value should be reported");
+        require(registry.resource_count() == 0, "resource with malformed base_value should not be registered through loader");
+    }
+
+    {
+        clc::data::DataRegistry registry;
+        const auto report = loader.load_string("negative-resource-value", R"CLC(
+schema_version=0.2.2
+
+[resource]
+id=negative_value
+display_name=Negative Value Resource
+category=test
+base_value=-1
+)CLC", registry);
+
+        require(!report.ok(), "negative base_value resource should fail through loader");
+        require(contains_message(report, "base_value must be a non-negative integer"), "negative base_value should be reported");
+        require(registry.resource_count() == 0, "resource with negative base_value should not be registered through loader");
+    }
+
+    {
+        clc::data::DataRegistry registry;
         const auto report = loader.load_string("missing-building-workers", R"CLC(
 schema_version=0.2.2
 
@@ -170,6 +204,39 @@ output_resource_ids=grain
         require(registry.resource_count() == 1, "valid resource before invalid building should remain registered");
         require(registry.profession_count() == 1, "valid profession before invalid building should remain registered");
         require(registry.building_count() == 0, "invalid building should not be registered through loader");
+    }
+
+    {
+        clc::data::DataRegistry registry;
+        const auto report = loader.load_string("malformed-building-workers", R"CLC(
+schema_version=0.2.2
+
+[resource]
+id=grain
+display_name=Grain
+category=food
+base_value=10
+
+[profession]
+id=farmer
+display_name=Farmer
+category=food
+
+[building]
+id=bad_workshop
+display_name=Bad Workshop
+category=production
+worker_slots=2.5
+required_profession_id=farmer
+input_resource_ids=grain
+output_resource_ids=grain
+)CLC", registry);
+
+        require(!report.ok(), "non-integer worker_slots building should fail through loader");
+        require(contains_message(report, "worker_slots must be a non-negative integer"), "non-integer worker_slots should be reported");
+        require(registry.resource_count() == 1, "valid resource before malformed building should remain registered");
+        require(registry.profession_count() == 1, "valid profession before malformed building should remain registered");
+        require(registry.building_count() == 0, "building with malformed worker_slots should not be registered through loader");
     }
 
     {
