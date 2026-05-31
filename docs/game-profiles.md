@@ -104,11 +104,15 @@ Profiles can expose recommended scenario presets for smoke tests, replay windows
 ```cpp
 clc::sim::game_profile_scenario_recommendations();
 clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service");
+
+const auto scenario_summary = clc::sim::game_profile_scenario_recommendation_summary();
+clc::sim::game_profile_scenario_recommendation_summary_digest(scenario_summary);
+
 clc::sim::make_game_profile_scenario_preset_catalog("backend_service");
 clc::sim::make_all_game_profile_scenario_preset_catalog();
 ```
 
-Scenario recommendations are intentionally lightweight. They reuse `SimulationScenarioPreset` and do not create a separate game mode.
+Scenario recommendations are intentionally lightweight. They reuse `SimulationScenarioPreset` and do not create a separate game mode. Scenario recommendation summaries report recommendation count, total day count and min/max day windows.
 
 ### Adoption reports
 
