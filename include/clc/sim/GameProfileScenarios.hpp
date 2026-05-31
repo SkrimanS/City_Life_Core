@@ -3,6 +3,7 @@
 #include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/SimulationEngine.hpp"
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -14,6 +15,13 @@ struct GameProfileScenarioRecommendation final {
     std::string_view profile_id{};
     SimulationScenarioPreset preset{};
     std::string_view purpose{};
+};
+
+struct GameProfileScenarioRecommendationSummary final {
+    std::size_t recommendations{0};
+    int total_day_count{0};
+    int min_day_count{0};
+    int max_day_count{0};
 };
 
 [[nodiscard]] inline const std::vector<GameProfileScenarioRecommendation>& game_profile_scenario_recommendations() {
@@ -86,6 +94,50 @@ struct GameProfileScenarioRecommendation final {
         }
     }
     return matches;
+}
+
+[[nodiscard]] inline GameProfileScenarioRecommendationSummary game_profile_scenario_recommendation_summary(
+    const std::vector<GameProfileScenarioRecommendation>& recommendations
+) noexcept {
+    GameProfileScenarioRecommendationSummary summary;
+    if (recommendations.empty()) {
+        return summary;
+    }
+
+    summary.recommendations = recommendations.size();
+    summary.min_day_count = recommendations.front().preset.day_count;
+    summary.max_day_count = recommendations.front().preset.day_count;
+
+    for (const auto& recommendation : recommendations) {
+        const auto day_count = recommendation.preset.day_count;
+        summary.total_day_count += day_count;
+        if (day_count < summary.min_day_count) {
+            summary.min_day_count = day_count;
+        }
+        if (day_count > summary.max_day_count) {
+            summary.max_day_count = day_count;
+        }
+    }
+
+    return summary;
+}
+
+[[nodiscard]] inline GameProfileScenarioRecommendationSummary game_profile_scenario_recommendation_summary() noexcept {
+    return game_profile_scenario_recommendation_summary(game_profile_scenario_recommendations());
+}
+
+[[nodiscard]] inline std::string game_profile_scenario_recommendation_summary_digest(
+    const GameProfileScenarioRecommendationSummary& summary
+) {
+    std::string digest = "game_profile_scenario_summary recommendations=";
+    digest += std::to_string(summary.recommendations);
+    digest += " total_days=";
+    digest += std::to_string(summary.total_day_count);
+    digest += " min_days=";
+    digest += std::to_string(summary.min_day_count);
+    digest += " max_days=";
+    digest += std::to_string(summary.max_day_count);
+    return digest;
 }
 
 [[nodiscard]] inline SimulationScenarioPresetCatalog make_game_profile_scenario_preset_catalog(
