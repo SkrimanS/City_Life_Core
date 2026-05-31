@@ -28,6 +28,7 @@
 #include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileChecklist.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
+#include "clc/sim/GameProfileValidation.hpp"
 #include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/Ownership.hpp"
 #include "clc/sim/Routes.hpp"
