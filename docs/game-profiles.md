@@ -95,7 +95,7 @@ const auto validation = clc::sim::validate_game_profile_catalog();
 clc::sim::game_profile_catalog_validation_digest(validation);
 ```
 
-Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, scenario summary count/day-window consistency, adoption report descriptor consistency, adoption summary count/flag consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. It is intended for SDK tests, diagnostics and release review.
+Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, scenario summary count/day-window consistency, adoption report descriptor consistency, adoption summary count/flag/day-window consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. It is intended for SDK tests, diagnostics and release review.
 
 ### Scenario recommendations
 
@@ -131,7 +131,7 @@ clc::sim::game_profile_adoption_summary_digest(adoption_summary);
 clc::sim::game_profile_adoption_report_markdown(report);
 ```
 
-The markdown report includes support status, integration boundary, required systems, optional systems, non-goals and recommended scenario presets. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts plus the C ABI, Action Bridge and server-authoritative flags.
+The markdown report includes support status, integration boundary, required systems, optional systems, non-goals, recommended scenario presets and the scenario recommendation day window. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts, scenario total/min/max day windows, plus the C ABI, Action Bridge and server-authoritative flags.
 
 ### Adoption checklists
 
