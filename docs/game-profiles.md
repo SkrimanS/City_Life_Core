@@ -77,6 +77,31 @@ clc::sim::game_integration_profile_mentions_system(profile, "diagnostics");
 
 The catalog is intentionally descriptive. It helps external integrations choose an adoption path, but it does not create a framework, runtime mode, networking layer or engine-specific subsystem.
 
+### Scenario recommendations
+
+Profiles can expose recommended scenario presets for smoke tests, replay windows, balancing probes or long-running soak checks:
+
+```cpp
+clc::sim::game_profile_scenario_recommendations();
+clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service");
+clc::sim::make_game_profile_scenario_preset_catalog("backend_service");
+clc::sim::make_all_game_profile_scenario_preset_catalog();
+```
+
+Scenario recommendations are intentionally lightweight. They reuse `SimulationScenarioPreset` and do not create a separate game mode.
+
+### Adoption reports
+
+A profile adoption report gives an integration-facing summary that can be displayed in tools, logs or generated documentation:
+
+```cpp
+const auto report = clc::sim::make_game_profile_adoption_report("backend_service");
+clc::sim::game_profile_adoption_report_digest(report);
+clc::sim::game_profile_adoption_report_markdown(report);
+```
+
+The markdown report includes support status, integration boundary, required systems, optional systems, non-goals and recommended scenario presets.
+
 See also:
 
 ```text
