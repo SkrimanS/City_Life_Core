@@ -81,7 +81,7 @@ Quick Windows validation for the normal developer loop:
 scripts\quick_validation.bat
 ```
 
-This configures a local build with tests/examples enabled, builds it, runs `ctest` and smoke-runs the main examples. `clc_example_replay_persistence` is skipped by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include it.
+This configures a local build with tests/examples enabled, builds it, runs `ctest` and smoke-runs the main examples. `clc_example_replay_persistence` is skipped by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include it. Set `CLC_RUN_INSTALL_CONSUMERS=1` to also install the SDK into the quick build directory and build/run the installed C++ and C ABI consumer examples.
 
 Optional benchmarks:
 
