@@ -2,6 +2,7 @@
 #include "clc/sim/GameProfileChecklist.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfileValidation.hpp"
+#include "clc/sim/GameProfileValidationMarkdown.hpp"
 #include "clc/sim/GameProfiles.hpp"
 
 #include <cstdlib>
@@ -65,6 +66,10 @@ int main() {
         clc::sim::game_profile_catalog_validation_digest(catalog_report) == "game_profile_catalog_validation ok=yes errors=0 warnings=0",
         "profile catalog validation digest should be stable"
     );
+    const auto catalog_validation_markdown = clc::sim::game_profile_catalog_validation_markdown(catalog_report);
+    require(catalog_validation_markdown.find("# Game Profile Catalog Validation") != std::string::npos, "profile catalog validation markdown should include heading");
+    require(catalog_validation_markdown.find("game_profile_catalog_validation ok=yes") != std::string::npos, "profile catalog validation markdown should include digest");
+    require(catalog_validation_markdown.find("No validation diagnostics") != std::string::npos, "profile catalog validation markdown should explain empty diagnostics");
 
     const auto catalog_summary = clc::sim::game_integration_profile_catalog_summary();
     require(catalog_summary.total_profiles == 9, "profile catalog summary should report total profile count");
