@@ -75,6 +75,14 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
 ```
 
+Quick Windows validation for the normal developer loop:
+
+```bat
+scripts\quick_validation.bat
+```
+
+This configures a local build with tests/examples enabled, builds it, runs `ctest` and smoke-runs the main examples. `clc_example_replay_persistence` is skipped by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include it.
+
 Optional benchmarks:
 
 ```bash
