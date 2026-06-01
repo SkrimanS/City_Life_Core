@@ -80,6 +80,10 @@ int main() {
             == "game_profile_catalog_summary total=9 supported=3 partial=3 initial=1 planned=2 c_abi=3 action_bridge=4 server_authoritative=2",
         "profile catalog summary digest should be stable"
     );
+    const auto catalog_markdown = clc::sim::game_integration_profile_catalog_markdown();
+    require(catalog_markdown.find("# Game Integration Profile Catalog") != std::string::npos, "profile catalog markdown should include heading");
+    require(catalog_markdown.find("game_profile_catalog_summary total=9") != std::string::npos, "profile catalog markdown should include summary digest");
+    require(catalog_markdown.find("backend_service") != std::string::npos, "profile catalog markdown should include backend profile id");
 
     const auto& profiles = clc::sim::game_integration_profiles();
     require(profiles.size() >= 8, "profile catalog should expose the planned v1.4 adoption profiles");
