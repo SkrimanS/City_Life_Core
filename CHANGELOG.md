@@ -2,7 +2,7 @@
 
 All notable changes to City Life Core are tracked here.
 
-Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
+Internal milestones such as `v1.1.0`, `v1.2.0`, `v1.3.0` and `v1.4.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
 
 ## Unreleased
 
@@ -10,6 +10,17 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
+- Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
+- Added game profile catalog summary and markdown helpers for support-status, C ABI, Action Bridge and server-authoritative profile counts.
+- Added game profile catalog validation helpers with digest/markdown output to verify descriptor id uniqueness, enum uniqueness, lookup consistency, summary count consistency, required/system-list consistency, required/optional system overlap, scenario references, preset validity, scenario summary count/day-window consistency, adoption report descriptor consistency, adoption summary count/flag/day-window consistency, adoption report scenario content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details.
+- Added game profile scenario recommendation helpers that expose lightweight `SimulationScenarioPreset` catalogs per profile with scenario summary counts and day-window helpers.
+- Added game profile adoption report helpers with profile-specific digest output, profile-specific markdown output, summary, profile-specific summary and scenario day-window summary for integration-facing tooling and documentation.
+- Added game profile checklist helpers for required/optional host-side integration review steps, profile-specific checklist digest output, profile-specific checklist markdown output, checklist summary counts per profile and profile-specific checklist summaries.
+- Added `examples/game_profiles.cpp` to show profile discovery, backend-service recommendations, catalog summary/markdown output, catalog validation digest/markdown output, scenario presets, scenario summary output, adoption reports, adoption summary output, checklist digest/markdown output and checklist summary output.
+- Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage, server-authoritative boundaries, catalog summary, catalog markdown output, catalog validation digest/markdown output, scenario recommendations, scenario summaries, profile-specific scenario summaries, adoption reports, adoption report output helpers, adoption summaries, profile-specific adoption summaries, adoption scenario day-window summaries, checklists, profile-specific checklist digests, profile-specific checklist markdowns, checklist summaries and profile-specific checklist summaries.
+- Added `scripts/quick_validation.bat` for fast Windows developer validation of configure, build, `ctest`, example smoke checks and optional installed C++/C ABI consumer checks.
+- Added `scripts/full_validation.bat` to run the full local Windows validation pass and package console, CTest and CMake logs into a shareable ZIP archive.
 - Added `docs/data-packs.md` with `.clcd` schema, required fields, strict loader validation rules and diagnostics guidance.
 - Added `examples/validation_hardening.cpp` to demonstrate rejected data-pack input, rejected Action Bridge actions and no-mutation behavior.
 - Added data-pack loader hardening tests for missing schema, unknown sections, duplicate keys, missing/zero numeric fields and broken references.
@@ -39,7 +50,7 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added `docs/game-profiles.md` with recommended integration profiles for native C++ games, Unity/C#, Browser/WASM, server-authoritative games, MMO-like services and editor/tooling workflows.
 - Added `docs/c-abi-expansion-plan.md` with a staged plan for expanding the C ABI for Unity/C#, browser/WASM, tools and other foreign-language integrations.
 - Added `docs/integration-targets.md` to clarify supported, initial and planned integration targets across C++, C ABI, Unity/C#, browser/WASM, other engines, backend/MMO and tooling scenarios.
-- Added `docs/integration-validation.md` with validation checklists for C++ package, installed consumer, C ABI, C# / Unity, SDK ZIP and future Browser/WASM integration work.
+- Added `docs/integration-validation.md` with validation checklists for C++ package, C ABI, Unity/C#, SDK ZIP and future Browser/WASM integration work.
 - Added `docs/browser-wasm.md` with the planned browser and WebAssembly integration path for web games, web tools and browser-hosted demos.
 - Added `docs/csharp-unity.md` with initial C# and Unity integration guidance through the C ABI and P/Invoke, including native plug-in troubleshooting notes.
 - Added `examples/csharp_unity/` with a C# P/Invoke wrapper, Unity `MonoBehaviour` smoke test and Unity-oriented usage notes for the current minimal C ABI.
@@ -49,6 +60,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Exposed the game integration profile catalog, catalog summary, catalog validation, profile scenario recommendations, scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries through the recommended SDK umbrella header.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
 - Kept source-level `DataRegistry::add(...)` compatible for zero numeric defaults by reporting warnings instead of errors for direct C++ construction.
 - Hardened `ResourceStorage` so zero-amount add, direct remove and transfer operations are rejected without mutation.
@@ -73,18 +85,19 @@ Changes merged into `main` after the latest public release are recorded here.
 - Updated `docs/ci-artifact-review.md` to expand CI, benchmark, SDK ZIP, installed package, C ABI consumer, C# / Unity example and planned Browser/WASM artifact review guidance.
 - Updated `docs/cmake-package.md` to describe the exported target, C++ and C ABI consumers, installed package variables, installed examples, shared-library native plug-in builds and planned Browser/WASM package notes.
 - Updated `docs/compatibility.md` to split compatibility expectations across C++ source compatibility, C ABI compatibility, C# / Unity wrapper expectations, planned Browser/WASM support, save/load, replay, data validation and packaging.
-- Updated `docs/migration.md` with migration guidance for lower-kebab-case docs, CMake package usage, source-first C++ API, C ABI adoption, Unity/C# wrapper migration, planned Browser/WASM support, game profiles, save/load and replay checks.
+- Updated `docs/migration.md` with migration guidance for lower-kebab-case docs, CMake package usage, source-first C++ API, game profile API adoption, C ABI adoption, Unity/C# wrapper migration, planned Browser/WASM support, save/load and replay checks.
 - Updated `docs/protection-strategy.md` to document canonical source verification, major-only public release protection, archive provenance, API boundary protection, integration claim protection and downstream responsibility.
-- Updated `docs/public-api.md` to explain the C++ API, C ABI, Unity/C# wrapper path, planned Browser/WASM boundary, examples/adapters, Action Bridge and unsupported internals.
-- Updated `docs/public-api-status.md` to classify the public C++ API, local Action Bridge, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
-- Updated `docs/readiness-status.md` to separate the `v1.0.0` release snapshot from post-1.0.0 integration readiness for C ABI, Unity/C#, Browser/WASM, game profiles, server-authoritative runtime, MMO-like support and tooling workflows.
+- Updated `docs/public-api.md` to document the game profile source-level C++ API alongside the C++ API, C ABI, Unity/C# wrapper path, planned Browser/WASM boundary, examples/adapters, Action Bridge and unsupported internals.
+- Updated `docs/public-api-status.md` to classify the game profile API as a descriptive C++ source-level surface alongside the public C++ API, local Action Bridge, minimal C ABI, examples/adapters, planned integration adapters and private unsupported internals.
+- Updated `docs/readiness-status.md` to classify game profiles as a source-level guidance API while keeping C ABI, Unity/C#, Browser/WASM, server-authoritative runtime, MMO-like support and tooling readiness separate.
 - Updated `docs/release-manifest-1.0.0.md` and `docs/release-notes-1.0.0.md` to clarify that newer integration planning docs belong to post-1.0.0 internal development unless included in a future public release manifest.
 - Updated `docs/release-manifest-template.md` to include major-only release policy, installed package validation, SDK ZIP contents, C ABI review, C# / Unity review, Browser/WASM status, compatibility and migration sections.
 - Updated `docs/verifying-releases.md` to document the major-only public release policy, archive checksum checks, expected SDK ZIP contents, installed C++ and C ABI consumer verification, Unity/C# example caveats and planned Browser/WASM release caveats.
 - Updated the C ABI documentation to point non-C++ integrations toward the staged C ABI expansion plan.
 - Updated the C# / Unity documentation to reference the optional Unity smoke-test script.
 - Updated the roadmap to track C# / Unity integration as part of multi-game and platform integration support.
-- Updated root README, documentation index, Russian documentation index and examples index with architecture, integration target, game-profile, C ABI expansion, C# / Unity, browser/WebAssembly and Action Bridge links.
+- Updated root README, documentation index, Russian documentation index and examples index with game profile API pointers, updated game-profile example details, architecture, integration target, C ABI expansion, C# / Unity, browser/WebAssembly and Action Bridge links.
+- Updated `.gitignore` to ignore the default `build-quick-validation/` directory produced by the quick validation batch script.
 - Updated packaging, SDK ZIP and SDK structure documentation to describe installed C ABI examples, C# / Unity examples and shared-library native plug-in packaging notes.
 - Updated GitHub pull request template to reference integration validation and SDK ZIP checks.
 - Updated GitHub bug report, feature request and custom issue templates with integration targets, C ABI expansion, Unity/C# and Browser/WASM sections.
@@ -128,7 +141,7 @@ Status: **released / v1.0.0**.
   - `run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(...)`.
 - Added tick-based contract deadline APIs and tests for `due_ticks` without daily engine advancement.
 - Added runtime save/load coverage for `runtime.time`, `due_ticks`, caravan tick progress, and settlement tick remainders.
-- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit `time` is missing.
+- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit runtime time is missing.
 - Added tick-based runtime diagnostics and event-log helpers:
   - `runtime.tick.completed`;
   - tick-run event-log append helpers;
@@ -149,9 +162,3 @@ Status: **released / v1.0.0**.
 - Changed runtime caravan loading checks to use tick progress instead of day-only progress, preventing cargo loading after tick-based departure.
 - Kept day-based APIs as compatibility wrappers while making tick-based APIs the preferred path for real-time games.
 - Removed obsolete version-specific release notes for pre-1.0 preparation layers.
-- Converted public documentation to an English-primary structure with Russian entry point under `docs/ru/` and lower-kebab-case document filenames.
-
-### Compatibility
-
-- Existing day-based route, caravan, and contract APIs remain available.
-- Existing save files without explicit runtime time are still loaded by deriving runtime ticks from saved `current_day`.

@@ -60,6 +60,30 @@ Run:
 ./build/clc_example_action_bridge
 ```
 
+### `clc_example_game_profiles`
+
+Source: `examples/game_profiles.cpp`
+
+Shows the v1.4.0 game-profile source-level C++ guidance API:
+
+- enumerate supported and planned integration profiles;
+- print profile support status, integration boundary and system counts;
+- validate profile catalog consistency and generate validation markdown output;
+- generate profile catalog summary and markdown output;
+- inspect required systems and non-goals for the backend service profile;
+- list C ABI, Action Bridge, server-authoritative and persistence-oriented profile groups;
+- inspect recommended scenario presets and scenario day-window summaries for backend and MMO-like profiles;
+- generate profile-specific adoption report digest and markdown output;
+- generate profile-specific adoption summaries with scenario day-window output;
+- generate a required/optional integration checklist with profile-specific checklist digest, markdown and summary output;
+- use the public umbrella header `clc/CityLifeCore.hpp` for profile discovery.
+
+Run:
+
+```bash
+./build/clc_example_game_profiles
+```
+
 ### `clc_example_validation_hardening`
 
 Source: `examples/validation_hardening.cpp`
@@ -258,6 +282,13 @@ Recommended include:
 
 ```cpp
 #include "clc/CityLifeCore.hpp"
+```
+
+Start with the game profiles catalog if you need to choose an integration path for a native game, Unity/C# client, backend service, MMO-like simulation or tooling workflow:
+
+```text
+examples/game_profiles.cpp
+docs/game-profiles.md
 ```
 
 Start with the Action Bridge if an external game layer, editor, tool or future server adapter needs to send actions without reaching into runtime internals:

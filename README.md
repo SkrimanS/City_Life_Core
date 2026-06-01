@@ -75,6 +75,28 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
 ```
 
+Quick Windows validation for the normal developer loop:
+
+```bat
+scripts\quick_validation.bat
+```
+
+This configures a local build with tests/examples enabled, builds it, runs `ctest` and smoke-runs the main examples. `clc_example_replay_persistence` is skipped by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include it. Set `CLC_RUN_INSTALL_CONSUMERS=1` to also install the SDK into the quick build directory and build/run the installed C++ and C ABI consumer examples.
+
+Full Windows validation with a shareable log archive:
+
+```bat
+scripts\full_validation.bat
+```
+
+This runs quick validation with replay and installed consumer checks enabled, captures console output, copies useful CTest/CMake logs and creates:
+
+```text
+build-full-validation\city-life-core-validation-logs.zip
+```
+
+Send that ZIP archive for review when validation output is needed.
+
 Optional benchmarks:
 
 ```bash

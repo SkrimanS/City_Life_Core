@@ -39,6 +39,143 @@ The same core systems should remain reusable across profiles:
 
 ---
 
+## Public profile catalog API
+
+The v1.4.0 profile catalog is available from the recommended SDK umbrella header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Main profile API:
+
+```cpp
+clc::sim::game_integration_profiles();
+clc::sim::game_integration_profile_by_id("backend_service");
+clc::sim::game_integration_profile_descriptor(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_integration_profile_digest(profile);
+clc::sim::game_integration_profile_systems_digest(profile);
+```
+
+Catalog summary and markdown helpers:
+
+```cpp
+const auto summary = clc::sim::game_integration_profile_catalog_summary();
+clc::sim::game_integration_profile_catalog_summary_digest(summary);
+clc::sim::game_integration_profile_catalog_markdown();
+```
+
+The summary reports total profiles, support-status counts, C ABI profile count, Action Bridge profile count and server-authoritative profile count. The markdown helper emits a tool-friendly catalog overview with the summary digest and one row per profile.
+
+Query helpers:
+
+```cpp
+clc::sim::game_integration_profiles_by_support(clc::sim::GameIntegrationProfileSupport::supported);
+clc::sim::game_integration_profiles_requiring_system("persistence");
+clc::sim::game_integration_profiles_needing_c_abi();
+clc::sim::game_integration_profiles_using_action_bridge();
+clc::sim::game_integration_profiles_server_authoritative();
+```
+
+System helpers:
+
+```cpp
+clc::sim::game_integration_profile_has_required_system(profile, "simulation_runtime");
+clc::sim::game_integration_profile_has_optional_system(profile, "action_bridge");
+clc::sim::game_integration_profile_mentions_system(profile, "diagnostics");
+```
+
+The catalog is intentionally descriptive. It helps external integrations choose an adoption path, but it does not create a framework, runtime mode, networking layer or engine-specific subsystem.
+
+### Catalog validation
+
+The catalog can validate its own descriptor and scenario consistency:
+
+```cpp
+const auto validation = clc::sim::validate_game_profile_catalog();
+clc::sim::game_profile_catalog_validation_digest(validation);
+clc::sim::game_profile_catalog_validation_markdown(validation);
+```
+
+Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, scenario summary count/day-window consistency, adoption report descriptor consistency, adoption summary count/flag/day-window consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. The validation markdown helper emits a tool-friendly review report with the digest, status counts and diagnostics. It is intended for SDK tests, diagnostics and release review.
+
+### Scenario recommendations
+
+Profiles can expose recommended scenario presets for smoke tests, replay windows, balancing probes or long-running soak checks:
+
+```cpp
+clc::sim::game_profile_scenario_recommendations();
+clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service");
+
+const auto scenario_summary = clc::sim::game_profile_scenario_recommendation_summary();
+clc::sim::game_profile_scenario_recommendation_summary_digest(scenario_summary);
+
+const auto backend_scenario_summary = clc::sim::game_profile_scenario_recommendation_summary_for_profile_id("backend_service");
+clc::sim::game_profile_scenario_recommendation_summary_for_profile(clc::sim::GameIntegrationProfile::backend_service);
+
+clc::sim::make_game_profile_scenario_preset_catalog("backend_service");
+clc::sim::make_all_game_profile_scenario_preset_catalog();
+```
+
+Scenario recommendations are intentionally lightweight. They reuse `SimulationScenarioPreset` and do not create a separate game mode. Scenario recommendation summaries report recommendation count, total day count and min/max day windows. Profile-specific summary helpers provide the same counts for one profile id or enum without requiring callers to first build a recommendation vector.
+
+### Adoption reports
+
+A profile adoption report gives an integration-facing summary that can be displayed in tools, logs or generated documentation:
+
+```cpp
+const auto report = clc::sim::make_game_profile_adoption_report("backend_service");
+clc::sim::game_profile_adoption_report_digest(report);
+clc::sim::game_profile_adoption_report_digest("backend_service");
+clc::sim::game_profile_adoption_report_digest(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_adoption_report_digest(*profile);
+
+const auto adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
+clc::sim::game_profile_adoption_summary(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_adoption_summary(*profile);
+clc::sim::game_profile_adoption_summary_digest(adoption_summary);
+
+clc::sim::game_profile_adoption_report_markdown(report);
+clc::sim::game_profile_adoption_report_markdown("backend_service");
+clc::sim::game_profile_adoption_report_markdown(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_adoption_report_markdown(*profile);
+```
+
+The markdown report includes support status, integration boundary, required systems, optional systems, non-goals, recommended scenario presets and the scenario recommendation day window. Adoption summaries report required-system, optional-system, non-goal and scenario-recommendation counts, scenario total/min/max day windows, plus the C ABI, Action Bridge and server-authoritative flags. Profile-specific adoption report output helpers provide digest and markdown output for a profile id, enum or descriptor without requiring callers to first build an adoption report. Profile-specific adoption summary helpers provide the same counts for a profile id, enum or descriptor without requiring callers to first build an adoption report.
+
+### Adoption checklists
+
+Profiles can also generate host-side checklist items for integration review:
+
+```cpp
+const auto checklist = clc::sim::make_game_profile_checklist("backend_service");
+clc::sim::game_profile_checklist_digest(checklist);
+clc::sim::game_profile_checklist_digest("backend_service");
+clc::sim::game_profile_checklist_digest(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_checklist_digest(*profile);
+
+clc::sim::game_profile_checklist_markdown(checklist);
+clc::sim::game_profile_checklist_markdown("backend_service");
+clc::sim::game_profile_checklist_markdown(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_checklist_markdown(*profile);
+
+const auto checklist_summary = clc::sim::game_profile_checklist_summary("backend_service");
+clc::sim::game_profile_checklist_summary(clc::sim::GameIntegrationProfile::backend_service);
+clc::sim::game_profile_checklist_summary(*profile);
+clc::sim::game_profile_checklist_summary_digest(checklist_summary);
+```
+
+Checklist items mark required and optional review steps. Checklist summaries report total, required and optional item counts. Profile-specific checklist digest and markdown helpers provide tool-friendly output for a profile id, enum or descriptor without requiring callers to first build a checklist. Profile-specific checklist summary helpers provide item counts for a profile id, enum or descriptor without requiring callers to first build a checklist. They are guidance only; they do not enforce runtime behavior or replace product-specific validation.
+
+See also:
+
+```text
+examples/game_profiles.cpp
+tests/game_profiles_tests.cpp
+```
+
+---
+
 ## Current profile support summary
 
 | Profile | Current status | Main integration boundary | Notes |

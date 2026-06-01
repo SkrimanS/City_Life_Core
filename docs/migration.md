@@ -71,6 +71,44 @@ The public C++ API is source-first. Rebuild downstream projects against the SDK 
 
 ---
 
+## Game profile API migration
+
+Older integrations may have tracked target-platform assumptions only in downstream docs, spreadsheets or product-specific scripts. v1.4.0 adds an installed C++ guidance API for these adoption decisions.
+
+Recommended C++ include:
+
+```cpp
+#include "clc/sim/GameProfiles.hpp"
+#include "clc/sim/GameProfileValidation.hpp"
+#include "clc/sim/GameProfileScenarios.hpp"
+#include "clc/sim/GameProfileAdoption.hpp"
+#include "clc/sim/GameProfileChecklist.hpp"
+```
+
+or:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Migration checklist:
+
+1. Replace hard-coded profile tables in native tools with `game_integration_profiles()` where useful.
+2. Use `validate_game_profile_catalog()` in SDK review or tool smoke checks.
+3. Use query helpers such as `game_integration_profiles_needing_c_abi()` and `game_integration_profiles_server_authoritative()` instead of duplicating profile filters.
+4. Use scenario recommendations and scenario summary helpers when choosing lightweight smoke windows for profile-specific checks.
+5. Use adoption report output, profile-specific adoption summaries, checklist digest output and profile-specific checklist summaries for generated tool output, review dashboards or integration notes.
+
+The profile API is descriptive. It does not create engine-specific adapters, runtime modes, networking behavior, managed APIs or C ABI bindings.
+
+Related docs:
+
+- [Game integration profiles](game-profiles.md)
+- [Public API status](public-api-status.md)
+- [Integration targets](integration-targets.md)
+
+---
+
 ## Action Bridge migration
 
 If an older integration sends external commands directly into runtime internals, migrate those flows toward the local Action Bridge when the operation fits the supported action model.
@@ -234,7 +272,7 @@ Related docs:
 
 ---
 
-## Game profile migration
+## Game profile selection migration
 
 If an older integration assumed that City Life Core is only a C++ library, review the game profile document and choose the intended profile:
 
@@ -288,6 +326,7 @@ When migrating downstream docs or project references:
 - [ ] Use `find_package(CityLifeCore CONFIG REQUIRED)` for installed consumers.
 - [ ] Link against `CityLifeCore::core`.
 - [ ] Prefer `#include "clc/CityLifeCore.hpp"` for C++ consumers.
+- [ ] Use game profile catalog, scenario summaries, adoption report output, adoption summaries, checklist digest output and checklist summary helpers for native integration planning where useful.
 - [ ] Use the local Action Bridge for supported external action-style flows.
 - [ ] Prefer tick-based APIs for server-authoritative or real-time simulation flows.
 - [ ] Use the C ABI for C, C#, Unity, WebAssembly and other non-C++ integration layers.

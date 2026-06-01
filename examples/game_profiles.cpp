@@ -1,0 +1,131 @@
+#include "clc/CityLifeCore.hpp"
+
+#include <iostream>
+#include <vector>
+
+namespace {
+
+void print_profile_ids(
+    const char* title,
+    const std::vector<const clc::sim::GameIntegrationProfileDescriptor*>& profiles
+) {
+    std::cout << '\n' << title << ":\n";
+    for (const auto* profile : profiles) {
+        if (profile != nullptr) {
+            std::cout << "- " << profile->id << " (" << profile->display_name << ")\n";
+        }
+    }
+}
+
+void print_profile_scenarios(
+    const char* title,
+    const std::vector<clc::sim::GameProfileScenarioRecommendation>& recommendations,
+    const clc::sim::GameProfileScenarioRecommendationSummary& summary
+) {
+    std::cout << '\n' << title << ":\n";
+    std::cout << clc::sim::game_profile_scenario_recommendation_summary_digest(summary) << '\n';
+    for (const auto& recommendation : recommendations) {
+        std::cout << "- " << clc::sim::game_profile_scenario_recommendation_digest(recommendation) << '\n';
+    }
+}
+
+void print_profile_checklist(
+    const clc::sim::GameProfileChecklist& checklist,
+    const clc::sim::GameProfileChecklistSummary& summary
+) {
+    std::cout << "\nBackend adoption checklist:\n";
+    std::cout << clc::sim::game_profile_checklist_digest("backend_service") << '\n';
+    std::cout << clc::sim::game_profile_checklist_summary_digest(summary) << '\n';
+    for (const auto& item : checklist.items) {
+        std::cout << "- [" << (item.required ? "required" : "optional") << "] " << item.id << ": " << item.title << '\n';
+    }
+}
+
+} // namespace
+
+int main() {
+    std::cout << "City Life Core game integration profiles\n";
+
+    const auto catalog_validation = clc::sim::validate_game_profile_catalog();
+    std::cout << clc::sim::game_profile_catalog_validation_digest(catalog_validation) << '\n';
+    std::cout << "\nProfile catalog validation markdown:\n";
+    std::cout << clc::sim::game_profile_catalog_validation_markdown(catalog_validation) << '\n';
+
+    const auto catalog_summary = clc::sim::game_integration_profile_catalog_summary();
+    std::cout << clc::sim::game_integration_profile_catalog_summary_digest(catalog_summary) << '\n';
+    std::cout << "\nProfile catalog markdown:\n";
+    std::cout << clc::sim::game_integration_profile_catalog_markdown() << '\n';
+
+    const auto scenario_summary = clc::sim::game_profile_scenario_recommendation_summary();
+    std::cout << clc::sim::game_profile_scenario_recommendation_summary_digest(scenario_summary) << '\n';
+
+    for (const auto& profile : clc::sim::game_integration_profiles()) {
+        std::cout << clc::sim::game_integration_profile_digest(profile) << '\n';
+    }
+
+    const auto* backend = clc::sim::game_integration_profile_by_id("backend_service");
+    if (backend == nullptr) {
+        std::cerr << "backend profile missing\n";
+        return 1;
+    }
+
+    std::cout << "\nRecommended systems for " << backend->display_name << ":\n";
+    for (const auto system : backend->required_systems) {
+        std::cout << "- " << system << '\n';
+    }
+
+    std::cout << "\nCore non-goals for " << backend->display_name << ":\n";
+    for (const auto non_goal : backend->non_goals) {
+        std::cout << "- " << non_goal << '\n';
+    }
+
+    print_profile_ids(
+        "Profiles that need the C ABI",
+        clc::sim::game_integration_profiles_needing_c_abi()
+    );
+    print_profile_ids(
+        "Profiles that use the Action Bridge",
+        clc::sim::game_integration_profiles_using_action_bridge()
+    );
+    print_profile_ids(
+        "Server-authoritative profiles",
+        clc::sim::game_integration_profiles_server_authoritative()
+    );
+    print_profile_ids(
+        "Profiles requiring persistence",
+        clc::sim::game_integration_profiles_requiring_system("persistence")
+    );
+
+    std::cout << "\nBackend systems digest:\n";
+    std::cout << clc::sim::game_integration_profile_systems_digest(*backend) << '\n';
+
+    print_profile_scenarios(
+        "Backend service scenario presets",
+        clc::sim::game_profile_scenario_recommendations_for_profile_id("backend_service"),
+        clc::sim::game_profile_scenario_recommendation_summary_for_profile_id("backend_service")
+    );
+    print_profile_scenarios(
+        "MMO-like scenario presets",
+        clc::sim::game_profile_scenario_recommendations_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative),
+        clc::sim::game_profile_scenario_recommendation_summary_for_profile(clc::sim::GameIntegrationProfile::mmo_server_authoritative)
+    );
+
+    const auto all_scenarios = clc::sim::make_all_game_profile_scenario_preset_catalog();
+    std::cout << "\nAll profile scenario presets=" << clc::sim::scenario_preset_count(all_scenarios) << '\n';
+
+    std::cout << "\nBackend adoption digest:\n";
+    std::cout << clc::sim::game_profile_adoption_report_digest("backend_service") << '\n';
+    const auto backend_adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
+    std::cout << clc::sim::game_profile_adoption_summary_digest(backend_adoption_summary) << '\n';
+    std::cout << "\nBackend adoption markdown:\n";
+    std::cout << clc::sim::game_profile_adoption_report_markdown("backend_service") << '\n';
+
+    print_profile_checklist(
+        clc::sim::make_game_profile_checklist("backend_service"),
+        clc::sim::game_profile_checklist_summary("backend_service")
+    );
+    std::cout << "\nBackend checklist markdown:\n";
+    std::cout << clc::sim::game_profile_checklist_markdown("backend_service") << '\n';
+
+    return 0;
+}

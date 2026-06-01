@@ -19,7 +19,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`data-packs.md`](data-packs.md) | `.clcd` data pack format, required fields, strict loader validation and diagnostics. |
 | [`action-bridge.md`](action-bridge.md) | Local JSON action bridge for external tools, game layers and future server-authoritative adapters. |
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
-| [`game-profiles.md`](game-profiles.md) | Recommended integration profiles for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
+| [`game-profiles.md`](game-profiles.md) | Recommended integration profiles plus catalog validation output, catalog markdown, adoption reports and checklist output for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
 | [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
 | [`cmake-package.md`](cmake-package.md) | Exported CMake target and installed package directory variables. |
 | [`sdk-zip-package.md`](sdk-zip-package.md) | Build and consume a CPack ZIP SDK archive. |
@@ -63,6 +63,34 @@ Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in the c
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
 Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `data-packs.md`, `action-bridge.md`, `sdk-structure.md`, `game-profiles.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
+
+---
+
+## Quick local validation
+
+On Windows, use the quick validation batch script for the normal developer loop:
+
+```bat
+scripts\quick_validation.bat
+```
+
+It configures a local build with tests and examples enabled, builds it, runs `ctest`, and smoke-runs the main examples. It intentionally skips `clc_example_replay_persistence` by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include that example. Set `CLC_RUN_INSTALL_CONSUMERS=1` to also install the SDK into the quick build directory and build/run the installed C++ and C ABI consumer examples.
+
+For a complete local pass that captures output and creates one shareable ZIP archive, run:
+
+```bat
+scripts\full_validation.bat
+```
+
+The archive is written to:
+
+```text
+build-full-validation\city-life-core-validation-logs.zip
+```
+
+Send that ZIP archive for review when validation output is needed.
+
+The full release gate remains the manual release validation scripts.
 
 ---
 
