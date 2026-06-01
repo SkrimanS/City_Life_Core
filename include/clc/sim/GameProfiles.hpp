@@ -328,6 +328,63 @@ struct GameIntegrationProfileCatalogSummary final {
     return digest;
 }
 
+[[nodiscard]] inline std::string game_integration_profile_catalog_markdown() {
+    const auto summary = game_integration_profile_catalog_summary();
+    std::string output = "# Game Integration Profile Catalog\n\n";
+    output += "- digest: `";
+    output += game_integration_profile_catalog_summary_digest(summary);
+    output += "`\n";
+    output += "- profiles: ";
+    output += std::to_string(summary.total_profiles);
+    output += "\n";
+    output += "- supported: ";
+    output += std::to_string(summary.supported_profiles);
+    output += "\n";
+    output += "- partially supported: ";
+    output += std::to_string(summary.partially_supported_profiles);
+    output += "\n";
+    output += "- initial support: ";
+    output += std::to_string(summary.initial_support_profiles);
+    output += "\n";
+    output += "- planned: ";
+    output += std::to_string(summary.planned_profiles);
+    output += "\n";
+    output += "- C ABI profiles: ";
+    output += std::to_string(summary.c_abi_profiles);
+    output += "\n";
+    output += "- Action Bridge profiles: ";
+    output += std::to_string(summary.action_bridge_profiles);
+    output += "\n";
+    output += "- server-authoritative profiles: ";
+    output += std::to_string(summary.server_authoritative_profiles);
+    output += "\n";
+
+    output += "\n## Profiles\n\n";
+    for (const auto& profile : game_integration_profiles()) {
+        output += "- `";
+        output += profile.id;
+        output += "` - ";
+        output += profile.display_name;
+        output += " (`";
+        output += game_integration_profile_support_name(profile.support);
+        output += "`, ";
+        output += profile.integration_boundary;
+        output += ")";
+        if (profile.needs_c_abi) {
+            output += " C ABI";
+        }
+        if (profile.uses_action_bridge) {
+            output += " Action Bridge";
+        }
+        if (profile.server_authoritative) {
+            output += " server-authoritative";
+        }
+        output += "\n";
+    }
+
+    return output;
+}
+
 [[nodiscard]] inline std::string game_integration_profile_digest(const GameIntegrationProfileDescriptor& profile) {
     std::string digest = "game_profile id=";
     digest += profile.id;
