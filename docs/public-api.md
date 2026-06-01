@@ -43,6 +43,7 @@ Use:
 ```cpp
 #include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/GameProfileValidation.hpp"
+#include "clc/sim/GameProfileValidationMarkdown.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileChecklist.hpp"
@@ -61,7 +62,7 @@ The profile API exposes:
 - required/optional system lists and non-goals;
 - catalog summary and markdown helpers for support, C ABI, Action Bridge and server-authoritative counts;
 - query helpers for C ABI, Action Bridge, server-authoritative and required-system filtering;
-- catalog validation helpers for SDK review;
+- catalog validation helpers with digest and markdown output for SDK review;
 - scenario recommendations backed by `SimulationScenarioPreset`;
 - scenario summary helpers with recommendation counts and day-window totals;
 - adoption report helpers with profile-specific digest and markdown output;
@@ -184,6 +185,7 @@ if (profile == nullptr) {
 const auto summary = clc::sim::game_integration_profile_catalog_summary();
 const auto catalog_markdown = clc::sim::game_integration_profile_catalog_markdown();
 const auto validation = clc::sim::validate_game_profile_catalog();
+const auto validation_markdown = clc::sim::game_profile_catalog_validation_markdown(validation);
 const auto adoption_digest = clc::sim::game_profile_adoption_report_digest("backend_service");
 const auto adoption_markdown = clc::sim::game_profile_adoption_report_markdown(*profile);
 const auto adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
