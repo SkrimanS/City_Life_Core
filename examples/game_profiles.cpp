@@ -51,6 +51,8 @@ int main() {
 
     const auto catalog_summary = clc::sim::game_integration_profile_catalog_summary();
     std::cout << clc::sim::game_integration_profile_catalog_summary_digest(catalog_summary) << '\n';
+    std::cout << "\nProfile catalog markdown:\n";
+    std::cout << clc::sim::game_integration_profile_catalog_markdown() << '\n';
 
     const auto scenario_summary = clc::sim::game_profile_scenario_recommendation_summary();
     std::cout << clc::sim::game_profile_scenario_recommendation_summary_digest(scenario_summary) << '\n';
