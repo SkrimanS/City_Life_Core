@@ -68,7 +68,7 @@ Shows the v1.4.0 game-profile source-level C++ guidance API:
 
 - enumerate supported and planned integration profiles;
 - print profile support status, integration boundary and system counts;
-- validate profile catalog consistency;
+- validate profile catalog consistency and generate validation markdown output;
 - generate profile catalog summary and markdown output;
 - inspect required systems and non-goals for the backend service profile;
 - list C ABI, Action Bridge, server-authoritative and persistence-oriented profile groups;
