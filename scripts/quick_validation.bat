@@ -94,8 +94,9 @@ echo.
 echo + %*
 %*
 if errorlevel 1 (
-    echo Command failed with exit code %ERRORLEVEL%: %*
-    exit /b %ERRORLEVEL%
+    set "EXIT_CODE=!ERRORLEVEL!"
+    echo Command failed with exit code !EXIT_CODE!: %*
+    exit /b !EXIT_CODE!
 )
 exit /b 0
 
@@ -124,8 +125,9 @@ echo.
 echo + "!EXAMPLE_EXE!"
 "!EXAMPLE_EXE!"
 if errorlevel 1 (
-    echo Example failed with exit code %ERRORLEVEL%: %EXAMPLE_NAME%
-    exit /b %ERRORLEVEL%
+    set "EXIT_CODE=!ERRORLEVEL!"
+    echo Example failed with exit code !EXIT_CODE!: %EXAMPLE_NAME%
+    exit /b !EXIT_CODE!
 )
 exit /b 0
 
@@ -176,7 +178,8 @@ echo.
 echo + "!CONSUMER_EXE!"
 "!CONSUMER_EXE!"
 if errorlevel 1 (
-    echo Consumer failed with exit code %ERRORLEVEL%: %CONSUMER_NAME%
-    exit /b %ERRORLEVEL%
+    set "EXIT_CODE=!ERRORLEVEL!"
+    echo Consumer failed with exit code !EXIT_CODE!: %CONSUMER_NAME%
+    exit /b !EXIT_CODE!
 )
 exit /b 0
