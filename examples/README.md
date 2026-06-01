@@ -74,7 +74,7 @@ Shows the v1.4.0 game-profile source-level C++ guidance API:
 - inspect recommended scenario presets and scenario day-window summaries for backend and MMO-like profiles;
 - generate profile-specific adoption report digest and markdown output;
 - generate profile-specific adoption summaries with scenario day-window output;
-- generate a required/optional integration checklist with profile-specific checklist digest and summary output;
+- generate a required/optional integration checklist with profile-specific checklist digest, markdown and summary output;
 - use the public umbrella header `clc/CityLifeCore.hpp` for profile discovery.
 
 Run:
