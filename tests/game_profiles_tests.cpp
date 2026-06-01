@@ -279,6 +279,13 @@ int main() {
     require(clc::sim::game_profile_checklist_digest(*backend) == backend_checklist_digest, "backend checklist digest from descriptor should match checklist digest");
     require(clc::sim::game_profile_checklist_digest("backend_service") == backend_checklist_digest, "backend checklist digest by id should match checklist digest");
     require(clc::sim::game_profile_checklist_digest(clc::sim::GameIntegrationProfile::backend_service) == backend_checklist_digest, "backend checklist digest by enum should match checklist digest");
+    const auto backend_checklist_markdown = clc::sim::game_profile_checklist_markdown(backend_checklist);
+    require(backend_checklist_markdown.find("## Required items") != std::string::npos, "backend checklist markdown should include required items section");
+    require(backend_checklist_markdown.find("## Optional items") != std::string::npos, "backend checklist markdown should include optional items section");
+    require(backend_checklist_markdown.find("replay_persistence") != std::string::npos, "backend checklist markdown should mention replay persistence");
+    require(clc::sim::game_profile_checklist_markdown(*backend) == backend_checklist_markdown, "backend checklist markdown from descriptor should match checklist markdown");
+    require(clc::sim::game_profile_checklist_markdown("backend_service") == backend_checklist_markdown, "backend checklist markdown by id should match checklist markdown");
+    require(clc::sim::game_profile_checklist_markdown(clc::sim::GameIntegrationProfile::backend_service) == backend_checklist_markdown, "backend checklist markdown by enum should match checklist markdown");
 
     const auto unity_checklist = clc::sim::make_game_profile_checklist("unity_csharp_client");
     require(unity_checklist.found, "Unity checklist should be found");
@@ -288,6 +295,8 @@ int main() {
     require(!missing_checklist.found, "missing checklist should not be found");
     require(clc::sim::game_profile_checklist_digest(missing_checklist).find("found=no") != std::string::npos, "missing checklist digest should report not found");
     require(clc::sim::game_profile_checklist_digest("missing_profile").find("found=no") != std::string::npos, "missing checklist digest by id should report not found");
+    require(clc::sim::game_profile_checklist_markdown(missing_checklist).find("Profile checklist not found") != std::string::npos, "missing checklist markdown should report not found");
+    require(clc::sim::game_profile_checklist_markdown("missing_profile").find("Profile checklist not found") != std::string::npos, "missing checklist markdown by id should report not found");
     const auto missing_checklist_summary = clc::sim::game_profile_checklist_summary(missing_checklist);
     const auto missing_checklist_summary_by_id = clc::sim::game_profile_checklist_summary("missing_profile");
     require(missing_checklist_summary.total_items == 0, "missing checklist summary should report zero total items");
