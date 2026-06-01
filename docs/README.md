@@ -76,6 +76,20 @@ scripts\quick_validation.bat
 
 It configures a local build with tests and examples enabled, builds it, runs `ctest`, and smoke-runs the main examples. It intentionally skips `clc_example_replay_persistence` by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include that example. Set `CLC_RUN_INSTALL_CONSUMERS=1` to also install the SDK into the quick build directory and build/run the installed C++ and C ABI consumer examples.
 
+For a complete local pass that captures output and creates one shareable ZIP archive, run:
+
+```bat
+scripts\full_validation.bat
+```
+
+The archive is written to:
+
+```text
+build-full-validation\city-life-core-validation-logs.zip
+```
+
+Send that ZIP archive for review when validation output is needed.
+
 The full release gate remains the manual release validation scripts.
 
 ---
