@@ -16,7 +16,7 @@
 | [Public API](../public-api.md) | Публичный SDK API, рекомендуемые include, validation model и правила использования. |
 | [Action Bridge](../action-bridge.md) | Локальный JSON action bridge для external tools, game layers и будущих server-authoritative adapters. |
 | [SDK structure](../sdk-structure.md) | Структура репозитория, установленного SDK, CMake options и integration modes. |
-| [Game integration profiles](../game-profiles.md) | Профили интеграции, scenario summaries, adoption summaries и checklists для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
+| [Game integration profiles](../game-profiles.md) | Профили интеграции, scenario summaries, adoption report output, adoption summaries, checklist digest output и checklists для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
 | [Packaging](../packaging.md) | Сборка, установка и подключение SDK через CMake. |
 | [CMake package](../cmake-package.md) | Exported CMake target и installed package variables. |
 | [SDK ZIP package](../sdk-zip-package.md) | Создание и использование CPack ZIP SDK archive. |
@@ -71,7 +71,7 @@ target_link_libraries(my_app PRIVATE CityLifeCore::core)
 #include "clc/CityLifeCore.hpp"
 ```
 
-Game profile API для выбора integration path, scenario summaries, adoption summaries и checklist summaries:
+Game profile API для выбора integration path, scenario summaries, adoption report output, adoption summaries, checklist digest output и checklist summaries:
 
 ```cpp
 #include "clc/sim/GameProfiles.hpp"
