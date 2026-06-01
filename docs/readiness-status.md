@@ -43,6 +43,23 @@ The following readiness levels describe ongoing `v1.x` development work, not the
 
 ---
 
+## Latest local validation
+
+Latest uploaded Windows full-validation archive for internal `v1.4.0` review:
+
+- Date: 2026-06-02.
+- Host path: `C:\Users\Yuta\Desktop\City_Life_Core22\City_Life_Core_v14\City_Life_Core`.
+- Generator/toolchain: Visual Studio Build Tools / MSBuild, Release config.
+- Script: `scripts\full_validation.bat`.
+- Summary: `Exit code: 0`, `Status: passed`.
+- Tests: `65/65` passed.
+- Example smoke checks: passed, including `clc_example_replay_persistence`.
+- Installed consumers: passed for `city_life_core_consumer` and `city_life_core_c_abi_consumer`.
+
+This validation confirms the current `v1.4.0` branch state on the local Windows developer machine. It is not a public release manifest and does not change the major-only public release policy.
+
+---
+
 ## Readiness meanings
 
 - **Ready / primary path**: suitable as the recommended integration path for current users.
