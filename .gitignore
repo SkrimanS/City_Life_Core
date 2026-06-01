@@ -1,5 +1,6 @@
 # Build outputs
 build/
+build-quick-validation/
 out/
 cmake-build-*/
 
