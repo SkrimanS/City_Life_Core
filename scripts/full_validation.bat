@@ -28,17 +28,11 @@ set "LOG_DIR=%BUILD_PATH%\validation-logs"
 set "RUN_LOG=%LOG_DIR%\full-validation-output.log"
 set "SUMMARY_LOG=%LOG_DIR%\summary.txt"
 set "ARCHIVE_PATH=%BUILD_PATH%\city-life-core-validation-logs.zip"
+set "STARTED_AT=%DATE% %TIME%"
 
 if not exist "%BUILD_PATH%" mkdir "%BUILD_PATH%"
 if exist "%LOG_DIR%" rmdir /s /q "%LOG_DIR%"
 mkdir "%LOG_DIR%"
-
-echo City Life Core full validation > "%SUMMARY_LOG%"
-echo Repository: %REPO_ROOT% >> "%SUMMARY_LOG%"
-echo Build dir: %BUILD_PATH% >> "%SUMMARY_LOG%"
-echo Config: %CONFIG% >> "%SUMMARY_LOG%"
-echo Started: %DATE% %TIME% >> "%SUMMARY_LOG%"
-echo. >> "%SUMMARY_LOG%"
 
 echo.
 echo City Life Core full validation
@@ -55,15 +49,15 @@ set "CLC_RUN_REPLAY_EXAMPLE=1"
 set "CLC_RUN_INSTALL_CONSUMERS=1"
 
 call "%SCRIPT_DIR%quick_validation.bat" "%BUILD_DIR%" "%CONFIG%" > "%RUN_LOG%" 2>&1
-set "VALIDATION_EXIT_CODE=%ERRORLEVEL%"
-
-echo Exit code: %VALIDATION_EXIT_CODE% >> "%SUMMARY_LOG%"
-echo Finished: %DATE% %TIME% >> "%SUMMARY_LOG%"
+set "VALIDATION_EXIT_CODE=!ERRORLEVEL!"
+set "FINISHED_AT=%DATE% %TIME%"
 
 call :copy_if_exists "%BUILD_PATH%\Testing\Temporary\LastTest.log" "%LOG_DIR%\LastTest.log"
 call :copy_if_exists "%BUILD_PATH%\CMakeFiles\CMakeOutput.log" "%LOG_DIR%\CMakeOutput.log"
 call :copy_if_exists "%BUILD_PATH%\CMakeFiles\CMakeError.log" "%LOG_DIR%\CMakeError.log"
 call :copy_if_exists "%BUILD_PATH%\CMakeCache.txt" "%LOG_DIR%\CMakeCache.txt"
+
+call :write_summary
 
 if exist "%ARCHIVE_PATH%" del /f /q "%ARCHIVE_PATH%"
 
@@ -73,7 +67,7 @@ if errorlevel 1 (
     echo Failed to create ZIP archive with PowerShell.
     echo Logs are still available in:
     echo %LOG_DIR%
-    exit /b %VALIDATION_EXIT_CODE%
+    exit /b !VALIDATION_EXIT_CODE!
 )
 
 echo.
@@ -81,10 +75,10 @@ echo Validation log archive:
 echo %ARCHIVE_PATH%
 echo.
 
-if not "%VALIDATION_EXIT_CODE%"=="0" (
+if not "!VALIDATION_EXIT_CODE!"=="0" (
     echo Full validation finished with failures. Send this archive for review:
     echo %ARCHIVE_PATH%
-    exit /b %VALIDATION_EXIT_CODE%
+    exit /b !VALIDATION_EXIT_CODE!
 )
 
 echo Full validation completed successfully. Send this archive if review is needed:
@@ -95,4 +89,23 @@ exit /b 0
 set "SOURCE_FILE=%~1"
 set "TARGET_FILE=%~2"
 if exist "%SOURCE_FILE%" copy /y "%SOURCE_FILE%" "%TARGET_FILE%" >nul
+exit /b 0
+
+:write_summary
+(
+    echo City Life Core full validation
+    echo Repository: %REPO_ROOT%
+    echo Build dir: %BUILD_PATH%
+    echo Config: %CONFIG%
+    echo Started: %STARTED_AT%
+    echo Finished: %FINISHED_AT%
+    echo Exit code: !VALIDATION_EXIT_CODE!
+    if "!VALIDATION_EXIT_CODE!"=="0" (
+        echo Status: passed
+    ) else (
+        echo Status: failed
+    )
+    echo Log: %RUN_LOG%
+    echo Archive: %ARCHIVE_PATH%
+) > "%SUMMARY_LOG%"
 exit /b 0
