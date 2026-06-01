@@ -48,6 +48,8 @@ int main() {
 
     const auto catalog_validation = clc::sim::validate_game_profile_catalog();
     std::cout << clc::sim::game_profile_catalog_validation_digest(catalog_validation) << '\n';
+    std::cout << "\nProfile catalog validation markdown:\n";
+    std::cout << clc::sim::game_profile_catalog_validation_markdown(catalog_validation) << '\n';
 
     const auto catalog_summary = clc::sim::game_integration_profile_catalog_summary();
     std::cout << clc::sim::game_integration_profile_catalog_summary_digest(catalog_summary) << '\n';
