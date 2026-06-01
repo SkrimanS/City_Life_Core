@@ -44,6 +44,14 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+On Windows, the quick developer shortcut is:
+
+```bat
+scripts\quick_validation.bat
+```
+
+This script configures a local build with tests and examples enabled, builds it, runs `ctest`, and smoke-runs the main examples. It skips `clc_example_replay_persistence` by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include replay persistence in the quick pass.
+
 This validates the normal source-tree flow, including Action Bridge tests and examples when the relevant build options are enabled.
 
 ---
