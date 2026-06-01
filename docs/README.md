@@ -19,7 +19,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`data-packs.md`](data-packs.md) | `.clcd` data pack format, required fields, strict loader validation and diagnostics. |
 | [`action-bridge.md`](action-bridge.md) | Local JSON action bridge for external tools, game layers and future server-authoritative adapters. |
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
-| [`game-profiles.md`](game-profiles.md) | Recommended integration profiles for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
+| [`game-profiles.md`](game-profiles.md) | Recommended integration profiles plus catalog validation output, catalog markdown, adoption reports and checklist output for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
 | [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
 | [`cmake-package.md`](cmake-package.md) | Exported CMake target and installed package directory variables. |
 | [`sdk-zip-package.md`](sdk-zip-package.md) | Build and consume a CPack ZIP SDK archive. |
