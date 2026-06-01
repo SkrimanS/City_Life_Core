@@ -13,6 +13,10 @@ rem
 rem Optional:
 rem   set CLC_RUN_REPLAY_EXAMPLE=1
 rem     Also runs clc_example_replay_persistence.
+rem
+rem   set CLC_RUN_INSTALL_CONSUMERS=1
+rem     Also installs the SDK into the quick build directory and builds/runs
+rem     the installed C++ and C ABI consumer examples.
 
 set "BUILD_DIR=%~1"
 if "%BUILD_DIR%"=="" set "BUILD_DIR=build-quick-validation"
@@ -23,6 +27,9 @@ if "%CONFIG%"=="" set "CONFIG=Release"
 set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..") do set "REPO_ROOT=%%~fI"
 for %%I in ("%REPO_ROOT%\%BUILD_DIR%") do set "BUILD_PATH=%%~fI"
+set "INSTALL_PREFIX=%BUILD_PATH%\installed-sdk"
+set "CPP_CONSUMER_BUILD=%BUILD_PATH%\consumer-cpp"
+set "C_ABI_CONSUMER_BUILD=%BUILD_PATH%\consumer-c-abi"
 
 echo.
 echo City Life Core quick validation
@@ -70,6 +77,14 @@ if "%CLC_RUN_REPLAY_EXAMPLE%"=="1" (
     echo Skipping clc_example_replay_persistence. Set CLC_RUN_REPLAY_EXAMPLE=1 to include it.
 )
 
+if "%CLC_RUN_INSTALL_CONSUMERS%"=="1" (
+    call :run_installed_consumers
+    if errorlevel 1 exit /b 1
+) else (
+    echo.
+    echo Skipping installed consumer checks. Set CLC_RUN_INSTALL_CONSUMERS=1 to include them.
+)
+
 echo.
 echo Quick validation completed successfully.
 exit /b 0
@@ -110,6 +125,58 @@ echo + "!EXAMPLE_EXE!"
 "!EXAMPLE_EXE!"
 if errorlevel 1 (
     echo Example failed with exit code %ERRORLEVEL%: %EXAMPLE_NAME%
+    exit /b %ERRORLEVEL%
+)
+exit /b 0
+
+:run_installed_consumers
+echo.
+echo Running installed consumer checks...
+
+call :run cmake --install "%BUILD_PATH%" --config "%CONFIG%" --prefix "%INSTALL_PREFIX%"
+if errorlevel 1 exit /b 1
+
+call :run cmake -S "%REPO_ROOT%\examples\find_package_consumer" -B "%CPP_CONSUMER_BUILD%" -DCMAKE_PREFIX_PATH="%INSTALL_PREFIX%"
+if errorlevel 1 exit /b 1
+call :run cmake --build "%CPP_CONSUMER_BUILD%" --config "%CONFIG%"
+if errorlevel 1 exit /b 1
+call :run_consumer "%CPP_CONSUMER_BUILD%" city_life_core_consumer
+if errorlevel 1 exit /b 1
+
+call :run cmake -S "%REPO_ROOT%\examples\c_abi_consumer" -B "%C_ABI_CONSUMER_BUILD%" -DCMAKE_PREFIX_PATH="%INSTALL_PREFIX%"
+if errorlevel 1 exit /b 1
+call :run cmake --build "%C_ABI_CONSUMER_BUILD%" --config "%CONFIG%"
+if errorlevel 1 exit /b 1
+call :run_consumer "%C_ABI_CONSUMER_BUILD%" city_life_core_c_abi_consumer
+if errorlevel 1 exit /b 1
+
+exit /b 0
+
+:run_consumer
+set "CONSUMER_BUILD=%~1"
+set "CONSUMER_NAME=%~2"
+set "CONSUMER_EXE="
+
+for %%P in (
+    "%CONSUMER_BUILD%\%CONFIG%\%CONSUMER_NAME%.exe"
+    "%CONSUMER_BUILD%\%CONSUMER_NAME%.exe"
+) do (
+    if exist "%%~fP" (
+        set "CONSUMER_EXE=%%~fP"
+        goto :found_consumer
+    )
+)
+
+echo Missing consumer executable: %CONSUMER_NAME%
+echo Checked common CMake output locations under: %CONSUMER_BUILD%
+exit /b 1
+
+:found_consumer
+echo.
+echo + "!CONSUMER_EXE!"
+"!CONSUMER_EXE!"
+if errorlevel 1 (
+    echo Consumer failed with exit code %ERRORLEVEL%: %CONSUMER_NAME%
     exit /b %ERRORLEVEL%
 )
 exit /b 0
