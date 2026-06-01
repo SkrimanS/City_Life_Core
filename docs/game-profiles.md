@@ -94,9 +94,10 @@ The catalog can validate its own descriptor and scenario consistency:
 ```cpp
 const auto validation = clc::sim::validate_game_profile_catalog();
 clc::sim::game_profile_catalog_validation_digest(validation);
+clc::sim::game_profile_catalog_validation_markdown(validation);
 ```
 
-Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, scenario summary count/day-window consistency, adoption report descriptor consistency, adoption summary count/flag/day-window consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. It is intended for SDK tests, diagnostics and release review.
+Validation checks descriptor ids, enum uniqueness, lookup consistency, summary count consistency, required profile fields, system-list uniqueness, required/optional system overlap, scenario references, scenario preset validity, scenario summary count/day-window consistency, adoption report descriptor consistency, adoption summary count/flag/day-window consistency, adoption report scenario recommendation content/order, adoption report digest/markdown output, checklist generation, checklist summary consistency and generated checklist item ids/titles/details. The validation markdown helper emits a tool-friendly review report with the digest, status counts and diagnostics. It is intended for SDK tests, diagnostics and release review.
 
 ### Scenario recommendations
 
