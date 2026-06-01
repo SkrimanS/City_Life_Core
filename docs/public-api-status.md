@@ -28,7 +28,7 @@ Stable-for-source-use areas include:
 - persistence and save/load validation helpers;
 - event and replay-related helpers where documented;
 - local Action Bridge APIs for transport-agnostic external action dispatch;
-- game profile catalog, catalog markdown output, summary, validation, scenario recommendation, scenario summary, adoption report, profile-specific adoption report output, adoption summary, adoption scenario day-window summary, checklist, profile-specific checklist digest/markdown output, checklist summary and profile-specific checklist summary helpers.
+- game profile catalog, catalog markdown output, summary, validation digest/markdown output, scenario recommendation, scenario summary, adoption report, profile-specific adoption report output, adoption summary, adoption scenario day-window summary, checklist, profile-specific checklist digest/markdown output, checklist summary and profile-specific checklist summary helpers.
 
 Source compatibility is prioritized for the 1.x line where practical. C++ binary ABI stability is not the primary compatibility contract.
 
@@ -43,6 +43,7 @@ Headers:
 ```cpp
 #include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/GameProfileValidation.hpp"
+#include "clc/sim/GameProfileValidationMarkdown.hpp"
 #include "clc/sim/GameProfileScenarios.hpp"
 #include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileChecklist.hpp"
@@ -63,7 +64,7 @@ Status:
 - not engine-specific adapter code;
 - not part of the C ABI.
 
-The profile surface exposes profile descriptors, support status, required/optional systems, non-goals, catalog summary/markdown helpers, query helpers, catalog validation, scenario recommendations, scenario summaries, adoption reports with profile-specific digest/markdown output, adoption summaries with scenario day-window counts, integration checklists and profile-specific checklist digest/markdown/summary helpers.
+The profile surface exposes profile descriptors, support status, required/optional systems, non-goals, catalog summary/markdown helpers, query helpers, catalog validation digest/markdown helpers, scenario recommendations, scenario summaries, adoption reports with profile-specific digest/markdown output, adoption summaries with scenario day-window counts, integration checklists and profile-specific checklist digest/markdown/summary helpers.
 
 ---
 
@@ -149,7 +150,7 @@ Status:
 - `examples/c_abi_consumer/` demonstrates minimal C ABI usage.
 - `examples/csharp_unity/` demonstrates initial C# / Unity P/Invoke usage.
 - `examples/action_bridge.cpp` demonstrates local C++ Action Bridge dispatch.
-- `examples/game_profiles.cpp` demonstrates game profile discovery, catalog summary/markdown output, catalog validation, scenario recommendations, scenario summaries, profile-specific adoption report output, adoption summaries with scenario day-window output, checklists, profile-specific checklist digest/markdown output and profile-specific checklist summaries.
+- `examples/game_profiles.cpp` demonstrates game profile discovery, catalog summary/markdown output, catalog validation digest/markdown output, scenario recommendations, scenario summaries, profile-specific adoption report output, adoption summaries with scenario day-window output, checklists, profile-specific checklist digest/markdown output and profile-specific checklist summaries.
 
 The C# / Unity wrapper is an initial integration example. It should track the C ABI and should not be treated as a complete managed SDK yet.
 
