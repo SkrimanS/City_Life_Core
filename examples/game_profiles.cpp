@@ -120,6 +120,8 @@ int main() {
         clc::sim::make_game_profile_checklist("backend_service"),
         clc::sim::game_profile_checklist_summary("backend_service")
     );
+    std::cout << "\nBackend checklist markdown:\n";
+    std::cout << clc::sim::game_profile_checklist_markdown("backend_service") << '\n';
 
     return 0;
 }
