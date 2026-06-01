@@ -200,4 +200,68 @@ struct GameProfileChecklistSummary final {
     return game_profile_checklist_digest(make_game_profile_checklist(profile_id));
 }
 
+[[nodiscard]] inline std::string game_profile_checklist_markdown(const GameProfileChecklist& checklist) {
+    if (!checklist.found) {
+        return "# Game Profile Checklist\n\nProfile checklist not found: `" + checklist.profile_id + "`\n";
+    }
+
+    const auto summary = game_profile_checklist_summary(checklist);
+    std::string output = "# Game Profile Checklist\n\n";
+    output += "- id: `" + checklist.profile_id + "`\n";
+    output += "- digest: `" + game_profile_checklist_digest(checklist) + "`\n";
+    output += "- items: ";
+    output += std::to_string(summary.total_items);
+    output += "\n";
+    output += "- required: ";
+    output += std::to_string(summary.required_items);
+    output += "\n";
+    output += "- optional: ";
+    output += std::to_string(summary.optional_items);
+    output += "\n";
+
+    output += "\n## Required items\n\n";
+    for (const auto& item : checklist.items) {
+        if (!item.required) {
+            continue;
+        }
+        output += "- `";
+        output += item.id;
+        output += "` - ";
+        output += item.title;
+        output += ": ";
+        output += item.detail;
+        output += "\n";
+    }
+
+    output += "\n## Optional items\n\n";
+    for (const auto& item : checklist.items) {
+        if (item.required) {
+            continue;
+        }
+        output += "- `";
+        output += item.id;
+        output += "` - ";
+        output += item.title;
+        output += ": ";
+        output += item.detail;
+        output += "\n";
+    }
+
+    return output;
+}
+
+[[nodiscard]] inline std::string game_profile_checklist_markdown(
+    const GameIntegrationProfileDescriptor& profile
+) {
+    return game_profile_checklist_markdown(make_game_profile_checklist(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_checklist_markdown(GameIntegrationProfile profile) {
+    return game_profile_checklist_markdown(make_game_profile_checklist(profile));
+}
+
+[[nodiscard]] inline std::string game_profile_checklist_markdown(std::string_view profile_id) {
+    return game_profile_checklist_markdown(make_game_profile_checklist(profile_id));
+}
+
 } // namespace clc::sim
