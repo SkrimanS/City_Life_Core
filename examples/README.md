@@ -72,9 +72,9 @@ Shows the v1.4.0 game-profile source-level C++ guidance API:
 - inspect required systems and non-goals for the backend service profile;
 - list C ABI, Action Bridge, server-authoritative and persistence-oriented profile groups;
 - inspect recommended scenario presets and scenario day-window summaries for backend and MMO-like profiles;
-- generate adoption report digest and markdown output;
+- generate profile-specific adoption report digest and markdown output;
 - generate profile-specific adoption summaries with scenario day-window output;
-- generate a required/optional integration checklist with profile-specific checklist summary output;
+- generate a required/optional integration checklist with profile-specific checklist digest and summary output;
 - use the public umbrella header `clc/CityLifeCore.hpp` for profile discovery.
 
 Run:
