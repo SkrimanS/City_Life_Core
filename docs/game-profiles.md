@@ -57,14 +57,15 @@ clc::sim::game_integration_profile_digest(profile);
 clc::sim::game_integration_profile_systems_digest(profile);
 ```
 
-Catalog summary helpers:
+Catalog summary and markdown helpers:
 
 ```cpp
 const auto summary = clc::sim::game_integration_profile_catalog_summary();
 clc::sim::game_integration_profile_catalog_summary_digest(summary);
+clc::sim::game_integration_profile_catalog_markdown();
 ```
 
-The summary reports total profiles, support-status counts, C ABI profile count, Action Bridge profile count and server-authoritative profile count.
+The summary reports total profiles, support-status counts, C ABI profile count, Action Bridge profile count and server-authoritative profile count. The markdown helper emits a tool-friendly catalog overview with the summary digest and one row per profile.
 
 Query helpers:
 
