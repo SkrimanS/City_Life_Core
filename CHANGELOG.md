@@ -19,7 +19,8 @@ Changes merged into `main` after the latest public release are recorded here.
 - Added game profile checklist helpers for required/optional host-side integration review steps, profile-specific checklist digest output, profile-specific checklist markdown output, checklist summary counts per profile and profile-specific checklist summaries.
 - Added `examples/game_profiles.cpp` to show profile discovery, backend-service recommendations, catalog summary/markdown output, catalog validation digest/markdown output, scenario presets, scenario summary output, adoption reports, adoption summary output, checklist digest/markdown output and checklist summary output.
 - Added game profile catalog tests for profile lookup, support status, C ABI needs, Action Bridge usage, server-authoritative boundaries, catalog summary, catalog markdown output, catalog validation digest/markdown output, scenario recommendations, scenario summaries, profile-specific scenario summaries, adoption reports, adoption report output helpers, adoption summaries, profile-specific adoption summaries, adoption scenario day-window summaries, checklists, profile-specific checklist digests, profile-specific checklist markdowns, checklist summaries and profile-specific checklist summaries.
-- Added `scripts/quick_validation.bat` for fast Windows developer validation of configure, build, `ctest` and example smoke checks.
+- Added `scripts/quick_validation.bat` for fast Windows developer validation of configure, build, `ctest`, example smoke checks and optional installed C++/C ABI consumer checks.
+- Added `scripts/full_validation.bat` to run the full local Windows validation pass and package console, CTest and CMake logs into a shareable ZIP archive.
 - Added `docs/data-packs.md` with `.clcd` schema, required fields, strict loader validation rules and diagnostics guidance.
 - Added `examples/validation_hardening.cpp` to demonstrate rejected data-pack input, rejected Action Bridge actions and no-mutation behavior.
 - Added data-pack loader hardening tests for missing schema, unknown sections, duplicate keys, missing/zero numeric fields and broken references.
@@ -161,9 +162,3 @@ Status: **released / v1.0.0**.
 - Changed runtime caravan loading checks to use tick progress instead of day-only progress, preventing cargo loading after tick-based departure.
 - Kept day-based APIs as compatibility wrappers while making tick-based APIs the preferred path for real-time games.
 - Removed obsolete version-specific release notes for pre-1.0 preparation layers.
-- Converted public documentation to an English-primary structure with Russian entry point under `docs/ru/` and lower-kebab-case document filenames.
-
-### Compatibility
-
-- Existing day-based route, caravan, and contract APIs remain available.
-- Existing save files without explicit runtime time are still loaded by deriving runtime ticks from saved `current_day`.
