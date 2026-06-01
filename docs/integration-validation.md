@@ -54,6 +54,20 @@ This script configures a local build with tests and examples enabled, builds it,
 
 Set `CLC_RUN_INSTALL_CONSUMERS=1` before running the script to also install the SDK into the quick build directory, build the installed C++ consumer, build the installed C ABI consumer and run both consumer executables.
 
+For a complete local pass that captures output and creates one shareable ZIP archive, run:
+
+```bat
+scripts\full_validation.bat
+```
+
+The archive is written to:
+
+```text
+build-full-validation\city-life-core-validation-logs.zip
+```
+
+This wrapper runs quick validation with replay and installed consumer checks enabled, captures console output, copies useful CTest/CMake logs and packages them for review.
+
 This validates the normal source-tree flow, including Action Bridge tests and examples when the relevant build options are enabled.
 
 ---
