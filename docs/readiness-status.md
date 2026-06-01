@@ -35,7 +35,7 @@ The following readiness levels describe ongoing `v1.x` development work, not the
 | C ABI expansion | Planned | Staged in `c-abi-expansion-plan.md`. |
 | C# / Unity wrapper | Initial support | P/Invoke wrapper and Unity smoke test exist; not a full Unity package. |
 | Browser / WebAssembly | Planned | Architecture and constraints documented; no adapter or WASM build yet. |
-| Game integration profiles | Source-level guidance API | C++ profile catalog, validation, scenario recommendations, scenario summaries, adoption reports, adoption summaries and profile-specific checklist summaries exist; profiles still do not create runtime modes or engine adapters. |
+| Game integration profiles | Source-level guidance API | C++ profile catalog, validation, scenario recommendations, scenario summaries, adoption report output, adoption summaries, checklist digest output and profile-specific checklist summaries exist; profiles still do not create runtime modes or engine adapters. |
 | Server-authoritative runtime | Partial foundation | Tick runtime, persistence and replay foundations exist; command/replay hardening remains planned. |
 | MMO-like support | Early foundation | Requires deeper persistence, replay, partitioning assumptions, diagnostics and scale work. |
 | Editor/tooling workflows | Partial foundation | Validation and C++ APIs exist; richer diagnostics and bindable APIs remain planned. |
