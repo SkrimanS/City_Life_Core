@@ -68,6 +68,7 @@ Select all that apply:
 
 - [ ] Local build passed
 - [ ] Quick Windows validation passed (`scripts\quick_validation.bat`)
+- [ ] Full Windows validation archive created (`scripts\full_validation.bat`)
 - [ ] Tests passed
 - [ ] Examples built or checked
 - [ ] Installed package consumer checked
@@ -95,6 +96,18 @@ Optional installed consumer checks:
 ```bat
 set CLC_RUN_INSTALL_CONSUMERS=1
 scripts\quick_validation.bat
+```
+
+Full local validation with shareable log archive:
+
+```bat
+scripts\full_validation.bat
+```
+
+Archive path:
+
+```text
+build-full-validation\city-life-core-validation-logs.zip
 ```
 
 ## Documentation and changelog
