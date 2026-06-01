@@ -66,6 +66,20 @@ Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `publ
 
 ---
 
+## Quick local validation
+
+On Windows, use the quick validation batch script for the normal developer loop:
+
+```bat
+scripts\quick_validation.bat
+```
+
+It configures a local build with tests and examples enabled, builds it, runs `ctest`, and smoke-runs the main examples. It intentionally skips `clc_example_replay_persistence` by default; set `CLC_RUN_REPLAY_EXAMPLE=1` before running the script to include that example.
+
+The full release gate remains the manual release validation scripts.
+
+---
+
 ## Quick CMake integration
 
 ```cmake
