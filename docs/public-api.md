@@ -66,7 +66,7 @@ The profile API exposes:
 - scenario summary helpers with recommendation counts and day-window totals;
 - adoption report helpers with profile-specific digest and markdown output;
 - profile-specific adoption summary helpers with scenario day-window counts;
-- integration checklist helpers with profile-specific digest and summary helpers for host-side review.
+- integration checklist helpers with profile-specific digest, markdown and summary helpers for host-side review.
 
 The profile API is descriptive. It does not add a runtime mode, engine adapter, networking layer, UI framework or product-specific gameplay system.
 
@@ -187,6 +187,7 @@ const auto adoption_digest = clc::sim::game_profile_adoption_report_digest("back
 const auto adoption_markdown = clc::sim::game_profile_adoption_report_markdown(*profile);
 const auto adoption_summary = clc::sim::game_profile_adoption_summary("backend_service");
 const auto checklist_digest = clc::sim::game_profile_checklist_digest("backend_service");
+const auto checklist_markdown = clc::sim::game_profile_checklist_markdown(*profile);
 const auto checklist = clc::sim::make_game_profile_checklist(*profile);
 const auto checklist_summary = clc::sim::game_profile_checklist_summary("backend_service");
 ```
