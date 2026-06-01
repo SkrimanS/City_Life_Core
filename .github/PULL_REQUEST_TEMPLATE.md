@@ -67,6 +67,7 @@ paste commands or CI links here
 Select all that apply:
 
 - [ ] Local build passed
+- [ ] Quick Windows validation passed (`scripts\quick_validation.bat`)
 - [ ] Tests passed
 - [ ] Examples built or checked
 - [ ] Installed package consumer checked
@@ -81,6 +82,19 @@ For integration-related changes, use:
 
 ```text
 docs/integration-validation.md
+```
+
+Useful local shortcut on Windows:
+
+```bat
+scripts\quick_validation.bat
+```
+
+Optional installed consumer checks:
+
+```bat
+set CLC_RUN_INSTALL_CONSUMERS=1
+scripts\quick_validation.bat
 ```
 
 ## Documentation and changelog
