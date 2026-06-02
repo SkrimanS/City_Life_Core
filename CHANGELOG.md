@@ -10,11 +10,13 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added production pressure snapshot helpers for settlement buildings, worker slots, missing input resources, output market pressure, per-building resource signals and digest output.
+- Added logistics pressure snapshot helpers for routes, caravans, cargo, unknown routes, cargo supporting market shortages, cargo supporting open contracts and digest output.
 - Added market pressure and snapshot helpers with shortage, surplus, depleted and balanced classifications, per-resource pressure signals, fulfillability flags and market snapshot digest output.
 - Added economy ledger summary helpers for buy, sell and contract-reward counts, values, per-resource net quantity/value summaries and digest output.
 - Added faction access helpers that classify blocked, restricted, neutral, trusted and allied relationships with trade and contract permission flags.
 - Added contract lifecycle summary helpers for open, fulfilled, failed, cancelled, overdue and reputation-blocked contract review.
-- Added `tests/deep_systems_foundation_tests.cpp` to cover market snapshots, ledger summaries, faction access and contract lifecycle summary behavior.
+- Added `tests/deep_systems_foundation_tests.cpp` to cover market snapshots, ledger summaries, faction access, contract lifecycle, production pressure and logistics pressure behavior.
 - Added `docs/platform-integration-layer.md` for the v1.5.0 platform and adapter boundary review, including host-owned adapter responsibilities, lifecycle and ownership assumptions, integration diagnostics direction, safe C ABI expansion candidates and non-goals.
 - Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
@@ -66,6 +68,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Exposed the production and logistics pressure APIs through the recommended SDK umbrella header.
 - Expanded the `v1.5.0` roadmap scope from platform integration only to platform, integration and deep systems foundation work covering market systems, economy, resources, production chains, logistics, factions, ownership, contracts, ledger output and cross-system tests.
 - Updated the documentation index and Russian documentation index to include the v1.5.0 platform integration layer guidance.
 - Exposed the game integration profile catalog, catalog summary, catalog validation, profile scenario recommendations, scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries through the recommended SDK umbrella header.
