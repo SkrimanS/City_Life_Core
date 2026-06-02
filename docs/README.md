@@ -20,6 +20,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`action-bridge.md`](action-bridge.md) | Local JSON action bridge for external tools, game layers and future server-authoritative adapters. |
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | [`game-profiles.md`](game-profiles.md) | Recommended integration profiles plus catalog validation output, catalog markdown, adoption reports and checklist output for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
+| [`platform-integration-layer.md`](platform-integration-layer.md) | v1.5.0 platform and adapter boundary guidance for Unity/C#, Browser/WASM, server, editor and SDK embedding work. |
 | [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
 | [`cmake-package.md`](cmake-package.md) | Exported CMake target and installed package directory variables. |
 | [`sdk-zip-package.md`](sdk-zip-package.md) | Build and consume a CPack ZIP SDK archive. |
@@ -62,7 +63,7 @@ Internal milestones such as `v1.1.0`, `v1.2.0` and `v1.3.0` are tracked in the c
 
 GitHub Actions and Linux GCC/Clang validation for `v1.0.0` are tracked as post-release verification in issue #41. Windows/MSVC local validation was accepted as the release gate for this release.
 
-Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `data-packs.md`, `action-bridge.md`, `sdk-structure.md`, `game-profiles.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
+Normal SDK users usually start with `core-concepts.md`, `architecture.md`, `public-api.md`, `data-packs.md`, `action-bridge.md`, `sdk-structure.md`, `game-profiles.md`, `platform-integration-layer.md` and `packaging.md`. Unity/C# users should start with `integration-targets.md`, `game-profiles.md`, `platform-integration-layer.md` and `csharp-unity.md` after reviewing the C ABI documentation. Browser/WebAssembly users should start with `integration-targets.md`, `game-profiles.md`, `platform-integration-layer.md` and `browser-wasm.md`. Integration maintainers should also use `integration-validation.md` before merging integration-related changes.
 
 ---
 
