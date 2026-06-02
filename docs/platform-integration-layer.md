@@ -10,7 +10,7 @@ City Life Core should stay a headless, engine-agnostic simulation SDK. Platform 
 
 ## v1.5.0 scope
 
-The `v1.5.0` milestone focuses on making the SDK easier to embed across platforms, engines and backend environments.
+The `v1.5.0` milestone focuses on making the SDK easier to embed across platforms, engines and backend environments while starting the first deeper connected gameplay-system foundations.
 
 Planned work covered by this document:
 
@@ -19,9 +19,10 @@ Planned work covered by this document:
 - evaluate safe C ABI expansion candidates after the minimal 1.0.0 interface;
 - expand C# / Unity guidance where the C ABI is stable enough;
 - add clearer integration notes for servers, editors, tools, Unity projects and game clients;
-- improve CMake package, SDK ZIP and artifact-review expectations where needed;
+- improve CMake package, ZIP SDK and artifact-review expectations where needed;
 - document threading, ownership and lifecycle assumptions;
-- define integration diagnostics that are useful outside local tests.
+- define integration diagnostics that are useful outside local tests;
+- keep the new market, ledger, faction, contract, production and logistics diagnostic surfaces source-level and engine-agnostic.
 
 ---
 
@@ -69,6 +70,12 @@ The Action Bridge is a local validation and dispatch layer. It should remain ind
 
 Products can place networking or permission checks before calling the Action Bridge, but the bridge should not become a networking framework.
 
+### Keep deep-system snapshots source-level for now
+
+The v1.5.0 deep-system foundation adds source-level C++ helpers for market pressure, ledger summaries, faction access reports, contract lifecycle summaries, production pressure, logistics pressure and combined deep-system diagnostics.
+
+These helpers are designed for native games, server-side tools, editor tooling and future adapters. They should not be exposed through the C ABI until the structures, ownership model and text-output patterns are reviewed in a later C ABI expansion phase.
+
 ### Grow the C ABI deliberately
 
 The C ABI is the safest long-term boundary for Unity/C#, WebAssembly, scripting languages and non-C++ tools. It should grow in small phases with explicit ownership, null behavior, error/status conventions and tests.
@@ -96,6 +103,7 @@ City Life Core is responsible for:
 - the intentionally stable C ABI surface;
 - local Action Bridge validation and dispatch;
 - registry, runtime, validation, persistence, replay and diagnostics behavior;
+- source-level deep-system reports and digests for native integrations;
 - installed SDK and package metadata needed by consumers.
 
 ---
@@ -128,8 +136,25 @@ Useful integration diagnostics should answer questions that host adapters need d
 - Which required systems are unavailable through the chosen boundary?
 - Which adapter responsibilities remain product-owned?
 - Which warnings should be shown in editor or CI logs?
+- Which market, production, logistics or contract pressure warnings should be shown to designers or server operators?
 
 For `v1.5.0`, integration diagnostics can begin as documentation, checklist output, examples and C++ helper output. Future milestones may expose more of this through the C ABI for Unity, browser and tooling use.
+
+---
+
+## Deep-system diagnostics surface
+
+The v1.5.0 source-level deep-system diagnostics surface is intentionally read-only and report-oriented:
+
+- `clc/economy/Market.hpp` exposes market pressure snapshots and per-resource shortage/surplus/depleted signals.
+- `clc/economy/Ledger.hpp` exposes ledger summaries and per-resource buy/sell/contract-reward totals.
+- `clc/sim/Factions.hpp` exposes faction access reports and permission flags.
+- `clc/sim/Contracts.hpp` exposes contract lifecycle summaries and reputation/overdue review helpers.
+- `clc/sim/Production.hpp` exposes settlement production pressure snapshots.
+- `clc/sim/Logistics.hpp` exposes route, caravan and cargo pressure snapshots.
+- `clc/sim/DeepSystemsDiagnostics.hpp` combines the above into warning counts, critical counts, digest output and markdown output.
+
+Adapters can use these reports to populate editor panels, server smoke-test logs, balancing dashboards or local debug overlays without giving the core any dependency on UI, networking or engine-specific APIs.
 
 ---
 
@@ -143,7 +168,8 @@ Candidates that fit the current direction:
 - read-only registry queries for resources, buildings, professions and settlements;
 - runtime create/destroy through validated registry input;
 - runtime time, tick and event queries;
-- explicit caller-owned buffer or owned-string patterns for result text.
+- explicit caller-owned buffer or owned-string patterns for result text;
+- future text/digest-only access to reviewed deep-system diagnostics, once ownership and lifetime rules are settled.
 
 Candidates to defer until the native systems are more stable:
 
@@ -152,6 +178,7 @@ Candidates to defer until the native systems are more stable:
 - contract lifecycle mutation APIs;
 - persistence and replay buffer APIs;
 - callbacks, async APIs or host-owned thread callbacks;
+- direct C ABI exposure of C++ STL-backed deep-system snapshot structures;
 - networking, sessions, authentication, matchmaking or replication concepts.
 
 ---
