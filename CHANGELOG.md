@@ -61,6 +61,7 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Expanded the `v1.5.0` roadmap scope from platform integration only to platform, integration and deep systems foundation work covering market systems, economy, resources, production chains, logistics, factions, ownership, contracts, ledger output and cross-system tests.
 - Updated the documentation index and Russian documentation index to include the v1.5.0 platform integration layer guidance.
 - Exposed the game integration profile catalog, catalog summary, catalog validation, profile scenario recommendations, scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries through the recommended SDK umbrella header.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
@@ -131,14 +132,4 @@ Status: **released / v1.0.0**.
 - Added release-gate documentation and tracking:
   - `docs/readiness-status.md`;
   - `docs/release-notes-1.0.0.md`;
-  - `docs/ci-artifact-review.md`;
-  - `docs/release-manifest-1.0.0.md`.
-- Added public SDK/release documentation for C++ consumers, CMake package use, SDK ZIP packaging, versioning, migration, compatibility, C API use, API status, contribution policy and GitHub Actions validation.
-- Added `LICENSE`, `SECURITY.md`, `CONTRIBUTING.md` and an English-first documentation policy with `docs/ru/` as the Russian entry point.
-
-### Changed
-
-- Prepared the repository for a public 1.0.0 SDK release with canonical source, packaging, docs and release-validation material.
-- Updated README badges, project description and release verification guidance.
-- Clarified that public issue and pull-request intake is restricted before the first stable public release.
-- Updated CI artifact guidance after local Windows/MSVC validation accepted as the 1.0.0 release gate.
+  - `docs/ci-artifact-review.md`.
