@@ -77,7 +77,7 @@ void ledger_summary_tracks_resource_flows() {
         .message = "sold resource",
     };
 
-    assert(ledger.record(clc::economy::LedgerEntryType::buy, buy, "stockpile"););
+    assert(ledger.record(clc::economy::LedgerEntryType::buy, buy, "stockpile"));
     assert(ledger.record(clc::economy::LedgerEntryType::sell, sell, "market sale"));
     assert(ledger.record_contract_reward("contract-1", "grain", 3, 60, "delivery reward"));
 
