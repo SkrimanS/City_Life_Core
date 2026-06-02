@@ -1,7 +1,10 @@
 #include "clc/economy/Ledger.hpp"
 
+#include <algorithm>
 #include <limits>
+#include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 namespace clc::economy {
@@ -12,6 +15,20 @@ std::uint64_t saturating_add(std::uint64_t lhs, std::uint64_t rhs) {
         return std::numeric_limits<std::uint64_t>::max();
     }
     return lhs + rhs;
+}
+
+std::int64_t saturating_signed_difference(std::uint64_t positive, std::uint64_t negative) noexcept {
+    constexpr auto max_signed = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
+    if (positive >= negative) {
+        const auto diff = positive - negative;
+        return diff > max_signed ? std::numeric_limits<std::int64_t>::max() : static_cast<std::int64_t>(diff);
+    }
+
+    const auto diff = negative - positive;
+    if (diff > max_signed) {
+        return std::numeric_limits<std::int64_t>::min();
+    }
+    return -static_cast<std::int64_t>(diff);
 }
 
 bool ledger_entry_has_valid_payload(const LedgerEntry& entry) noexcept {
@@ -158,6 +175,100 @@ std::uint64_t EconomyLedger::total_contract_rewards(std::string_view resource_id
         }
     }
     return total;
+}
+
+std::string_view ledger_entry_type_name(LedgerEntryType type) noexcept {
+    switch (type) {
+    case LedgerEntryType::buy:
+        return "buy";
+    case LedgerEntryType::sell:
+        return "sell";
+    case LedgerEntryType::contract_reward:
+        return "contract_reward";
+    }
+    return "unknown";
+}
+
+LedgerSummary make_ledger_summary(const EconomyLedger& ledger) {
+    LedgerSummary summary;
+    std::unordered_map<std::string, std::size_t> resource_indexes;
+
+    auto resource_summary_for = [&](const std::string& resource_id) -> LedgerResourceSummary& {
+        const auto existing = resource_indexes.find(resource_id);
+        if (existing != resource_indexes.end()) {
+            return summary.resources[existing->second];
+        }
+
+        resource_indexes.emplace(resource_id, summary.resources.size());
+        summary.resources.push_back(LedgerResourceSummary{.resource_id = resource_id});
+        return summary.resources.back();
+    };
+
+    for (const auto& entry : ledger.entries()) {
+        ++summary.entry_count;
+        auto& resource = resource_summary_for(entry.resource_id);
+
+        switch (entry.type) {
+        case LedgerEntryType::buy:
+            ++summary.buy_count;
+            summary.total_buy_value = saturating_add(summary.total_buy_value, entry.total_price);
+            resource.bought_quantity = saturating_add(resource.bought_quantity, entry.quantity);
+            resource.buy_value = saturating_add(resource.buy_value, entry.total_price);
+            break;
+        case LedgerEntryType::sell:
+            ++summary.sell_count;
+            summary.total_sell_value = saturating_add(summary.total_sell_value, entry.total_price);
+            resource.sold_quantity = saturating_add(resource.sold_quantity, entry.quantity);
+            resource.sell_value = saturating_add(resource.sell_value, entry.total_price);
+            break;
+        case LedgerEntryType::contract_reward:
+            ++summary.contract_reward_count;
+            summary.total_contract_reward_value = saturating_add(summary.total_contract_reward_value, entry.total_price);
+            resource.contract_reward_quantity = saturating_add(resource.contract_reward_quantity, entry.quantity);
+            resource.contract_reward_value = saturating_add(resource.contract_reward_value, entry.total_price);
+            break;
+        }
+    }
+
+    for (auto& resource : summary.resources) {
+        resource.net_quantity = saturating_signed_difference(
+            saturating_add(resource.sold_quantity, resource.contract_reward_quantity),
+            resource.bought_quantity
+        );
+        resource.net_value = saturating_signed_difference(
+            saturating_add(resource.sell_value, resource.contract_reward_value),
+            resource.buy_value
+        );
+    }
+
+    std::sort(summary.resources.begin(), summary.resources.end(), [](const LedgerResourceSummary& lhs, const LedgerResourceSummary& rhs) {
+        return lhs.resource_id < rhs.resource_id;
+    });
+
+    return summary;
+}
+
+const LedgerResourceSummary* ledger_resource_summary_by_id(const LedgerSummary& summary, std::string_view resource_id) noexcept {
+    for (const auto& resource : summary.resources) {
+        if (resource.resource_id == resource_id) {
+            return &resource;
+        }
+    }
+    return nullptr;
+}
+
+std::string ledger_summary_digest(const LedgerSummary& summary) {
+    std::ostringstream out;
+    out << "ledger_summary"
+        << ";entries=" << summary.entry_count
+        << ";buys=" << summary.buy_count
+        << ";sells=" << summary.sell_count
+        << ";contract_rewards=" << summary.contract_reward_count
+        << ";buy_value=" << summary.total_buy_value
+        << ";sell_value=" << summary.total_sell_value
+        << ";contract_reward_value=" << summary.total_contract_reward_value
+        << ";resources=" << summary.resources.size();
+    return out.str();
 }
 
 } // namespace clc::economy
