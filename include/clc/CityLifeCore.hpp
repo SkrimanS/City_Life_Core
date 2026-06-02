@@ -24,6 +24,7 @@
 #include "clc/sim/Caravans.hpp"
 #include "clc/sim/ContractRewards.hpp"
 #include "clc/sim/Contracts.hpp"
+#include "clc/sim/DeepSystemsDiagnostics.hpp"
 #include "clc/sim/Factions.hpp"
 #include "clc/sim/GameProfileAdoption.hpp"
 #include "clc/sim/GameProfileChecklist.hpp"
