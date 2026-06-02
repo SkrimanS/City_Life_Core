@@ -267,6 +267,62 @@ void logistics_snapshot_tracks_cargo_shortage_and_contract_support() {
     assert(digest.find("contract_cargo=1") != std::string_view::npos);
 }
 
+void deep_systems_diagnostics_summarizes_cross_system_pressure() {
+    auto registry = make_registry();
+    const auto market_snapshot = make_tools_shortage_market_snapshot(registry);
+
+    clc::economy::EconomyLedger ledger;
+    const auto ledger_summary = clc::economy::make_ledger_summary(ledger);
+
+    clc::sim::SettlementState settlement{
+        .id = "settlement-a",
+        .display_name = "Settlement A",
+        .population = 50,
+    };
+    settlement.buildings.push_back(clc::sim::BuildingInstance{.definition_id = "toolsmith", .assigned_workers = 2});
+    const auto production = clc::sim::make_settlement_production_snapshot_with_market(settlement, registry, market_snapshot);
+
+    clc::sim::ContractCatalog contracts;
+    assert(clc::sim::add_contract(contracts, clc::sim::ResourceDeliveryContract{
+        .id = "deliver-tools",
+        .display_name = "Deliver Tools",
+        .issuer_faction_id = "city",
+        .receiver_faction_id = "guild",
+        .resource_id = "tools",
+        .quantity = 5,
+        .reward_coins = 120,
+        .due_day = 1,
+    }).ok());
+    const auto contract_summary = clc::sim::make_contract_lifecycle_summary(contracts, clc::days_to_ticks(2));
+
+    clc::sim::SettlementRouteCatalog routes;
+    clc::sim::CaravanFleet fleet;
+    const auto logistics = clc::sim::make_logistics_network_snapshot_with_market_and_contracts(routes, fleet, market_snapshot, contracts);
+
+    const auto diagnostics = clc::sim::make_deep_systems_diagnostics(
+        market_snapshot,
+        ledger_summary,
+        contract_summary,
+        production,
+        logistics
+    );
+
+    assert(clc::sim::deep_systems_diagnostics_has_warnings(diagnostics));
+    assert(clc::sim::deep_systems_diagnostics_has_critical_warnings(diagnostics));
+    assert(diagnostics.warning_count >= 4);
+    assert(clc::sim::deep_systems_warning_by_prefix(diagnostics, "market:") != nullptr);
+    assert(clc::sim::deep_systems_warning_by_prefix(diagnostics, "contracts:") != nullptr);
+    assert(clc::sim::deep_systems_warning_by_prefix(diagnostics, "production:") != nullptr);
+
+    const auto digest = clc::sim::deep_systems_diagnostics_digest(diagnostics);
+    assert(digest.find("critical=") != std::string_view::npos);
+    assert(digest.find("market_depleted=1") != std::string_view::npos);
+
+    const auto markdown = clc::sim::deep_systems_diagnostics_markdown(diagnostics);
+    assert(markdown.find("# Deep systems diagnostics") != std::string_view::npos);
+    assert(markdown.find("## Warnings") != std::string_view::npos);
+}
+
 } // namespace
 
 int main() {
@@ -275,5 +331,6 @@ int main() {
     faction_access_and_contract_lifecycle_are_connected();
     production_snapshot_tracks_workers_inputs_and_market_pressure();
     logistics_snapshot_tracks_cargo_shortage_and_contract_support();
+    deep_systems_diagnostics_summarizes_cross_system_pressure();
     return 0;
 }
