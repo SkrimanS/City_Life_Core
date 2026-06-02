@@ -32,6 +32,7 @@
 #include "clc/sim/GameProfileValidationMarkdown.hpp"
 #include "clc/sim/GameProfiles.hpp"
 #include "clc/sim/Ownership.hpp"
+#include "clc/sim/Production.hpp"
 #include "clc/sim/Routes.hpp"
 #include "clc/sim/Settlement.hpp"
 #include "clc/sim/SimulationEngine.hpp"
