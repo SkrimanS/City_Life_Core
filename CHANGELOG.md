@@ -10,6 +10,11 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added market pressure and snapshot helpers with shortage, surplus, depleted and balanced classifications, per-resource pressure signals, fulfillability flags and market snapshot digest output.
+- Added economy ledger summary helpers for buy, sell and contract-reward counts, values, per-resource net quantity/value summaries and digest output.
+- Added faction access helpers that classify blocked, restricted, neutral, trusted and allied relationships with trade and contract permission flags.
+- Added contract lifecycle summary helpers for open, fulfilled, failed, cancelled, overdue and reputation-blocked contract review.
+- Added `tests/deep_systems_foundation_tests.cpp` to cover market snapshots, ledger summaries, faction access and contract lifecycle summary behavior.
 - Added `docs/platform-integration-layer.md` for the v1.5.0 platform and adapter boundary review, including host-owned adapter responsibilities, lifecycle and ownership assumptions, integration diagnostics direction, safe C ABI expansion candidates and non-goals.
 - Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
@@ -132,4 +137,36 @@ Status: **released / v1.0.0**.
 - Added release-gate documentation and tracking:
   - `docs/readiness-status.md`;
   - `docs/release-notes-1.0.0.md`;
-  - `docs/ci-artifact-review.md`.
+  - `docs/ci-artifact-review.md`;
+  - `docs/release-manifest-1.0.0.md`.
+- Added public SDK/release documentation for CMake packages, SDK ZIP packages, C ABI, compatibility, versioning, migration, release verification, protection strategy, release manifests and release checklist.
+- Added hardening tests for market edge cases, data registry validation, faction/ownership mutation guards, storage, ledger, settlement arithmetic, runtime workflows, and persistence failure paths.
+- Added tick-based runtime clock persistence through `SimulationRuntime::time` and `SimulationWorldState::time`.
+- Added tick-based route, caravan, and contract deadline support for real-time, MMO, and non-turn-based games.
+- Added high-level tick runtime helpers:
+  - `run_runtime_ticks(...)`;
+  - `run_runtime_until_first_caravan_arrival_by_ticks(...)`;
+  - `run_runtime_until_first_caravan_arrival_by_ticks_and_fulfill_contract(...)`.
+- Added tick-based contract deadline APIs and tests for `due_ticks` without daily engine advancement.
+- Added runtime save/load coverage for `runtime.time`, `due_ticks`, caravan tick progress, and settlement tick remainders.
+- Added legacy save compatibility that restores runtime clock from saved `current_day` when explicit runtime time is missing.
+- Added tick-based runtime diagnostics and event-log helpers:
+  - `runtime.tick.completed`;
+  - tick-run event-log append helpers;
+  - absolute tick checks for fulfilled and failed contract events.
+- Added safer cargo event-log overloads that read timestamps from `SimulationRuntime::time` instead of requiring callers to pass a raw tick.
+- Added regression tests for absolute event ticks, runtime clock drift, tick-only caravan loading, tick-run arrival, tick-run fulfillment, and tick event logs.
+
+### Changed
+
+- Bumped project version to `1.0.0` in `CMakeLists.txt` and `include/clc/core/Version.hpp`.
+- Updated C++ and C ABI smoke tests to expect `1.0.0`.
+- Updated public package documentation to reflect the C ABI v3 `clc_world` handle and read-only event accessors instead of describing the C ABI as version/time-only.
+- Updated release checklist, PR gate and blocker issue references to require release documentation and validation review before merge/release.
+- Updated CODEOWNERS coverage for release-validation scripts and release-governance docs.
+- Updated contribution documentation to keep contributions restricted until the final license and contribution model are chosen.
+- Changed runtime event log timestamps from day numbers to absolute runtime ticks.
+- Changed runtime save/load overloads to preserve `SimulationRuntime::time` through the runtime-specific world-state bridge.
+- Changed runtime caravan loading checks to use tick progress instead of day-only progress, preventing cargo loading after tick-based departure.
+- Kept day-based APIs as compatibility wrappers while making tick-based APIs the preferred path for real-time games.
+- Removed obsolete version-specific release notes for pre-1.0 preparation layers.
