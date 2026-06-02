@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <unordered_set>
 #include <utility>
@@ -21,6 +22,10 @@ std::uint64_t saturating_multiply(std::uint64_t lhs, std::uint64_t rhs) {
         return std::numeric_limits<std::uint64_t>::max();
     }
     return lhs * rhs;
+}
+
+std::uint64_t absolute_gap(std::uint64_t lhs, std::uint64_t rhs) noexcept {
+    return lhs > rhs ? lhs - rhs : rhs - lhs;
 }
 
 } // namespace
@@ -153,6 +158,127 @@ std::uint64_t market_price_or(const MarketReport& report, std::string_view resou
         return fallback_price;
     }
     return price->price;
+}
+
+std::string_view market_pressure_name(MarketPressureLevel pressure) noexcept {
+    switch (pressure) {
+    case MarketPressureLevel::balanced:
+        return "balanced";
+    case MarketPressureLevel::shortage:
+        return "shortage";
+    case MarketPressureLevel::surplus:
+        return "surplus";
+    case MarketPressureLevel::depleted:
+        return "depleted";
+    }
+    return "unknown";
+}
+
+MarketPressureLevel classify_market_pressure(std::uint64_t supply, std::uint64_t demand) noexcept {
+    if (demand > 0 && supply == 0) {
+        return MarketPressureLevel::depleted;
+    }
+    if (demand > supply) {
+        return MarketPressureLevel::shortage;
+    }
+    if (supply > demand) {
+        return MarketPressureLevel::surplus;
+    }
+    return MarketPressureLevel::balanced;
+}
+
+std::uint64_t market_pressure_ratio_basis_points(std::uint64_t supply, std::uint64_t demand) noexcept {
+    const auto denominator = std::max<std::uint64_t>(std::max(supply, demand), 1);
+    const auto gap = absolute_gap(supply, demand);
+    if (gap > std::numeric_limits<std::uint64_t>::max() / 10000ULL) {
+        return 10000ULL;
+    }
+    return std::min<std::uint64_t>((gap * 10000ULL) / denominator, 10000ULL);
+}
+
+MarketResourceSignal make_market_resource_signal(const MarketPrice& price) {
+    const auto pressure = classify_market_pressure(price.supply, price.demand);
+    const auto gap = absolute_gap(price.supply, price.demand);
+    std::string reason = price.reason;
+    if (pressure == MarketPressureLevel::depleted) {
+        reason = "demand exists with no supply";
+    }
+
+    return MarketResourceSignal{
+        .resource_id = price.resource_id,
+        .supply = price.supply,
+        .demand = price.demand,
+        .unit_price = price.price,
+        .base_value = price.base_value,
+        .absolute_gap = gap,
+        .pressure_basis_points = market_pressure_ratio_basis_points(price.supply, price.demand),
+        .pressure = pressure,
+        .can_fulfill_demand = price.demand == 0 || price.supply >= price.demand,
+        .reason = std::move(reason),
+    };
+}
+
+MarketSnapshot make_market_snapshot(const MarketReport& report) {
+    MarketSnapshot snapshot;
+    snapshot.total_supply = report.total_supply;
+    snapshot.total_demand = report.total_demand;
+    snapshot.signals.reserve(report.prices.size());
+
+    std::uint64_t highest_pressure{};
+    for (const auto& price : report.prices) {
+        auto signal = make_market_resource_signal(price);
+        snapshot.total_pressure_basis_points = saturating_add(snapshot.total_pressure_basis_points, signal.pressure_basis_points);
+
+        switch (signal.pressure) {
+        case MarketPressureLevel::balanced:
+            ++snapshot.balanced_count;
+            break;
+        case MarketPressureLevel::shortage:
+            ++snapshot.shortage_count;
+            break;
+        case MarketPressureLevel::surplus:
+            ++snapshot.surplus_count;
+            break;
+        case MarketPressureLevel::depleted:
+            ++snapshot.depleted_count;
+            break;
+        }
+
+        if (signal.pressure_basis_points > highest_pressure) {
+            highest_pressure = signal.pressure_basis_points;
+            snapshot.highest_pressure_resource_id = signal.resource_id;
+        }
+
+        snapshot.signals.push_back(std::move(signal));
+    }
+
+    return snapshot;
+}
+
+const MarketResourceSignal* market_signal_by_resource(const MarketSnapshot& snapshot, std::string_view resource_id) noexcept {
+    for (const auto& signal : snapshot.signals) {
+        if (signal.resource_id == resource_id) {
+            return &signal;
+        }
+    }
+    return nullptr;
+}
+
+std::string market_snapshot_digest(const MarketSnapshot& snapshot) {
+    std::ostringstream out;
+    out << "market_snapshot"
+        << ";resources=" << snapshot.signals.size()
+        << ";supply=" << snapshot.total_supply
+        << ";demand=" << snapshot.total_demand
+        << ";balanced=" << snapshot.balanced_count
+        << ";shortage=" << snapshot.shortage_count
+        << ";surplus=" << snapshot.surplus_count
+        << ";depleted=" << snapshot.depleted_count
+        << ";pressure_bp=" << snapshot.total_pressure_basis_points;
+    if (!snapshot.highest_pressure_resource_id.empty()) {
+        out << ";highest_pressure=" << snapshot.highest_pressure_resource_id;
+    }
+    return out.str();
 }
 
 } // namespace clc::economy
