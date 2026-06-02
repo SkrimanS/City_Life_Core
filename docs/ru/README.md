@@ -17,6 +17,7 @@
 | [Action Bridge](../action-bridge.md) | Локальный JSON action bridge для external tools, game layers и будущих server-authoritative adapters. |
 | [SDK structure](../sdk-structure.md) | Структура репозитория, установленного SDK, CMake options и integration modes. |
 | [Game integration profiles](../game-profiles.md) | Профили интеграции, catalog validation/markdown output, scenario summaries, adoption report output, adoption summaries, checklist markdown output и checklists для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
+| [Platform integration layer](../platform-integration-layer.md) | Документ v1.5.0 про границы platform/adapters для Unity/C#, Browser/WASM, servers, editors и SDK embedding. |
 | [Packaging](../packaging.md) | Сборка, установка и подключение SDK через CMake. |
 | [CMake package](../cmake-package.md) | Exported CMake target и installed package variables. |
 | [SDK ZIP package](../sdk-zip-package.md) | Создание и использование CPack ZIP SDK archive. |
