@@ -31,6 +31,7 @@
 #include "clc/sim/GameProfileValidation.hpp"
 #include "clc/sim/GameProfileValidationMarkdown.hpp"
 #include "clc/sim/GameProfiles.hpp"
+#include "clc/sim/Logistics.hpp"
 #include "clc/sim/Ownership.hpp"
 #include "clc/sim/Production.hpp"
 #include "clc/sim/Routes.hpp"
