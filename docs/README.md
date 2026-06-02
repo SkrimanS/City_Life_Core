@@ -20,7 +20,7 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`action-bridge.md`](action-bridge.md) | Local JSON action bridge for external tools, game layers and future server-authoritative adapters. |
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | [`game-profiles.md`](game-profiles.md) | Recommended integration profiles plus catalog validation output, catalog markdown, adoption reports and checklist output for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
-| [`platform-integration-layer.md`](platform-integration-layer.md) | v1.5.0 platform and adapter boundary guidance for Unity/C#, Browser/WASM, server, editor and SDK embedding work. |
+| [`platform-integration-layer.md`](platform-integration-layer.md) | v1.5.0 platform and adapter boundary guidance plus deep systems foundation API notes for Unity/C#, Browser/WASM, server, editor and SDK embedding work. |
 | [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
 | [`cmake-package.md`](cmake-package.md) | Exported CMake target and installed package directory variables. |
 | [`sdk-zip-package.md`](sdk-zip-package.md) | Build and consume a CPack ZIP SDK archive. |
