@@ -12,6 +12,13 @@
 
 namespace clc::economy {
 
+enum class MarketPressureLevel {
+    balanced,
+    shortage,
+    surplus,
+    depleted,
+};
+
 struct MarketPrice final {
     std::string resource_id{};
     std::uint64_t base_value{0};
@@ -28,6 +35,31 @@ struct MarketReport final {
     std::uint64_t average_price{0};
     std::uint64_t min_price{0};
     std::uint64_t max_price{0};
+};
+
+struct MarketResourceSignal final {
+    std::string resource_id{};
+    std::uint64_t supply{0};
+    std::uint64_t demand{0};
+    std::uint64_t unit_price{0};
+    std::uint64_t base_value{0};
+    std::uint64_t absolute_gap{0};
+    std::uint64_t pressure_basis_points{0};
+    MarketPressureLevel pressure{MarketPressureLevel::balanced};
+    bool can_fulfill_demand{true};
+    std::string reason{};
+};
+
+struct MarketSnapshot final {
+    std::vector<MarketResourceSignal> signals{};
+    std::uint64_t total_supply{0};
+    std::uint64_t total_demand{0};
+    std::uint64_t shortage_count{0};
+    std::uint64_t surplus_count{0};
+    std::uint64_t depleted_count{0};
+    std::uint64_t balanced_count{0};
+    std::uint64_t total_pressure_basis_points{0};
+    std::string highest_pressure_resource_id{};
 };
 
 class MarketState final {
@@ -69,5 +101,14 @@ private:
     std::string_view resource_id,
     std::uint64_t fallback_price = 0
 ) noexcept;
+
+[[nodiscard]] std::string_view market_pressure_name(MarketPressureLevel pressure) noexcept;
+[[nodiscard]] MarketPressureLevel classify_market_pressure(std::uint64_t supply, std::uint64_t demand) noexcept;
+[[nodiscard]] std::uint64_t market_pressure_ratio_basis_points(std::uint64_t supply, std::uint64_t demand) noexcept;
+
+[[nodiscard]] MarketResourceSignal make_market_resource_signal(const MarketPrice& price);
+[[nodiscard]] MarketSnapshot make_market_snapshot(const MarketReport& report);
+[[nodiscard]] const MarketResourceSignal* market_signal_by_resource(const MarketSnapshot& snapshot, std::string_view resource_id) noexcept;
+[[nodiscard]] std::string market_snapshot_digest(const MarketSnapshot& snapshot);
 
 } // namespace clc::economy
