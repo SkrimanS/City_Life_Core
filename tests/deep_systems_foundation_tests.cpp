@@ -19,6 +19,20 @@ clc::data::DataRegistry make_registry() {
         .category = "crafted",
         .base_value = 40,
     }).ok());
+    assert(registry.add(clc::data::BuildingDefinition{
+        .id = "toolsmith",
+        .display_name = "Toolsmith",
+        .category = "production",
+        .worker_slots = 3,
+        .required_profession_id = "smith",
+        .input_resource_ids = {"grain"},
+        .output_resource_ids = {"tools"},
+    }).ok());
+    assert(registry.add(clc::data::ProfessionDefinition{
+        .id = "smith",
+        .display_name = "Smith",
+        .category = "crafting",
+    }).ok());
     return registry;
 }
 
@@ -141,11 +155,62 @@ void faction_access_and_contract_lifecycle_are_connected() {
     assert(digest.find("blocked_by_reputation=1") != std::string_view::npos);
 }
 
+void production_snapshot_tracks_workers_inputs_and_market_pressure() {
+    auto registry = make_registry();
+    clc::sim::SettlementState settlement{
+        .id = "settlement-a",
+        .display_name = "Settlement A",
+        .population = 50,
+    };
+    assert(settlement.storage.add("grain", 8).ok());
+    settlement.buildings.push_back(clc::sim::BuildingInstance{.definition_id = "toolsmith", .assigned_workers = 2});
+
+    clc::sim::ResourceStorage market_storage;
+    assert(market_storage.add("tools", 0).ok() == false);
+    assert(market_storage.add("grain", 8).ok());
+    clc::economy::MarketState market;
+    assert(market.set_demand("tools", 20).ok());
+    const auto market_report = clc::economy::make_market_report(registry, market_storage, market);
+    const auto market_snapshot = clc::economy::make_market_snapshot(market_report);
+
+    const auto snapshot = clc::sim::make_settlement_production_snapshot_with_market(
+        settlement,
+        registry,
+        market_snapshot
+    );
+
+    assert(snapshot.building_count == 1);
+    assert(snapshot.active_building_count == 1);
+    assert(snapshot.blocked_building_count == 0);
+    assert(snapshot.total_worker_slots == 3);
+    assert(snapshot.assigned_workers == 2);
+    assert(snapshot.idle_worker_slots == 1);
+    assert(snapshot.missing_input_count == 0);
+    assert(snapshot.pressured_output_count == 1);
+    assert(snapshot.highest_pressure_output_resource_id == "tools");
+
+    const auto* building = clc::sim::production_signal_by_building(snapshot, "toolsmith");
+    assert(building != nullptr);
+    assert(building->has_workers);
+    assert(building->has_required_inputs);
+    assert(building->output_has_market_pressure);
+
+    const auto* tools = clc::sim::production_resource_signal(*building, "tools", clc::sim::ProductionResourceRole::output);
+    assert(tools != nullptr);
+    assert(tools->market_shortage);
+    assert(tools->market_pressure == clc::economy::MarketPressureLevel::depleted);
+
+    const auto digest = clc::sim::settlement_production_snapshot_digest(snapshot);
+    assert(digest.find("active=1") != std::string_view::npos);
+    assert(digest.find("pressured_outputs=1") != std::string_view::npos);
+}
+
 } // namespace
 
 int main() {
     market_snapshot_tracks_shortage_surplus_and_digest();
     ledger_summary_tracks_resource_flows();
     faction_access_and_contract_lifecycle_are_connected();
+    production_snapshot_tracks_workers_inputs_and_market_pressure();
     return 0;
 }
