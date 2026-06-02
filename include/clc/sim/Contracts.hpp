@@ -60,6 +60,20 @@ struct ContractDeadlineReport final {
     std::vector<std::string> failed_contract_ids{};
 };
 
+struct ContractLifecycleSummary final {
+    std::uint64_t total_count{0};
+    std::uint64_t open_count{0};
+    std::uint64_t fulfilled_count{0};
+    std::uint64_t failed_count{0};
+    std::uint64_t cancelled_count{0};
+    std::uint64_t overdue_open_count{0};
+    std::uint64_t total_open_quantity{0};
+    std::uint64_t total_open_reward_coins{0};
+    std::uint64_t total_terminal_reward_coins{0};
+    std::vector<std::string> overdue_open_contract_ids{};
+    std::vector<std::string> blocked_by_reputation_contract_ids{};
+};
+
 [[nodiscard]] std::string_view contract_status_name(ContractStatus status) noexcept;
 [[nodiscard]] bool contract_is_open(const ResourceDeliveryContract& contract) noexcept;
 [[nodiscard]] bool contract_is_terminal(const ResourceDeliveryContract& contract) noexcept;
@@ -157,5 +171,16 @@ struct ContractDeadlineReport final {
 [[nodiscard]] std::vector<ResourceDeliveryContract> contracts_for_faction(const ContractCatalog& catalog, std::string_view faction_id);
 [[nodiscard]] std::vector<ResourceDeliveryContract> overdue_open_contracts_at_tick(const ContractCatalog& catalog, clc::GameTime::Tick current_tick);
 [[nodiscard]] std::vector<ResourceDeliveryContract> overdue_open_contracts(const ContractCatalog& catalog, std::uint64_t current_day);
+
+[[nodiscard]] ContractLifecycleSummary make_contract_lifecycle_summary(
+    const ContractCatalog& catalog,
+    clc::GameTime::Tick current_tick = 0
+);
+[[nodiscard]] ContractLifecycleSummary make_contract_lifecycle_summary_for_factions(
+    const ContractCatalog& catalog,
+    const FactionCatalog& factions,
+    clc::GameTime::Tick current_tick = 0
+);
+[[nodiscard]] std::string contract_lifecycle_summary_digest(const ContractLifecycleSummary& summary);
 
 } // namespace clc::sim
