@@ -36,6 +36,16 @@ clc::data::DataRegistry make_registry() {
     return registry;
 }
 
+clc::economy::MarketSnapshot make_tools_shortage_market_snapshot(const clc::data::DataRegistry& registry) {
+    clc::sim::ResourceStorage market_storage;
+    assert(!market_storage.add("tools", 0).ok());
+    assert(market_storage.add("grain", 8).ok());
+    clc::economy::MarketState market;
+    assert(market.set_demand("tools", 20).ok());
+    const auto market_report = clc::economy::make_market_report(registry, market_storage, market);
+    return clc::economy::make_market_snapshot(market_report);
+}
+
 void market_snapshot_tracks_shortage_surplus_and_digest() {
     auto registry = make_registry();
     clc::sim::ResourceStorage storage;
@@ -165,14 +175,7 @@ void production_snapshot_tracks_workers_inputs_and_market_pressure() {
     assert(settlement.storage.add("grain", 8).ok());
     settlement.buildings.push_back(clc::sim::BuildingInstance{.definition_id = "toolsmith", .assigned_workers = 2});
 
-    clc::sim::ResourceStorage market_storage;
-    assert(market_storage.add("tools", 0).ok() == false);
-    assert(market_storage.add("grain", 8).ok());
-    clc::economy::MarketState market;
-    assert(market.set_demand("tools", 20).ok());
-    const auto market_report = clc::economy::make_market_report(registry, market_storage, market);
-    const auto market_snapshot = clc::economy::make_market_snapshot(market_report);
-
+    const auto market_snapshot = make_tools_shortage_market_snapshot(registry);
     const auto snapshot = clc::sim::make_settlement_production_snapshot_with_market(
         settlement,
         registry,
@@ -205,6 +208,65 @@ void production_snapshot_tracks_workers_inputs_and_market_pressure() {
     assert(digest.find("pressured_outputs=1") != std::string_view::npos);
 }
 
+void logistics_snapshot_tracks_cargo_shortage_and_contract_support() {
+    auto registry = make_registry();
+    const auto market_snapshot = make_tools_shortage_market_snapshot(registry);
+
+    clc::sim::SettlementRouteCatalog routes;
+    const auto route = clc::sim::make_settlement_route_days("route-a", "Route A", "origin", "destination", 2);
+    assert(clc::sim::add_settlement_route(routes, route).ok());
+
+    clc::sim::ResourceStorage cargo;
+    assert(cargo.add("tools", 5).ok());
+    auto caravan = clc::sim::create_caravan_for_route(route, "caravan-a", "Caravan A", cargo);
+    assert(clc::sim::advance_caravan_day(caravan).moved);
+
+    clc::sim::CaravanFleet fleet;
+    assert(clc::sim::add_caravan(fleet, caravan).ok());
+
+    clc::sim::ContractCatalog contracts;
+    assert(clc::sim::add_contract(contracts, clc::sim::ResourceDeliveryContract{
+        .id = "deliver-tools",
+        .display_name = "Deliver Tools",
+        .issuer_faction_id = "city",
+        .receiver_faction_id = "guild",
+        .resource_id = "tools",
+        .quantity = 5,
+        .reward_coins = 120,
+        .due_day = 3,
+    }).ok());
+
+    const auto snapshot = clc::sim::make_logistics_network_snapshot_with_market_and_contracts(
+        routes,
+        fleet,
+        market_snapshot,
+        contracts
+    );
+
+    assert(snapshot.route_count == 1);
+    assert(snapshot.caravan_count == 1);
+    assert(snapshot.active_caravan_count == 1);
+    assert(snapshot.arrived_caravan_count == 0);
+    assert(snapshot.total_cargo == 5);
+    assert(snapshot.cargo_supporting_shortage_count == 1);
+    assert(snapshot.cargo_supporting_contract_count == 1);
+
+    const auto* caravan_signal = clc::sim::logistics_signal_by_caravan(snapshot, "caravan-a");
+    assert(caravan_signal != nullptr);
+    assert(!caravan_signal->empty);
+    assert(caravan_signal->route_known);
+
+    const auto* tools = clc::sim::logistics_cargo_signal(*caravan_signal, "tools");
+    assert(tools != nullptr);
+    assert(tools->supports_market_shortage);
+    assert(tools->may_fulfill_open_contract);
+    assert(tools->market_pressure == clc::economy::MarketPressureLevel::depleted);
+
+    const auto digest = clc::sim::logistics_network_snapshot_digest(snapshot);
+    assert(digest.find("shortage_cargo=1") != std::string_view::npos);
+    assert(digest.find("contract_cargo=1") != std::string_view::npos);
+}
+
 } // namespace
 
 int main() {
@@ -212,5 +274,6 @@ int main() {
     ledger_summary_tracks_resource_flows();
     faction_access_and_contract_lifecycle_are_connected();
     production_snapshot_tracks_workers_inputs_and_market_pressure();
+    logistics_snapshot_tracks_cargo_shortage_and_contract_support();
     return 0;
 }
