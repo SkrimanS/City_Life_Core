@@ -1,7 +1,7 @@
 # C Interface / C ABI
 
-Version: **1.0.0**  
-C interface version: **3**
+Version: **2.0.0**
+C interface version: **4**
 
 City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, a minimal opaque world handle, read-only world event access and simple FFI smoke checks.
 
@@ -24,6 +24,7 @@ The C interface currently covers:
 - opaque `clc_world` create/destroy;
 - basic world state access;
 - simple tick advancement;
+- world advancement by seconds, minutes, hours or days;
 - read-only world event count and indexed event access.
 
 Full gameplay/runtime integration should use the C++ API until the relevant C ABI surfaces are expanded and stabilized.

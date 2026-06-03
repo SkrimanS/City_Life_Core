@@ -156,6 +156,8 @@ The v1.5.0 source-level deep-system diagnostics surface is intentionally read-on
 
 Adapters can use these reports to populate editor panels, server smoke-test logs, balancing dashboards or local debug overlays without giving the core any dependency on UI, networking or engine-specific APIs.
 
+The source-tree example `examples/deep_systems_foundation.cpp` demonstrates the intended v1.5.0 flow: build individual market, ledger, contract, production and logistics snapshots, combine them into a `DeepSystemsDiagnostics` value, then emit digest and markdown output for a host-owned tool or log surface.
+
 ---
 
 ## Safe C ABI expansion candidates

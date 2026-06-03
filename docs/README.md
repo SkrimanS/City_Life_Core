@@ -1,7 +1,7 @@
 # City Life Core Documentation
 
-Version: **1.0.0**  
-Status: **released / v1.0.0, internal v1.x milestones in development**
+Version: **2.0.0**
+Status: **v2.0.0 release candidate / stable multi-game SDK foundation**
 
 This directory contains developer-facing documentation for integrating City Life Core into a C++ game, server, backend service, editor, or simulation tool.
 
@@ -21,6 +21,10 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`sdk-structure.md`](sdk-structure.md) | Repository layout, installed SDK layout, CMake options, integration modes and modules. |
 | [`game-profiles.md`](game-profiles.md) | Recommended integration profiles plus catalog validation output, catalog markdown, adoption reports and checklist output for native games, Unity/C#, Browser/WASM, servers, MMO-like systems and tools. |
 | [`platform-integration-layer.md`](platform-integration-layer.md) | v1.5.0 platform and adapter boundary guidance plus deep systems foundation API notes for Unity/C#, Browser/WASM, server, editor and SDK embedding work. |
+| [`server-authoritative-mmo.md`](server-authoritative-mmo.md) | v1.6.0 server-authoritative and MMO-like foundation: action envelopes, host-owned session identity, shard descriptors, audit records and sequence validation. |
+| [`economy-depth.md`](economy-depth.md) | v1.7.0 economy, factions and contracts depth: contract economy assessment, resource flow plans, portfolio summaries and extension points. |
+| [`persistence-replay-migration.md`](persistence-replay-migration.md) | v1.8.0 persistence, replay and migration: save-format review, legacy migration, replay diagnostics and checkpoint guidance. |
+| [`scale-performance.md`](scale-performance.md) | v1.9.0 scale and performance guidance: runtime scale diagnostics, benchmark coverage and practical tradeoffs. |
 | [`packaging.md`](packaging.md) | Build, install and consume the SDK through CMake. |
 | [`cmake-package.md`](cmake-package.md) | Exported CMake target and installed package directory variables. |
 | [`sdk-zip-package.md`](sdk-zip-package.md) | Build and consume a CPack ZIP SDK archive. |
@@ -51,6 +55,9 @@ Russian documentation starts at [`ru/README.md`](ru/README.md).
 | [`roadmap.md`](roadmap.md) | Project direction, internal milestone plan and v2/v3/v4 roadmap. |
 | [`versioning.md`](versioning.md) | Versioning, branch, tag and release policy. |
 | [`../CHANGELOG.md`](../CHANGELOG.md) | Internal milestone history and public release change history. |
+| [`release-notes-2.0.0.md`](release-notes-2.0.0.md) | 2.0.0 release notes for the stable multi-game SDK foundation. |
+| [`release-manifest-2.0.0.md`](release-manifest-2.0.0.md) | 2.0.0 release manifest and validation checklist. |
+| [`public-surface-2.0.0.md`](public-surface-2.0.0.md) | Frozen intended public C++/C/documentation surface for 2.0.0. |
 | [`release-notes-1.0.0.md`](release-notes-1.0.0.md) | Final 1.0.0 release notes. |
 | [`release-manifest-1.0.0.md`](release-manifest-1.0.0.md) | Final 1.0.0 release manifest and reviewed local validation data. |
 | [`readiness-status.md`](readiness-status.md) | Subsystem readiness estimate for the 1.0.0 line. |

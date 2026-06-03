@@ -1,7 +1,7 @@
 # C Interface / C ABI
 
-Version: **1.0.0**  
-C interface version: **3**
+Version: **2.0.0**
+C interface version: **4**
 
 City Life Core is primarily a C++20 SDK. A small C-facing interface is provided for version and time utilities, a minimal opaque world handle, read-only world event access, and simple FFI smoke checks.
 
@@ -25,10 +25,10 @@ include/clc/c/CityLifeCoreC.h
 
 ## Scope
 
-The 1.0.0 C interface exposes:
+The 2.0.0 C interface exposes:
 
 - core version;
-- C interface version `3`;
+- C interface version `4`;
 - tick constants;
 - safe time conversion preflight helpers;
 - saturating time conversion helpers;
@@ -148,6 +148,10 @@ uint64_t clc_world_seed_c(const clc_world* world);
 uint64_t clc_world_current_tick_c(const clc_world* world);
 uint64_t clc_world_event_count_c(const clc_world* world);
 int clc_world_advance_c(clc_world* world, uint64_t ticks);
+int clc_world_advance_seconds_c(clc_world* world, uint64_t seconds);
+int clc_world_advance_minutes_c(clc_world* world, uint64_t minutes);
+int clc_world_advance_hours_c(clc_world* world, uint64_t hours);
+int clc_world_advance_days_c(clc_world* world, uint64_t days);
 ```
 
 `clc_world` is an opaque handle. Callers create it with `clc_world_create_c()` and must release it with `clc_world_destroy_c()`.
@@ -161,7 +165,8 @@ Ownership and lifetime rules:
 - `clc_world_name_c()` returns a pointer owned by the world handle. Do not free it and do not keep it after destroying the world.
 - null world accessors return empty string or zero values.
 - `clc_world_advance_c()` returns `1` on success and `0` on failure.
-- advancing by zero ticks fails and does not mutate the world.
+- advancing by zero ticks or zero converted duration fails and does not mutate the world.
+- `clc_world_advance_seconds_c()`, `clc_world_advance_minutes_c()`, `clc_world_advance_hours_c()` and `clc_world_advance_days_c()` advance by converted tick durations.
 - very large positive advances use the core saturating tick behavior and do not wrap the current tick.
 
 ---
@@ -289,10 +294,10 @@ CI validates:
 
 `clc_c_interface_version_c()` returns the version of the C-facing interface. It is separate from the core SDK version.
 
-For `1.0.0`, the C interface version is:
+For the current post-1.0.0 v1.x integration work, the C interface version is:
 
 ```text
-3
+4
 ```
 
 Future C interface expansion should preserve existing functions where possible and increase the C interface version when the C-facing surface changes meaningfully.

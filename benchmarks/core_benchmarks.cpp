@@ -1,6 +1,8 @@
 #include "clc/data/DataRegistry.hpp"
 #include "clc/sim/SimulationEngine.hpp"
 #include "clc/sim/SimulationPersistence.hpp"
+#include "clc/sim/ScaleDiagnostics.hpp"
+#include "clc/sim/SimulationRuntimeEvents.hpp"
 #include "clc/sim/SimulationRuntimeTick.hpp"
 #include "clc/sim/SimulationRuntimeWorkflow.hpp"
 
@@ -163,6 +165,37 @@ void benchmark_runtime_caravans() {
     print_metric("runtime_run_days_1000_caravans_30_days", elapsed_ms(start, end), "caravan_ticks", result.summary.caravan_ticks);
 }
 
+void benchmark_runtime_scale_snapshot() {
+    auto runtime = make_runtime_with_caravans(1000);
+    const auto run = clc::sim::run_runtime_ticks(runtime, clc::days_to_ticks(14), clc::days_to_ticks(1));
+    require(run.ok(), "runtime tick run should succeed");
+
+    clc::EventLog events;
+    const auto summary = clc::sim::append_runtime_tick_run_events(events, run);
+    require(summary.events_appended > 0, "scale snapshot event summary should append events");
+
+    const auto start = Clock::now();
+    const auto snapshot = clc::sim::make_runtime_scale_snapshot(runtime, &events);
+    const auto end = Clock::now();
+
+    require(snapshot.caravans == 1000, "scale snapshot caravan count should match");
+    print_metric("runtime_scale_snapshot_1000_caravans", elapsed_ms(start, end), "serialized_lines", snapshot.serialized_world_state_lines);
+}
+
+void benchmark_runtime_event_log_checksum() {
+    clc::EventLog events;
+    for (std::uint64_t index = 0; index < 10000; ++index) {
+        events.append(index, "runtime.tick.completed", "elapsed=1");
+    }
+
+    const auto start = Clock::now();
+    const auto checksum = clc::sim::calculate_runtime_event_log_checksum(events);
+    const auto end = Clock::now();
+
+    require(checksum.event_count == 10000, "checksum event count should match");
+    print_metric("runtime_event_log_checksum_10000_events", elapsed_ms(start, end), "checksum", checksum.value);
+}
+
 } // namespace
 
 int main() {
@@ -171,5 +204,7 @@ int main() {
     benchmark_engine_run_scenario_reports();
     benchmark_world_state_serialization();
     benchmark_runtime_caravans();
+    benchmark_runtime_scale_snapshot();
+    benchmark_runtime_event_log_checksum();
     return 0;
 }

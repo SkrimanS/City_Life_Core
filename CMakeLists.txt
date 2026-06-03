@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     CityLifeCore
-    VERSION 1.0.0
+    VERSION 2.0.0
     DESCRIPTION "Headless simulation SDK for living settlements"
     LANGUAGES CXX
 )
@@ -155,5 +155,6 @@ set(CPACK_PACKAGE_NAME "city-life-core-sdk")
 set(CPACK_PACKAGE_VENDOR "SkrimanS")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_FILE_NAME "city-life-core-sdk-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}")
+set(CPACK_GENERATOR "ZIP")
 
 include(CPack)

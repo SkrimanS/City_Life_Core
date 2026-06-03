@@ -54,6 +54,22 @@ It accepts JSON actions, validates them before mutation, dispatches supported ru
 
 See [`action-bridge.md`](action-bridge.md).
 
+### Server-authoritative foundation layer
+
+The server-authoritative foundation is a local C++ source-level layer for ordered authoritative action envelopes, host-owned session metadata, shard descriptors, audit records and command sequence validation.
+
+It builds on the public runtime and Action Bridge model without adding transport, sessions, auth, matchmaking, replication, persistence storage or MMO infrastructure to the core.
+
+See [`server-authoritative-mmo.md`](server-authoritative-mmo.md).
+
+### Economy depth layer
+
+The economy depth layer is a local C++ source-level layer for market-aware contract assessment, storage/caravan resource-flow planning, faction gates and portfolio summaries.
+
+It builds on market reports, faction access, contracts, caravans, ownership and storage without adding product-specific taxes, diplomacy rules, AI priorities, inflation, UI, persistence storage or network services.
+
+See [`economy-depth.md`](economy-depth.md).
+
 ### C ABI layer
 
 The C ABI is the smaller and more stable foreign-function boundary.
@@ -113,6 +129,18 @@ This layer is important for:
 - long-running simulations;
 - deterministic replay;
 - migration between save shapes.
+
+The v1.8.0 persistence/replay/migration layer adds save-format manifests, save review, supported legacy world-state migration, richer replay diagnostics and checkpoint planning while keeping storage services and product-specific migration policy outside the core.
+
+See [`persistence-replay-migration.md`](persistence-replay-migration.md).
+
+### Scale diagnostics layer
+
+The scale diagnostics layer reviews runtime size and release-readiness pressure points without changing simulation behavior. It counts settlements, storage entries, routes, caravans, contracts, ledger rows, events and serialized world-state lines.
+
+It supports benchmark artifact review and product-specific thresholding while leaving profiling, sharding, hosting and database design outside the core.
+
+See [`scale-performance.md`](scale-performance.md).
 
 ### Packaging layer
 

@@ -60,6 +60,74 @@ Run:
 ./build/clc_example_action_bridge
 ```
 
+### `clc_example_server_authoritative`
+
+Source: `examples/server_authoritative.cpp`
+
+Shows the v1.6.0 server-authoritative foundation flow:
+
+- create a host-owned shard descriptor and session identity;
+- wrap local runtime actions in ordered server envelopes;
+- dispatch envelopes into the runtime through the server-authoritative helper;
+- record audit digests and validate command sequence continuity.
+
+Run:
+
+```bash
+./build/clc_example_server_authoritative
+```
+
+### `clc_example_economy_depth`
+
+Source: `examples/economy_depth.cpp`
+
+Shows the v1.7.0 economy depth flow:
+
+- build a market report from storage and demand;
+- evaluate a contract against market value, faction access, resources and deadline;
+- create a storage resource-flow plan;
+- summarize deliverable and blocked contracts for a portfolio.
+
+Run:
+
+```bash
+./build/clc_example_economy_depth
+```
+
+### `clc_example_persistence_replay_migration`
+
+Source: `examples/persistence_replay_migration.cpp`
+
+Shows the v1.8.0 persistence/replay/migration flow:
+
+- review save-format compatibility;
+- migrate a legacy world-state string with a missing tick-time row;
+- compare replay diagnostics with event-log checksums;
+- create a checkpoint plan for long-running simulations.
+
+Run:
+
+```bash
+./build/clc_example_persistence_replay_migration
+```
+
+### `clc_example_scale_diagnostics`
+
+Source: `examples/scale_diagnostics.cpp`
+
+Shows the v1.9.0 scale diagnostics flow:
+
+- run a small tick simulation;
+- append runtime events;
+- create a runtime scale snapshot;
+- emit a stable digest for release review or tooling.
+
+Run:
+
+```bash
+./build/clc_example_scale_diagnostics
+```
+
 ### `clc_example_game_profiles`
 
 Source: `examples/game_profiles.cpp`
@@ -82,6 +150,23 @@ Run:
 
 ```bash
 ./build/clc_example_game_profiles
+```
+
+### `clc_example_deep_systems_foundation`
+
+Source: `examples/deep_systems_foundation.cpp`
+
+Shows the v1.5.0 deep-systems foundation flow:
+
+- create market pressure, ledger, contract lifecycle, production and logistics snapshots;
+- combine those snapshots into deep systems diagnostics;
+- print digest and markdown output for tool, editor or server logs;
+- inspect faction access for trade/contract-oriented integration decisions.
+
+Run:
+
+```bash
+./build/clc_example_deep_systems_foundation
 ```
 
 ### `clc_example_validation_hardening`

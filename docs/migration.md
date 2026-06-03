@@ -1,6 +1,6 @@
 # Migration Guide
 
-Version: **1.0.0**
+Version: **2.0.0**
 
 Use this guide when updating an older City Life Core integration to the current documentation, package layout and integration strategy.
 
@@ -183,6 +183,7 @@ Current C ABI scope:
 - opaque `clc_world` handle;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 If your integration currently calls C++ symbols from another language, migrate toward the C ABI.
@@ -293,17 +294,46 @@ Related doc:
 
 ---
 
+## Server-authoritative migration
+
+If an older server integration sends commands directly into runtime internals, review the v1.6.0 server-authoritative helpers.
+
+Recommended C++ include:
+
+```cpp
+#include "clc/sim/ServerAuthoritative.hpp"
+```
+
+Migration checklist:
+
+1. Keep authentication, sessions, networking and permissions in the host server.
+2. Map host-owned player/session data into `ServerSessionIdentity`.
+3. Put simulation-facing actor ids in `RuntimeAction::actor_id`.
+4. Wrap commands in `ServerRuntimeActionEnvelope` with contiguous sequence numbers.
+5. Record `ServerRuntimeActionAuditRecord` values for replay-sensitive command review.
+6. Validate command logs with `validate_server_action_sequence(...)`.
+7. Use `ServerShardDescriptor` to document partition/shard ownership without moving routing into the core.
+
+Related doc:
+
+- [Server-authoritative and MMO foundation](server-authoritative-mmo.md)
+
+---
+
 ## Save/load and replay migration
 
 For integrations that ship persistent worlds or rely on deterministic replay:
 
+- review save content with `review_simulation_world_state_save_format`;
+- migrate supported older world-state strings with `migrate_simulation_world_state_content`;
 - validate old saves against the new SDK version;
 - confirm tick/time fields load as expected;
-- compare replay outputs before and after migration;
+- compare replay outputs before and after migration with `compare_simulation_replay_diagnostics`;
+- plan long-running checkpoints with `make_simulation_checkpoint_plan`;
 - document any changed event ordering or timestamp assumptions;
 - update migration notes if save shapes change.
 
-Do not treat save/load and replay compatibility as automatic. Validate them explicitly for your product.
+Do not treat save/load and replay compatibility as automatic. Validate them explicitly for your product. The v1.8.0 helpers cover the SDK world-state format and supported legacy shapes; product databases, cloud saves and game-specific metadata still need host-owned migration plans.
 
 ---
 
@@ -329,6 +359,7 @@ When migrating downstream docs or project references:
 - [ ] Use game profile catalog, scenario summaries, adoption report output, adoption summaries, checklist digest output and checklist summary helpers for native integration planning where useful.
 - [ ] Use the local Action Bridge for supported external action-style flows.
 - [ ] Prefer tick-based APIs for server-authoritative or real-time simulation flows.
+- [ ] Use persistence/replay/migration helpers for save-format review, supported legacy migration, replay diagnostics and checkpoint planning.
 - [ ] Use the C ABI for C, C#, Unity, WebAssembly and other non-C++ integration layers.
 - [ ] Do not bind foreign-language wrappers to private C++ internals.
 - [ ] Build shared libraries for native plug-in scenarios such as Unity.

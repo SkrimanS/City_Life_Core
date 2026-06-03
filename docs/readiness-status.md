@@ -36,8 +36,11 @@ The following readiness levels describe ongoing `v1.x` development work, not the
 | C# / Unity wrapper | Initial support | P/Invoke wrapper and Unity smoke test exist; not a full Unity package. |
 | Browser / WebAssembly | Planned | Architecture and constraints documented; no adapter or WASM build yet. |
 | Game integration profiles | Source-level guidance API | C++ profile catalog, validation, scenario recommendations, scenario summaries, adoption report output, adoption summaries, checklist digest output and profile-specific checklist summaries exist; profiles still do not create runtime modes or engine adapters. |
-| Server-authoritative runtime | Partial foundation | Tick runtime, persistence and replay foundations exist; command/replay hardening remains planned. |
-| MMO-like support | Early foundation | Requires deeper persistence, replay, partitioning assumptions, diagnostics and scale work. |
+| Server-authoritative runtime | Partial foundation | Tick runtime, persistence, replay foundations, Action Bridge workflows and v1.6.0 ordered action-envelope/audit helpers exist; product-owned transport, auth and persistence storage remain outside the core. |
+| MMO-like support | Early foundation | v1.6.0 shard descriptors and sequence validation clarify partition/audit assumptions; deeper persistence, replay, diagnostics and scale work remain planned. |
+| Economy/faction/contract depth | Partial foundation | v1.7.0 market-aware contract assessment, storage/caravan flow planning, reputation gates and portfolio summaries exist; product-specific economy rules remain outside the core. |
+| Persistence/replay/migration | Partial foundation | v1.8.0 save-format review, supported legacy world-state migration, replay diagnostics and checkpoint planning exist; product storage services remain external. |
+| Scale diagnostics | Partial foundation | v1.9.0 runtime scale snapshots, configurable thresholds and benchmark coverage exist; profiling, sharding and hosting remain product-owned. |
 | Editor/tooling workflows | Partial foundation | Validation and C++ APIs exist; richer diagnostics and bindable APIs remain planned. |
 | SDK ZIP integration examples | Partial / documented | C++ and C ABI consumers exist; C# example sources can be included with installed examples. |
 
@@ -98,6 +101,13 @@ City Life Core should remain a headless simulation core and should not become a 
 - [C# and Unity integration](csharp-unity.md)
 - [Browser and WebAssembly integration](browser-wasm.md)
 - [Game integration profiles](game-profiles.md)
+- [Server-authoritative and MMO foundation](server-authoritative-mmo.md)
+- [Economy, factions and contracts depth](economy-depth.md)
+- [Persistence, replay and migration](persistence-replay-migration.md)
+- [Scale and performance guidance](scale-performance.md)
 - [Integration targets](integration-targets.md)
 - [Integration validation](integration-validation.md)
-- [Release notes](release-notes-1.0.0.md)
+- [Release notes 2.0.0](release-notes-2.0.0.md)
+- [Release manifest 2.0.0](release-manifest-2.0.0.md)
+- [Public surface 2.0.0](public-surface-2.0.0.md)
+- [Release notes 1.0.0](release-notes-1.0.0.md)

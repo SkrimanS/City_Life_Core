@@ -31,7 +31,7 @@ cmake --build build-consumer
 
 ## Release checklist role
 
-Before publishing 1.0.0, this example should be run in CI as an installed-SDK smoke test:
+Before publishing 2.0.0, this example should be run in CI as an installed-SDK smoke test:
 
 1. configure and build City Life Core;
 2. install it into a temporary prefix;

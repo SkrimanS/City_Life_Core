@@ -10,6 +10,24 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added `docs/release-notes-2.0.0.md`, `docs/release-manifest-2.0.0.md` and `docs/public-surface-2.0.0.md` for the public v2.0.0 milestone.
+- Added the v1.9.0 scale diagnostics C++ API with runtime scale snapshots, configurable thresholds, validation, digest output and markdown output.
+- Added `examples/scale_diagnostics.cpp` to demonstrate runtime scale snapshot digest output.
+- Added `tests/scale_diagnostics_tests.cpp` for nominal/high scale risk classification, threshold validation and markdown/digest output.
+- Expanded `benchmarks/core_benchmarks.cpp` with runtime scale snapshot and runtime event-log checksum benchmark scenarios.
+- Added `docs/scale-performance.md` with v1.9.0 scale expectations, benchmark coverage and integration tradeoffs.
+- Added the v1.8.0 persistence/replay/migration C++ API with save-format manifests, save-format review, legacy world-state migration, replay diagnostics, checkpoint planning and digest helpers.
+- Added `examples/persistence_replay_migration.cpp` to demonstrate save-format review, migration digest output, replay diagnostics and checkpoint planning.
+- Added `tests/persistence_replay_migration_tests.cpp` for legacy world-state migration, replay drift diagnostics, event-log mismatch diagnostics and checkpoint plans.
+- Added `docs/persistence-replay-migration.md` with v1.8.0 save-format, migration, replay diagnostics and long-simulation checkpoint guidance.
+- Added the v1.7.0 economy depth C++ API with contract economy assessments, storage/caravan resource-flow plans, portfolio summaries, validation and digest helpers.
+- Added `examples/economy_depth.cpp` to demonstrate market-aware contract assessment, faction access checks, resource-flow planning and portfolio digest output.
+- Added `tests/economy_depth_tests.cpp` for deliverable contracts, reputation blocks, storage and caravan flow planning, resource shortages and overdue portfolio summaries.
+- Added `docs/economy-depth.md` with v1.7.0 scope, extension points and game-specific economy rule boundaries.
+- Added the v1.6.0 server-authoritative foundation C++ API with host-owned session identity, shard descriptors, ordered runtime action envelopes, dispatch audit records, sequence summaries, sequence validation and digest helpers.
+- Added `examples/server_authoritative.cpp` to demonstrate shard/session metadata, ordered server action dispatch, audit output and command sequence validation.
+- Added `tests/server_authoritative_tests.cpp` for shard validation, host session versus simulation actor separation, invalid-envelope no-mutation behavior, audit sequence validation and long-running authoritative tick smoke coverage.
+- Added `docs/server-authoritative-mmo.md` with v1.6.0 scope, basic authoritative flow, sequence validation, shard/partition assumptions and non-goals.
 - Added deep systems diagnostics helpers that combine market, ledger, contract lifecycle, production and logistics snapshots into warning/critical counts, digest output and markdown output.
 - Added production pressure snapshot helpers for settlement buildings, worker slots, missing input resources, output market pressure, per-building resource signals and digest output.
 - Added logistics pressure snapshot helpers for routes, caravans, cargo, unknown routes, cargo supporting market shortages, cargo supporting open contracts and digest output.
@@ -69,10 +87,14 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Updated project, C++ and C ABI version reporting to `2.0.0`.
 - Exposed the deep systems diagnostics API through the recommended SDK umbrella header.
 - Exposed the production and logistics pressure APIs through the recommended SDK umbrella header.
 - Expanded the `v1.5.0` roadmap scope from platform integration only to platform, integration and deep systems foundation work covering market systems, economy, resources, production chains, logistics, factions, ownership, contracts, ledger output and cross-system tests.
 - Updated the documentation index and Russian documentation index to include the v1.5.0 platform integration layer guidance.
+- Updated the examples index to document the v1.5.0 deep systems foundation example.
+- Updated C ABI documentation to describe C interface version `4` and the world time-advance helpers.
+- Fixed the v1.5.0 deep systems foundation test harness so setup operations run in Release builds instead of being compiled out through `assert`.
 - Exposed the game integration profile catalog, catalog summary, catalog validation, profile scenario recommendations, scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries through the recommended SDK umbrella header.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
 - Kept source-level `DataRegistry::add(...)` compatible for zero numeric defaults by reporting warnings instead of errors for direct C++ construction.

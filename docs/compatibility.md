@@ -1,6 +1,6 @@
 # Compatibility Policy
 
-Version: **1.0.0**
+Version: **2.0.0**
 
 City Life Core 1.x prioritizes source compatibility for supported public headers and documented workflows.
 
@@ -70,6 +70,7 @@ Current C ABI scope:
 - opaque `clc_world` handle;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 Expectations:

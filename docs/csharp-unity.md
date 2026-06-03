@@ -27,6 +27,7 @@ The current C ABI exposes:
 - an opaque `clc_world` handle;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 Header:

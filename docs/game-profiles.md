@@ -185,8 +185,8 @@ tests/game_profiles_tests.cpp
 | C consumer | Minimal supported | C ABI | Useful as a stable FFI baseline. |
 | Unity / C# client or tool | Initial support | C ABI + P/Invoke | Wrapper and smoke test exist; full Unity package does not. |
 | Browser / WebAssembly game/tool | Planned | Future WASM + JS/TS adapter | Planning documented; not implemented. |
-| Server-authoritative game | Partially supported | C++ API, Action Bridge and runtime workflows | More replay/persistence/server hardening planned. |
-| MMO-like simulation | Planned / early foundation | C++ API first, local Action Bridge where useful, later stable boundaries | Needs shard/partition and deeper replay/persistence/diagnostics. |
+| Server-authoritative game | Partially supported | C++ API, Action Bridge, runtime workflows and v1.6.0 server-authoritative helpers | Transport, auth, replication and persistence storage remain product-owned. |
+| MMO-like simulation | Planned / early foundation | C++ API first, local Action Bridge where useful, v1.6.0 shard/audit helpers, later stable boundaries | Needs deeper replay/persistence/diagnostics and scale work. |
 | Editor / balancing tool | Partially supported | C++ API, Action Bridge, C ABI, validation docs | Needs richer data-authoring APIs and bindable diagnostics. |
 
 ---
@@ -254,6 +254,7 @@ Current scope:
 - tick helpers;
 - opaque world create/destroy;
 - simple tick advancement;
+- duration-based world advancement helpers;
 - read-only event access;
 - diagnostics helpers.
 
@@ -318,6 +319,9 @@ Current fit:
 
 - deterministic tick runtime;
 - local JSON action input through Action Bridge;
+- ordered server action envelopes with host-owned session metadata;
+- action audit records and sequence validation helpers;
+- shard descriptors for documenting partition ownership assumptions;
 - pre-mutation validation and rejected-action no-mutation behavior;
 - action result status, command detail, events and diagnostics;
 - world events;
@@ -347,7 +351,7 @@ The core should support MMO-like scenarios by deepening:
 - long-running tick simulation;
 - persistence and migrations;
 - replay and audit logs;
-- world partitioning assumptions;
+- world partitioning assumptions and shard descriptors;
 - economy/logistics/faction depth;
 - diagnostics and observability.
 

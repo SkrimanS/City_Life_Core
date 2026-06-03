@@ -1,8 +1,8 @@
 # Public API Status
 
-Version: **1.0.0**
+Version: **2.0.0**
 
-This document classifies the installed API surface for the 1.0.0 line and the current v1.x integration planning work.
+This document classifies the installed API surface for the 2.0.0 stable multi-game SDK foundation.
 
 City Life Core has multiple public-facing surfaces. They do not all have the same status.
 
@@ -68,6 +68,128 @@ The profile surface exposes profile descriptors, support status, required/option
 
 ---
 
+## Server-authoritative C++ surface
+
+The server-authoritative foundation API is a source-level C++ SDK surface for host-owned server command review and audit flows.
+
+Header:
+
+```cpp
+#include "clc/sim/ServerAuthoritative.hpp"
+```
+
+Recommended aggregate include:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- public for C++ source use;
+- local and transport-agnostic;
+- useful for ordered server action envelopes, audit records, shard descriptors and replay-sensitive command sequence checks;
+- not a networking, session, account, auth, replication, persistence-storage or MMO framework;
+- not part of the C ABI.
+
+See [`server-authoritative-mmo.md`](server-authoritative-mmo.md).
+
+---
+
+## Economy depth C++ surface
+
+The economy depth foundation API is a source-level C++ SDK surface for connected economy, faction and contract review.
+
+Available through:
+
+```cpp
+#include "clc/sim/EconomyDepth.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- internal v1.7.0 milestone;
+- market-aware contract assessment;
+- storage and caravan flow planning;
+- portfolio summary and digest helpers;
+- validation helpers for blocked or risky contract states.
+
+It is not a C ABI surface yet and does not define product-specific economy rules such as taxes, auctions, diplomacy, AI priorities, inflation, UI or persistence storage.
+
+See [`economy-depth.md`](economy-depth.md).
+
+---
+
+## Persistence, replay and migration C++ surface
+
+The persistence/replay/migration foundation API is a source-level C++ SDK surface for save-format review, supported legacy world-state migration, replay mismatch diagnostics and checkpoint planning.
+
+Available through:
+
+```cpp
+#include "clc/sim/SimulationPersistenceReplay.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- internal v1.8.0 milestone;
+- save-format manifest and review helpers;
+- migration helper for supported older version-1 world-state shapes;
+- replay diagnostics with serialized state mismatch counts;
+- optional event-log checksum comparison;
+- checkpoint planning for long-running simulations.
+
+It is not a C ABI surface yet and does not provide product save services, databases, cloud storage, file rotation, arbitrary schema migration or replication infrastructure.
+
+See [`persistence-replay-migration.md`](persistence-replay-migration.md).
+
+---
+
+## Scale diagnostics C++ surface
+
+The scale diagnostics foundation API is a source-level C++ SDK surface for runtime scale review and release-readiness diagnostics.
+
+Available through:
+
+```cpp
+#include "clc/sim/ScaleDiagnostics.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- internal v1.9.0 milestone;
+- runtime scale snapshots;
+- configurable watch/high thresholds;
+- validation, digest and markdown helpers;
+- benchmark coverage for snapshot and event-log checksum paths.
+
+It is not a memory profiler, scheduler, database, sharding system or hosting layer.
+
+See [`scale-performance.md`](scale-performance.md).
+
+---
+
 ## Action Bridge C++ surface
 
 The Action Bridge is a C++ SDK surface for local action dispatch:
@@ -118,6 +240,7 @@ Current C ABI scope:
 - opaque `clc_world` handle;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 The C ABI is intentionally small today. It does not yet expose the full runtime, registry, validation, persistence, economy, faction, contract, profile catalog or Action Bridge systems.

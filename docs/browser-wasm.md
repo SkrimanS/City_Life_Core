@@ -35,6 +35,7 @@ Currently available foundations:
 - tick/time utilities;
 - opaque world handle;
 - basic world advancement;
+- duration-based world advancement helpers;
 - read-only world event access;
 - SDK packaging and install documentation.
 
@@ -92,6 +93,7 @@ Tasks:
 - wrap version and tick helpers;
 - wrap opaque world create/destroy;
 - wrap basic world advancement;
+- wrap duration-based world advancement helpers;
 - copy strings safely from WASM memory;
 - expose read-only event access;
 - document ownership and lifetime rules.

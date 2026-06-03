@@ -58,7 +58,7 @@ clc_version clc_core_version_c(void) {
 }
 
 const char* clc_core_version_string_c(void) {
-    return "1.0.0";
+    return "2.0.0";
 }
 
 uint32_t clc_c_interface_version_c(void) {
