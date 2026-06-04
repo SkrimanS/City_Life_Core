@@ -23,10 +23,10 @@ void require(bool condition, std::string_view message) {
 } // namespace
 
 int main() {
-    require(clc::core_version().major == 1, "major version should be 1 for 1.0.0");
-    require(clc::core_version().minor == 0, "minor version should be 0 for 1.0.0");
-    require(clc::core_version().patch == 0, "patch version should be 0 for 1.0.0");
-    require(clc::core_version_string() == std::string_view{"1.0.0"}, "version string should be 1.0.0");
+    require(clc::core_version().major == 4, "major version should be 4 for 4.0.0");
+    require(clc::core_version().minor == 0, "minor version should be 0 for 4.0.0");
+    require(clc::core_version().patch == 0, "patch version should be 0 for 4.0.0");
+    require(clc::core_version_string() == std::string_view{"4.0.0"}, "version string should be 4.0.0");
 
     clc::World world{clc::WorldConfig{.name = "Smoke Test World", .seed = 42}};
     require(world.time().current_tick() == 0, "new world should start at tick 0");

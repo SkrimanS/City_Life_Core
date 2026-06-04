@@ -29,12 +29,12 @@ Examples:
 
 - `v1.1.0` - Integration Foundation Update
 - `v1.2.0` - Action Bridge Update
-- `v1.3.0` - game profiles and integration expansion
-- `v1.4.0` - platform/integration layer
-- `v1.5.0` - MMO foundation I
-- `v1.6.0` - economy/factions/contracts depth
-- `v1.7.0` - persistence/replay/migration
-- `v1.8.0` - performance/scale
+- `v1.3.0` - runtime and data hardening
+- `v1.4.0` - game profiles
+- `v1.5.0` - platform, integration and deep systems foundation
+- `v1.6.0` - MMO foundation I
+- `v1.7.0` - economy, factions and contracts depth
+- `v1.8.0` - persistence, replay and migration
 - `v1.9.0` - v2 preparation
 
 These labels may appear in:
@@ -84,6 +84,8 @@ Internal milestone history belongs in:
 
 Versioned release documents are reserved for public major releases, for example:
 
+- `docs/release-notes-2.0.0.md`;
+- `docs/release-manifest-2.0.0.md`;
 - `docs/release-notes-1.0.0.md`;
 - `docs/release-manifest-1.0.0.md`.
 
@@ -126,6 +128,8 @@ For internal milestones, update `CHANGELOG.md` and the current docs instead of c
 
 For public major releases, create or update release-specific notes and manifests, for example:
 
+- `docs/release-notes-2.0.0.md`
+- `docs/release-manifest-2.0.0.md`
 - `docs/release-notes-1.0.0.md`
 - `docs/release-manifest-1.0.0.md`
 
@@ -149,6 +153,9 @@ Internal minor milestones should avoid unnecessary breakage, but they are planni
 - [Changelog](../CHANGELOG.md)
 - [Compatibility](compatibility.md)
 - [Migration](migration.md)
+- [Release notes 2.0.0](release-notes-2.0.0.md)
+- [Release manifest 2.0.0](release-manifest-2.0.0.md)
+- [Public surface 2.0.0](public-surface-2.0.0.md)
 - [Release notes 1.0.0](release-notes-1.0.0.md)
 - [Release manifest 1.0.0](release-manifest-1.0.0.md)
 - [Release manifest template](release-manifest-template.md)

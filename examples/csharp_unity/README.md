@@ -151,6 +151,9 @@ The current wrapper exposes only the existing minimal C ABI:
 - version information;
 - C ABI compatibility checks;
 - tick conversion helpers;
+- supported game profile count and profile ids;
+- SDK handoff readiness and profile-specific handoff digests;
+- core completion, deep replay coverage, runtime core systems, regional simulation, SDK handoff manifest and platform diagnostics;
 - opaque world create/destroy;
 - world name, seed, current tick and event count;
 - safe managed property read helpers for Unity gameplay code;

@@ -41,7 +41,7 @@ This keeps the core reusable while allowing different platforms to use the same 
 | Unity / C# | Initial support | C ABI + P/Invoke wrapper in `examples/csharp_unity/` | Usable as a smoke-test wrapper; not yet a full Unity package. |
 | Browser / WebAssembly | Planned | Future Emscripten/WASM build and JavaScript adapter; see `browser-wasm.md` | Not yet implemented. |
 | Other engines | Planned | Future adapters through C ABI or engine-specific bindings | Godot, Unreal or custom engines should not call unstable C++ ABI directly. |
-| Backend service / MMO server | Partially supported | Native C++ API, Action Bridge and runtime workflows | More server-authoritative command/replay/persistence work is planned. |
+| Backend service / MMO server | Partially supported | Native C++ API, Action Bridge, runtime workflows and v1.6.0 server-authoritative helpers | Transport, auth, persistence storage and replication remain product-owned. |
 | Editor / balancing tools | Partially supported | Native C++ API, Action Bridge, C ABI, validation docs | More diagnostics and data-authoring support is planned. |
 
 ---
@@ -90,6 +90,70 @@ Guidance:
 docs/action-bridge.md
 ```
 
+### Server-authoritative C++ integrations
+
+Server-owned products can wrap local runtime actions in ordered action envelopes with host-owned session metadata and shard ids:
+
+```cpp
+#include "clc/sim/ServerAuthoritative.hpp"
+```
+
+This v1.6.0 surface provides audit records, command sequence summaries, sequence validation and shard descriptor digests. It does not provide networking, authentication, replication, matchmaking or persistence storage.
+
+Guidance:
+
+```text
+docs/server-authoritative-mmo.md
+```
+
+### Economy-depth C++ integrations
+
+Native games, backend simulations and editor tools can review contract deliverability through market-aware assessments and resource-flow plans:
+
+```cpp
+#include "clc/sim/EconomyDepth.hpp"
+```
+
+This v1.7.0 surface provides contract economy assessments, storage/caravan flow plans, portfolio summaries, validation and digest helpers. It does not provide product-specific economy rules such as taxes, auctions, treaty systems, AI priorities, UI or persistence storage.
+
+Guidance:
+
+```text
+docs/economy-depth.md
+```
+
+### Persistence and replay integrations
+
+Tools, servers and shipped games can review save-format compatibility, migrate supported legacy world-state content and compare replay diagnostics:
+
+```cpp
+#include "clc/sim/SimulationPersistenceReplay.hpp"
+```
+
+This v1.8.0 surface provides save manifests, compatibility review, migration reports, replay diagnostics, event-log checksum comparison and checkpoint planning. It does not provide databases, cloud storage, file rotation, arbitrary product schema migration or replication infrastructure.
+
+Guidance:
+
+```text
+docs/persistence-replay-migration.md
+```
+
+### Scale diagnostics integrations
+
+Tools, backend services and release validation flows can produce runtime scale snapshots:
+
+```cpp
+#include "clc/sim/ScaleDiagnostics.hpp"
+```
+
+This v1.9.0 surface provides configurable thresholds, validation, digest output and markdown output. It does not provide profiling infrastructure, sharding, database services or production hosting.
+
+Guidance:
+
+```text
+docs/scale-performance.md
+```
+
 ### Native C ABI integrations
 
 C and foreign-language integrations should use the C ABI:
@@ -106,6 +170,7 @@ The current C ABI exposes:
 - an opaque world handle;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 The C ABI is intentionally minimal. It is the safest boundary for languages that should not bind directly to the C++ API.
@@ -140,6 +205,7 @@ Current scope:
 - managed wrapper for the opaque world handle;
 - version and tick helper access;
 - basic world advancement;
+- duration-based world advancement helpers;
 - read-only event inspection;
 - Unity native plug-in layout notes.
 

@@ -2,7 +2,16 @@
 
 All notable changes to City Life Core are tracked here.
 
-Internal milestones such as `v1.1.0`, `v1.2.0`, `v1.3.0` and `v1.4.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
+Internal milestones such as `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.4.0` and `v1.5.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
+
+## 4.0.0 - Multi-game platform foundation
+
+### Added
+
+- Added the v4.0.0 Platform Core C++ API with static module registry, module dependency metadata, genre profiles, content pack manifest validation, editor/admin query reporting and unified platform diagnostics.
+- Added `examples/platform_core.cpp`, `tests/platform_core_tests.cpp` and platform documentation for module architecture, genre profiles, content pipeline, editor/admin queries and diagnostics.
+- Expanded the C ABI to interface version 8 with platform diagnostics plus completed-core and deep replay readiness evidence suitable for game-team handoff.
+- Updated the SDK handoff catalog, release manifest and installed-package validation path for the 4.0.0 platform foundation.
 
 ## Unreleased
 
@@ -10,6 +19,48 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added the v2.1.0 multiplayer Action Authority C++ API with actor-scoped validation, ownership/resource checks, stale action rejection, no-mutation rejected dispatch and digest output.
+- Added the v2.2.0 Snapshot Sync C++ API with full/public/faction/settlement snapshot summaries, visibility metadata, validation and digest output.
+- Added the v2.3.0 Multiplayer Replay C++ API with command-log validation, authority-gated replay, replay summaries and digest output.
+- Added the v2.4.0 Multiplayer Economy Safety C++ API with no-mutation buy/sell/contract-reward safety reviews, duplicate reference diagnostics and digest output.
+- Added the v2.5.0 Multiplayer Load Diagnostics C++ API with action, rejection, event and snapshot volume summaries plus configurable watch/high thresholds.
+- Added the v2.6.0 Pre-3 Readiness C++ API with readiness gates for snapshot, authority, replay, economy, load and large-world planning.
+- Added the v3.0.0 Large World C++ API with region descriptors, settlement/route/caravan region assignments, validation, summaries and digest output.
+- Added `examples/multiplayer_to_large_world.cpp` to demonstrate the v2.1.0 through v3.0.0 flow.
+- Added `tests/multiplayer_to_large_world_tests.cpp` for authority rejection/no-mutation, snapshots, command replay, economy safety, load diagnostics, pre-3 readiness and large-world validation.
+- Added docs and internal release-plan/release-notes/release-manifest files for v2.1.0 through v3.0.0.
+- Added the post-v2 settlement development C++ helper with resource-needs planning, production opportunities, market-pressure priorities, validation, lookup helpers and digest output.
+- Added `examples/settlement_development.cpp` to demonstrate settlement development planning across a tick horizon.
+- Added `tests/settlement_development_tests.cpp` for resource shortages, output market pressure, unknown building definitions, validation and digest output.
+- Added `docs/settlement-development.md` with post-v2 helper scope, priorities, digest guidance and non-goals.
+- Added `docs/detailed-ai-roadmap.md` as the AI-ready detailed roadmap for future v2.x, v3.x and v4.x work.
+- Added `docs/release-notes-2.0.0.md`, `docs/release-manifest-2.0.0.md` and `docs/public-surface-2.0.0.md` for the public v2.0.0 milestone.
+- Added the v1.9.0 scale diagnostics C++ API with runtime scale snapshots, configurable thresholds, validation, digest output and markdown output.
+- Added `examples/scale_diagnostics.cpp` to demonstrate runtime scale snapshot digest output.
+- Added `tests/scale_diagnostics_tests.cpp` for nominal/high scale risk classification, threshold validation and markdown/digest output.
+- Expanded `benchmarks/core_benchmarks.cpp` with runtime scale snapshot and runtime event-log checksum benchmark scenarios.
+- Added `docs/scale-performance.md` with v1.9.0 scale expectations, benchmark coverage and integration tradeoffs.
+- Added the v1.8.0 persistence/replay/migration C++ API with save-format manifests, save-format review, legacy world-state migration, replay diagnostics, checkpoint planning and digest helpers.
+- Added `examples/persistence_replay_migration.cpp` to demonstrate save-format review, migration digest output, replay diagnostics and checkpoint planning.
+- Added `tests/persistence_replay_migration_tests.cpp` for legacy world-state migration, replay drift diagnostics, event-log mismatch diagnostics and checkpoint plans.
+- Added `docs/persistence-replay-migration.md` with v1.8.0 save-format, migration, replay diagnostics and long-simulation checkpoint guidance.
+- Added the v1.7.0 economy depth C++ API with contract economy assessments, storage/caravan resource-flow plans, portfolio summaries, validation and digest helpers.
+- Added `examples/economy_depth.cpp` to demonstrate market-aware contract assessment, faction access checks, resource-flow planning and portfolio digest output.
+- Added `tests/economy_depth_tests.cpp` for deliverable contracts, reputation blocks, storage and caravan flow planning, resource shortages and overdue portfolio summaries.
+- Added `docs/economy-depth.md` with v1.7.0 scope, extension points and game-specific economy rule boundaries.
+- Added the v1.6.0 server-authoritative foundation C++ API with host-owned session identity, shard descriptors, ordered runtime action envelopes, dispatch audit records, sequence summaries, sequence validation and digest helpers.
+- Added `examples/server_authoritative.cpp` to demonstrate shard/session metadata, ordered server action dispatch, audit output and command sequence validation.
+- Added `tests/server_authoritative_tests.cpp` for shard validation, host session versus simulation actor separation, invalid-envelope no-mutation behavior, audit sequence validation and long-running authoritative tick smoke coverage.
+- Added `docs/server-authoritative-mmo.md` with v1.6.0 scope, basic authoritative flow, sequence validation, shard/partition assumptions and non-goals.
+- Added deep systems diagnostics helpers that combine market, ledger, contract lifecycle, production and logistics snapshots into warning/critical counts, digest output and markdown output.
+- Added production pressure snapshot helpers for settlement buildings, worker slots, missing input resources, output market pressure, per-building resource signals and digest output.
+- Added logistics pressure snapshot helpers for routes, caravans, cargo, unknown routes, cargo supporting market shortages, cargo supporting open contracts and digest output.
+- Added market pressure and snapshot helpers with shortage, surplus, depleted and balanced classifications, per-resource pressure signals, fulfillability flags and market snapshot digest output.
+- Added economy ledger summary helpers for buy, sell and contract-reward counts, values, per-resource net quantity/value summaries and digest output.
+- Added faction access helpers that classify blocked, restricted, neutral, trusted and allied relationships with trade and contract permission flags.
+- Added contract lifecycle summary helpers for open, fulfilled, failed, cancelled, overdue and reputation-blocked contract review.
+- Added `tests/deep_systems_foundation_tests.cpp` to cover market snapshots, ledger summaries, faction access, contract lifecycle, production pressure, logistics pressure and deep systems diagnostics behavior.
+- Added `docs/platform-integration-layer.md` for the v1.5.0 platform and adapter boundary review, including host-owned adapter responsibilities, lifecycle and ownership assumptions, integration diagnostics direction, safe C ABI expansion candidates and non-goals.
 - Added the v1.4.0 game integration profile catalog API with supported/planned profile descriptors, integration boundaries, required/optional systems and non-goals.
 - Added game profile query helpers for support status, required systems, C ABI needs, Action Bridge usage and server-authoritative profiles.
 - Added game profile catalog summary and markdown helpers for support-status, C ABI, Action Bridge and server-authoritative profile counts.
@@ -60,6 +111,17 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Exposed the settlement development planning API through the recommended SDK umbrella header.
+- Exposed the v2.1.0 through v3.0.0 multiplayer and large-world APIs through the recommended SDK umbrella header.
+- Updated the roadmap to point to the detailed AI roadmap and align the next v2.x/v3.0 milestones with the multiplayer/server-authoritative and large-world lines.
+- Updated project, C++ and C ABI version reporting to `2.0.0`.
+- Exposed the deep systems diagnostics API through the recommended SDK umbrella header.
+- Exposed the production and logistics pressure APIs through the recommended SDK umbrella header.
+- Expanded the `v1.5.0` roadmap scope from platform integration only to platform, integration and deep systems foundation work covering market systems, economy, resources, production chains, logistics, factions, ownership, contracts, ledger output and cross-system tests.
+- Updated the documentation index and Russian documentation index to include the v1.5.0 platform integration layer guidance.
+- Updated the examples index to document the v1.5.0 deep systems foundation example.
+- Updated C ABI documentation to describe C interface version `4` and the world time-advance helpers.
+- Fixed the v1.5.0 deep systems foundation test harness so setup operations run in Release builds instead of being compiled out through `assert`.
 - Exposed the game integration profile catalog, catalog summary, catalog validation, profile scenario recommendations, scenario summaries, adoption reports, adoption summaries, checklists and checklist summaries through the recommended SDK umbrella header.
 - Hardened `.clcd` data-pack loading so resources require positive `base_value` and buildings require positive `worker_slots`.
 - Kept source-level `DataRegistry::add(...)` compatible for zero numeric defaults by reporting warnings instead of errors for direct C++ construction.

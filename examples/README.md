@@ -25,6 +25,125 @@ ctest --test-dir build --output-on-failure
 
 ## Examples / Примеры
 
+### `clc_example_game_developer_handoff`
+
+Source: `examples/game_developer_handoff.cpp`
+
+Shows the recommended SDK handoff flow for game teams:
+
+- select integration profiles;
+- inspect support status and integration boundaries;
+- list recommended examples and documents;
+- read platform readiness, adoption and checklist digests;
+- keep UI, rendering, networking, accounts and matchmaking outside the core.
+
+Run:
+
+```bash
+./build/clc_example_game_developer_handoff
+```
+
+### `clc_example_game_developer_handoff_catalog`
+
+Source: `examples/game_developer_handoff_catalog.cpp`
+
+Shows the catalog-level handoff gate:
+
+- evaluate all supported game integration profiles;
+- verify profile-specific starter examples and docs;
+- require the installed SDK handoff manifest;
+- emit digest and markdown output for game-team onboarding.
+
+Run:
+
+```bash
+./build/clc_example_game_developer_handoff_catalog
+```
+
+### `clc_example_platform_core`
+
+Source: `examples/platform_core.cpp`
+
+Shows the v4.0.0 platform foundation:
+
+- query the static module registry;
+- inspect genre profile metadata;
+- validate a content pack manifest;
+- emit unified diagnostics for editor/admin tools.
+
+Run:
+
+```bash
+./build/clc_example_platform_core
+```
+
+### `clc_example_sdk_handoff_manifest`
+
+Source: `examples/sdk_handoff_manifest.cpp`
+
+Shows the SDK package handoff manifest flow:
+
+- build the standard installed-artifact checklist;
+- validate required C++/C ABI/docs/examples/data handoff artifacts;
+- emit digest and markdown output for release tools.
+
+Run:
+
+```bash
+./build/clc_example_sdk_handoff_manifest
+```
+
+### `clc_example_runtime_processor_orchestration`
+
+Source: `examples/runtime_processor_orchestration.cpp`
+
+Shows the completed-core runtime orchestration flow:
+
+- run the standard deterministic core processor registry against `SimulationRuntime`;
+- advance the runtime by a configured tick step;
+- evaluate deep/regional runtime core systems;
+- emit a bounded diagnostic event stream for tools or servers.
+
+Run:
+
+```bash
+./build/clc_example_runtime_processor_orchestration
+```
+
+### `clc_example_save_replay_fixtures`
+
+Source: `examples/save_replay_fixtures.cpp`
+
+Shows the completed-core save/replay fixture catalog:
+
+- build standard deep and regional fixture metadata;
+- validate golden save payloads through the current save-format review path;
+- validate invalid payload rejection;
+- emit digest and markdown output for release handoff.
+
+Run:
+
+```bash
+./build/clc_example_save_replay_fixtures
+```
+
+### `clc_example_core_systems_audit`
+
+Source: `examples/core_systems_audit.cpp`
+
+Shows the completed-core audit flow:
+
+- verify no-hidden-coupling processor coverage;
+- verify deep and regional domain coverage;
+- verify authority sweep coverage for economy, logistics, contracts, factions, policies and events;
+- emit digest and markdown output.
+
+Run:
+
+```bash
+./build/clc_example_core_systems_audit
+```
+
 ### `clc_example_basic_runtime`
 
 Source: `examples/basic_runtime.cpp`
@@ -60,6 +179,110 @@ Run:
 ./build/clc_example_action_bridge
 ```
 
+### `clc_example_server_authoritative`
+
+Source: `examples/server_authoritative.cpp`
+
+Shows the v1.6.0 server-authoritative foundation flow:
+
+- create a host-owned shard descriptor and session identity;
+- wrap local runtime actions in ordered server envelopes;
+- dispatch envelopes into the runtime through the server-authoritative helper;
+- record audit digests and validate command sequence continuity.
+
+Run:
+
+```bash
+./build/clc_example_server_authoritative
+```
+
+### `clc_example_economy_depth`
+
+Source: `examples/economy_depth.cpp`
+
+Shows the v1.7.0 economy depth flow:
+
+- build a market report from storage and demand;
+- evaluate a contract against market value, faction access, resources and deadline;
+- create a storage resource-flow plan;
+- summarize deliverable and blocked contracts for a portfolio.
+
+Run:
+
+```bash
+./build/clc_example_economy_depth
+```
+
+### `clc_example_persistence_replay_migration`
+
+Source: `examples/persistence_replay_migration.cpp`
+
+Shows the v1.8.0 persistence/replay/migration flow:
+
+- review save-format compatibility;
+- migrate a legacy world-state string with a missing tick-time row;
+- compare replay diagnostics with event-log checksums;
+- create a checkpoint plan for long-running simulations.
+
+Run:
+
+```bash
+./build/clc_example_persistence_replay_migration
+```
+
+### `clc_example_scale_diagnostics`
+
+Source: `examples/scale_diagnostics.cpp`
+
+Shows the v1.9.0 scale diagnostics flow:
+
+- run a small tick simulation;
+- append runtime events;
+- create a runtime scale snapshot;
+- emit a stable digest for release review or tooling.
+
+Run:
+
+```bash
+./build/clc_example_scale_diagnostics
+```
+
+### `clc_example_settlement_development`
+
+Source: `examples/settlement_development.cpp`
+
+Shows the v2.1.0 settlement-development planning flow:
+
+- combine settlement storage, population, buildings and market pressure;
+- estimate resource needs across a tick horizon;
+- inspect production opportunities such as worker assignment, input imports and output expansion;
+- emit a stable digest for tools, balancing scripts or server logs.
+
+Run:
+
+```bash
+./build/clc_example_settlement_development
+```
+
+### `clc_example_multiplayer_to_large_world`
+
+Source: `examples/multiplayer_to_large_world.cpp`
+
+Shows the v2.1.0 through v3.0.0 flow:
+
+- review and dispatch actor-authorized server actions;
+- create client-visible snapshot summaries;
+- replay a multiplayer command log;
+- review economy safety before mutation;
+- inspect multiplayer load and pre-3 readiness;
+- assign settlements to large-world regions.
+
+Run:
+
+```bash
+./build/clc_example_multiplayer_to_large_world
+```
+
 ### `clc_example_game_profiles`
 
 Source: `examples/game_profiles.cpp`
@@ -82,6 +305,23 @@ Run:
 
 ```bash
 ./build/clc_example_game_profiles
+```
+
+### `clc_example_deep_systems_foundation`
+
+Source: `examples/deep_systems_foundation.cpp`
+
+Shows the v1.5.0 deep-systems foundation flow:
+
+- create market pressure, ledger, contract lifecycle, production and logistics snapshots;
+- combine those snapshots into deep systems diagnostics;
+- print digest and markdown output for tool, editor or server logs;
+- inspect faction access for trade/contract-oriented integration decisions.
+
+Run:
+
+```bash
+./build/clc_example_deep_systems_foundation
 ```
 
 ### `clc_example_validation_hardening`

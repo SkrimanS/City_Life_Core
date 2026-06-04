@@ -38,6 +38,8 @@ On Windows/MSVC the executable path may be under the configuration directory, fo
 - `world_state_serialize_100_settlements_30_days`
 - `world_state_deserialize_100_settlements_30_days`
 - `runtime_run_days_1000_caravans_30_days`
+- `runtime_scale_snapshot_1000_caravans`
+- `runtime_event_log_checksum_10000_events`
 
 Output is CSV-like:
 
@@ -64,7 +66,7 @@ Artifact naming pattern:
 city-life-core-benchmarks-<os>-<compiler>
 ```
 
-The benchmark artifact is a baseline signal. It is not a strict performance threshold gate.
+The benchmark artifact is a baseline signal. It is not a strict performance threshold gate. For v2.0.0 review, compare benchmark names, elapsed times and detail values against the previous reviewed artifact before tagging.
 
 ---
 

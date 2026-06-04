@@ -1,6 +1,6 @@
 # SDK ZIP Package
 
-Version: **1.0.0**
+Version: **4.0.0**
 
 The SDK ZIP package is an install-layout archive produced by CPack.
 

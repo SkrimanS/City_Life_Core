@@ -6,17 +6,17 @@
 
 int main(void) {
     const clc_version version = clc_core_version_c();
-    if (version.major != 1 || version.minor != 0 || version.patch != 0) {
+    if (version.major != 4 || version.minor != 0 || version.patch != 0) {
         fprintf(stderr, "Unexpected version: %d.%d.%d\n", version.major, version.minor, version.patch);
         return 1;
     }
 
-    if (strcmp(clc_core_version_string_c(), "1.0.0") != 0) {
+    if (strcmp(clc_core_version_string_c(), "4.0.0") != 0) {
         fprintf(stderr, "Unexpected version string: %s\n", clc_core_version_string_c());
         return 1;
     }
 
-    if (clc_c_interface_version_c() != 4u) {
+    if (clc_c_interface_version_c() != 8u) {
         fprintf(stderr, "Unexpected C interface version: %u\n", (unsigned)clc_c_interface_version_c());
         return 1;
     }
@@ -81,6 +81,13 @@ int main(void) {
     printf("world_seed=%llu\n", (unsigned long long)clc_world_seed_c(world));
     printf("world_tick=%llu\n", (unsigned long long)clc_world_current_tick_c(world));
     printf("world_events=%llu\n", (unsigned long long)clc_world_event_count_c(world));
+    printf("sdk_handoff=%s\n", clc_sdk_handoff_digest_c());
+    printf("core_completion=%s\n", clc_core_completion_readiness_digest_c());
+    printf("deep_replay_coverage=%s\n", clc_deep_replay_coverage_digest_c());
+    printf("runtime_core_systems=%s\n", clc_runtime_core_systems_digest_c());
+    printf("regional_simulation=%s\n", clc_regional_simulation_digest_c());
+    printf("sdk_handoff_manifest=%s\n", clc_sdk_handoff_manifest_digest_c());
+    printf("platform_diagnostics=%s\n", clc_platform_diagnostics_digest_c());
     printf("event0=%llu:%llu:%s:%s\n",
         (unsigned long long)clc_world_event_id_c(world, 0),
         (unsigned long long)clc_world_event_tick_c(world, 0),

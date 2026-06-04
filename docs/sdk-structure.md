@@ -1,6 +1,6 @@
 # SDK Structure
 
-Version: **1.0.0**
+Version: **4.0.0**
 
 City Life Core is distributed as a source tree, an installable CMake package and an optional SDK ZIP package.
 

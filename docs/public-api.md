@@ -1,6 +1,6 @@
 # Public API
 
-Version: **1.0.0**
+Version: **4.0.0**
 
 City Life Core exposes a source-first public C++ API and a smaller C ABI for foreign-language integrations.
 
@@ -75,6 +75,156 @@ See [`game-profiles.md`](game-profiles.md).
 
 ---
 
+## Server-authoritative C++ API
+
+v1.6.0 adds a source-level C++ foundation for server-authoritative and MMO-like runtime flows.
+
+Use:
+
+```cpp
+#include "clc/sim/ServerAuthoritative.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The server-authoritative surface exposes host-owned session metadata, shard descriptors, ordered runtime action envelopes, dispatch through the local Action Bridge model, audit records, sequence summaries, sequence validation and digest output.
+
+This surface is descriptive and local. It does not implement networking, sessions, auth, matchmaking, replication, persistence storage or MMO infrastructure.
+
+See [`server-authoritative-mmo.md`](server-authoritative-mmo.md).
+
+---
+
+## Economy depth C++ API
+
+v1.7.0 adds a source-level C++ foundation for deeper economy, faction and contract review.
+
+Use:
+
+```cpp
+#include "clc/sim/EconomyDepth.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The economy depth surface exposes market-aware contract assessments, storage/caravan resource-flow plans, portfolio summaries, validation helpers and digest output. It helps games and tools review deliverability, reputation gates, reward-versus-market value and resource shortages without mutating the simulation.
+
+This surface is a composable foundation. It does not implement taxes, diplomacy systems, AI priorities, inflation, settlement policy, UI, persistence storage or network services.
+
+See [`economy-depth.md`](economy-depth.md).
+
+---
+
+## Persistence, replay and migration C++ API
+
+v1.8.0 adds a source-level C++ foundation for save-format review, supported legacy world-state migration, replay diagnostics and checkpoint planning.
+
+Use:
+
+```cpp
+#include "clc/sim/SimulationPersistenceReplay.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The surface exposes save-format manifests, save review reports, migration reports, replay comparison diagnostics, event-log checksum comparison integration, checkpoint plans and digest output.
+
+This surface does not provide product databases, cloud storage, file rotation, arbitrary schema migration, replication or save-service infrastructure.
+
+See [`persistence-replay-migration.md`](persistence-replay-migration.md).
+
+---
+
+## Scale Diagnostics C++ API
+
+v1.9.0 adds a source-level C++ foundation for scale review and release-readiness diagnostics.
+
+Use:
+
+```cpp
+#include "clc/sim/ScaleDiagnostics.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The surface exposes runtime scale snapshots, configurable thresholds, validation, digest output and markdown output. It helps tools and servers count large-world pressure points such as settlements, caravans, contracts, ledger entries, event logs and serialized world-state lines.
+
+This surface is diagnostic. It does not provide a memory profiler, scheduler, database, sharding system or production hosting layer.
+
+See [`scale-performance.md`](scale-performance.md).
+
+---
+
+## Settlement Development C++ API
+
+The post-v2 settlement development helper adds a source-level C++ planning surface for deeper settlement, resource and production behavior after the `v2.0.0` foundation.
+
+Use:
+
+```cpp
+#include "clc/sim/SettlementDevelopment.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The surface exposes settlement development plans, resource needs, production opportunities, priority/action enums, validation, lookup helpers and digest output. It helps tools, servers and balancing workflows understand missing inputs, market-pressured outputs, idle worker slots and unknown building definitions without mutating the settlement.
+
+This surface does not implement AI, worker assignment, resource purchasing, construction, UI, networking or persistence storage.
+
+See [`settlement-development.md`](settlement-development.md).
+
+---
+
+## Multiplayer and Large-World C++ APIs
+
+The v2.1.0 through v3.0.0 roadmap line adds source-level C++ APIs for authoritative multiplayer-style hosts and the first large-world foundation.
+
+Use:
+
+```cpp
+#include "clc/sim/ActionAuthority.hpp"
+#include "clc/sim/SnapshotSync.hpp"
+#include "clc/sim/MultiplayerReplay.hpp"
+#include "clc/sim/MultiplayerEconomySafety.hpp"
+#include "clc/sim/MultiplayerLoadDiagnostics.hpp"
+#include "clc/sim/Pre3Readiness.hpp"
+#include "clc/sim/LargeWorld.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+These surfaces provide actor authority review, snapshot summaries, command-log replay, economy safety reviews, load diagnostics, pre-3 readiness reports and large-world region assignments. They remain local, deterministic and headless.
+
+They do not implement networking, WebSocket/HTTP, auth, accounts, matchmaking, database storage, real shard servers, UI or a game client.
+
+See [`multiplayer-action-authority.md`](multiplayer-action-authority.md), [`snapshot-sync-model.md`](snapshot-sync-model.md), [`multiplayer-persistence-replay.md`](multiplayer-persistence-replay.md), [`multiplayer-economy-safety.md`](multiplayer-economy-safety.md), [`multiplayer-load-diagnostics.md`](multiplayer-load-diagnostics.md), [`pre3-large-world-prep.md`](pre3-large-world-prep.md) and [`large-world-foundation.md`](large-world-foundation.md).
+
+---
+
 ## Action Bridge C++ API
 
 v1.2.0 adds a local Action Bridge for external game layers, tools and future server-authoritative adapters:
@@ -133,6 +283,7 @@ The current C ABI exposes:
 - opaque `clc_world` create/destroy;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 The C ABI is intentionally smaller than the C++ API. It is the planned stable boundary for C#, Unity, Browser/WASM and other language or engine bindings.

@@ -6,6 +6,10 @@ This roadmap describes the intended direction for City Life Core after the `v1.0
 
 City Life Core is developed as an engine-agnostic, headless simulation SDK for games, tools, servers, editors and MMO-like backends. The long-term direction is to make the core useful across different genres, platforms and runtime models while keeping it easy to embed.
 
+For the detailed AI-ready task list by version, see [`detailed-ai-roadmap.md`](detailed-ai-roadmap.md).
+For the owner-approved deep simulation addendum that expands the v1.x-v3.x line and prepares v4.0.0 readiness, see [`deep-simulation-roadmap-addendum.md`](deep-simulation-roadmap-addendum.md).
+For the definition of a completed handoff-ready SDK core, see [`core-completion-definition.md`](core-completion-definition.md).
+
 ---
 
 ## Release model used by this roadmap
@@ -48,10 +52,10 @@ Each stage branch may contain many focused commits and tasks. After a stage is r
 ## Roadmap shape
 
 ```text
-v1.x  -> base polish, SDK preparation and integration foundations
-v2.x  -> start of global mechanics deepening
-v3.x  -> expansion, stabilization and production hardening of deeper systems
-v4.0  -> transition to a deeply developed simulation core
+v1.x  -> deep realistic single-runtime simulation processing core
+v2.x  -> authority, consistency, multiplayer safety, compatibility and v3 preparation
+v3.x  -> regional, large-world and MMO-like simulation scaling
+v4.0  -> platform, profile, tooling and ecosystem readiness for the completed core
 v4.x+ -> large-project, MMO and complex-world evolution
 ```
 
@@ -59,7 +63,7 @@ v4.x+ -> large-project, MMO and complex-world evolution
 
 ## Direction before v2.0.0
 
-The main goal before `v2.0.0` is to polish the existing 1.0.0 foundation and make the SDK easier to embed into different games, platforms and server-authoritative runtimes.
+The main goal before `v2.0.0` is to polish the existing 1.0.0 foundation and make the SDK easier to embed into different games, platforms and server-authoritative runtimes while starting deeper connected gameplay systems earlier where they are needed by real profiles and integrations.
 
 Primary themes:
 
@@ -70,6 +74,7 @@ Primary themes:
 5. Harden runtime, validation, persistence, replay, packaging, documentation, examples and the C ABI.
 6. Add first-class integration guidance for C# and Unity through the C ABI without making the core Unity-specific.
 7. Provide a local Action Bridge for transport-agnostic external action validation and runtime mutation.
+8. Begin deeper market, economy, resource, production, logistics, faction and contract foundations before the public `v2.0.0` milestone.
 
 ---
 
@@ -156,11 +161,11 @@ Planned work:
 
 Expected outcome: clearer adoption paths for external developers building different types of games and tools.
 
-### v1.5.0 - Platform and integration layer
+### v1.5.0 - Platform, integration and deep systems foundation
 
 Branch: `v1.5.0`
 
-Focus: improve SDK embedding across platforms, engines and backend environments.
+Focus: improve SDK embedding across platforms, engines and backend environments while starting deeper connected gameplay systems needed by real game profiles.
 
 Planned work:
 
@@ -172,8 +177,17 @@ Planned work:
 - Improve CMake package, ZIP SDK and artifact-review workflows where needed.
 - Document threading, ownership and lifecycle assumptions.
 - Add integration diagnostics that are useful outside local tests.
+- Start a deeper market-system foundation with supply, demand, pricing signals, trade pressure and market snapshot/reporting concepts.
+- Expand wallet, trade and ledger scenarios so market actions have clearer accounting and audit trails.
+- Start deeper resource and production-chain flows, including producer/consumer relationships, storage pressure, workforce demand and logistics constraints.
+- Improve settlement, building and profession loops so economy and production systems can depend on clearer local state.
+- Deepen faction, ownership, reputation and permission hooks enough for market access, contracts and server-owned simulations.
+- Add richer contract/task lifecycle foundations, including creation requirements, fulfillment conditions, failure reasons and event output.
+- Improve route, caravan and logistics connections to storage, markets, settlements and contracts.
+- Add cross-system examples and tests for market, resources, production, logistics, factions, contracts, ledger output and Action Bridge-driven runtime mutations.
+- Keep all deeper systems headless, deterministic, integration-safe and separate from UI, networking, authentication, matchmaking and engine-specific code.
 
-Expected outcome: a cleaner integration surface for games, tools, Unity projects and backend services.
+Expected outcome: a cleaner integration surface for games, tools, Unity projects and backend services plus the first deeper connected gameplay-system foundation for market, economy, production, logistics, factions and contracts before `v2.0.0`.
 
 ### v1.6.0 - MMO foundation I
 
@@ -196,11 +210,11 @@ Expected outcome: a practical foundation for larger server-controlled simulation
 
 Branch: `v1.7.0`
 
-Focus: deepen the systems that make settlement and resource simulations feel connected.
+Focus: continue deepening the systems that make settlement and resource simulations feel connected after the first v1.5.0 deep-system foundation.
 
 Planned work:
 
-- Expand market, wallet, trade and ledger scenarios.
+- Expand market, wallet, trade and ledger scenarios beyond the v1.5.0 foundation.
 - Improve faction reputation, ownership and relationship flows.
 - Add richer contract lifecycle rules and validation.
 - Improve resource flow between storage, settlements, caravans and contracts.
@@ -286,11 +300,28 @@ Main post-`v2.0.0` themes:
 
 ---
 
+## Internal v2.x milestones
+
+The detailed task lists, non-goals and readiness criteria for each v2.x milestone are tracked in [`detailed-ai-roadmap.md`](detailed-ai-roadmap.md).
+
+Short map:
+
+- `v2.1.0` - Multiplayer Action Authority.
+- `v2.2.0` - Snapshot and Client Sync Model.
+- `v2.3.0` - Multiplayer Persistence and Replay.
+- `v2.4.0` - Multiplayer Economy and Trade Safety.
+- `v2.5.0` - Multiplayer Load and Diagnostics.
+- `v2.6.0` - Pre-3.0 Large World Preparation.
+
+---
+
 ## v3.0.0 - Deep mechanics and production hardening
 
 `v3.0.0` is a planned public Git tag and GitHub Release.
 
 By `v3.0.0`, the core should have substantially deeper connected systems than `v2.0.0` while staying stable enough to use in serious projects.
+
+Current working-tree status: implemented as the large-world foundation from [`detailed-ai-roadmap.md`](detailed-ai-roadmap.md), including region descriptors, region assignments, validation and digest output. The broader deep-mechanics hardening line continues after this foundation.
 
 Expected direction:
 

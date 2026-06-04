@@ -2,7 +2,7 @@
 
 This is a standalone C project that consumes an installed City Life Core SDK through CMake.
 
-The current C ABI is intentionally minimal. It exposes version utilities, time utility functions, a small opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement, and read-only world event inspection. Full runtime, containers, save/load, mutable event payload and callback APIs remain C++ APIs.
+The current C ABI is intentionally minimal. It exposes version utilities, time utility functions, a small opaque `clc_world` handle for create/destroy, basic state access, simple tick and duration-based world advancement, and read-only world event inspection. Full runtime, containers, save/load, mutable event payload and callback APIs remain C++ APIs.
 
 ---
 

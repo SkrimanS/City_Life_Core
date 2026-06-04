@@ -27,7 +27,9 @@ The current C ABI exposes:
 - an opaque `clc_world` handle;
 - basic world state access;
 - simple tick advancement;
-- read-only world event inspection.
+- duration-based world advancement by seconds, minutes, hours or days;
+- read-only world event inspection;
+- read-only SDK handoff, profile, completion, replay, runtime, regional and package-manifest diagnostics.
 
 Header:
 
@@ -46,6 +48,16 @@ Initial C# wrapper example:
 ```text
 examples/csharp_unity/CityLifeCoreNative.cs
 ```
+
+The wrapper exposes the current native diagnostics as managed strings through:
+
+- `SdkHandoffDigest`
+- `CoreCompletionReadinessDigest`
+- `DeepReplayCoverageDigest`
+- `RuntimeCoreSystemsDigest`
+- `RegionalSimulationDigest`
+- `SdkHandoffManifestDigest`
+- `PlatformDiagnosticsDigest`
 
 Optional Unity smoke-test component:
 
@@ -225,6 +237,7 @@ Initial C# / Unity support should remain intentionally small:
 
 - C# P/Invoke wrapper for the existing C ABI;
 - Unity smoke-test guidance and `MonoBehaviour` smoke-test example;
+- read-only handoff/readiness diagnostics for game-team startup checks;
 - native plug-in packaging notes;
 - no Unity dependency in the C++ core;
 - no generated C# package until the C ABI is wider and more stable.

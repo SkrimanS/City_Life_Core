@@ -1,6 +1,6 @@
 # CMake Package
 
-Version: **1.0.0**
+Version: **4.0.0**
 
 City Life Core installs a CMake package config for external consumers.
 

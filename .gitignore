@@ -1,5 +1,6 @@
 # Build outputs
 build/
+build-*/
 build-quick-validation/
 build-full-validation/
 out/
@@ -33,3 +34,5 @@ Testing/
 
 # Generated
 compile_commands.json
+bin/
+obj/

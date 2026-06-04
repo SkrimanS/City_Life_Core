@@ -1,11 +1,19 @@
 #include "clc/sim/Contracts.hpp"
 
 #include <limits>
+#include <sstream>
 #include <string>
 #include <utility>
 
 namespace clc::sim {
 namespace {
+
+std::uint64_t saturating_add(std::uint64_t lhs, std::uint64_t rhs) noexcept {
+    if (rhs > std::numeric_limits<std::uint64_t>::max() - lhs) {
+        return std::numeric_limits<std::uint64_t>::max();
+    }
+    return lhs + rhs;
+}
 
 data::ValidationReport mark_contract_status(
     ContractCatalog& catalog,
@@ -403,6 +411,79 @@ std::vector<ResourceDeliveryContract> overdue_open_contracts_at_tick(const Contr
 
 std::vector<ResourceDeliveryContract> overdue_open_contracts(const ContractCatalog& catalog, std::uint64_t current_day) {
     return overdue_open_contracts_at_tick(catalog, clc::days_to_ticks(current_day));
+}
+
+ContractLifecycleSummary make_contract_lifecycle_summary(
+    const ContractCatalog& catalog,
+    clc::GameTime::Tick current_tick
+) {
+    ContractLifecycleSummary summary;
+    summary.total_count = catalog.contracts.size();
+
+    for (const auto& contract : catalog.contracts) {
+        switch (contract.status) {
+        case ContractStatus::open:
+            ++summary.open_count;
+            summary.total_open_quantity = saturating_add(summary.total_open_quantity, contract.quantity);
+            summary.total_open_reward_coins = saturating_add(summary.total_open_reward_coins, contract.reward_coins);
+            if (current_tick > 0 && current_tick > contract_due_ticks(contract)) {
+                ++summary.overdue_open_count;
+                summary.overdue_open_contract_ids.push_back(contract.id);
+            }
+            break;
+        case ContractStatus::fulfilled:
+            ++summary.fulfilled_count;
+            summary.total_terminal_reward_coins = saturating_add(summary.total_terminal_reward_coins, contract.reward_coins);
+            break;
+        case ContractStatus::failed:
+            ++summary.failed_count;
+            summary.total_terminal_reward_coins = saturating_add(summary.total_terminal_reward_coins, contract.reward_coins);
+            break;
+        case ContractStatus::cancelled:
+            ++summary.cancelled_count;
+            summary.total_terminal_reward_coins = saturating_add(summary.total_terminal_reward_coins, contract.reward_coins);
+            break;
+        }
+    }
+
+    return summary;
+}
+
+ContractLifecycleSummary make_contract_lifecycle_summary_for_factions(
+    const ContractCatalog& catalog,
+    const FactionCatalog& factions,
+    clc::GameTime::Tick current_tick
+) {
+    auto summary = make_contract_lifecycle_summary(catalog, current_tick);
+
+    for (const auto& contract : catalog.contracts) {
+        if (!contract_is_open(contract)) {
+            continue;
+        }
+
+        const auto access = make_faction_access_report(factions, contract.issuer_faction_id, contract.receiver_faction_id);
+        if (!access.can_issue_contract || !access.can_receive_contract) {
+            summary.blocked_by_reputation_contract_ids.push_back(contract.id);
+        }
+    }
+
+    return summary;
+}
+
+std::string contract_lifecycle_summary_digest(const ContractLifecycleSummary& summary) {
+    std::ostringstream out;
+    out << "contract_lifecycle"
+        << ";total=" << summary.total_count
+        << ";open=" << summary.open_count
+        << ";fulfilled=" << summary.fulfilled_count
+        << ";failed=" << summary.failed_count
+        << ";cancelled=" << summary.cancelled_count
+        << ";overdue_open=" << summary.overdue_open_count
+        << ";blocked_by_reputation=" << summary.blocked_by_reputation_contract_ids.size()
+        << ";open_quantity=" << summary.total_open_quantity
+        << ";open_reward=" << summary.total_open_reward_coins
+        << ";terminal_reward=" << summary.total_terminal_reward_coins;
+    return out.str();
 }
 
 } // namespace clc::sim

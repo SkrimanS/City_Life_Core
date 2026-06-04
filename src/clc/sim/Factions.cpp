@@ -1,5 +1,6 @@
 #include "clc/sim/Factions.hpp"
 
+#include <sstream>
 #include <utility>
 
 namespace clc::sim {
@@ -139,6 +140,116 @@ std::vector<FactionReputation> faction_reputations_to(
         }
     }
     return reputations;
+}
+
+std::string_view faction_access_level_name(FactionAccessLevel access) noexcept {
+    switch (access) {
+    case FactionAccessLevel::blocked:
+        return "blocked";
+    case FactionAccessLevel::restricted:
+        return "restricted";
+    case FactionAccessLevel::neutral:
+        return "neutral";
+    case FactionAccessLevel::trusted:
+        return "trusted";
+    case FactionAccessLevel::allied:
+        return "allied";
+    }
+    return "unknown";
+}
+
+FactionAccessLevel classify_faction_access(std::int64_t reputation) noexcept {
+    if (reputation <= -75) {
+        return FactionAccessLevel::blocked;
+    }
+    if (reputation < 0) {
+        return FactionAccessLevel::restricted;
+    }
+    if (reputation >= 75) {
+        return FactionAccessLevel::allied;
+    }
+    if (reputation >= 25) {
+        return FactionAccessLevel::trusted;
+    }
+    return FactionAccessLevel::neutral;
+}
+
+FactionAccessReport make_faction_access_report(
+    const FactionCatalog& catalog,
+    std::string_view from_faction_id,
+    std::string_view to_faction_id
+) {
+    FactionAccessReport report{
+        .from_faction_id = std::string{from_faction_id},
+        .to_faction_id = std::string{to_faction_id},
+    };
+
+    if (from_faction_id.empty() || to_faction_id.empty()) {
+        report.access = FactionAccessLevel::blocked;
+        report.can_trade = false;
+        report.can_issue_contract = false;
+        report.can_receive_contract = false;
+        report.reason = "faction ids must not be empty";
+        return report;
+    }
+
+    if (!faction_exists(catalog, from_faction_id) || !faction_exists(catalog, to_faction_id)) {
+        report.access = FactionAccessLevel::blocked;
+        report.can_trade = false;
+        report.can_issue_contract = false;
+        report.can_receive_contract = false;
+        report.reason = "unknown faction";
+        return report;
+    }
+
+    if (from_faction_id == to_faction_id) {
+        report.access = FactionAccessLevel::allied;
+        report.reputation = 100;
+        report.reason = "same faction";
+        return report;
+    }
+
+    report.reputation = faction_reputation(catalog, from_faction_id, to_faction_id);
+    report.access = classify_faction_access(report.reputation);
+
+    switch (report.access) {
+    case FactionAccessLevel::blocked:
+        report.can_trade = false;
+        report.can_issue_contract = false;
+        report.can_receive_contract = false;
+        report.reason = "reputation blocks interaction";
+        break;
+    case FactionAccessLevel::restricted:
+        report.can_trade = true;
+        report.can_issue_contract = false;
+        report.can_receive_contract = true;
+        report.reason = "restricted reputation allows limited trade only";
+        break;
+    case FactionAccessLevel::neutral:
+        report.reason = "neutral access";
+        break;
+    case FactionAccessLevel::trusted:
+        report.reason = "trusted access";
+        break;
+    case FactionAccessLevel::allied:
+        report.reason = "allied access";
+        break;
+    }
+
+    return report;
+}
+
+std::string faction_access_report_digest(const FactionAccessReport& report) {
+    std::ostringstream out;
+    out << "faction_access"
+        << ";from=" << report.from_faction_id
+        << ";to=" << report.to_faction_id
+        << ";reputation=" << report.reputation
+        << ";access=" << faction_access_level_name(report.access)
+        << ";trade=" << (report.can_trade ? "yes" : "no")
+        << ";issue_contract=" << (report.can_issue_contract ? "yes" : "no")
+        << ";receive_contract=" << (report.can_receive_contract ? "yes" : "no");
+    return out.str();
 }
 
 } // namespace clc::sim

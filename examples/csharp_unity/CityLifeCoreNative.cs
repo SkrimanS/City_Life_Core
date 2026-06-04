@@ -34,7 +34,7 @@ namespace CityLifeCore.Unity
 
     public static class CityLifeCoreNative
     {
-        public const uint RequiredCInterfaceVersion = 4;
+        public const uint RequiredCInterfaceVersion = 8;
 
 #if UNITY_IOS && !UNITY_EDITOR
         private const string LibraryName = "__Internal";
@@ -46,6 +46,13 @@ namespace CityLifeCore.Unity
         public static string VersionString => PtrToString(clc_core_version_string_c());
         public static uint CInterfaceVersion => clc_c_interface_version_c();
         public static bool IsCInterfaceCompatible => TryCheckCInterfaceCompatibility(out _);
+        public static string SdkHandoffDigest => PtrToString(clc_sdk_handoff_digest_c());
+        public static string CoreCompletionReadinessDigest => PtrToString(clc_core_completion_readiness_digest_c());
+        public static string DeepReplayCoverageDigest => PtrToString(clc_deep_replay_coverage_digest_c());
+        public static string RuntimeCoreSystemsDigest => PtrToString(clc_runtime_core_systems_digest_c());
+        public static string RegionalSimulationDigest => PtrToString(clc_regional_simulation_digest_c());
+        public static string SdkHandoffManifestDigest => PtrToString(clc_sdk_handoff_manifest_digest_c());
+        public static string PlatformDiagnosticsDigest => PtrToString(clc_platform_diagnostics_digest_c());
 
         public static ulong TicksPerSecond => clc_ticks_per_second_c();
         public static ulong TicksPerMinute => clc_ticks_per_minute_c();
@@ -194,6 +201,10 @@ namespace CityLifeCore.Unity
         internal static ulong WorldEventTick(IntPtr world, ulong index) => clc_world_event_tick_c(world, index);
         internal static string WorldEventType(IntPtr world, ulong index) => PtrToString(clc_world_event_type_c(world, index));
         internal static string WorldEventPayload(IntPtr world, ulong index) => PtrToString(clc_world_event_payload_c(world, index));
+        public static ulong SupportedGameProfileCount => clc_supported_game_profile_count_c();
+        public static string GameProfileId(ulong index) => PtrToString(clc_game_profile_id_c(index));
+        public static bool SdkHandoffReady => clc_sdk_handoff_ready_c() != 0;
+        public static string SdkHandoffDigestForProfile(string profileId) => PtrToString(clc_sdk_handoff_digest_for_profile_c(profileId));
 
         private static string PtrToString(IntPtr ptr)
         {
@@ -289,6 +300,39 @@ namespace CityLifeCore.Unity
 
         [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr clc_world_event_payload_c(IntPtr world, ulong index);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern ulong clc_supported_game_profile_count_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_game_profile_id_c(ulong index);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clc_sdk_handoff_ready_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_sdk_handoff_digest_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern IntPtr clc_sdk_handoff_digest_for_profile_c(string profileId);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_core_completion_readiness_digest_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_deep_replay_coverage_digest_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_runtime_core_systems_digest_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_regional_simulation_digest_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_sdk_handoff_manifest_digest_c();
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clc_platform_diagnostics_digest_c();
     }
 
     public sealed class CityLifeWorld : IDisposable

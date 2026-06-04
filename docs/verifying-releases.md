@@ -162,8 +162,11 @@ Do not treat a release as browser-ready unless it explicitly includes a document
 
 ## Related documents
 
-- [Release notes](release-notes-1.0.0.md)
-- [Release manifest](release-manifest-1.0.0.md)
+- [Release notes 2.0.0](release-notes-2.0.0.md)
+- [Release manifest 2.0.0](release-manifest-2.0.0.md)
+- [Public surface 2.0.0](public-surface-2.0.0.md)
+- [Release notes 1.0.0](release-notes-1.0.0.md)
+- [Release manifest 1.0.0](release-manifest-1.0.0.md)
 - [Versioning](versioning.md)
 - [CI artifact review](ci-artifact-review.md)
 - [SDK ZIP package](sdk-zip-package.md)

@@ -16,7 +16,7 @@ void require(bool condition, std::string_view message) {
 } // namespace
 
 int main() {
-    require(clc::core_version().major == 1, "umbrella header should expose core version");
+    require(clc::core_version().major == 4, "umbrella header should expose core version");
     require(clc::core_version().minor == 0, "umbrella header should expose core version minor");
     require(clc::core_version().patch == 0, "umbrella header should expose core version patch");
     require(clc::ticks_per_minute() == 60, "umbrella header should expose time API");
@@ -38,6 +38,29 @@ int main() {
         "umbrella smoke"
     );
     require(trade.ok, "umbrella header should expose trade ledger wrapper API");
+
+    const clc::sim::ServerShardDescriptor shard{
+        .shard_id = "umbrella-shard",
+        .owner_service_id = "umbrella-service",
+    };
+    require(clc::sim::validate_server_shard_descriptor(shard).ok(), "umbrella header should expose server-authoritative API");
+
+    clc::sim::ContractCatalog contracts;
+    require(clc::sim::add_contract(contracts, clc::sim::ResourceDeliveryContract{
+        .id = "umbrella_contract",
+        .display_name = "Umbrella Contract",
+        .issuer_faction_id = "issuer",
+        .receiver_faction_id = "receiver",
+        .resource_id = "grain",
+        .quantity = 1,
+        .reward_coins = 10,
+        .due_ticks = clc::days_to_ticks(1),
+    }).ok(), "umbrella header should expose contract API");
+    const auto flow = clc::sim::plan_contract_flow_from_storage(contracts, "umbrella_contract", storage, "umbrella_storage");
+    require(flow.can_fulfill, "umbrella header should expose economy depth API");
+
+    const auto manifest = clc::sim::current_simulation_save_format_manifest();
+    require(manifest.version == 1, "umbrella header should expose persistence replay migration API");
 
     return 0;
 }

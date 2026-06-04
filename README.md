@@ -2,8 +2,8 @@
 
 **City Life Core** is a headless C++20 simulation SDK for living settlements, resources, economy, routes, caravans, factions, ownership, contracts, persistence, deterministic replay, and server-authoritative game backends.
 
-Version: **1.0.0**  
-Status: **released / v1.0.0**  
+Version: **4.0.0**
+Status: **v4.0.0 release candidate / multi-game platform foundation**
 License: **Apache-2.0**. See [`LICENSE`](LICENSE).
 
 Russian documentation is available in [`docs/ru/README.md`](docs/ru/README.md).
@@ -53,7 +53,7 @@ For the minimal C interface:
 #include "clc/c/CityLifeCoreC.h"
 ```
 
-The C interface exposes version utilities, time utilities, a minimal opaque `clc_world` handle for create/destroy, basic state access, simple tick advancement and read-only world event inspection by index. Full runtime integration is provided by the C++ API.
+The C interface exposes version utilities, time utilities, a minimal opaque `clc_world` handle for create/destroy, basic state access, simple tick and duration-based world advancement and read-only world event inspection by index. Full runtime integration is provided by the C++ API.
 
 For Action Bridge usage, see [`docs/action-bridge.md`](docs/action-bridge.md). For Unity and C# integrations, use the C ABI through P/Invoke. See [`docs/csharp-unity.md`](docs/csharp-unity.md). For browser and WebAssembly planning, see [`docs/browser-wasm.md`](docs/browser-wasm.md). For the staged C ABI expansion plan, see [`docs/c-abi-expansion-plan.md`](docs/c-abi-expansion-plan.md). For choosing an integration style, see [`docs/game-profiles.md`](docs/game-profiles.md).
 
@@ -230,6 +230,18 @@ Start here:
 - [Public API status](docs/public-api-status.md)
 - [Action Bridge](docs/action-bridge.md)
 - [Game integration profiles](docs/game-profiles.md)
+- [Server-authoritative and MMO foundation](docs/server-authoritative-mmo.md)
+- [Economy, factions and contracts depth](docs/economy-depth.md)
+- [Persistence, replay and migration](docs/persistence-replay-migration.md)
+- [Scale and performance guidance](docs/scale-performance.md)
+- [Settlement development planning](docs/settlement-development.md)
+- [Multiplayer action authority](docs/multiplayer-action-authority.md)
+- [Snapshot sync model](docs/snapshot-sync-model.md)
+- [Multiplayer persistence and replay](docs/multiplayer-persistence-replay.md)
+- [Multiplayer economy safety](docs/multiplayer-economy-safety.md)
+- [Multiplayer load diagnostics](docs/multiplayer-load-diagnostics.md)
+- [Pre-3.0 large-world preparation](docs/pre3-large-world-prep.md)
+- [Large-world foundation](docs/large-world-foundation.md)
 - [C interface](docs/c-abi.md)
 - [C ABI expansion plan](docs/c-abi-expansion-plan.md)
 - [Integration targets](docs/integration-targets.md)
@@ -242,8 +254,15 @@ Start here:
 - [Compatibility](docs/compatibility.md)
 - [Migration](docs/migration.md)
 - [Roadmap](docs/roadmap.md)
+- [Detailed AI roadmap](docs/detailed-ai-roadmap.md)
 - [Versioning and release policy](docs/versioning.md)
 - [Changelog](CHANGELOG.md)
+- [Release notes 4.0.0](docs/release-notes-4.0.0.md)
+- [Release manifest 4.0.0](docs/release-manifest-4.0.0.md)
+- [Release notes 3.0.0](docs/release-notes-3.0.0.md)
+- [Release manifest 3.0.0](docs/release-manifest-3.0.0.md)
+- [Release notes 2.0.0](docs/release-notes-2.0.0.md)
+- [Release manifest 2.0.0](docs/release-manifest-2.0.0.md)
 - [Release notes 1.0.0](docs/release-notes-1.0.0.md)
 - [Release manifest 1.0.0](docs/release-manifest-1.0.0.md)
 - [Release verification](docs/verifying-releases.md)

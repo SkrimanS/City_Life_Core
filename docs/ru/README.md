@@ -17,6 +17,11 @@
 | [Action Bridge](../action-bridge.md) | Локальный JSON action bridge для external tools, game layers и будущих server-authoritative adapters. |
 | [SDK structure](../sdk-structure.md) | Структура репозитория, установленного SDK, CMake options и integration modes. |
 | [Game integration profiles](../game-profiles.md) | Профили интеграции, catalog validation/markdown output, scenario summaries, adoption report output, adoption summaries, checklist markdown output и checklists для native games, Unity/C#, Browser/WASM, servers, MMO-like systems и tools. |
+| [Platform integration layer](../platform-integration-layer.md) | Документ v1.5.0 про границы platform/adapters для Unity/C#, Browser/WASM, servers, editors и SDK embedding. |
+| [Server-authoritative and MMO foundation](../server-authoritative-mmo.md) | Документ v1.6.0 про server-authoritative envelopes, host-owned session metadata, shard descriptors, audit records и sequence validation. |
+| [Economy, factions and contracts depth](../economy-depth.md) | Документ v1.7.0 про market-aware contract assessment, resource flow plans, faction gates, portfolio summaries и extension points. |
+| [Persistence, replay and migration](../persistence-replay-migration.md) | Документ v1.8.0 про save-format review, legacy migration, replay diagnostics и checkpoint guidance. |
+| [Scale and performance guidance](../scale-performance.md) | Документ v1.9.0 про runtime scale diagnostics, benchmark coverage и practical tradeoffs. |
 | [Packaging](../packaging.md) | Сборка, установка и подключение SDK через CMake. |
 | [CMake package](../cmake-package.md) | Exported CMake target и installed package variables. |
 | [SDK ZIP package](../sdk-zip-package.md) | Создание и использование CPack ZIP SDK archive. |
@@ -46,6 +51,9 @@
 | [Roadmap](../roadmap.md) | Направление проекта, внутренние milestones и план v2/v3/v4. |
 | [Versioning and release policy](../versioning.md) | Политика версий, веток, тегов и релизов. |
 | [CHANGELOG](../../CHANGELOG.md) | История internal milestones и public releases. |
+| [Release notes 2.0.0](../release-notes-2.0.0.md) | Заметки релиза 2.0.0. |
+| [Release manifest 2.0.0](../release-manifest-2.0.0.md) | Manifest релиза 2.0.0 и validation checklist. |
+| [Public surface 2.0.0](../public-surface-2.0.0.md) | Замороженная public surface для 2.0.0. |
 | [Release notes 1.0.0](../release-notes-1.0.0.md) | Финальные заметки релиза 1.0.0. |
 | [Release manifest 1.0.0](../release-manifest-1.0.0.md) | Финальный manifest релиза и validation summary. |
 | [Readiness status](../readiness-status.md) | Срез готовности подсистем для линии 1.0.0. |

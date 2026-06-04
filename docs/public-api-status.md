@@ -1,8 +1,8 @@
 # Public API Status
 
-Version: **1.0.0**
+Version: **4.0.0**
 
-This document classifies the installed API surface for the 1.0.0 line and the current v1.x integration planning work.
+This document classifies the installed API surface for the 2.0.0 stable multi-game SDK foundation.
 
 City Life Core has multiple public-facing surfaces. They do not all have the same status.
 
@@ -28,6 +28,11 @@ Stable-for-source-use areas include:
 - persistence and save/load validation helpers;
 - event and replay-related helpers where documented;
 - local Action Bridge APIs for transport-agnostic external action dispatch;
+- simulation processor, feature-toggle, dependency-toggle and readiness-report helpers;
+- deep simulation report helpers for population, weather, policies, ecology, crises, autonomous decisions, schemas and scenario presets;
+- regional simulation report helpers for v3.x economy, logistics, climate, territory, migration, audit streams and maintenance;
+- platform readiness helpers for the v4.0.0 preparation gate;
+- game developer handoff helpers that combine profile guidance, checklists, examples, documents and platform readiness;
 - game profile catalog, catalog markdown output, summary, validation digest/markdown output, scenario recommendation, scenario summary, adoption report, profile-specific adoption report output, adoption summary, adoption scenario day-window summary, checklist, profile-specific checklist digest/markdown output, checklist summary and profile-specific checklist summary helpers.
 
 Source compatibility is prioritized for the 1.x line where practical. C++ binary ABI stability is not the primary compatibility contract.
@@ -65,6 +70,192 @@ Status:
 - not part of the C ABI.
 
 The profile surface exposes profile descriptors, support status, required/optional systems, non-goals, catalog summary/markdown helpers, query helpers, catalog validation digest/markdown helpers, scenario recommendations, scenario summaries, adoption reports with profile-specific digest/markdown output, adoption summaries with scenario day-window counts, integration checklists and profile-specific checklist digest/markdown/summary helpers.
+
+---
+
+## Server-authoritative C++ surface
+
+The server-authoritative foundation API is a source-level C++ SDK surface for host-owned server command review and audit flows.
+
+Header:
+
+```cpp
+#include "clc/sim/ServerAuthoritative.hpp"
+```
+
+Recommended aggregate include:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- public for C++ source use;
+- local and transport-agnostic;
+- useful for ordered server action envelopes, audit records, shard descriptors and replay-sensitive command sequence checks;
+- not a networking, session, account, auth, replication, persistence-storage or MMO framework;
+- not part of the C ABI.
+
+See [`server-authoritative-mmo.md`](server-authoritative-mmo.md).
+
+---
+
+## Economy depth C++ surface
+
+The economy depth foundation API is a source-level C++ SDK surface for connected economy, faction and contract review.
+
+Available through:
+
+```cpp
+#include "clc/sim/EconomyDepth.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- internal v1.7.0 milestone;
+- market-aware contract assessment;
+- storage and caravan flow planning;
+- portfolio summary and digest helpers;
+- validation helpers for blocked or risky contract states.
+
+It is not a C ABI surface yet and does not define product-specific economy rules such as taxes, auctions, diplomacy, AI priorities, inflation, UI or persistence storage.
+
+See [`economy-depth.md`](economy-depth.md).
+
+---
+
+## Persistence, replay and migration C++ surface
+
+The persistence/replay/migration foundation API is a source-level C++ SDK surface for save-format review, supported legacy world-state migration, replay mismatch diagnostics and checkpoint planning.
+
+Available through:
+
+```cpp
+#include "clc/sim/SimulationPersistenceReplay.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- internal v1.8.0 milestone;
+- save-format manifest and review helpers;
+- migration helper for supported older version-1 world-state shapes;
+- replay diagnostics with serialized state mismatch counts;
+- optional event-log checksum comparison;
+- checkpoint planning for long-running simulations.
+
+It is not a C ABI surface yet and does not provide product save services, databases, cloud storage, file rotation, arbitrary schema migration or replication infrastructure.
+
+See [`persistence-replay-migration.md`](persistence-replay-migration.md).
+
+---
+
+## Scale diagnostics C++ surface
+
+The scale diagnostics foundation API is a source-level C++ SDK surface for runtime scale review and release-readiness diagnostics.
+
+Available through:
+
+```cpp
+#include "clc/sim/ScaleDiagnostics.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- internal v1.9.0 milestone;
+- runtime scale snapshots;
+- configurable watch/high thresholds;
+- validation, digest and markdown helpers;
+- benchmark coverage for snapshot and event-log checksum paths.
+
+It is not a memory profiler, scheduler, database, sharding system or hosting layer.
+
+See [`scale-performance.md`](scale-performance.md).
+
+---
+
+## Settlement development C++ surface
+
+The settlement development planning API is a post-v2 source-level C++ SDK helper for deeper settlement, resource and production review after the `v2.0.0` foundation.
+
+Available through:
+
+```cpp
+#include "clc/sim/SettlementDevelopment.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- post-v2 helper;
+- resource-needs planning across a tick horizon;
+- production opportunity output for missing inputs, idle worker slots, market-pressured outputs and unknown building definitions;
+- validation, lookup and digest helpers.
+
+It is not AI, UI, networking, construction logic, purchasing logic, persistence storage or a C ABI surface.
+
+See [`settlement-development.md`](settlement-development.md).
+
+---
+
+## Multiplayer and large-world C++ surfaces
+
+The v2.1.0 through v3.0.0 roadmap line is exposed as source-level C++ SDK surfaces.
+
+Available through:
+
+```cpp
+#include "clc/sim/ActionAuthority.hpp"
+#include "clc/sim/SnapshotSync.hpp"
+#include "clc/sim/MultiplayerReplay.hpp"
+#include "clc/sim/MultiplayerEconomySafety.hpp"
+#include "clc/sim/MultiplayerLoadDiagnostics.hpp"
+#include "clc/sim/Pre3Readiness.hpp"
+#include "clc/sim/LargeWorld.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ APIs;
+- internal v2.1.0 through v2.6.0 milestone coverage;
+- v3.0.0 large-world foundation coverage;
+- deterministic digest output and validation helpers;
+- not C ABI surfaces yet.
+
+They are not networking, account/auth, matchmaking, database, real shard-server, UI or game-client APIs.
 
 ---
 
@@ -118,6 +309,7 @@ Current C ABI scope:
 - opaque `clc_world` handle;
 - basic world state access;
 - simple tick advancement;
+- duration-based world advancement by seconds, minutes, hours or days;
 - read-only world event inspection.
 
 The C ABI is intentionally small today. It does not yet expose the full runtime, registry, validation, persistence, economy, faction, contract, profile catalog or Action Bridge systems.

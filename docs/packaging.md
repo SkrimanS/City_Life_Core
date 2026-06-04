@@ -1,6 +1,6 @@
 # Packaging
 
-Version: **1.0.0**
+Version: **4.0.0**
 
 City Life Core can be built from source, installed as a CMake package and packaged as an SDK ZIP archive.
 
