@@ -14,7 +14,7 @@ static int require_int(int condition, const char* message) {
 
 int main(void) {
     const clc_version version = clc_core_version_c();
-    if (require_int(version.major == 2, "major version should be 2")) {
+    if (require_int(version.major == 4, "major version should be 4")) {
         return 1;
     }
     if (require_int(version.minor == 0, "minor version should be 0")) {
@@ -23,10 +23,49 @@ int main(void) {
     if (require_int(version.patch == 0, "patch version should be 0")) {
         return 1;
     }
-    if (require_int(strcmp(clc_core_version_string_c(), "2.0.0") == 0, "version string should match")) {
+    if (require_int(strcmp(clc_core_version_string_c(), "4.0.0") == 0, "version string should match")) {
         return 1;
     }
-    if (require_int(clc_c_interface_version_c() == 4u, "C interface version should be 4")) {
+    if (require_int(clc_c_interface_version_c() == 8u, "C interface version should be 8")) {
+        return 1;
+    }
+    if (require_int(clc_supported_game_profile_count_c() > 0, "supported game profile count should be exposed")) {
+        return 1;
+    }
+    if (require_int(strlen(clc_game_profile_id_c(0)) > 0, "first game profile id should be exposed")) {
+        return 1;
+    }
+    if (require_int(clc_game_profile_id_c(UINT64_MAX)[0] == '\0', "out-of-range game profile id should be empty")) {
+        return 1;
+    }
+    if (require_int(clc_sdk_handoff_ready_c() == 1, "SDK handoff should be ready for non-planned profiles")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_sdk_handoff_digest_c(), "sdk_handoff") != NULL, "SDK handoff digest should be exposed")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_sdk_handoff_digest_for_profile_c("native_cpp_game"), "ready=yes") != NULL, "native C++ handoff digest should be ready")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_sdk_handoff_digest_for_profile_c("missing_profile"), "found=no") != NULL, "missing profile handoff digest should be not found")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_core_completion_readiness_digest_c(), "ready=yes") != NULL, "core completion digest should report ready")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_deep_replay_coverage_digest_c(), "ready=yes") != NULL, "deep replay coverage digest should report ready")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_runtime_core_systems_digest_c(), "runtime_core_systems") != NULL, "runtime core systems digest should be exposed")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_regional_simulation_digest_c(), "regional_simulation") != NULL, "regional simulation digest should be exposed")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_sdk_handoff_manifest_digest_c(), "sdk_handoff_manifest") != NULL, "SDK handoff manifest digest should be exposed")) {
+        return 1;
+    }
+    if (require_int(strstr(clc_platform_diagnostics_digest_c(), "ready=yes") != NULL, "platform diagnostics digest should report ready")) {
         return 1;
     }
 

@@ -2,8 +2,8 @@
 
 **City Life Core** is a headless C++20 simulation SDK for living settlements, resources, economy, routes, caravans, factions, ownership, contracts, persistence, deterministic replay, and server-authoritative game backends.
 
-Version: **2.0.0**
-Status: **v2.0.0 release candidate / stable multi-game SDK foundation**
+Version: **4.0.0**
+Status: **v4.0.0 release candidate / multi-game platform foundation**
 License: **Apache-2.0**. See [`LICENSE`](LICENSE).
 
 Russian documentation is available in [`docs/ru/README.md`](docs/ru/README.md).
@@ -234,6 +234,14 @@ Start here:
 - [Economy, factions and contracts depth](docs/economy-depth.md)
 - [Persistence, replay and migration](docs/persistence-replay-migration.md)
 - [Scale and performance guidance](docs/scale-performance.md)
+- [Settlement development planning](docs/settlement-development.md)
+- [Multiplayer action authority](docs/multiplayer-action-authority.md)
+- [Snapshot sync model](docs/snapshot-sync-model.md)
+- [Multiplayer persistence and replay](docs/multiplayer-persistence-replay.md)
+- [Multiplayer economy safety](docs/multiplayer-economy-safety.md)
+- [Multiplayer load diagnostics](docs/multiplayer-load-diagnostics.md)
+- [Pre-3.0 large-world preparation](docs/pre3-large-world-prep.md)
+- [Large-world foundation](docs/large-world-foundation.md)
 - [C interface](docs/c-abi.md)
 - [C ABI expansion plan](docs/c-abi-expansion-plan.md)
 - [Integration targets](docs/integration-targets.md)
@@ -246,8 +254,13 @@ Start here:
 - [Compatibility](docs/compatibility.md)
 - [Migration](docs/migration.md)
 - [Roadmap](docs/roadmap.md)
+- [Detailed AI roadmap](docs/detailed-ai-roadmap.md)
 - [Versioning and release policy](docs/versioning.md)
 - [Changelog](CHANGELOG.md)
+- [Release notes 4.0.0](docs/release-notes-4.0.0.md)
+- [Release manifest 4.0.0](docs/release-manifest-4.0.0.md)
+- [Release notes 3.0.0](docs/release-notes-3.0.0.md)
+- [Release manifest 3.0.0](docs/release-manifest-3.0.0.md)
 - [Release notes 2.0.0](docs/release-notes-2.0.0.md)
 - [Release manifest 2.0.0](docs/release-manifest-2.0.0.md)
 - [Release notes 1.0.0](docs/release-notes-1.0.0.md)

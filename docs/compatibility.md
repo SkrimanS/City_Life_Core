@@ -1,6 +1,6 @@
 # Compatibility Policy
 
-Version: **2.0.0**
+Version: **4.0.0**
 
 City Life Core 1.x prioritizes source compatibility for supported public headers and documented workflows.
 

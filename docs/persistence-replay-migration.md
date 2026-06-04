@@ -85,3 +85,13 @@ Recommended host workflow:
 5. Treat unsupported save formats as product migration work, not as silent load success.
 
 For server-authoritative hosts, pair this document with [`server-authoritative-mmo.md`](server-authoritative-mmo.md). For product upgrade guidance, pair it with [`migration.md`](migration.md).
+
+## Fixture Catalog
+
+The completed-core fixture catalog lives in:
+
+```cpp
+#include <clc/sim/SaveReplayFixtures.hpp>
+```
+
+Use `make_standard_save_replay_fixtures` and `make_save_replay_fixture_catalog_report` to validate golden and invalid fixture coverage for deep and regional systems during release handoff.

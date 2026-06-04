@@ -1,6 +1,6 @@
 # Release Manifest 2.0.0
 
-Status: release-candidate manifest. Fill validation results before tagging `v2.0.0`.
+Status: release-candidate manifest with local Windows/MSVC validation recorded before tagging `v2.0.0`.
 
 ## Release Identity
 
@@ -33,22 +33,22 @@ Status: release-candidate manifest. Fill validation results before tagging `v2.0
 
 ## Validation Checklist
 
-Record final local or CI results here before tagging.
+Local Windows/MSVC validation recorded on 2026-06-04:
 
-- [ ] Configure passed.
-- [ ] Build passed.
-- [ ] Tests passed.
-- [ ] Examples built.
-- [ ] Benchmarks built and benchmark output reviewed.
-- [ ] Installed C++ consumer built.
-- [ ] Installed C ABI consumer built.
-- [ ] SDK ZIP generated.
-- [ ] SDK ZIP contents reviewed.
-- [ ] Unpacked SDK consumer checks passed where applicable.
-- [ ] Release notes reviewed.
-- [ ] Public surface document reviewed.
-- [ ] Migration guidance reviewed.
-- [ ] Known limitations reviewed.
+- [x] Configure passed.
+- [x] Build passed.
+- [x] Tests passed: 70/70.
+- [x] Examples built.
+- [x] Benchmarks built and benchmark output reviewed.
+- [x] Installed C++ consumer built and ran.
+- [x] Installed C ABI consumer built and ran.
+- [x] SDK ZIP generated.
+- [x] SDK ZIP contents reviewed through CPack/install output.
+- [x] Installed SDK consumer checks passed.
+- [x] Release notes reviewed.
+- [x] Public surface document reviewed.
+- [x] Migration guidance reviewed.
+- [x] Known limitations reviewed.
 
 ## Commands
 
@@ -65,6 +65,42 @@ Optional package validation:
 
 ```powershell
 cmake --build build-v2-release --target package --config Release
+```
+
+Recorded local commands:
+
+```powershell
+cmake -S . -B build-codex-v2 -DCLC_BUILD_TESTS=ON -DCLC_BUILD_EXAMPLES=ON -DCLC_BUILD_BENCHMARKS=ON
+cmake --build build-codex-v2 --config Release
+ctest --test-dir build-codex-v2 --output-on-failure -C Release
+.\build-codex-v2\Release\clc_core_benchmarks.exe
+cmake --install build-codex-v2 --config Release --prefix build-codex-v2\install
+cmake -S examples\find_package_consumer -B build-codex-v2-consumer -DCMAKE_PREFIX_PATH=C:\Users\Yuta\Desktop\City_Life_Core-1.5.0\build-codex-v2\install
+cmake --build build-codex-v2-consumer --config Release
+.\build-codex-v2-consumer\Release\city_life_core_consumer.exe
+cmake -S examples\c_abi_consumer -B build-codex-v2-c-abi-consumer -DCMAKE_PREFIX_PATH=C:\Users\Yuta\Desktop\City_Life_Core-1.5.0\build-codex-v2\install
+cmake --build build-codex-v2-c-abi-consumer --config Release
+.\build-codex-v2-c-abi-consumer\Release\city_life_core_c_abi_consumer.exe
+cmake --build build-codex-v2 --target package --config Release
+git diff --check
+```
+
+Recorded benchmark output:
+
+```text
+engine_advance_day_100_settlements_365_days,elapsed_ms,18,events,37230
+engine_run_scenario_25_settlements_90_days,elapsed_ms,1,reports,90
+world_state_serialize_100_settlements_30_days,elapsed_ms,0,bytes,260092
+world_state_deserialize_100_settlements_30_days,elapsed_ms,1,settlements,100
+runtime_run_days_1000_caravans_30_days,elapsed_ms,3,caravan_ticks,30000
+runtime_scale_snapshot_1000_caravans,elapsed_ms,0,serialized_lines,1007
+runtime_event_log_checksum_10000_events,elapsed_ms,0,checksum,16490867079834119440
+```
+
+Generated package:
+
+```text
+build-codex-v2/city-life-core-sdk-2.0.0-Windows.zip
 ```
 
 ## Artifact Review
@@ -92,6 +128,6 @@ Use [`ci-artifact-review.md`](ci-artifact-review.md) and [`verifying-releases.md
 ## Sign-Off
 
 - Release reviewer:
-- Validation date:
+- Validation date: 2026-06-04
 - Commit:
-- Notes:
+- Notes: Local validation completed on Windows/MSVC. Branch name remained `v1.5.0` during validation; tag creation was not performed.

@@ -6,6 +6,10 @@ This roadmap describes the intended direction for City Life Core after the `v1.0
 
 City Life Core is developed as an engine-agnostic, headless simulation SDK for games, tools, servers, editors and MMO-like backends. The long-term direction is to make the core useful across different genres, platforms and runtime models while keeping it easy to embed.
 
+For the detailed AI-ready task list by version, see [`detailed-ai-roadmap.md`](detailed-ai-roadmap.md).
+For the owner-approved deep simulation addendum that expands the v1.x-v3.x line and prepares v4.0.0 readiness, see [`deep-simulation-roadmap-addendum.md`](deep-simulation-roadmap-addendum.md).
+For the definition of a completed handoff-ready SDK core, see [`core-completion-definition.md`](core-completion-definition.md).
+
 ---
 
 ## Release model used by this roadmap
@@ -48,10 +52,10 @@ Each stage branch may contain many focused commits and tasks. After a stage is r
 ## Roadmap shape
 
 ```text
-v1.x  -> base polish, SDK preparation, integration foundations and first deep-system foundations
-v2.x  -> broader gameplay-mechanics deepening
-v3.x  -> expansion, stabilization and production hardening of deeper systems
-v4.0  -> transition to a deeply developed simulation core
+v1.x  -> deep realistic single-runtime simulation processing core
+v2.x  -> authority, consistency, multiplayer safety, compatibility and v3 preparation
+v3.x  -> regional, large-world and MMO-like simulation scaling
+v4.0  -> platform, profile, tooling and ecosystem readiness for the completed core
 v4.x+ -> large-project, MMO and complex-world evolution
 ```
 
@@ -296,11 +300,28 @@ Main post-`v2.0.0` themes:
 
 ---
 
+## Internal v2.x milestones
+
+The detailed task lists, non-goals and readiness criteria for each v2.x milestone are tracked in [`detailed-ai-roadmap.md`](detailed-ai-roadmap.md).
+
+Short map:
+
+- `v2.1.0` - Multiplayer Action Authority.
+- `v2.2.0` - Snapshot and Client Sync Model.
+- `v2.3.0` - Multiplayer Persistence and Replay.
+- `v2.4.0` - Multiplayer Economy and Trade Safety.
+- `v2.5.0` - Multiplayer Load and Diagnostics.
+- `v2.6.0` - Pre-3.0 Large World Preparation.
+
+---
+
 ## v3.0.0 - Deep mechanics and production hardening
 
 `v3.0.0` is a planned public Git tag and GitHub Release.
 
 By `v3.0.0`, the core should have substantially deeper connected systems than `v2.0.0` while staying stable enough to use in serious projects.
+
+Current working-tree status: implemented as the large-world foundation from [`detailed-ai-roadmap.md`](detailed-ai-roadmap.md), including region descriptors, region assignments, validation and digest output. The broader deep-mechanics hardening line continues after this foundation.
 
 Expected direction:
 

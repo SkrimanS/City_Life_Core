@@ -52,6 +52,18 @@ uint64_t clc_world_event_tick_c(const clc_world* world, uint64_t index);
 const char* clc_world_event_type_c(const clc_world* world, uint64_t index);
 const char* clc_world_event_payload_c(const clc_world* world, uint64_t index);
 
+uint64_t clc_supported_game_profile_count_c(void);
+const char* clc_game_profile_id_c(uint64_t index);
+int clc_sdk_handoff_ready_c(void);
+const char* clc_sdk_handoff_digest_c(void);
+const char* clc_sdk_handoff_digest_for_profile_c(const char* profile_id);
+const char* clc_core_completion_readiness_digest_c(void);
+const char* clc_deep_replay_coverage_digest_c(void);
+const char* clc_runtime_core_systems_digest_c(void);
+const char* clc_regional_simulation_digest_c(void);
+const char* clc_sdk_handoff_manifest_digest_c(void);
+const char* clc_platform_diagnostics_digest_c(void);
+
 #ifdef __cplusplus
 }
 #endif

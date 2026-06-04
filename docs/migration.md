@@ -1,6 +1,6 @@
 # Migration Guide
 
-Version: **2.0.0**
+Version: **4.0.0**
 
 Use this guide when updating an older City Life Core integration to the current documentation, package layout and integration strategy.
 

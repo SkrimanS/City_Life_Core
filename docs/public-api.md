@@ -1,6 +1,6 @@
 # Public API
 
-Version: **2.0.0**
+Version: **4.0.0**
 
 City Life Core exposes a source-first public C++ API and a smaller C ABI for foreign-language integrations.
 
@@ -168,6 +168,60 @@ The surface exposes runtime scale snapshots, configurable thresholds, validation
 This surface is diagnostic. It does not provide a memory profiler, scheduler, database, sharding system or production hosting layer.
 
 See [`scale-performance.md`](scale-performance.md).
+
+---
+
+## Settlement Development C++ API
+
+The post-v2 settlement development helper adds a source-level C++ planning surface for deeper settlement, resource and production behavior after the `v2.0.0` foundation.
+
+Use:
+
+```cpp
+#include "clc/sim/SettlementDevelopment.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+The surface exposes settlement development plans, resource needs, production opportunities, priority/action enums, validation, lookup helpers and digest output. It helps tools, servers and balancing workflows understand missing inputs, market-pressured outputs, idle worker slots and unknown building definitions without mutating the settlement.
+
+This surface does not implement AI, worker assignment, resource purchasing, construction, UI, networking or persistence storage.
+
+See [`settlement-development.md`](settlement-development.md).
+
+---
+
+## Multiplayer and Large-World C++ APIs
+
+The v2.1.0 through v3.0.0 roadmap line adds source-level C++ APIs for authoritative multiplayer-style hosts and the first large-world foundation.
+
+Use:
+
+```cpp
+#include "clc/sim/ActionAuthority.hpp"
+#include "clc/sim/SnapshotSync.hpp"
+#include "clc/sim/MultiplayerReplay.hpp"
+#include "clc/sim/MultiplayerEconomySafety.hpp"
+#include "clc/sim/MultiplayerLoadDiagnostics.hpp"
+#include "clc/sim/Pre3Readiness.hpp"
+#include "clc/sim/LargeWorld.hpp"
+```
+
+or the aggregate header:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+These surfaces provide actor authority review, snapshot summaries, command-log replay, economy safety reviews, load diagnostics, pre-3 readiness reports and large-world region assignments. They remain local, deterministic and headless.
+
+They do not implement networking, WebSocket/HTTP, auth, accounts, matchmaking, database storage, real shard servers, UI or a game client.
+
+See [`multiplayer-action-authority.md`](multiplayer-action-authority.md), [`snapshot-sync-model.md`](snapshot-sync-model.md), [`multiplayer-persistence-replay.md`](multiplayer-persistence-replay.md), [`multiplayer-economy-safety.md`](multiplayer-economy-safety.md), [`multiplayer-load-diagnostics.md`](multiplayer-load-diagnostics.md), [`pre3-large-world-prep.md`](pre3-large-world-prep.md) and [`large-world-foundation.md`](large-world-foundation.md).
 
 ---
 

@@ -1,6 +1,6 @@
 # Public API Status
 
-Version: **2.0.0**
+Version: **4.0.0**
 
 This document classifies the installed API surface for the 2.0.0 stable multi-game SDK foundation.
 
@@ -28,6 +28,11 @@ Stable-for-source-use areas include:
 - persistence and save/load validation helpers;
 - event and replay-related helpers where documented;
 - local Action Bridge APIs for transport-agnostic external action dispatch;
+- simulation processor, feature-toggle, dependency-toggle and readiness-report helpers;
+- deep simulation report helpers for population, weather, policies, ecology, crises, autonomous decisions, schemas and scenario presets;
+- regional simulation report helpers for v3.x economy, logistics, climate, territory, migration, audit streams and maintenance;
+- platform readiness helpers for the v4.0.0 preparation gate;
+- game developer handoff helpers that combine profile guidance, checklists, examples, documents and platform readiness;
 - game profile catalog, catalog markdown output, summary, validation digest/markdown output, scenario recommendation, scenario summary, adoption report, profile-specific adoption report output, adoption summary, adoption scenario day-window summary, checklist, profile-specific checklist digest/markdown output, checklist summary and profile-specific checklist summary helpers.
 
 Source compatibility is prioritized for the 1.x line where practical. C++ binary ABI stability is not the primary compatibility contract.
@@ -187,6 +192,70 @@ Status:
 It is not a memory profiler, scheduler, database, sharding system or hosting layer.
 
 See [`scale-performance.md`](scale-performance.md).
+
+---
+
+## Settlement development C++ surface
+
+The settlement development planning API is a post-v2 source-level C++ SDK helper for deeper settlement, resource and production review after the `v2.0.0` foundation.
+
+Available through:
+
+```cpp
+#include "clc/sim/SettlementDevelopment.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ API;
+- post-v2 helper;
+- resource-needs planning across a tick horizon;
+- production opportunity output for missing inputs, idle worker slots, market-pressured outputs and unknown building definitions;
+- validation, lookup and digest helpers.
+
+It is not AI, UI, networking, construction logic, purchasing logic, persistence storage or a C ABI surface.
+
+See [`settlement-development.md`](settlement-development.md).
+
+---
+
+## Multiplayer and large-world C++ surfaces
+
+The v2.1.0 through v3.0.0 roadmap line is exposed as source-level C++ SDK surfaces.
+
+Available through:
+
+```cpp
+#include "clc/sim/ActionAuthority.hpp"
+#include "clc/sim/SnapshotSync.hpp"
+#include "clc/sim/MultiplayerReplay.hpp"
+#include "clc/sim/MultiplayerEconomySafety.hpp"
+#include "clc/sim/MultiplayerLoadDiagnostics.hpp"
+#include "clc/sim/Pre3Readiness.hpp"
+#include "clc/sim/LargeWorld.hpp"
+```
+
+and:
+
+```cpp
+#include "clc/CityLifeCore.hpp"
+```
+
+Status:
+
+- source-level C++ APIs;
+- internal v2.1.0 through v2.6.0 milestone coverage;
+- v3.0.0 large-world foundation coverage;
+- deterministic digest output and validation helpers;
+- not C ABI surfaces yet.
+
+They are not networking, account/auth, matchmaking, database, real shard-server, UI or game-client APIs.
 
 ---
 

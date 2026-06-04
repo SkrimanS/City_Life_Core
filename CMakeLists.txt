@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     CityLifeCore
-    VERSION 2.0.0
+    VERSION 4.0.0
     DESCRIPTION "Headless simulation SDK for living settlements"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 include(GNUInstallDirs)

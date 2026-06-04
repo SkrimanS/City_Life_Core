@@ -4,12 +4,36 @@ All notable changes to City Life Core are tracked here.
 
 Internal milestones such as `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.4.0` and `v1.5.0` are tracked in this changelog and the current documentation. Separate versioned release notes and release manifests are reserved for public major releases such as `v1.0.0`, `v2.0.0`, `v3.0.0` and `v4.0.0`.
 
+## 4.0.0 - Multi-game platform foundation
+
+### Added
+
+- Added the v4.0.0 Platform Core C++ API with static module registry, module dependency metadata, genre profiles, content pack manifest validation, editor/admin query reporting and unified platform diagnostics.
+- Added `examples/platform_core.cpp`, `tests/platform_core_tests.cpp` and platform documentation for module architecture, genre profiles, content pipeline, editor/admin queries and diagnostics.
+- Expanded the C ABI to interface version 8 with platform diagnostics plus completed-core and deep replay readiness evidence suitable for game-team handoff.
+- Updated the SDK handoff catalog, release manifest and installed-package validation path for the 4.0.0 platform foundation.
+
 ## Unreleased
 
 Changes merged into `main` after the latest public release are recorded here.
 
 ### Added
 
+- Added the v2.1.0 multiplayer Action Authority C++ API with actor-scoped validation, ownership/resource checks, stale action rejection, no-mutation rejected dispatch and digest output.
+- Added the v2.2.0 Snapshot Sync C++ API with full/public/faction/settlement snapshot summaries, visibility metadata, validation and digest output.
+- Added the v2.3.0 Multiplayer Replay C++ API with command-log validation, authority-gated replay, replay summaries and digest output.
+- Added the v2.4.0 Multiplayer Economy Safety C++ API with no-mutation buy/sell/contract-reward safety reviews, duplicate reference diagnostics and digest output.
+- Added the v2.5.0 Multiplayer Load Diagnostics C++ API with action, rejection, event and snapshot volume summaries plus configurable watch/high thresholds.
+- Added the v2.6.0 Pre-3 Readiness C++ API with readiness gates for snapshot, authority, replay, economy, load and large-world planning.
+- Added the v3.0.0 Large World C++ API with region descriptors, settlement/route/caravan region assignments, validation, summaries and digest output.
+- Added `examples/multiplayer_to_large_world.cpp` to demonstrate the v2.1.0 through v3.0.0 flow.
+- Added `tests/multiplayer_to_large_world_tests.cpp` for authority rejection/no-mutation, snapshots, command replay, economy safety, load diagnostics, pre-3 readiness and large-world validation.
+- Added docs and internal release-plan/release-notes/release-manifest files for v2.1.0 through v3.0.0.
+- Added the post-v2 settlement development C++ helper with resource-needs planning, production opportunities, market-pressure priorities, validation, lookup helpers and digest output.
+- Added `examples/settlement_development.cpp` to demonstrate settlement development planning across a tick horizon.
+- Added `tests/settlement_development_tests.cpp` for resource shortages, output market pressure, unknown building definitions, validation and digest output.
+- Added `docs/settlement-development.md` with post-v2 helper scope, priorities, digest guidance and non-goals.
+- Added `docs/detailed-ai-roadmap.md` as the AI-ready detailed roadmap for future v2.x, v3.x and v4.x work.
 - Added `docs/release-notes-2.0.0.md`, `docs/release-manifest-2.0.0.md` and `docs/public-surface-2.0.0.md` for the public v2.0.0 milestone.
 - Added the v1.9.0 scale diagnostics C++ API with runtime scale snapshots, configurable thresholds, validation, digest output and markdown output.
 - Added `examples/scale_diagnostics.cpp` to demonstrate runtime scale snapshot digest output.
@@ -87,6 +111,9 @@ Changes merged into `main` after the latest public release are recorded here.
 
 ### Changed
 
+- Exposed the settlement development planning API through the recommended SDK umbrella header.
+- Exposed the v2.1.0 through v3.0.0 multiplayer and large-world APIs through the recommended SDK umbrella header.
+- Updated the roadmap to point to the detailed AI roadmap and align the next v2.x/v3.0 milestones with the multiplayer/server-authoritative and large-world lines.
 - Updated project, C++ and C ABI version reporting to `2.0.0`.
 - Exposed the deep systems diagnostics API through the recommended SDK umbrella header.
 - Exposed the production and logistics pressure APIs through the recommended SDK umbrella header.

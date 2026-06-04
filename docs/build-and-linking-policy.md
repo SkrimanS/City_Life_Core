@@ -1,6 +1,6 @@
 # Build and Linking Policy
 
-Version: **2.0.0**
+Version: **4.0.0**
 
 City Life Core is designed for source-first C++ integrations, installed CMake package integrations, local Action Bridge dispatch and controlled foreign-language integrations through the C ABI.
 
